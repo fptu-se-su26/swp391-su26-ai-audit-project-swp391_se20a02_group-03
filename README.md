@@ -4,10 +4,10 @@
 
 | Item | Description |
 |---|---|
-| Course |  |
-| Class |  |
+| Course | SWP391  |
+| Class | SE20A09 |
 | Semester | SU26 |
-| Group |  |
+| Group | 3 |
 | Topic |  |
 | Repository |  |
 
