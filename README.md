@@ -19,7 +19,7 @@
 |---:|---|---|---|---|---|
 | 1 | DE190408  | Hồ Võ Minh Vỹ | minhvy259 | Leader |  |
 | 2 | DE190147 | Phạm Nguyễn Tiến Đạt | tiendat2277sg-wq | Member |  |
-| 3 | DE190900 | Duong Khang Huy | khuy17 | Member |  |
+| 3 | DE190900 | Dương Khang Huy | khuy17 | Member |  |
 | 4 | DE191003 |  Hồ Tấn Phát  | Phat1425 | Member |  |
 | 5 | DE190130 | Nguyễn Đăng Phúc |  | Member |  |
 
