@@ -17,11 +17,11 @@
 
 | No | Student ID | Full Name | GitHub Username | Role | Main Responsibility |
 |---:|---|---|---|---|---|
-| 1 |  |  |  | Leader |  |
+| 1 | DE190408  | Hồ Võ Minh Vỹ | minhvy259 | Leader |  |
 | 2 | DE190147 | Phạm Nguyễn Tiến Đạt | tiendat2277sg-wq | Member |  |
 | 3 | DE190900 | Duong Khang Huy | khuy17 | Member |  |
 | 4 | DE191003 |  Hồ Tấn Phát  | Phat1425 | Member |  |
-| 5 |  |  |  | Member |  |
+| 5 | DE190130 | Nguyễn Đăng Phúc |  | Member |  |
 
 ---
 
