@@ -19,7 +19,7 @@
 |---:|---|---|---|---|---|
 | 1 |  |  |  | Leader |  |
 | 2 | DE190147 | Phạm Nguyễn Tiến Đạt | tiendat2277sg-wq | Member |  |
-| 3 |  |  |  | Member |  |
+| 3 | DE190900 | Duong Khang Huy | khuy17 | Member |  |
 | 4 |  |  |  | Member |  |
 | 5 |  |  |  | Member |  |
 
