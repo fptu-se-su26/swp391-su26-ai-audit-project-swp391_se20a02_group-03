@@ -8,7 +8,7 @@
 | Class | SE20A09 |
 | Semester | SU26 |
 | Group | 3 |
-| Topic |  |
+| Topic | Online Electronics Store Management System |
 | Repository |  |
 
 ---
