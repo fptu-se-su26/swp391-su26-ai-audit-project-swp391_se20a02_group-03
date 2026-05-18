@@ -5,10 +5,10 @@
 | Item | Description |
 |---|---|
 | Course | SWP391  |
-| Class | SE20A09 |
+| Class | SE20A02 |
 | Semester | SU26 |
 | Group | 3 |
-| Topic | Online Electronics Store Management System |
+| Topic | Pro-Sport Complex Management System |
 | Repository |  |
 
 ---
