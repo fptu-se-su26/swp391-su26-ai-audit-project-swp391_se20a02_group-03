@@ -21,36 +21,34 @@
 
 Đánh dấu các công cụ AI đã sử dụng trong quá trình thực hiện bài tập/project.
 
-- [ ] ChatGPT
-- [ ] Gemini
+- [x] ChatGPT
+- [x] Gemini
 - [ ] Claude
-- [ ] GitHub Copilot
-- [ ] Cursor
+- [x] GitHub Copilot
+- [x] Cursor
 - [ ] Antigravity
 - [ ] Perplexity
 - [ ] Microsoft Copilot
-- [ ] Công cụ khác: ....................................
-
+- [ ] Công cụ khác: Stitch with Google
 ---
 
 ## 3. Mục tiêu sử dụng AI
 
-Mô tả ngắn gọn sinh viên/nhóm đã sử dụng AI để hỗ trợ những công việc nào.
+Nhóm sử dụng AI để hỗ trợ trong quá trình phân tích yêu cầu hệ thống, xây dựng ý tưởng giải pháp, thiết kế kiến trúc chức năng và thiết kế UX/UI cho hệ thống quản lý trung tâm thể thao Badminton & Pickleball.
 
-Ví dụ:
+AI được sử dụng để:
 
-- Phân tích yêu cầu bài toán
-- Gợi ý ý tưởng giải pháp
-- Thiết kế database
-- Thiết kế giao diện
-- Viết code mẫu
-- Debug lỗi
-- Tối ưu code
-- Viết test case
-- Kiểm tra bảo mật
-- Viết báo cáo
-- Chuẩn bị slide thuyết trình
-- Tìm hiểu công nghệ mới
+- Phân tích yêu cầu nghiệp vụ
+- Xây dựng danh sách chức năng hệ thống
+- Thiết kế cấu trúc module
+- Gợi ý kiến trúc màn hình UX/UI
+- Sinh prompt thiết kế cho Stitch with Google
+- Thiết kế dashboard và admin workflow
+- Thiết kế giao diện booking, payment, rental, social matching
+- Hỗ trợ viết tài liệu mô tả hệ thống
+- Tối ưu luồng trải nghiệm người dùng
+- Hỗ trợ tạo mockup giao diện desktop SaaS
+- Hỗ trợ chuẩn hóa design system và component structure
 
 ### Mô tả mục tiêu sử dụng AI
 
@@ -68,16 +66,16 @@ Viết tại đây...
 
 | Nội dung | Thông tin |
 |---|---|
-| Ngày sử dụng |  |
-| Công cụ AI | ChatGPT / Gemini / Claude / GitHub Copilot / Cursor / Antigravity / Khác |
-| Mục đích sử dụng |  |
-| Phần việc liên quan | Requirement / Design / Database / Frontend / Backend / Testing / Debug / Report / Presentation / Other |
-| Mức độ sử dụng | Hỗ trợ ý tưởng / Hỗ trợ một phần / Hỗ trợ nhiều / Sinh chính nội dung |
+| Ngày sử dụng | 2026-05-18 |
+| Công cụ AI | ChatGPT |
+| Mục đích sử dụng | Phân tích yêu cầu hệ thống và phân rã module |
+| Phần việc liên quan | Requirement / Design |
+| Mức độ sử dụng | Hỗ trợ nhiều |
 
 #### 4.1. Prompt đã sử dụng
 
 ```text
-Dán nguyên văn prompt đã hỏi AI tại đây.
+Giả sử bạn là một designer. Dưới đây là các chức năng mà một hệ thống tôi phát triển sẽ có. Vui lòng liệt kê ra những màn hình (Screen) mà sẽ có trong hệ thống bên dưới, đồng thời chú thích trong những màn hình đó có những tính năng gì.
 ```
 
 #### 4.2. Kết quả AI gợi ý
@@ -85,7 +83,16 @@ Dán nguyên văn prompt đã hỏi AI tại đây.
 Tóm tắt nội dung AI đã trả lời hoặc gợi ý.
 
 ```text
-Viết tại đây...
+AI đã phân tích toàn bộ yêu cầu hệ thống và đề xuất cấu trúc UX/UI tổng thể cho nền tảng quản lý trung tâm thể thao Badminton & Pickleball.
+
+Kết quả bao gồm:
+- Danh sách các module chính của hệ thống
+- Danh sách các màn hình cần có cho từng module
+- Chức năng chính của từng màn hình
+- Phân loại vai trò người dùng (Customer, Staff, Admin)
+- Đề xuất luồng nghiệp vụ và navigation giữa các màn hình
+
+Tổng số màn hình được đề xuất khoảng 55–60 screens cho toàn bộ hệ thống.
 ```
 
 #### 4.3. Phần sinh viên/nhóm đã sử dụng từ AI
@@ -93,7 +100,13 @@ Viết tại đây...
 Mô tả rõ phần nào được sử dụng lại từ gợi ý của AI.
 
 ```text
-Viết tại đây...
+Nhóm sử dụng:
+- Danh sách các module hệ thống
+- Danh sách màn hình UX/UI
+- Gợi ý chức năng cho từng màn hình
+- Luồng điều hướng tổng thể giữa các module
+
+Các nội dung này được sử dụng làm nền tảng để thiết kế UI/UX và xây dựng mockup hệ thống.
 ```
 
 #### 4.4. Phần sinh viên/nhóm tự chỉnh sửa hoặc cải tiến
@@ -101,7 +114,12 @@ Viết tại đây...
 Mô tả sinh viên/nhóm đã thay đổi, kiểm tra, sửa lỗi hoặc cải tiến gì so với gợi ý ban đầu của AI.
 
 ```text
-Viết tại đây...
+Nhóm đã:
+- Điều chỉnh lại số lượng màn hình phù hợp với phạm vi project
+- Tùy chỉnh flow booking và rental theo nghiệp vụ thực tế
+- Bổ sung thêm các màn hình quản trị và dashboard
+- Chuẩn hóa naming convention cho các module
+- Tinh chỉnh lại quyền hạn giữa Customer, Staff và Admin
 ```
 
 #### 4.5. Minh chứng
@@ -120,7 +138,7 @@ Viết tại đây...
 Sinh viên/nhóm học được gì sau lần sử dụng AI này?
 
 ```text
-Viết tại đây...
+Nhóm học được cách phân tích yêu cầu hệ thống theo hướng UX/UI và cách tổ chức module cho một hệ thống SaaS quy mô lớn. AI hỗ trợ nhóm tiết kiệm thời gian trong việc lên cấu trúc màn hình và xác định flow nghiệp vụ ban đầu.
 ```
 
 ---
@@ -129,34 +147,77 @@ Viết tại đây...
 
 | Nội dung | Thông tin |
 |---|---|
-| Ngày sử dụng |  |
-| Công cụ AI | ChatGPT / Gemini / Claude / GitHub Copilot / Cursor / Antigravity / Khác |
-| Mục đích sử dụng |  |
-| Phần việc liên quan | Requirement / Design / Database / Frontend / Backend / Testing / Debug / Report / Presentation / Other |
-| Mức độ sử dụng | Hỗ trợ ý tưởng / Hỗ trợ một phần / Hỗ trợ nhiều / Sinh chính nội dung |
+| Ngày sử dụng | 2026-05-18  |
+| Công cụ AI | ChatGPT / Stitch with Google |
+| Mục đích sử dụng | Thiết kế UX/UI cho toàn bộ hệ thống quản lý trung tâm thể thao Badminton & Pickleball |
+| Phần việc liên quan | Design |
+| Mức độ sử dụng | Hỗ trợ nhiều |
 
 #### 4.1. Prompt đã sử dụng
 
 ```text
-Dán nguyên văn prompt đã hỏi AI tại đây.
+Viết prompt AI để ra lệnh cho Stitch with Google thiết kế cho mình các màn hình trong Authentication & Authorization Module.
+Yêu cầu là mô tả rõ hệ thống này là hệ thống gì để Stitch tạo UX/UI chuẩn nhất.
+
+Tương tự prompt cho:
+- Court Management Module
+- Smart Booking Module
+- Social Matching Module
+- Inventory Management Module
+- Rental Management Module
+- E-commerce Module
+- Payment Integration Module
+- Create Voucher Screen
+- Promotion & Voucher Module
+- Dashboard & Reporting Module
+- Notification Module
+- Audit & Logging Module
+- System Administration Module
+- Cross-system Shared Screens
 ```
 
 #### 4.2. Kết quả AI gợi ý
 
 ```text
-Viết tại đây...
+AI đã tạo các prompt chi tiết để sử dụng với Stitch with Google nhằm sinh giao diện UX/UI desktop cho toàn bộ hệ thống.
+
+Kết quả bao gồm:
+- Mô tả hệ thống sport-tech SaaS
+- Design style tổng thể
+- UX requirements
+- Business rules
+- Dashboard structure
+- Danh sách màn hình cho từng module
+- Thành phần giao diện và layout
+- Navigation flow giữa các màn hình
+- Design system theo phong cách enterprise SaaS và fintech
+
+Tổng cộng hơn 58 màn hình UX/UI desktop được thiết kế bằng AI.
 ```
 
 #### 4.3. Phần sinh viên/nhóm đã sử dụng từ AI
 
 ```text
-Viết tại đây...
+Nhóm sử dụng:
+- Prompt thiết kế UX/UI cho Stitch with Google
+- Danh sách màn hình cho từng module
+- Layout dashboard và component structure
+- Gợi ý màu sắc, typography và UI style
+- Navigation và workflow giữa các màn hình
+
+Các nội dung này được dùng để generate mockup giao diện và xây dựng tài liệu thiết kế UI/UX.
 ```
 
 #### 4.4. Phần sinh viên/nhóm tự chỉnh sửa hoặc cải tiến
 
 ```text
-Viết tại đây...
+Nhóm đã:
+- Chỉnh sửa lại màu sắc và spacing phù hợp branding nhóm
+- Tinh chỉnh bố cục dashboard và card layout
+- Bổ sung thêm icon, trạng thái và thông báo hệ thống
+- Điều chỉnh số lượng component hiển thị trên từng màn hình
+- Đồng bộ design system giữa các module
+- Tối ưu trải nghiệm người dùng cho desktop workflow
 ```
 
 #### 4.5. Minh chứng
@@ -173,7 +234,7 @@ Viết tại đây...
 #### 4.6. Nhận xét cá nhân/nhóm
 
 ```text
-Viết tại đây...
+Nhóm học được cách sử dụng AI để xây dựng prompt chuyên nghiệp cho công cụ thiết kế UX/UI. AI hỗ trợ tăng tốc quá trình tạo mockup và giúp nhóm định hình rõ hơn về hệ thống design enterprise SaaS.
 ```
 
 ---
