@@ -1,11 +1,11 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 
 // PRO-SPORT Public Pages
-import HomePage from './pages/HomePage'
-import LoginPage from './pages/LoginPage'
-import RegisterPage from './pages/RegisterPage'
-import RoleSelectionPage from './pages/RoleSelectionPage'
-import ResetPasswordPage from './pages/ResetPasswordPage'
+//import HomePage from './pages/HomePage'
+//import LoginPage from './pages/LoginPage'
+//import RegisterPage from './pages/RegisterPage'
+//import RoleSelectionPage from './pages/RoleSelectionPage'
+//import ResetPasswordPage from './pages/ResetPasswordPage'
 
 // PRO-SPORT Admin Portal
 import AdminDashboardPage from './pages/admin/AdminDashboardPage'
@@ -34,48 +34,48 @@ import RestrictedPage from './pages/status/RestrictedPage'
 import MaintenancePage from './pages/status/MaintenancePage'
 
 function App() {
-  return (
-    <Router>
-      <Routes>
-        {/* Public Routes */}
-        <Route path="/" element={<HomePage />} />
+    return (
+        <Router>
+            <Routes>
+                {/* <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/role-selection" element={<RoleSelectionPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
+        */}
 
-        {/* Admin Portal Routes */}
-        <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
-        <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
-        <Route path="/admin/courts" element={<AdminCourtsPage />} />
-        <Route path="/admin/users" element={<AdminUsersPage />} />
-        <Route path="/admin/bookings" element={<AdminBookingsPage />} />
+                {/* Admin Portal Routes */}
+                <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
+                <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
+                <Route path="/admin/courts" element={<AdminCourtsPage />} />
+                <Route path="/admin/users" element={<AdminUsersPage />} />
+                <Route path="/admin/bookings" element={<AdminBookingsPage />} />
 
-        {/* EliteSport OS Routes */}
-        <Route path="/elite" element={<Navigate to="/elite/dashboard" replace />} />
-        <Route path="/elite/dashboard" element={<EliteDashboardPage />} />
-        <Route path="/elite/schedule" element={<EliteSchedulePage />} />
-        <Route path="/elite/pos" element={<ElitePosWalkInPage />} />
+                {/* EliteSport OS Routes */}
+                <Route path="/elite" element={<Navigate to="/elite/dashboard" replace />} />
+                <Route path="/elite/dashboard" element={<EliteDashboardPage />} />
+                <Route path="/elite/schedule" element={<EliteSchedulePage />} />
+                <Route path="/elite/pos" element={<ElitePosWalkInPage />} />
 
-        {/* Mobile App Routes */}
-        <Route path="/mobile" element={<Navigate to="/mobile/home" replace />} />
-        <Route path="/mobile/home" element={<MobileHomePage />} />
-        <Route path="/mobile/profile" element={<MobileProfilePage />} />
-        <Route path="/mobile/matches" element={<MobileMatchesPage />} />
-        <Route path="/mobile/dashboard" element={<MobileDashboardPage />} />
-        <Route path="/mobile/scanner" element={<MobileScannerPage />} />
-        <Route path="/mobile/wallet" element={<MobileWalletPage />} />
-        <Route path="/mobile/chat" element={<MobileChatPage />} />
-        <Route path="/mobile/booking" element={<MobileBookingPage />} />
+                {/* Mobile App Routes */}
+                <Route path="/mobile" element={<Navigate to="/mobile/home" replace />} />
+                <Route path="/mobile/home" element={<MobileHomePage />} />
+                <Route path="/mobile/profile" element={<MobileProfilePage />} />
+                <Route path="/mobile/matches" element={<MobileMatchesPage />} />
+                <Route path="/mobile/dashboard" element={<MobileDashboardPage />} />
+                <Route path="/mobile/scanner" element={<MobileScannerPage />} />
+                <Route path="/mobile/wallet" element={<MobileWalletPage />} />
+                <Route path="/mobile/chat" element={<MobileChatPage />} />
+                <Route path="/mobile/booking" element={<MobileBookingPage />} />
 
-        {/* Status Pages */}
-        <Route path="/maintenance" element={<MaintenancePage />} />
-        <Route path="/403" element={<RestrictedPage />} />
-        <Route path="/404" element={<NotFoundPage />} />
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
-    </Router>
-  )
+                {/* Status Pages */}
+                <Route path="/maintenance" element={<MaintenancePage />} />
+                <Route path="/403" element={<RestrictedPage />} />
+                <Route path="/404" element={<NotFoundPage />} />
+                <Route path="*" element={<NotFoundPage />} />
+            </Routes>
+        </Router>
+    )
 }
 
 export default App
