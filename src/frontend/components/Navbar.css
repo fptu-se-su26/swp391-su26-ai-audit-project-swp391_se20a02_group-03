@@ -1,0 +1,145 @@
+/* =============================================
+   Navbar Styles
+   ============================================= */
+
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  height: 68px;
+  transition: background var(--transition), box-shadow var(--transition);
+}
+
+.navbar--light {
+  background: rgba(255,255,255,0.96);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+}
+
+.navbar--dark {
+  background: rgba(10,14,26,0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.navbar__inner {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  gap: 32px;
+}
+
+/* Logo */
+.navbar__logo {
+  font-family: var(--font-heading);
+  font-size: 1.45rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  flex-shrink: 0;
+}
+.navbar--light .logo-pro   { color: var(--color-dark); }
+.navbar--light .logo-dash  { color: var(--color-primary); }
+.navbar--light .logo-sport { color: var(--color-dark); }
+.navbar--dark  .logo-pro   { color: var(--color-white); }
+.navbar--dark  .logo-dash  { color: var(--color-primary); }
+.navbar--dark  .logo-sport { color: var(--color-white); }
+
+/* Links */
+.navbar__links {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  list-style: none;
+  margin-left: auto;
+}
+
+.navbar__link {
+  font-size: 0.88rem;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: 100px;
+  transition: color var(--transition), background var(--transition);
+  letter-spacing: 0.01em;
+}
+
+.navbar--light .navbar__link       { color: var(--color-text-light); }
+.navbar--light .navbar__link:hover { color: var(--color-primary); background: rgba(0,200,170,0.08); }
+.navbar--light .navbar__link.active{ color: var(--color-primary); background: rgba(0,200,170,0.10); }
+
+.navbar--dark .navbar__link        { color: rgba(255,255,255,0.75); }
+.navbar--dark .navbar__link:hover  { color: var(--color-primary); background: rgba(0,200,170,0.10); }
+.navbar--dark .navbar__link.active { color: var(--color-primary); background: rgba(0,200,170,0.12); }
+
+/* Actions */
+.navbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.navbar__login {
+  font-size: 0.88rem;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: 100px;
+  transition: color var(--transition), background var(--transition);
+}
+.navbar--light .navbar__login       { color: var(--color-text-light); }
+.navbar--light .navbar__login:hover { color: var(--color-primary); background: rgba(0,200,170,0.08); }
+.navbar--dark  .navbar__login       { color: rgba(255,255,255,0.75); }
+.navbar--dark  .navbar__login:hover { color: var(--color-primary); background: rgba(0,200,170,0.10); }
+
+.navbar__cta {
+  font-size: 0.85rem;
+  padding: 8px 18px;
+}
+
+/* Hamburger */
+.navbar__hamburger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  background: transparent;
+  padding: 6px;
+  margin-left: auto;
+}
+.navbar__hamburger span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--color-text);
+  transition: transform var(--transition), opacity var(--transition);
+}
+.navbar--dark .navbar__hamburger span { background: var(--color-white); }
+.navbar__hamburger.active span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.navbar__hamburger.active span:nth-child(2) { opacity: 0; }
+.navbar__hamburger.active span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+@media (max-width: 900px) {
+  .navbar__hamburger { display: flex; }
+  .navbar__links {
+    display: none;
+    position: absolute;
+    top: 68px;
+    left: 0; right: 0;
+    background: var(--color-white);
+    flex-direction: column;
+    padding: 16px 24px;
+    gap: 4px;
+    border-bottom: 1px solid var(--color-border);
+    box-shadow: var(--shadow-lg);
+  }
+  .navbar--dark .navbar__links { background: var(--color-dark); border-bottom-color: rgba(255,255,255,0.08); }
+  .navbar__links.open { display: flex; }
+  .navbar__actions { display: none; }
+}

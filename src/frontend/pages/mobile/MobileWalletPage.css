@@ -1,0 +1,197 @@
+.mob-wallet {
+  font-family: 'Inter', sans-serif;
+  padding: 24px 16px;
+}
+
+.mw-balance-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+}
+.mw-bal-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #64748b;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+}
+.mw-bal-val {
+  font-family: 'Oswald', sans-serif;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1;
+}
+.mw-icon-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #e2e8f0;
+  color: #475569;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Cards */
+.mw-cards-scroll {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  padding-bottom: 16px;
+  margin-bottom: 8px;
+  scrollbar-width: none;
+}
+.mw-cards-scroll::-webkit-scrollbar { display: none; }
+.mw-credit-card {
+  min-width: 300px;
+  height: 180px;
+  border-radius: 16px;
+  padding: 20px;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 10px 20px rgba(0, 96, 112, 0.2);
+}
+.mw-credit-card.primary {
+  background: linear-gradient(135deg, #008ba3 0%, #006070 100%);
+}
+.mw-cc-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.mw-cc-brand {
+  font-family: 'Oswald', sans-serif;
+  font-size: 1.125rem;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+.mw-cc-label {
+  font-size: 0.55rem;
+  font-weight: 700;
+  opacity: 0.7;
+  letter-spacing: 0.05em;
+}
+.mw-cc-number {
+  font-family: 'Oswald', sans-serif;
+  font-size: 1.5rem;
+  letter-spacing: 2px;
+  margin-top: -10px;
+}
+.mw-cc-bot {
+  display: flex;
+  justify-content: space-between;
+}
+.mw-cc-val {
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.mw-actions {
+  margin-bottom: 32px;
+}
+.btn-mw-add {
+  width: 100%;
+  background: #006070;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 14px;
+  font-size: 1rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* Transactions */
+.mw-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.mw-section-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+.mw-link {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #008ba3;
+}
+
+.mw-tx-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.mw-tx-item {
+  display: flex;
+  align-items: center;
+  background: white;
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+  gap: 12px;
+}
+.mw-tx-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.bg-blue { background: #dbeafe; color: #3b82f6; }
+.bg-orange { background: #ffedd5; color: #f97316; }
+.bg-cyan { background: #cffafe; color: #06b6d4; }
+
+.mw-tx-info {
+  flex: 1;
+}
+.mw-tx-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #0f172a;
+  margin-bottom: 2px;
+}
+.mw-tx-date {
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.mw-tx-amt-box {
+  text-align: right;
+}
+.mw-tx-amt {
+  font-family: 'Oswald', sans-serif;
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+.mw-tx-amt.negative { color: #0f172a; }
+.mw-tx-amt.positive { color: #008ba3; }
+
+.mw-badge-success {
+  background: #f1f5f9;
+  color: #008ba3;
+  font-size: 0.55rem;
+  font-weight: 800;
+  padding: 4px 6px;
+  border-radius: 4px;
+}
+.mw-badge-pending {
+  background: #fffbeb;
+  color: #d97706;
+  font-size: 0.55rem;
+  font-weight: 800;
+  padding: 4px 6px;
+  border-radius: 4px;
+}
