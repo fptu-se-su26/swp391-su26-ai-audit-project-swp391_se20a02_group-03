@@ -1,0 +1,300 @@
+/* =============================================
+   Home Page Styles
+   ============================================= */
+
+.home {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Hero ── */
+.hero {
+  padding-top: 68px;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f0f7f6 0%, #e8f4f8 40%, #dceef8 100%);
+  display: flex;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -120px; right: -120px;
+  width: 600px; height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0,200,170,0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.hero__inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: center;
+  padding-top: 60px;
+  padding-bottom: 80px;
+}
+
+.hero__eyebrow {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+  margin-bottom: 20px;
+}
+
+.hero__title {
+  font-family: var(--font-heading);
+  font-size: clamp(2.4rem, 4.5vw, 4rem);
+  font-weight: 700;
+  line-height: 1.05;
+  color: var(--color-dark);
+  letter-spacing: -0.01em;
+  margin-bottom: 20px;
+}
+
+.hero__desc {
+  font-size: 1rem;
+  color: var(--color-text-light);
+  line-height: 1.7;
+  max-width: 440px;
+  margin-bottom: 36px;
+}
+
+.hero__actions {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.hero__btn-main { padding: 13px 26px; font-size: 0.95rem; }
+.hero__btn-alt  { padding: 13px 22px; font-size: 0.95rem; }
+
+/* Hero Visual */
+.hero__visual {
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+
+.hero__img-wrap {
+  position: relative;
+  border-radius: var(--radius-xl);
+  overflow: visible;
+  width: 100%;
+  max-width: 520px;
+}
+
+.hero__img {
+  width: 100%;
+  height: 420px;
+  object-fit: cover;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+}
+
+.hero__card {
+  position: absolute;
+  bottom: -24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--color-white);
+  border-radius: var(--radius-lg);
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 40px;
+  box-shadow: var(--shadow-lg);
+  width: calc(100% - 40px);
+  max-width: 380px;
+}
+
+.hero__card-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.hero__card-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  animation: pulse-glow 2s infinite;
+  flex-shrink: 0;
+}
+
+.hero__card-name {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--color-dark);
+}
+
+.hero__card-meta {
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+  margin-top: 2px;
+}
+
+.hero__card-btn { font-size: 0.82rem; padding: 8px 16px; white-space: nowrap; }
+
+/* ── Trusted ── */
+.trusted {
+  padding: 60px 0 48px;
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-white);
+}
+
+.trusted__label {
+  text-align: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  margin-bottom: 32px;
+}
+
+.trusted__logos {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 52px;
+  flex-wrap: wrap;
+}
+
+.trusted__brand {
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+  transition: color var(--transition);
+  cursor: default;
+}
+.trusted__brand:hover { color: var(--color-primary); }
+
+/* ── Elite Facilities ── */
+.facilities {
+  padding: 72px 0 80px;
+  background: var(--color-white);
+}
+
+.facilities__header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 36px;
+}
+
+.facilities__nav { display: flex; gap: 10px; }
+.facilities__nav-btn {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  border: 1.5px solid var(--color-border);
+  background: transparent;
+  font-size: 1.2rem;
+  color: var(--color-text-light);
+  display: flex; align-items: center; justify-content: center;
+  transition: border-color var(--transition), color var(--transition), background var(--transition);
+}
+.facilities__nav-btn:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background: rgba(0,200,170,0.07);
+}
+
+.facilities__grid {
+  display: grid;
+  grid-template-columns: 1.4fr 0.8fr;
+  grid-template-rows: 240px 240px;
+  gap: 16px;
+}
+
+.facility-card {
+  position: relative;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.facility-card--large {
+  grid-row: 1 / 3;
+}
+
+.facility-card__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+.facility-card:hover .facility-card__img { transform: scale(1.04); }
+
+.facility-card__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.1) 55%, transparent 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 22px;
+  gap: 10px;
+}
+
+.facility-card__tag {
+  position: absolute;
+  top: 16px; left: 16px;
+  background: var(--color-primary);
+  color: var(--color-white);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  padding: 4px 10px;
+  border-radius: 100px;
+}
+
+.facility-card__name {
+  font-family: var(--font-heading);
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--color-white);
+}
+
+.facility-card__sub {
+  font-size: 0.82rem;
+  color: rgba(255,255,255,0.7);
+  margin-top: 2px;
+}
+
+.facility-card__btn { font-size: 0.85rem; padding: 10px 18px; width: fit-content; }
+
+.facility-card--viewall .facility-card__overlay {
+  background: linear-gradient(to top, rgba(0,200,170,0.6) 0%, rgba(0,0,0,0.4) 100%);
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.facility-card__viewall-link {
+  color: var(--color-white);
+  font-weight: 600;
+  font-size: 0.88rem;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  margin-top: 6px;
+}
+
+@media (max-width: 900px) {
+  .hero__inner { grid-template-columns: 1fr; text-align: center; gap: 40px; }
+  .hero__desc   { margin: 0 auto 36px; }
+  .hero__actions { justify-content: center; }
+  .hero__card   { max-width: 100%; }
+  .facilities__grid { grid-template-columns: 1fr; grid-template-rows: 280px 200px 200px; }
+  .facility-card--large { grid-row: auto; }
+}

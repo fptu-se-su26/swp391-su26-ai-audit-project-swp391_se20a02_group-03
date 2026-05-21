@@ -1,0 +1,135 @@
+.mobile-app-container {
+  display: flex;
+  justify-content: center;
+  min-height: 100vh;
+  background: #e2e8f0; /* Gray background behind the phone */
+  padding: 20px 0;
+}
+
+.mobile-app-wrapper {
+  width: 100%;
+  max-width: 414px; /* iPhone Max width */
+  background: #f8fafc;
+  min-height: 800px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+@media (min-width: 450px) {
+  .mobile-app-wrapper {
+    border-radius: 40px;
+    border: 8px solid #0f172a;
+    height: 850px;
+  }
+}
+@media (max-width: 449px) {
+  .mobile-app-container {
+    padding: 0;
+  }
+  .mobile-app-wrapper {
+    max-width: 100%;
+    min-height: 100vh;
+  }
+}
+
+/* Topbar */
+.mobile-topbar {
+  height: 60px;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  border-bottom: 1px solid #e2e8f0;
+  flex-shrink: 0;
+  z-index: 10;
+}
+.mt-left, .mt-right {
+  width: 40px;
+  display: flex;
+  align-items: center;
+}
+.mt-right {
+  justify-content: flex-end;
+}
+.mt-center {
+  flex: 1;
+  text-align: center;
+}
+.mt-icon-btn {
+  background: transparent;
+  border: none;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+}
+.mt-brand {
+  font-family: 'Oswald', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #006070;
+  margin: 0;
+}
+.mt-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+/* Main */
+.mobile-main {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: #f8fafc;
+  padding-bottom: 20px; /* buffer */
+}
+
+/* Bottom Nav */
+.mobile-bottom-nav {
+  height: 65px;
+  background: white;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  border-top: 1px solid #e2e8f0;
+  flex-shrink: 0;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.mb-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  color: #64748b;
+  text-decoration: none;
+  font-size: 0.65rem;
+  font-weight: 500;
+  width: 20%;
+}
+.mb-nav-item svg {
+  width: 22px;
+  height: 22px;
+}
+.mb-nav-item.active {
+  color: #008ba3; /* active brand color */
+  font-weight: 600;
+}
+.mb-nav-item.active svg {
+  stroke-width: 2.5;
+}
+
+/* Add a rounded pill background for active state like the screenshot if needed */
+.mb-nav-item.active {
+  background: #e0f2fe;
+  border-radius: 12px;
+  padding: 6px 0;
+  transform: translateY(-2px);
+}
