@@ -45,7 +45,7 @@ export default function MobileLayout({ children, hideBottomNav = false, title = 
         </header>
 
         {/* Main Content */}
-        <main className="mobile-main">
+        <main className="mobile-main" style={{ position: 'relative' }}>
           {children}
         </main>
 
@@ -64,7 +64,7 @@ export default function MobileLayout({ children, hideBottomNav = false, title = 
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
               <span>Matches</span>
             </Link>
-            <Link to="/mobile/shop" className={`mb-nav-item ${location.pathname.includes('/mobile/shop') ? 'active' : ''}`}>
+            <Link to="/mobile/wallet" className={`mb-nav-item ${location.pathname.includes('/mobile/wallet') ? 'active' : ''}`}>
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
               <span>Shop</span>
             </Link>

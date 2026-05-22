@@ -1,4 +1,3 @@
-import MobileLayout from '../../layouts/MobileLayout'
 import './MobileScannerPage.css'
 
 export default function MobileScannerPage() {

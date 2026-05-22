@@ -1,9 +1,7 @@
 .mob-booking {
   font-family: 'Inter', sans-serif;
-  padding: 16px;
   background: #f8fafc;
   min-height: 100%;
-  padding-bottom: 100px;
 }
 
 /* Progress */
@@ -177,15 +175,16 @@
   cursor: not-allowed;
 }
 
-/* Sticky Button */
+/* Sticky Button - uses sticky so it sticks at bottom within scroll */
 .mb-sticky-btn-wrap {
-  position: absolute;
+  position: sticky;
   bottom: 0;
   left: 0;
   right: 0;
   padding: 16px;
   background: white;
   border-top: 1px solid #e2e8f0;
+  margin: 24px -16px -20px;
 }
 .btn-mb-proceed {
   width: 100%;

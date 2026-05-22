@@ -1,11 +1,16 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 
 // PRO-SPORT Public Pages
-//import HomePage from './pages/HomePage'
-//import LoginPage from './pages/LoginPage'
-//import RegisterPage from './pages/RegisterPage'
-//import RoleSelectionPage from './pages/RoleSelectionPage'
-//import ResetPasswordPage from './pages/ResetPasswordPage'
+import HomePage from './pages/HomePage'
+import LoginPage from './pages/LoginPage'
+import RegisterPage from './pages/RegisterPage'
+import RoleSelectionPage from './pages/RoleSelectionPage'
+import ResetPasswordPage from './pages/ResetPasswordPage'
+import AboutPage from './pages/AboutPage'
+import ContactPage from './pages/ContactPage'
+import ApexHomePage from './pages/apex/ApexHomePage'
+import MatchProFeedPage from './pages/matchpro/MatchProFeedPage'
+import GearCatalogPage from './pages/gear/GearCatalogPage'
 
 // PRO-SPORT Admin Portal
 import AdminDashboardPage from './pages/admin/AdminDashboardPage'
@@ -37,12 +42,17 @@ function App() {
     return (
         <Router>
             <Routes>
-                {/* <Route path="/" element={<HomePage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/role-selection" element={<RoleSelectionPage />} />
-        <Route path="/reset-password" element={<ResetPasswordPage />} />
-        */}
+                {/* Public Routes */}
+                <Route path="/" element={<HomePage />} />
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/register" element={<RegisterPage />} />
+                <Route path="/role-selection" element={<RoleSelectionPage />} />
+                <Route path="/reset-password" element={<ResetPasswordPage />} />
+                <Route path="/about" element={<AboutPage />} />
+                <Route path="/contact" element={<ContactPage />} />
+                <Route path="/courts" element={<ApexHomePage />} />
+                <Route path="/matches" element={<MatchProFeedPage />} />
+                <Route path="/gear" element={<GearCatalogPage />} />
 
                 {/* Admin Portal Routes */}
                 <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />

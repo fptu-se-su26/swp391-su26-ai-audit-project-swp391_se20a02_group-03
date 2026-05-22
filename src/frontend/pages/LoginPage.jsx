@@ -61,7 +61,7 @@ export default function LoginPage() {
               <Link to="/reset-password" className="login-form__forgot">Forgot Password?</Link>
             </div>
 
-            <Link to="/dashboard" className="btn-primary login-form__submit">
+            <Link to="/role-selection" className="btn-primary login-form__submit">
               Login →
             </Link>
 

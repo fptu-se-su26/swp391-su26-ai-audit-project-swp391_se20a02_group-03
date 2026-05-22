@@ -88,7 +88,7 @@
   overflow-y: auto;
   overflow-x: hidden;
   background: #f8fafc;
-  padding-bottom: 20px; /* buffer */
+  padding: 20px 16px;
 }
 
 /* Bottom Nav */
