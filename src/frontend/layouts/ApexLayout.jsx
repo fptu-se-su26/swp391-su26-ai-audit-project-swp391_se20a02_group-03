@@ -34,7 +34,7 @@ export default function ApexLayout({ children, title }) {
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
           </div>
           <div>
-            <span className="apex-sidebar__logo-name">ApexSports</span>
+            <span className="apex-sidebar__logo-name">PRO-SPORT</span>
           </div>
         </div>
 

@@ -1,22 +1,13 @@
 .mob-dash-dark {
   font-family: 'Inter', sans-serif;
   background: #0f172a;
-  min-height: 100vh;
+  min-height: 100%;
   color: white;
-  padding: 24px 16px;
-}
-
-/* Parent mobile-main needs to allow dark bg to extend fully if this is inside MobileLayout.
-   Let's override the mobile-main bg just for this page using a trick or ensuring it fills height.
-*/
-.mobile-main:has(.mob-dash-dark) {
-  background: #0f172a;
-}
-/* For Firefox */
-.mob-dash-dark {
+  /* Extend full-bleed by negating MobileLayout's padding */
   margin: -20px -16px;
   padding: 24px 16px 80px;
 }
+
 
 .md-welcome {
   margin-bottom: 32px;

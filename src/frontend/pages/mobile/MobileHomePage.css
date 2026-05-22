@@ -1,5 +1,7 @@
 .mob-home {
   font-family: 'Inter', sans-serif;
+  /* cancel mobile-main padding so hero can be full-bleed */
+  margin: -20px -16px;
 }
 
 /* Hero */
@@ -53,7 +55,7 @@
 }
 
 .mh-content {
-  padding: 0 16px;
+  padding: 0 16px 80px;
 }
 
 /* Search */
