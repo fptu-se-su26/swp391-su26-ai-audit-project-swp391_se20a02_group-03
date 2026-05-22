@@ -111,3 +111,55 @@ Là nền tảng website trung gian đa tác nhân, kết nối trực tiếp Kh
 
 ### 6. Điểm nổi bật của hệ thống
 Hệ thống là giải pháp trung gian công nghệ giải quyết triệt để hai bài toán nhức nhối: kết nối lòng tin tài chính (Ví Escrow) và tối ưu hóa vận hành quầy bãi. Việc ứng dụng AI Chatbot giúp tra cứu lịch bãi và gợi ý ghép nhóm cá nhân hóa vượt trội, cùng với mô hình kinh tế 'Try-Before-You-Buy' chuyển đổi chi phí thuê đồ cũ thành ưu đãi mua sắm đồ mới, giúp tăng trưởng doanh thu phụ trợ hiệu quả.
+
+### 7.Business Model
+**7.1 Tổng quan mô hình kinh doanh:**
+
+Pro-Sport Complex Management System là nền tảng trung gian kết nối Người chơi (Customer), Chủ sân/Quản trị viên (Admin) và Nhân viên vận hành (Staff). Hệ thống cung cấp giải pháp quản lý sân thể thao, kết nối cộng đồng người chơi và hỗ trợ thanh toán an toàn thông qua cơ chế ví trung gian (Escrow).
+
+Mô hình kinh doanh của hệ thống tập trung vào việc tạo giá trị cho cả người chơi và chủ sân thông qua số hóa quy trình đặt sân, tổ chức kèo đấu và quản lý vận hành.
+
+**7.2 Khách hàng mục tiêu:**
+
+- **Người chơi cá nhân:** Có nhu cầu đặt sân, tìm đồng đội và tham gia các hoạt động thể thao.
+- **Chủ sân thể thao:** Cần công cụ quản lý lịch sân, doanh thu và khách hàng.
+- **Câu lạc bộ/Hội nhóm thể thao:** Tổ chức các buổi giao lưu, thi đấu hoặc giải đấu.
+- **Đơn vị kinh doanh thiết bị thể thao:** Tiếp cận khách hàng thông qua quảng bá sản phẩm trên nền tảng.
+
+**7.3 Giá trị cốt lõi (Value Proposition):**
+
+- **Đặt sân trực tuyến:** Xem lịch sân theo thời gian thực và đặt sân nhanh chóng.
+- **Kết nối người chơi:** Hỗ trợ tạo kèo, tham gia kèo và tìm kiếm đồng đội phù hợp.
+- **Ví trung gian (Escrow):** Đảm bảo minh bạch tài chính và hạn chế tình trạng bùng kèo.
+- **AI Chatbot:** Tìm kiếm sân bãi và gợi ý kèo đấu bằng ngôn ngữ tự nhiên.
+- **Quản lý tập trung:** Hỗ trợ chủ sân quản lý lịch bãi, doanh thu và kho dụng cụ.
+
+**7.4 Nguồn doanh thu (Revenue Streams):**
+
+- **Phí dịch vụ đặt sân:** Thu một phần phí từ các giao dịch đặt sân thành công.
+- **Phí giao dịch ví trung gian:** Thu phí xử lý khi người dùng tham gia các kèo có ký quỹ.
+- **Gói thành viên Premium:** Cung cấp các tính năng nâng cao cho người dùng trả phí.
+- **Quảng cáo sản phẩm thể thao:** Hợp tác với các nhà cung cấp thiết bị thể thao.
+- **Dịch vụ tổ chức giải đấu:** Thu phí từ các đơn vị tổ chức giải đấu trong tương lai.
+
+**7.5 Kênh tiếp cận khách hàng (Channels):**
+
+- Website Pro-Sport.
+- Cộng đồng Facebook, Zalo và TikTok.
+- Các câu lạc bộ và trung tâm thể thao.
+- Chương trình giới thiệu người dùng mới.
+
+**7.6 Quan hệ khách hàng (Customer Relationship):**
+
+- Tự phục vụ thông qua nền tảng trực tuyến.
+- Hỗ trợ tự động bằng AI Chatbot.
+- Hệ thống đánh giá uy tín người chơi.
+- Tiếp nhận và xử lý khiếu nại trực tuyến.
+
+**7.7 Lợi thế cạnh tranh:**
+
+- Tích hợp AI hỗ trợ tìm kiếm sân và ghép kèo.
+- Áp dụng cơ chế Escrow chống bùng kèo.
+- Cung cấp lịch sân theo thời gian thực.
+- Kết hợp quản lý sân bãi và kết nối cộng đồng trên cùng một nền tảng.
+- Hỗ trợ quản lý dụng cụ và doanh thu cho chủ sân.
