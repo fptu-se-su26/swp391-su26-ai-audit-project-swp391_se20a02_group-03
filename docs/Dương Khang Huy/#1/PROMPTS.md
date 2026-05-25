@@ -4,459 +4,255 @@
 
 | Thông tin | Nội dung |
 |---|---|
-| Môn học |  |
-| Mã môn học |  |
-| Lớp |  |
-| Học kỳ |  |
-| Tên bài tập / Project |  |
-| Tên sinh viên / Nhóm |  |
-| MSSV / Danh sách MSSV |  |
-| Giảng viên hướng dẫn |  |
-| Ngày bắt đầu |  |
-| Ngày cập nhật gần nhất |  |
+| Môn học | Software Development Project Test |
+| Mã môn học | SWP391 |
+| Lớp | SE20A02 |
+| Học kỳ | SU26 |
+| Tên bài tập / Project | Pro Sport Manager System |
+| Tên sinh viên / Nhóm | Dương Khang Huy - Group 3 |
+| MSSV / Danh sách MSSV | DE190900 |
+| Giảng viên hướng dẫn | QuangLTN3 |
+| Ngày bắt đầu | 11/5/2026 |
+| Ngày cập nhật gần nhất | 2/7/2026  |
 
 ---
 
-## 2. Mục đích của file Prompt Log
+## 2. Mục đích Reflection
 
-File này dùng để ghi lại các prompt quan trọng đã sử dụng trong quá trình thực hiện bài tập, lab, assignment hoặc project.
-
-Sinh viên/nhóm cần ghi lại:
-
-- Đã hỏi AI điều gì.
-- Mục đích sử dụng prompt.
-- Công cụ AI đã sử dụng.
-- AI đã trả lời hoặc gợi ý gì.
-- Kết quả đó có được áp dụng vào bài hay không.
-- Sinh viên/nhóm đã kiểm tra, chỉnh sửa hoặc cải tiến gì sau khi nhận kết quả từ AI.
+File này dùng để sinh viên/nhóm tự đánh giá quá trình sử dụng AI trong học tập...
 
 ---
 
-## 3. Công cụ AI đã sử dụng
+## 3. Tóm tắt quá trình sử dụng AI
 
-Đánh dấu các công cụ AI đã sử dụng.
+```text
+Đã hoàn thành thiết kế các Screen demo UX/UI
+```
 
-- [ ] ChatGPT
-- [ ] Gemini
+---
+
+## 4. Công cụ AI đã sử dụng
+
+- [x] ChatGPT
+- [x] Gemini
 - [ ] Claude
-- [ ] GitHub Copilot
+- [x] GitHub Copilot
 - [ ] Cursor
 - [ ] Antigravity
 - [ ] Microsoft Copilot
 - [ ] Perplexity
+- [x] Stitch with Google
 - [ ] Công cụ khác: ....................................
 
----
-
-## 4. Bảng tổng hợp prompt đã sử dụng
-
-| STT | Ngày | Công cụ AI | Mục đích | Prompt tóm tắt | Kết quả chính | Có sử dụng vào bài không? | Minh chứng |
-|---:|---|---|---|---|---|---|---|
-| 1 |  |  |  |  |  | Có / Không |  |
-| 2 |  |  |  |  |  | Có / Không |  |
-| 3 |  |  |  |  |  | Có / Không |  |
-| 4 |  |  |  |  |  | Có / Không |  |
-| 5 |  |  |  |  |  | Có / Không |  |
-| 6 |  |  |  |  |  | Có / Không |  |
-| 7 |  |  |  |  |  | Có / Không |  |
-| 8 |  |  |  |  |  | Có / Không |  |
-| 9 |  |  |  |  |  | Có / Không |  |
-| 10 |  |  |  |  |  | Có / Không |  |
-
----
-
-## 5. Prompt chi tiết
-
-> Sinh viên/nhóm có thể nhân bản mẫu “Prompt số...” nhiều lần tùy số lượng prompt thực tế đã sử dụng.
-
----
-
-### Prompt số 1
-
-| Nội dung | Thông tin |
-|---|---|
-| Ngày sử dụng |  |
-| Công cụ AI | ChatGPT / Gemini / Claude / GitHub Copilot / Cursor / Antigravity / Khác |
-| Mục đích |  |
-| Phần việc liên quan | Requirement / Design / Database / Coding / Testing / Debug / Report / Presentation / Other |
-| Mức độ sử dụng | Hỏi ý tưởng / Hỏi giải thích / Hỏi review / Hỏi debug / Hỏi sinh code / Hỏi tối ưu |
-
-#### 5.1. Prompt nguyên văn
+### Công cụ được sử dụng nhiều nhất
 
 ```text
-Dán nguyên văn prompt đã hỏi AI tại đây.
+ChatGPT; Gemini; Stitch with Google
 ```
 
-#### 5.2. Bối cảnh khi viết prompt
-
-Mô tả ngắn gọn vì sao sinh viên/nhóm cần dùng prompt này.
+### Lý do sử dụng công cụ đó
 
 ```text
-Viết tại đây...
-```
-
-#### 5.3. Kết quả AI trả về
-
-Tóm tắt nội dung AI đã trả lời hoặc gợi ý.
-
-```text
-Viết tại đây...
-```
-
-#### 5.4. Kết quả đã áp dụng vào bài
-
-Mô tả phần nào từ kết quả AI đã được sử dụng vào bài tập/project.
-
-```text
-Viết tại đây...
-```
-
-#### 5.5. Phần sinh viên/nhóm đã chỉnh sửa hoặc cải tiến
-
-Mô tả sinh viên/nhóm đã thay đổi, kiểm tra, sửa lỗi hoặc cải tiến gì so với kết quả AI trả về.
-
-```text
-Viết tại đây...
-```
-
-#### 5.6. Đánh giá chất lượng prompt
-
-Đánh dấu các nhận xét phù hợp.
-
-- [ ] Prompt rõ ràng
-- [ ] Prompt có đủ bối cảnh
-- [ ] Prompt còn thiếu thông tin
-- [ ] Prompt tạo ra kết quả tốt
-- [ ] Prompt tạo ra kết quả chưa phù hợp
-- [ ] Cần hỏi lại AI nhiều lần
-- [ ] Cần tự kiểm tra và chỉnh sửa nhiều
-- [ ] Kết quả AI có lỗi hoặc chưa chính xác
-
-#### 5.7. Minh chứng liên quan
-
-| Loại minh chứng | Nội dung |
-|---|---|
-| Link commit |  |
-| File liên quan |  |
-| Screenshot |  |
-| Kết quả chạy/test |  |
-| Link tài liệu/báo cáo |  |
-| Ghi chú khác |  |
-
-#### 5.8. Ghi chú thêm
-
-```text
-Viết tại đây...
+Hiểu ngữ cảnh, viết được prompt chuyên nghiệp, thiết kế giao diện đẹp,...
 ```
 
 ---
 
-### Prompt số 2
+## 5. AI đã hỗ trợ em/nhóm ở điểm nào?
 
-| Nội dung | Thông tin |
-|---|---|
-| Ngày sử dụng |  |
-| Công cụ AI | ChatGPT / Gemini / Claude / GitHub Copilot / Cursor / Antigravity / Khác |
-| Mục đích |  |
-| Phần việc liên quan | Requirement / Design / Database / Coding / Testing / Debug / Report / Presentation / Other |
-| Mức độ sử dụng | Hỏi ý tưởng / Hỏi giải thích / Hỏi review / Hỏi debug / Hỏi sinh code / Hỏi tối ưu |
+- [x] Hiểu yêu cầu đề bài
+- [x] Phân tích bài toán
+- [x] Tìm ý tưởng giải pháp
+- [ ] Thiết kế database
+- [x] Thiết kế giao diện
+- [ ] Thiết kế kiến trúc hệ thống
+- [ ] Viết code mẫu
+- [ ] Debug lỗi
+- [x] Viết test case
+- [ ] Review code
+- [ ] Tối ưu code
+- [ ] Kiểm tra bảo mật
+- [ ] Viết báo cáo
+- [ ] Chuẩn bị thuyết trình
+- [x] Tìm hiểu công nghệ mới
 
-#### 5.1. Prompt nguyên văn
-
-```text
-Dán nguyên văn prompt đã hỏi AI tại đây.
-```
-
-#### 5.2. Bối cảnh khi viết prompt
-
-```text
-Viết tại đây...
-```
-
-#### 5.3. Kết quả AI trả về
+### Mô tả chi tiết
 
 ```text
-Viết tại đây...
-```
-
-#### 5.4. Kết quả đã áp dụng vào bài
-
-```text
-Viết tại đây...
-```
-
-#### 5.5. Phần sinh viên/nhóm đã chỉnh sửa hoặc cải tiến
-
-```text
-Viết tại đây...
-```
-
-#### 5.6. Đánh giá chất lượng prompt
-
-- [ ] Prompt rõ ràng
-- [ ] Prompt có đủ bối cảnh
-- [ ] Prompt còn thiếu thông tin
-- [ ] Prompt tạo ra kết quả tốt
-- [ ] Prompt tạo ra kết quả chưa phù hợp
-- [ ] Cần hỏi lại AI nhiều lần
-- [ ] Cần tự kiểm tra và chỉnh sửa nhiều
-- [ ] Kết quả AI có lỗi hoặc chưa chính xác
-
-#### 5.7. Minh chứng liên quan
-
-| Loại minh chứng | Nội dung |
-|---|---|
-| Link commit |  |
-| File liên quan |  |
-| Screenshot |  |
-| Kết quả chạy/test |  |
-| Link tài liệu/báo cáo |  |
-| Ghi chú khác |  |
-
-#### 5.8. Ghi chú thêm
-
-```text
-Viết tại đây...
+ 
 ```
 
 ---
 
-### Prompt số 3
+## 6. AI có giúp em/nhóm học tốt hơn không?
 
-| Nội dung | Thông tin |
-|---|---|
-| Ngày sử dụng |  |
-| Công cụ AI | ChatGPT / Gemini / Claude / GitHub Copilot / Cursor / Antigravity / Khác |
-| Mục đích |  |
-| Phần việc liên quan | Requirement / Design / Database / Coding / Testing / Debug / Report / Presentation / Other |
-| Mức độ sử dụng | Hỏi ý tưởng / Hỏi giải thích / Hỏi review / Hỏi debug / Hỏi sinh code / Hỏi tối ưu |
-
-#### 5.1. Prompt nguyên văn
+### 6.1. Những điểm AI giúp em/nhóm học tốt hơn
 
 ```text
-Dán nguyên văn prompt đã hỏi AI tại đây.
+- Giải thích kiến thức nhanh và dễ hiểu hơn
+- Hỗ trợ tìm tài liệu, ví dụ và ý tưởng
+- Giúp debug và tối ưu code nhanh hơn
+- Tăng tốc làm báo cáo, slide, documentation
+- Hỗ trợ brainstorming và chia task nhóm
+- Tự động hóa các công việc lặp lại
+- Học công nghệ mới nhanh hơn qua ví dụ thực tế
+- Cải thiện kỹ năng viết prompt và tư duy logic
 ```
 
-#### 5.2. Bối cảnh khi viết prompt
+### 6.2. Những điểm AI chưa giúp tốt hoặc gây khó khăn
 
 ```text
-Viết tại đây...
+- Đôi khi trả lời sai hoặc thông tin chưa chính xác
+- Màn hình generate có thể lỗi hoặc chưa tối ưu
+- Khó hiểu đúng ý nếu prompt quá ngắn
+- Một số câu trả lời còn chung chung, thiếu thực tế
+- Không hiểu toàn bộ context project lớn nếu thiếu dữ liệu
+- Có thể tạo sự phụ thuộc nếu lạm dụng AI quá nhiều
+- Thông tin mới hoặc niche đôi lúc chưa cập nhật đầy đủ
+- Cần kiểm tra lại output thay vì dùng trực tiếp 100%
 ```
 
-#### 5.3. Kết quả AI trả về
+### 6.3. Em/nhóm có bị phụ thuộc vào AI không?
+
+- [ ] Không phụ thuộc
+- [ ] Phụ thuộc ít
+- [x] Phụ thuộc trung bình
+- [ ] Phụ thuộc nhiều
+
+Giải thích:
 
 ```text
-Viết tại đây...
-```
-
-#### 5.4. Kết quả đã áp dụng vào bài
-
-```text
-Viết tại đây...
-```
-
-#### 5.5. Phần sinh viên/nhóm đã chỉnh sửa hoặc cải tiến
-
-```text
-Viết tại đây...
-```
-
-#### 5.6. Đánh giá chất lượng prompt
-
-- [ ] Prompt rõ ràng
-- [ ] Prompt có đủ bối cảnh
-- [ ] Prompt còn thiếu thông tin
-- [ ] Prompt tạo ra kết quả tốt
-- [ ] Prompt tạo ra kết quả chưa phù hợp
-- [ ] Cần hỏi lại AI nhiều lần
-- [ ] Cần tự kiểm tra và chỉnh sửa nhiều
-- [ ] Kết quả AI có lỗi hoặc chưa chính xác
-
-#### 5.7. Minh chứng liên quan
-
-| Loại minh chứng | Nội dung |
-|---|---|
-| Link commit |  |
-| File liên quan |  |
-| Screenshot |  |
-| Kết quả chạy/test |  |
-| Link tài liệu/báo cáo |  |
-| Ghi chú khác |  |
-
-#### 5.8. Ghi chú thêm
-
-```text
-Viết tại đây...
+Nhóm em có phụ thuộc AI ở mức trung bình vì AI hỗ trợ rất tốt trong việc tìm ý tưởng, tham khảo giao diện do AI tạo ra để phát triển giao diện của dự án. Tuy nhiên, nhóm vẫn cần tự phân tích yêu cầu, kiểm tra lại kết quả và tự triển khai nhiều phần quan trọng. AI được xem như công cụ hỗ trợ học tập và phát triển dự án, không thay thế hoàn toàn tư duy và kỹ năng của nhóm.
 ```
 
 ---
 
-## 6. Prompt quan trọng nhất
+## 7. Em/nhóm đã kiểm tra kết quả AI như thế nào?
 
-Chọn một prompt có ảnh hưởng lớn nhất đến bài tập/project.
+- [ ] Chạy thử chương trình
+- [x] Kiểm tra các giao diện được tạo ra
+- [ ] Viết test case
+- [ ] So sánh với yêu cầu đề bài
+- [ ] Đối chiếu với tài liệu môn học
+- [x] Review lại các screen
+- [ ] Hỏi lại giảng viên
+- [ ] Tra cứu tài liệu chính thống
+- [ ] Thảo luận với thành viên nhóm
+- [x] Tự chỉnh sửa lại các lỗi
+- [ ] So sánh trước và sau khi dùng AI
 
-### 6.1. Prompt được chọn
+### Mô tả quá trình kiểm chứng
 
 ```text
-Dán prompt quan trọng nhất tại đây.
+ 
 ```
+---
 
-### 6.2. Vì sao prompt này quan trọng?
-
-```text
-Viết tại đây...
-```
-
-### 6.3. Kết quả prompt này mang lại
+## 8. Phần đóng góp thật sự của sinh viên/nhóm
 
 ```text
-Viết tại đây...
-```
-
-### 6.4. Sinh viên/nhóm đã kiểm tra kết quả như thế nào?
-
-```text
-Viết tại đây...
-```
-
-### 6.5. Sinh viên/nhóm đã cải tiến gì từ kết quả AI?
-
-```text
-Viết tại đây...
+Tự thiết kế các usecase diagram, chỉnh sửa logic và hoàn thiện giao diện từ gợi ý AI.
 ```
 
 ---
 
-## 7. Prompt chưa hiệu quả
+## 9. So sánh trước và sau khi dùng AI
 
-Ghi lại ít nhất một prompt chưa tạo ra kết quả tốt hoặc chưa phù hợp.
+| Nội dung | Trước khi dùng AI | Sau khi dùng AI | Cải thiện đạt được |
+|---|---|---|---|
+| Hiểu yêu cầu | Mất nhiều thời gian đọc tài liệu | Tóm tắt nhanh hơn với AI | Hiểu rõ hơn |
+| Thiết kế giải pháp | Ý tưởng chưa rõ ràng | Có hướng triển khai cụ thể | Tăng tốc độ thiết kế |
+| Tốc độ làm việc | Làm thủ công nhiều | AI hỗ trợ viết và sửa nhanh | Tiết kiệm thời gian |
+| Debug & Testing | Khó tìm lỗi | AI gợi ý nguyên nhân và fix | Debug nhanh hơn |
+| Chất lượng tài liệu | Ghi chép rời rạc | Markdown rõ ràng, có cấu trúc | Tài liệu chuyên nghiệp hơn |
 
-### 7.1. Prompt chưa hiệu quả
+---
 
-```text
-Dán prompt chưa hiệu quả tại đây.
-```
-
-### 7.2. Vì sao prompt này chưa hiệu quả?
-
-```text
-Viết tại đây...
-```
-
-Gợi ý nguyên nhân:
-
-- Prompt quá ngắn.
-- Thiếu bối cảnh bài toán.
-- Không nêu rõ yêu cầu đầu ra.
-- Không cung cấp ngôn ngữ lập trình/công nghệ đang dùng.
-- Không đưa lỗi cụ thể.
-- Không đưa ví dụ input/output.
-- Không yêu cầu AI giải thích.
-- Hỏi AI làm toàn bộ thay vì hỏi từng phần.
-
-### 7.3. Cách cải thiện prompt
+## 10. Bài học về môn học
 
 ```text
-Viết tại đây...
-```
-
-### 7.4. Prompt sau khi cải tiến
-
-```text
-Dán prompt đã được cải tiến tại đây.
-```
-
-### 7.5. Kết quả sau khi cải tiến prompt
-
-```text
-Viết tại đây...
+Hiểu rõ hơn về workflow phát triển phần mềm và quản lý tài liệu dự án.
 ```
 
 ---
 
-## 8. Bài học về cách viết prompt
-
-### 8.1. Khi viết prompt, em/nhóm cần cung cấp thông tin gì để AI trả lời tốt hơn?
+## 11. Bài học về sử dụng AI có trách nhiệm
 
 ```text
-Viết tại đây...
-```
-
-Gợi ý:
-
-- Mục tiêu cần đạt.
-- Bối cảnh bài toán.
-- Công nghệ/ngôn ngữ lập trình đang dùng.
-- Input/output mong muốn.
-- Ràng buộc của đề bài.
-- Lỗi đang gặp.
-- Format kết quả mong muốn.
-- Yêu cầu AI giải thích từng bước.
-
-### 8.2. Em/nhóm đã học được gì về cách đặt câu hỏi cho AI?
-
-```text
-Viết tại đây...
-```
-
-### 8.3. Lần sau em/nhóm sẽ cải thiện prompt như thế nào?
-
-```text
-Viết tại đây...
+AI chỉ nên dùng để hỗ trợ, cần kiểm tra và chỉnh sửa trước khi sử dụng.
 ```
 
 ---
 
-## 9. Phân loại prompt đã sử dụng
+## 12. Điều em/nhóm sẽ không làm khi sử dụng AI
 
-Đánh dấu số lượng prompt theo từng nhóm.
+- [x] Không dùng AI để làm toàn bộ bài mà không hiểu nội dung.
+- [x] Không nộp nguyên văn kết quả AI nếu chưa kiểm tra.
+- [x] Không che giấu việc sử dụng AI trong các phần quan trọng.
+- [x] Không dùng AI để tạo nội dung sai lệch hoặc gian lận.
+- [x] Không dùng AI thay thế hoàn toàn quá trình học.
+- [x] Không bỏ qua yêu cầu, rubric hoặc hướng dẫn của giảng viên.
 
-| Loại prompt | Số lượng | Ví dụ prompt tiêu biểu |
-|---|---:|---|
-| Prompt phân tích yêu cầu |  |  |
-| Prompt giải thích kiến thức |  |  |
-| Prompt thiết kế giải pháp |  |  |
-| Prompt thiết kế database |  |  |
-| Prompt sinh code mẫu |  |  |
-| Prompt debug lỗi |  |  |
-| Prompt viết test case |  |  |
-| Prompt review code |  |  |
-| Prompt tối ưu code |  |  |
-| Prompt viết báo cáo |  |  |
-| Prompt chuẩn bị thuyết trình |  |  |
-| Prompt khác |  |  |
+### Giải thích thêm nếu có
+
+```text
+ 
+```
 
 ---
 
-## 10. Checklist chất lượng prompt
+## 13. Kế hoạch cải thiện lần sau
 
-Sinh viên/nhóm tự kiểm tra chất lượng prompt đã dùng.
+```text
+Viết prompt rõ ràng hơn và tăng cường kiểm thử kết quả từ AI.
+```
 
-| Tiêu chí | Đã đạt? | Ghi chú |
+---
+
+## 14. Tự đánh giá mức độ hoàn thành
+
+| Tiêu chí | Điểm tự đánh giá 1-5 | Ghi chú |
 |---|:---:|---|
-| Prompt có mục tiêu rõ ràng |  |  |
-| Prompt có đủ bối cảnh |  |  |
-| Prompt có nêu công nghệ/ngôn ngữ sử dụng |  |  |
-| Prompt có nêu yêu cầu đầu ra |  |  |
-| Prompt không yêu cầu AI làm toàn bộ bài một cách máy móc |  |  |
-| Prompt có yêu cầu AI giải thích hoặc phân tích |  |  |
-| Kết quả AI được kiểm tra lại |  |  |
-| Kết quả AI được chỉnh sửa trước khi sử dụng |  |  |
-| Prompt quan trọng được ghi lại đầy đủ |  |  |
-| Prompt sai/chưa hiệu quả được rút kinh nghiệm |  |  |
+| Ghi nhận việc dùng AI trung thực | 5 | Quá trung thực luôn |
+| Prompt có mục tiêu rõ ràng | 5 | Chi tiết, đầy đủ, mạch lạc, rõ ràng, đẳng cấp |
+| Kiểm chứng kết quả AI | 4 | Luôn kiểm tra trước khi implement một gì đó |
+| Tự chỉnh sửa/cải tiến | 4 | Review lại, tìm giải pháp hợp hợp, đọc kĩ doc |
+| Hiểu nội dung đã nộp | 5 | HIểu mình đang làm gì, hiểu mình cần làm gì |
+| Reflection có chiều sâu | 5 | AI đang là công cụ, trợ lí, không thể thay thế mình |
+| Sử dụng AI có trách nhiệm | 5 | Không phụ thuộc hoàn toàn vào AI |
 
 ---
 
-## 11. Cam kết sử dụng prompt minh bạch
+## 15. Câu hỏi tự vấn cuối bài
 
-Sinh viên/nhóm cam kết rằng:
+### 15.1. Nếu giảng viên hỏi về phần AI đã hỗ trợ, em/nhóm có giải thích lại được không?
 
-- Các prompt quan trọng đã được ghi lại trung thực.
-- Không che giấu việc sử dụng AI trong các phần quan trọng của bài.
-- Không nộp nguyên văn kết quả AI nếu chưa kiểm tra và chỉnh sửa.
-- Có khả năng giải thích các phần đã sử dụng từ AI.
-- Chịu trách nhiệm với sản phẩm cuối cùng.
+```text
+Có, nhóm đã đọc, kiểm tra và hiểu nội dung trước khi sử dụng.
+```
+
+### 15.2. Nếu không có AI, em/nhóm có thể tự làm lại phần quan trọng nhất không?
+
+```text
+Có, nhưng sẽ mất nhiều thời gian hơn để nghiên cứu và triển khai.
+```
+
+### 15.3. Phần nào trong bài thể hiện rõ nhất năng lực thật sự của em/nhóm?
+
+```text
+Phần thiết kế UCD, chỉnh sửa logic và xử lý lỗi hình ảnh thực tế.
+```
+
+### 15.4. Em/nhóm muốn cải thiện kỹ năng nào sau bài này?
+
+```text
+Kỹ năng thiết kế hệ thống, viết prompt và kiểm thử phần mềm.
+```
+
+---
+
+## 16. Cam kết Reflection
 
 | Đại diện sinh viên/nhóm | Ngày xác nhận |
 |---|---|
-|  |  |
+| Hồ Võ Minh Vỹ | 24/5/2026 |
