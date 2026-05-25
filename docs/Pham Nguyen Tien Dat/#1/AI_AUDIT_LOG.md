@@ -26,7 +26,7 @@
 - [ ] Claude
 - [ ] GitHub Copilot
 - [ ] Cursor
-- [ ] Antigravity
+- [ x ] Antigravity
 - [ ] Perplexity
 - [ ] Microsoft Copilot
 - [ x ] Công cụ khác: Stitch By Google
