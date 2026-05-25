@@ -17,21 +17,13 @@
 
 ---
 
-## 2. Mục đích Reflection
+## 2. Mục đích của file Prompt Log
 
-File này dùng để sinh viên/nhóm tự đánh giá quá trình sử dụng AI trong học tập...
-
----
-
-## 3. Tóm tắt quá trình sử dụng AI
-
-```text
-Đã hoàn thành thiết kế các Screen demo UX/UI
-```
+File này dùng để ghi lại các prompt quan trọng đã sử dụng trong quá trình thực hiện bài tập, lab, assignment hoặc project.
 
 ---
 
-## 4. Công cụ AI đã sử dụng
+## 3. Công cụ AI đã sử dụng
 
 - [x] ChatGPT
 - [x] Gemini
@@ -44,39 +36,1059 @@ File này dùng để sinh viên/nhóm tự đánh giá quá trình sử dụng 
 - [x] Stitch with Google
 - [ ] Công cụ khác: ....................................
 
-### Công cụ được sử dụng nhiều nhất
+---
 
-```text
-ChatGPT; Gemini; Stitch with Google
-```
+## 4. Bảng tổng hợp prompt đã sử dụng
 
-### Lý do sử dụng công cụ đó
-
-```text
-Hiểu ngữ cảnh, viết được prompt chuyên nghiệp, thiết kế giao diện đẹp,...
-```
+| STT | Ngày | Công cụ AI | Mục đích | Prompt tóm tắt | Kết quả chính | Có sử dụng vào bài không? | Minh chứng |
+|---:|---|---|---|---|---|---|---|
+| 1 | 2026-05-12 | ChatGPT | Triển khai ý tưởng rộng hơn | iả sử bạn là một designer. Dưới đây là... | AI đọc file, đánh giá ý tưởng,... | Có |   |
+| 2 | 2026-05-12 | ChatGPT | Tạo prompt cho Stitch thiết kế giao diện | Viết promt AI để ra lệnh cho Stitch with google... | Create a full screen web... | Có |   |
 
 ---
 
-## 5. AI đã hỗ trợ em/nhóm ở điểm nào?
+## 5. Prompt chi tiết
 
-- [x] Hiểu yêu cầu đề bài
-- [x] Phân tích bài toán
-- [x] Tìm ý tưởng giải pháp
-- [ ] Thiết kế database
-- [x] Thiết kế giao diện
-- [ ] Thiết kế kiến trúc hệ thống
-- [ ] Viết code mẫu
-- [ ] Debug lỗi
-- [x] Viết test case
-- [ ] Review code
-- [ ] Tối ưu code
-- [ ] Kiểm tra bảo mật
-- [ ] Viết báo cáo
-- [ ] Chuẩn bị thuyết trình
-- [x] Tìm hiểu công nghệ mới
+### Prompt số 1
 
-### Mô tả chi tiết
+| Nội dung | Thông tin |
+|---|---|
+| Ngày sử dụng | 2026-05-24 |
+| Công cụ AI | ChatGPT |
+| Mục đích | Triển khai ý tưởng rộng hơn |
+| Phần việc liên quan | Design |
+| Mức độ sử dụng | Hỏi ý tưởng |
+
+#### 5.1. Prompt nguyên văn
+
+```text
+giả sử bạn là một designer. Dưới đây là các chức năng mà một hệ thống tôi phát triển sẽ có. Vui lòng liệt kê ra những Màn hình (Screen) mà sẽ có trong hệ thông bên dưới, đồng thới chú thích trong những màn hình đó có những tính năng gì
+
+1. Authentication & Authorization Module
+
+(Module Xác thực và Phân quyền)
+
+Chức năng chính
+Đăng ký tài khoản
+Đăng nhập / Đăng xuất
+Quên mật khẩu
+Xác thực E-KYC bằng CCCD/Thẻ sinh viên
+Phân quyền hệ thống:
+Customer
+Staff
+Admin
+JWT/Session authentication
+Quản lý hồ sơ người dùng
+Actors
+Guest
+Customer
+Staff
+Admin
+Yêu cầu nghiệp vụ
+Email phải duy nhất
+Mật khẩu mã hóa
+Staff/Admin có quyền truy cập dashboard quản trị
+Chỉ user đã xác thực mới được thuê dụng cụ cao cấp
+2. Court Management Module
+
+(Module Quản lý Sân)
+
+Chức năng chính
+CRUD sân thể thao
+Quản lý loại sân:
+Cầu lông
+Pickleball
+Quản lý trạng thái sân:
+Available
+Maintenance
+Booked
+Thiết lập giá theo giờ
+Upload hình ảnh sân
+Actors
+Admin
+Staff
+Yêu cầu nghiệp vụ
+Không cho phép xóa sân đang có booking
+Có thể cấu hình khung giờ hoạt động
+3. Smart Booking Module
+
+(Module Đặt Sân Thông Minh)
+
+Chức năng chính
+Xem lịch sân realtime
+Tìm slot trống
+Đặt sân online
+Đặt cọc
+Thanh toán booking
+Auto lock slot khi thanh toán
+Hủy booking
+Booking history
+Actors
+Customer
+Staff
+Yêu cầu nghiệp vụ
+Không được trùng lịch sân
+Lock slot tối đa X phút khi thanh toán
+Booking chỉ confirm khi thanh toán thành công
+Core Features
+Real-time availability
+Conflict detection
+Booking transaction handling
+4. Social Matching Module
+
+(Module Cáp Kèo / Kết Nối Người Chơi)
+
+Chức năng chính
+Tạo bài đăng tìm người chơi
+Join kèo
+Approve/Reject thành viên
+Hiển thị trình độ chơi
+Tính phí tham gia tự động
+Escrow payment
+Check-in người tham gia
+Đánh dấu no-show
+Actors
+Customer
+Yêu cầu nghiệp vụ
+Người tham gia phải trả tiền trước
+Nếu vắng mặt:
+bị trừ phí
+Host chỉ nhận tiền khi xác nhận đủ người
+Core Features
+Anti no-show mechanism
+Shared payment logic
+5. Inventory Management Module
+
+(Module Quản lý Kho & Dụng cụ)
+
+Chức năng chính
+CRUD sản phẩm
+Quản lý:
+Kho New
+Kho Demo/Rental
+Theo dõi tồn kho
+Theo dõi Rent_Count
+Theo dõi khấu hao
+Quản lý thương hiệu
+Quản lý danh mục
+Actors
+Staff
+Admin
+Yêu cầu nghiệp vụ
+Sản phẩm demo không được bán như hàng mới
+Tự động cập nhật số lượt thuê
+6. Rental Management Module
+
+(Module Thuê/Mượn Dụng Cụ)
+
+Chức năng chính
+Thuê dụng cụ tại sân
+POS interface cho Staff
+Ghi nhận thời gian mượn
+Trả dụng cụ
+Condition Check:
+Normal
+Minor Scratch
+Damaged
+Tính surcharge
+Rental history
+Actors
+Staff
+Customer
+Yêu cầu nghiệp vụ
+Có thể yêu cầu đặt cọc
+Nếu hư hỏng:
+tự động tính phụ phí
+Lưu lịch sử tình trạng sản phẩm
+7. E-commerce Module
+
+(Module Bán Hàng Online)
+
+Chức năng chính
+Hiển thị sản phẩm
+Search / Filter
+Product detail
+Shopping cart
+Checkout
+Order management
+Voucher usage
+Actors
+Customer
+Yêu cầu nghiệp vụ
+Chỉ hàng New mới được bán
+Kiểm tra tồn kho trước checkout
+8. Payment Integration Module
+
+(Module Thanh Toán)
+
+Chức năng chính
+VNPay integration
+MoMo integration
+Deposit payment
+Refund processing
+Escrow payment handling
+Transaction history
+Actors
+Customer
+System
+Yêu cầu nghiệp vụ
+Payment callback phải verify chữ ký
+Giao dịch thất bại phải rollback
+9. Promotion & Voucher Module
+
+(Module Khuyến mãi)
+
+Chức năng chính
+Sinh voucher tự động
+Try-Before-You-Buy
+Discount management
+Voucher validation
+Expiration management
+Actors
+Admin
+Customer
+Yêu cầu nghiệp vụ
+Voucher chỉ dùng 1 lần
+Voucher sinh từ rental phải đúng giá trị thuê
+10. Dashboard & Reporting Module
+
+(Module Dashboard & Báo Cáo)
+
+Chức năng chính
+Revenue dashboard
+Court occupancy statistics
+Booking statistics
+Rental statistics
+Best-selling products
+User activity analytics
+Actors
+Admin
+Yêu cầu nghiệp vụ
+Dashboard realtime/basic realtime
+Export Excel/PDF
+11. Notification Module
+
+(Module Thông Báo)
+
+Chức năng chính
+Email booking confirmation
+Payment notification
+Reminder trước giờ chơi
+Voucher notification
+Social matching updates
+Actors
+System
+Customer
+Yêu cầu nghiệp vụ
+Gửi email sau thanh toán thành công
+Reminder trước X phút
+12. Audit & Logging Module
+
+(Module Nhật ký hệ thống)
+
+Chức năng chính
+Log login/logout
+Log payment transaction
+Log inventory changes
+Log booking updates
+Error logging
+Actors
+Admin
+System
+Yêu cầu nghiệp vụ
+Không cho sửa log
+Theo dõi lịch sử thay đổi dữ liệu quan trọng
+13. System Administration Module
+
+(Module Quản trị hệ thống)
+
+Chức năng chính
+Quản lý user
+Quản lý role
+System settings
+Court pricing configuration
+Operating hours
+Maintenance scheduling
+Actors
+Admin
+```
+
+#### 5.2. Bối cảnh khi viết prompt
+
+```text
+```
+
+#### 5.3. Kết quả AI trả về
+
+```text
+Dưới góc nhìn của một UI/UX Designer, hệ thống này sẽ được chia thành nhiều **Screen (Màn hình)** theo từng nhóm nghiệp vụ để dễ sử dụng, dễ mở rộng và đúng flow người dùng.
+
+---
+
+# 1. Authentication & Authorization Module
+
+## (Xác thực & Phân quyền)
+
+### 1.1 Landing Page / Home
+
+**Chức năng**
+
+* Giới thiệu hệ thống
+* CTA:
+
+  * Đăng nhập
+  * Đăng ký
+  * Xem sân
+  * Xem sản phẩm
+* Banner khuyến mãi
+* Giới thiệu dịch vụ
+
+---
+
+### 1.2 Login Screen
+
+**Chức năng**
+
+* Đăng nhập email/password
+* Remember me
+* Đăng nhập Google/Facebook (optional)
+* Quên mật khẩu
+* Validate tài khoản
+
+---
+
+### 1.3 Register Screen
+
+**Chức năng**
+
+* Nhập:
+
+  * Họ tên
+  * Email
+  * Password
+  * Confirm password
+* Chấp nhận điều khoản
+* Validate email unique
+
+---
+
+### 1.4 Forgot Password Screen
+
+**Chức năng**
+
+* Nhập email
+* Gửi OTP/link reset
+* Reset password
+
+---
+
+### 1.5 E-KYC Verification Screen
+
+**Chức năng**
+
+* Upload CCCD/Thẻ sinh viên
+* Camera scan
+* OCR preview
+* Xác thực trạng thái:
+
+  * Pending
+  * Verified
+  * Rejected
+
+---
+
+### 1.6 User Profile Screen
+
+**Chức năng**
+
+* Avatar
+* Thông tin cá nhân
+* Đổi mật khẩu
+* Trạng thái KYC
+* Lịch sử hoạt động
+* Membership/VIP
+
+---
+
+### 1.7 Role & Permission Management Screen (Admin)
+
+**Chức năng**
+
+* CRUD role
+* Gán quyền:
+
+  * Customer
+  * Staff
+  * Admin
+* Matrix permission table
+
+---
+
+# 2. Court Management Module
+
+## (Quản lý sân)
+
+### 2.1 Court List Screen
+
+**Chức năng**
+
+* Danh sách sân
+* Filter:
+
+  * Loại sân
+  * Trạng thái
+* Search sân
+* Quick status
+
+---
+
+### 2.2 Court Detail Screen
+
+**Chức năng**
+
+* Hình ảnh sân
+* Giá theo giờ
+* Trạng thái
+* Lịch hoạt động
+* Mô tả sân
+
+---
+
+### 2.3 Create/Edit Court Screen
+
+**Chức năng**
+
+* CRUD sân
+* Upload ảnh
+* Cấu hình:
+
+  * Giờ hoạt động
+  * Giá
+  * Loại sân
+  * Maintenance
+
+---
+
+### 2.4 Court Schedule Management Screen
+
+**Chức năng**
+
+* Calendar view
+* Block maintenance slot
+* Set available hours
+* Drag/drop slot
+
+---
+
+# 3. Smart Booking Module
+
+## (Đặt sân thông minh)
+
+### 3.1 Real-time Court Availability Screen
+
+**Chức năng**
+
+* Live court schedule
+* Xem slot trống
+* Color trạng thái:
+
+  * Available
+  * Booked
+  * Locked
+
+---
+
+### 3.2 Booking Search Screen
+
+**Chức năng**
+
+* Tìm sân theo:
+
+  * Thời gian
+  * Môn chơi
+  * Giá
+* Gợi ý slot phù hợp
+
+---
+
+### 3.3 Booking Detail Screen
+
+**Chức năng**
+
+* Thông tin booking
+* Chọn thời gian
+* Chọn sân
+* Chọn dịch vụ thêm
+
+---
+
+### 3.4 Payment & Deposit Screen
+
+**Chức năng**
+
+* Thanh toán
+* Đặt cọc
+* Chọn cổng:
+
+  * VNPay
+  * MoMo
+* Countdown lock slot
+
+---
+
+### 3.5 Booking Success Screen
+
+**Chức năng**
+
+* QR booking
+* Invoice
+* Email confirmation
+* Add to calendar
+
+---
+
+### 3.6 Booking History Screen
+
+**Chức năng**
+
+* Danh sách booking
+* Filter trạng thái
+* Hủy booking
+* Re-book
+
+---
+
+# 4. Social Matching Module
+
+## (Cáp kèo / Kết nối người chơi)
+
+### 4.1 Social Feed Screen
+
+**Chức năng**
+
+* Danh sách kèo
+* Feed realtime
+* Search theo:
+
+  * Skill
+  * Khu vực
+  * Thời gian
+
+---
+
+### 4.2 Create Match Post Screen
+
+**Chức năng**
+
+* Tạo bài tìm người chơi
+* Chọn:
+
+  * Trình độ
+  * Số lượng
+  * Phí tham gia
+  * Sân
+  * Thời gian
+
+---
+
+### 4.3 Match Detail Screen
+
+**Chức năng**
+
+* Thông tin kèo
+* Danh sách thành viên
+* Join kèo
+* Payment escrow
+
+---
+
+### 4.4 Match Approval Screen (Host)
+
+**Chức năng**
+
+* Approve/Reject người tham gia
+* Quản lý waiting list
+
+---
+
+### 4.5 Check-in Management Screen
+
+**Chức năng**
+
+* QR check-in
+* Mark no-show
+* Attendance tracking
+
+---
+
+# 5. Inventory Management Module
+
+## (Quản lý kho)
+
+### 5.1 Inventory Dashboard Screen
+
+**Chức năng**
+
+* Tổng quan tồn kho
+* Sản phẩm sắp hết
+* Rental usage
+
+---
+
+### 5.2 Product List Screen
+
+**Chức năng**
+
+* CRUD sản phẩm
+* Search/filter
+* Inventory status
+
+---
+
+### 5.3 Product Detail Screen
+
+**Chức năng**
+
+* Hình ảnh
+* Thông số
+* Rent count
+* Depreciation
+* Inventory history
+
+---
+
+### 5.4 Brand Management Screen
+
+**Chức năng**
+
+* CRUD brand
+* Brand logo
+
+---
+
+### 5.5 Category Management Screen
+
+**Chức năng**
+
+* CRUD category
+* Category hierarchy
+
+---
+
+# 6. Rental Management Module
+
+## (Thuê/Mượn dụng cụ)
+
+### 6.1 Rental POS Screen
+
+**Chức năng**
+
+* Staff chọn sản phẩm
+* Scan barcode
+* Quick checkout
+* Deposit handling
+
+---
+
+### 6.2 Rental Checkout Screen
+
+**Chức năng**
+
+* Xác nhận thuê
+* Thời gian thuê
+* Điều kiện sản phẩm
+
+---
+
+### 6.3 Return Equipment Screen
+
+**Chức năng**
+
+* Return item
+* Condition check:
+
+  * Normal
+  * Scratch
+  * Damaged
+* Auto surcharge
+
+---
+
+### 6.4 Rental History Screen
+
+**Chức năng**
+
+* Lịch sử thuê
+* Tình trạng thiết bị
+* Fee history
+
+---
+
+# 7. E-commerce Module
+
+## (Bán hàng online)
+
+### 7.1 Product Catalog Screen
+
+**Chức năng**
+
+* Grid/list sản phẩm
+* Search/filter
+* Category menu
+
+---
+
+### 7.2 Product Detail Screen
+
+**Chức năng**
+
+* Ảnh sản phẩm
+* Review
+* Inventory
+* Add to cart
+
+---
+
+### 7.3 Shopping Cart Screen
+
+**Chức năng**
+
+* Danh sách sản phẩm
+* Quantity update
+* Voucher apply
+
+---
+
+### 7.4 Checkout Screen
+
+**Chức năng**
+
+* Shipping info
+* Payment method
+* Order summary
+
+---
+
+### 7.5 Order History Screen
+
+**Chức năng**
+
+* Tracking order
+* Invoice
+* Reorder
+
+---
+
+# 8. Payment Integration Module
+
+## (Thanh toán)
+
+### 8.1 Payment Gateway Screen
+
+**Chức năng**
+
+* Chọn phương thức thanh toán
+* VNPay/MoMo
+
+---
+
+### 8.2 Transaction History Screen
+
+**Chức năng**
+
+* Lịch sử giao dịch
+* Refund status
+* Escrow status
+
+---
+
+### 8.3 Refund Management Screen
+
+**Chức năng**
+
+* Request refund
+* Approve/refuse refund
+
+---
+
+# 9. Promotion & Voucher Module
+
+## (Khuyến mãi)
+
+### 9.1 Voucher List Screen
+
+**Chức năng**
+
+* Danh sách voucher
+* Expiration status
+
+---
+
+### 9.2 Create Voucher Screen
+
+**Chức năng**
+
+* Discount config
+* Quantity
+* Expiration
+* Conditions
+
+---
+
+### 9.3 Voucher Validation Screen
+
+**Chức năng**
+
+* Check voucher valid
+* Remaining usage
+
+---
+
+# 10. Dashboard & Reporting Module
+
+## (Dashboard & Báo cáo)
+
+### 10.1 Admin Dashboard Screen
+
+**Chức năng**
+
+* Revenue chart
+* Booking chart
+* Occupancy
+* KPI cards
+
+---
+
+### 10.2 Analytics Screen
+
+**Chức năng**
+
+* User analytics
+* Peak hours
+* Top products
+
+---
+
+### 10.3 Report Export Screen
+
+**Chức năng**
+
+* Export:
+
+  * Excel
+  * PDF
+* Date range filter
+
+---
+
+# 11. Notification Module
+
+## (Thông báo)
+
+### 11.1 Notification Center Screen
+
+**Chức năng**
+
+* Booking reminder
+* Payment status
+* Match updates
+
+---
+
+### 11.2 Email Template Management Screen (Admin)
+
+**Chức năng**
+
+* Customize email template
+* Preview email
+
+---
+
+# 12. Audit & Logging Module
+
+## (Nhật ký hệ thống)
+
+### 12.1 System Logs Screen
+
+**Chức năng**
+
+* Login/logout logs
+* Error logs
+* Payment logs
+
+---
+
+### 12.2 Audit Trail Screen
+
+**Chức năng**
+
+* Theo dõi thay đổi dữ liệu
+* User action history
+* Immutable logs
+
+---
+
+# 13. System Administration Module
+
+## (Quản trị hệ thống)
+
+### 13.1 User Management Screen
+
+**Chức năng**
+
+* CRUD user
+* Ban/unban
+* Reset password
+
+---
+
+### 13.2 System Settings Screen
+
+**Chức năng**
+
+* Operating hours
+* Pricing config
+* Maintenance mode
+
+---
+
+### 13.3 Maintenance Scheduling Screen
+
+**Chức năng**
+
+* Lên lịch bảo trì sân
+* Notify affected bookings
+
+---
+
+# 14. Cross-system Shared Screens
+
+## (Màn hình dùng chung)
+
+### 14.1 Header / Navigation
+
+**Chức năng**
+
+* Search global
+* Notification bell
+* User menu
+
+---
+
+### 14.2 Sidebar Dashboard
+
+**Chức năng**
+
+* Dynamic menu theo role
+* Quick actions
+
+---
+
+### 14.3 Error / Empty State Screens
+
+**Chức năng**
+
+* 404
+* No booking
+* Payment failed
+
+---
+
+# Tổng kết kiến trúc UI
+
+## Nhóm Customer Screens
+
+* Booking
+* Social matching
+* Shopping
+* Rental
+* Payment
+* Notifications
+* Profile
+
+---
+
+## Nhóm Staff Screens
+
+* POS rental
+* Court management
+* Booking support
+* Inventory management
+
+---
+
+## Nhóm Admin Screens
+
+* Dashboard
+* Analytics
+* User management
+* Audit logs
+* System configuration
+* Promotions
+
+---
+
+# Ước lượng số lượng màn hình
+
+| Module           | Số Screen |
+| ---------------- | --------- |
+| Authentication   | 7         |
+| Court Management | 4         |
+| Booking          | 6         |
+| Social Matching  | 5         |
+| Inventory        | 5         |
+| Rental           | 4         |
+| E-commerce       | 5         |
+| Payment          | 3         |
+| Promotion        | 3         |
+| Dashboard        | 3         |
+| Notification     | 2         |
+| Audit            | 2         |
+| Administration   | 3         |
+| Shared           | 3         |
+
+### Tổng khoảng:
+
+# ~55–60 Screens
+
+Đây là quy mô khá chuẩn cho:
+
+* Capstone Project
+* SWP391
+* Startup MVP+
+* SaaS Sport Complex Platform
+
+```
+
+#### 5.4. Kết quả đã áp dụng vào bài
+
+```text
+All of the result (with review)
+```
+
+#### 5.5. Phần sinh viên/nhóm đã chỉnh sửa hoặc cải tiến
+
+```text
+Chỉnh sửa lại một vài chỗ còn chưa hợp lí, chỉnh lại các tools
+```
+
+#### 5.6. Đánh giá chất lượng prompt
+
+- [x] Prompt rõ ràng
+- [x] Prompt có đủ bối cảnh
+- [ ] Prompt còn thiếu thông tin
+- [x] Prompt tạo ra kết quả tốt
+- [ ] Prompt tạo ra kết quả chưa phù hợp
+- [ ] Cần hỏi lại AI nhiều lần
+- [ ] Cần tự kiểm tra và chỉnh sửa nhiều
+
+#### 5.7. Minh chứng liên quan
+
+| Loại minh chứng | Nội dung |
+|---|---|
+| File/Link |   |
+
+#### 5.8. Ghi chú thêm
 
 ```text
  
@@ -84,174 +1096,348 @@ Hiểu ngữ cảnh, viết được prompt chuyên nghiệp, thiết kế giao 
 
 ---
 
-## 6. AI có giúp em/nhóm học tốt hơn không?
+### Prompt số 2
 
-### 6.1. Những điểm AI giúp em/nhóm học tốt hơn
+| Nội dung | Thông tin |
+|---|---|
+| Ngày sử dụng | 2026-05-24 |
+| Công cụ AI | ChatGPT |
+| Mục đích | Tạo prompt cho Stitch thiết kế giao diện |
+| Phần việc liên quan | Design |
+| Mức độ sử dụng | Hỏi ý tưởng |
 
-```text
-- Giải thích kiến thức nhanh và dễ hiểu hơn
-- Hỗ trợ tìm tài liệu, ví dụ và ý tưởng
-- Giúp debug và tối ưu code nhanh hơn
-- Tăng tốc làm báo cáo, slide, documentation
-- Hỗ trợ brainstorming và chia task nhóm
-- Tự động hóa các công việc lặp lại
-- Học công nghệ mới nhanh hơn qua ví dụ thực tế
-- Cải thiện kỹ năng viết prompt và tư duy logic
-```
-
-### 6.2. Những điểm AI chưa giúp tốt hoặc gây khó khăn
+#### 5.1. Prompt nguyên văn
 
 ```text
-- Đôi khi trả lời sai hoặc thông tin chưa chính xác
-- Màn hình generate có thể lỗi hoặc chưa tối ưu
-- Khó hiểu đúng ý nếu prompt quá ngắn
-- Một số câu trả lời còn chung chung, thiếu thực tế
-- Không hiểu toàn bộ context project lớn nếu thiếu dữ liệu
-- Có thể tạo sự phụ thuộc nếu lạm dụng AI quá nhiều
-- Thông tin mới hoặc niche đôi lúc chưa cập nhật đầy đủ
-- Cần kiểm tra lại output thay vì dùng trực tiếp 100%
+Viết promt AI để ra lệnh cho Stitch with google (Một công cụ thiết kế UX/UI AI) thiết kế cho mình các màn hình trong Authentication & Authorization Module.
+Yêu cầu là mô tả rõ hệ thống này là hệ thống gì để stitch tạo UX/UI chuẩn nhất
 ```
 
-### 6.3. Em/nhóm có bị phụ thuộc vào AI không?
-
-- [ ] Không phụ thuộc
-- [ ] Phụ thuộc ít
-- [x] Phụ thuộc trung bình
-- [ ] Phụ thuộc nhiều
-
-Giải thích:
+#### 5.2. Bối cảnh khi viết prompt
 
 ```text
-Nhóm em có phụ thuộc AI ở mức trung bình vì AI hỗ trợ rất tốt trong việc tìm ý tưởng, tham khảo giao diện do AI tạo ra để phát triển giao diện của dự án. Tuy nhiên, nhóm vẫn cần tự phân tích yêu cầu, kiểm tra lại kết quả và tự triển khai nhiều phần quan trọng. AI được xem như công cụ hỗ trợ học tập và phát triển dự án, không thay thế hoàn toàn tư duy và kỹ năng của nhóm.
+
 ```
 
----
+#### 5.3. Kết quả AI trả về
 
-## 7. Em/nhóm đã kiểm tra kết quả AI như thế nào?
+```text
+Design a modern, professional, and scalable UX/UI for a web-based sport complex management platform called “Pro-Sport Complex Management System”.
 
-- [ ] Chạy thử chương trình
-- [x] Kiểm tra các giao diện được tạo ra
-- [ ] Viết test case
-- [ ] So sánh với yêu cầu đề bài
-- [ ] Đối chiếu với tài liệu môn học
-- [x] Review lại các screen
-- [ ] Hỏi lại giảng viên
-- [ ] Tra cứu tài liệu chính thống
-- [ ] Thảo luận với thành viên nhóm
-- [x] Tự chỉnh sửa lại các lỗi
-- [ ] So sánh trước và sau khi dùng AI
+SYSTEM OVERVIEW:
+This system is an all-in-one sports ecosystem platform that allows users to:
 
-### Mô tả quá trình kiểm chứng
+* Book badminton and pickleball courts in real-time
+* Rent sports equipment
+* Purchase sports products online
+* Join social matches and connect with other players
+* Manage payments, vouchers, and bookings
+* Support staff/admin operations with dashboards and analytics
+
+The platform has 4 user roles:
+
+1. Guest
+2. Customer
+3. Staff
+4. Admin
+
+The design style should feel:
+
+* Modern SaaS product
+* Clean and premium
+* Sport-tech startup aesthetic
+* Similar quality level to Airbnb, Playtomic, Notion, Stripe Dashboard, or Decathlon apps
+* Minimal but highly usable
+* Mobile-first responsive design
+* Smooth UX flow with clear hierarchy
+
+PRIMARY COLOR STYLE:
+
+* Dark navy / royal blue
+* White background sections
+* Neon green or cyan accent
+* Soft shadows
+* Rounded cards/buttons
+* Clean typography
+* Glassmorphism/light futuristic sports-tech feeling
+
+TARGET USERS:
+
+* Young sports players (18–35)
+* University students
+* Amateur and semi-professional badminton/pickleball players
+* Sports center staff
+* Sport complex administrators
+
+IMPORTANT UX REQUIREMENTS:
+
+* Fast onboarding flow
+* Easy authentication
+* Trustworthy verification process
+* Professional dashboard access for staff/admin
+* Security-focused design
+* Real-time status indicators
+* Accessibility-friendly UI
+* Clear visual feedback and validation states
+
+NOW DESIGN THE FOLLOWING SCREENS:
+
+1. Landing Page
+   Features:
+
+* Hero section with sports court visuals
+* CTA buttons:
+
+  * Login
+  * Register
+  * Book Court
+* Feature showcase
+* Social proof/testimonials
+* Responsive navigation bar
+
+2. Login Screen
+   Features:
+
+* Email/password login
+* Remember me
+* Forgot password link
+* Login with Google
+* Validation error states
+* Modern card-based auth layout
+
+3. Register Screen
+   Features:
+
+* Full name
+* Email
+* Password
+* Confirm password
+* Terms & conditions checkbox
+* Email uniqueness validation
+* Success feedback UI
+
+4. Forgot Password Screen
+   Features:
+
+* Email input
+* Send OTP/reset link
+* Success state
+* Minimal clean layout
+
+5. Reset Password Screen
+   Features:
+
+* OTP verification
+* New password
+* Confirm password
+* Password strength indicator
+
+6. E-KYC Verification Screen
+   Features:
+
+* Upload Citizen ID / Student Card
+* Camera scan placeholder
+* OCR preview section
+* Verification status:
+
+  * Pending
+  * Verified
+  * Rejected
+* Security/trust UI indicators
+
+7. User Profile Screen
+   Features:
+
+* Profile avatar
+* Personal information
+* Verification badge
+* Edit profile
+* Change password
+* Booking summary
+* Rental history preview
+
+8. Staff/Admin Dashboard Entry Screen
+   Features:
+
+* Role-based dashboard access
+* Quick statistics cards
+* Sidebar navigation
+* Secure admin aesthetic
+* Notification panel
+
+9. Role & Permission Management Screen (Admin)
+   Features:
+
+* User list table
+* Role assignment
+* Permission matrix
+* Toggle permissions
+* Search/filter users
+
+UX/UI GUIDELINES:
+
+* Use consistent design system
+* Design reusable components
+* Use realistic dashboard cards/charts
+* Include hover/focus states
+* Use modern icons
+* Include empty states and loading states
+* Use realistic spacing and typography hierarchy
+* Prioritize usability and conversion
+
+DELIVERABLE STYLE:
+
+* High-fidelity UI mockups
+* Figma-ready structure
+* Real SaaS product quality
+* Professional component organization
+* Responsive layouts for desktop and mobile
+
+Generate all screens with consistent design language and connected user flow.
+
+
+```
+
+#### 5.4. Kết quả đã áp dụng vào bài
+
+```text
+All of it with review
+```
+
+#### 5.5. Phần sinh viên/nhóm đã chỉnh sửa hoặc cải tiến
+
+```text
+
+```
+
+#### 5.6. Đánh giá chất lượng prompt
+
+- [x] Prompt rõ ràng
+- [x] Prompt có đủ bối cảnh
+- [ ] Prompt còn thiếu thông tin
+- [x] Prompt tạo ra kết quả tốt
+- [ ] Prompt tạo ra kết quả chưa phù hợp
+- [ ] Cần hỏi lại AI nhiều lần
+- [x] Cần tự kiểm tra và chỉnh sửa nhiều
+
+#### 5.7. Minh chứng liên quan
+
+| Loại minh chứng | Nội dung |
+|---|---|
+| File/Link |   |
+
+#### 5.8. Ghi chú thêm
 
 ```text
  
 ```
+
 ---
 
-## 8. Phần đóng góp thật sự của sinh viên/nhóm
+## 6. Prompt quan trọng nhất
+
+### 6.1. Prompt được chọn
 
 ```text
-Tự thiết kế các usecase diagram, chỉnh sửa logic và hoàn thiện giao diện từ gợi ý AI.
+Viết promt AI để ra lệnh cho Stitch with google (Một công cụ thiết kế UX/UI AI) thiết kế cho mình các màn hình trong Authentication & Authorization Module.
+Yêu cầu là mô tả rõ hệ thống này là hệ thống gì để stitch tạo UX/UI chuẩn nhất
 ```
 
----
-
-## 9. So sánh trước và sau khi dùng AI
-
-| Nội dung | Trước khi dùng AI | Sau khi dùng AI | Cải thiện đạt được |
-|---|---|---|---|
-| Hiểu yêu cầu | Mất nhiều thời gian đọc tài liệu | Tóm tắt nhanh hơn với AI | Hiểu rõ hơn |
-| Thiết kế giải pháp | Ý tưởng chưa rõ ràng | Có hướng triển khai cụ thể | Tăng tốc độ thiết kế |
-| Tốc độ làm việc | Làm thủ công nhiều | AI hỗ trợ viết và sửa nhanh | Tiết kiệm thời gian |
-| Debug & Testing | Khó tìm lỗi | AI gợi ý nguyên nhân và fix | Debug nhanh hơn |
-| Chất lượng tài liệu | Ghi chép rời rạc | Markdown rõ ràng, có cấu trúc | Tài liệu chuyên nghiệp hơn |
-
----
-
-## 10. Bài học về môn học
-
-```text
-Hiểu rõ hơn về workflow phát triển phần mềm và quản lý tài liệu dự án.
-```
-
----
-
-## 11. Bài học về sử dụng AI có trách nhiệm
-
-```text
-AI chỉ nên dùng để hỗ trợ, cần kiểm tra và chỉnh sửa trước khi sử dụng.
-```
-
----
-
-## 12. Điều em/nhóm sẽ không làm khi sử dụng AI
-
-- [x] Không dùng AI để làm toàn bộ bài mà không hiểu nội dung.
-- [x] Không nộp nguyên văn kết quả AI nếu chưa kiểm tra.
-- [x] Không che giấu việc sử dụng AI trong các phần quan trọng.
-- [x] Không dùng AI để tạo nội dung sai lệch hoặc gian lận.
-- [x] Không dùng AI thay thế hoàn toàn quá trình học.
-- [x] Không bỏ qua yêu cầu, rubric hoặc hướng dẫn của giảng viên.
-
-### Giải thích thêm nếu có
+### 6.2. Vì sao prompt này quan trọng?
 
 ```text
  
 ```
 
----
-
-## 13. Kế hoạch cải thiện lần sau
+### 6.3. Kết quả prompt này mang lại
 
 ```text
-Viết prompt rõ ràng hơn và tăng cường kiểm thử kết quả từ AI.
+AI đọc file, đánh giá ý tưởng, chỉ ra chỗ nào tốt chỗ nào cần cải thiện, triển khai ý tưởng web sâu hơn,...
+```
+
+### 6.4. Sinh viên/nhóm đã kiểm tra kết quả như thế nào?
+
+```text
+All of of the result (with review)
+```
+
+### 6.5. Sinh viên/nhóm đã cải tiến gì từ kết quả AI?
+
+```text
+Chỉnh sửa lại một vài chỗ còn chưa hợp lí, chỉnh lại các tools, framework sử dụng, confirm lại ý tưởng và các câu hỏi mở của AI
 ```
 
 ---
 
-## 14. Tự đánh giá mức độ hoàn thành
+## 7. Prompt chưa hiệu quả
 
-| Tiêu chí | Điểm tự đánh giá 1-5 | Ghi chú |
+```text
+Chưa có prompt chưa hiệu quả được ghi nhận.
+```
+
+---
+
+## 8. Bài học về cách viết prompt
+
+### 8.1. Khi viết prompt, em/nhóm cần cung cấp thông tin gì để AI trả lời tốt hơn?
+
+```text
+Mục tiêu rõ ràng: muốn AI làm gì
+Context: project, tech stack, tình huống hiện tại
+Yêu cầu cụ thể: dùng framework gì, style gì, best practice không
+Constraint: không dùng gì, giới hạn gì
+Output mong muốn: code, roadmap, bảng, markdown, prompt,...
+Ví dụ input/output nếu có
+Thông tin hiện tại: lỗi gì, đã thử gì rồi
+```
+
+### 8.2. Em/nhóm đã học được gì về cách đặt câu hỏi cho AI?
+
+```text
+Prompt tốt thường có:
+- Mục tiêu rõ ràng
+- Context đầy đủ
+- Yêu cầu cụ thể
+- Constraint / giới hạn
+- Format output mong muốn
+- Ví dụ nếu có
+```
+
+### 8.3. Lần sau em/nhóm sẽ cải thiện prompt như thế nào?
+
+```text
+Cung cấp nhiều context hơn
+Nói rõ output muốn nhận
+Đưa constraint ngay từ đầu
+Thêm ví dụ thực tế
+Chia task lớn thành nhiều bước
+Mention tech stack/version cụ thể
+Mô tả lỗi và expected behavior rõ hơn
+```
+
+---
+
+## 9. Phân loại prompt đã sử dụng
+
+| Loại prompt | Số lượng | Ví dụ prompt tiêu biểu |
+|---|---:|---|
+| Prompt Design | 2 |  |
+
+---
+
+## 10. Checklist chất lượng prompt
+
+| Tiêu chí | Đã đạt? | Ghi chú |
 |---|:---:|---|
-| Ghi nhận việc dùng AI trung thực | 5 | Quá trung thực luôn |
-| Prompt có mục tiêu rõ ràng | 5 | Chi tiết, đầy đủ, mạch lạc, rõ ràng, đẳng cấp |
-| Kiểm chứng kết quả AI | 4 | Luôn kiểm tra trước khi implement một gì đó |
-| Tự chỉnh sửa/cải tiến | 4 | Review lại, tìm giải pháp hợp hợp, đọc kĩ doc |
-| Hiểu nội dung đã nộp | 5 | HIểu mình đang làm gì, hiểu mình cần làm gì |
-| Reflection có chiều sâu | 5 | AI đang là công cụ, trợ lí, không thể thay thế mình |
-| Sử dụng AI có trách nhiệm | 5 | Không phụ thuộc hoàn toàn vào AI |
+| Prompt có mục tiêu rõ ràng | x | |
+| Prompt có đủ bối cảnh | x | |
+| Tự kiểm tra và chỉnh sửa | x | |
 
 ---
 
-## 15. Câu hỏi tự vấn cuối bài
+## 11. Cam kết sử dụng prompt minh bạch
 
-### 15.1. Nếu giảng viên hỏi về phần AI đã hỗ trợ, em/nhóm có giải thích lại được không?
-
-```text
-Có, nhóm đã đọc, kiểm tra và hiểu nội dung trước khi sử dụng.
-```
-
-### 15.2. Nếu không có AI, em/nhóm có thể tự làm lại phần quan trọng nhất không?
-
-```text
-Có, nhưng sẽ mất nhiều thời gian hơn để nghiên cứu và triển khai.
-```
-
-### 15.3. Phần nào trong bài thể hiện rõ nhất năng lực thật sự của em/nhóm?
-
-```text
-Phần thiết kế UCD, chỉnh sửa logic và xử lý lỗi hình ảnh thực tế.
-```
-
-### 15.4. Em/nhóm muốn cải thiện kỹ năng nào sau bài này?
-
-```text
-Kỹ năng thiết kế hệ thống, viết prompt và kiểm thử phần mềm.
-```
-
----
-
-## 16. Cam kết Reflection
+## 16. Cam kết Prompt
 
 | Đại diện sinh viên/nhóm | Ngày xác nhận |
 |---|---|
