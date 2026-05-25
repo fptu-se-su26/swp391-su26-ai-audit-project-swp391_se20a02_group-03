@@ -19,17 +19,17 @@ Nguyên tắc ghi changelog:
 
 | Thông tin | Nội dung |
 |---|---|
-| Môn học |  |
-| Mã môn học |  |
-| Lớp |  |
-| Học kỳ |  |
-| Tên bài tập / Project |  |
-| Tên sinh viên / Nhóm |  |
-| MSSV / Danh sách MSSV |  |
-| Giảng viên hướng dẫn |  |
-| Repository URL |  |
-| Ngày bắt đầu |  |
-| Ngày hoàn thành |  |
+| Môn học | Software development project |
+| Mã môn học | SWP391 |
+| Lớp | SE20A02 |
+| Học kỳ | SU26 |
+| Tên bài tập / Project | Pro-Sport Complex Management System |
+| Tên sinh viên / Nhóm | Phạm Nguyễn Tiến Đạt |
+| MSSV / Danh sách MSSV | DE190147 |
+| Giảng viên hướng dẫn | QuangLTN |
+| Repository URL | https://github.com/fptu-se-su26/swp391-su26-ai-audit-project-swp391_se20a02_group-03 |
+| Ngày bắt đầu | 2026-05-15 |
+| Ngày hoàn thành | 2026-05-25 |
 
 ---
 
@@ -53,33 +53,36 @@ Nguyên tắc ghi changelog:
 ```text
 DD/MM/YYYY
 ```
+15/05/2026
 
 ## Đã hoàn thành
 
-- [ ] Tạo repository
-- [ ] Tạo cấu trúc thư mục project
-- [ ] Tạo file README.md
-- [ ] Tạo thư mục `docs/`
-- [ ] Tạo file `AI_AUDIT_LOG.md`
-- [ ] Tạo file `PROMPTS.md`
-- [ ] Tạo file `REFLECTION.md`
-- [ ] Tạo file `CHANGELOG.md`
-- [ ] Khởi tạo source code ban đầu
-- [ ] Cài đặt thư viện/công cụ cần thiết
-- [ ] Cấu hình môi trường chạy project
+- [x] Tạo repository
+- [x] Tạo cấu trúc thư mục project
+- [x] Tạo file README.md
+- [x] Tạo thư mục `docs/`
+- [x] Tạo file `AI_AUDIT_LOG.md`
+- [x] Tạo file `PROMPTS.md`
+- [x] Tạo file `REFLECTION.md`
+- [x] Tạo file `CHANGELOG.md`
+- [x] Khởi tạo source code ban đầu
+- [x] Cài đặt thư viện/công cụ cần thiết
+- [x] Cấu hình môi trường chạy project
 
 ## Thay đổi chi tiết
 
 | STT | Nội dung thay đổi | Người thực hiện | File/Module liên quan | Minh chứng |
 |---:|---|---|---|---|
-| 1 |  |  |  |  |
-| 2 |  |  |  |  |
+| STT | Nội dung thay đổi | Người thực hiện | File/Module liên quan | Minh chứng |
+|---:|---|---|---|---|
+| 1 | Khởi tạo Github Repo, phân nhánh main và dev. | Đạt ,Vỹ | Toàn bộ repo | Commit: `Init repository and branch strategy` |
+| 2 | Setup môi trường Java Servlet (Backend) và React (Frontend). | Đạt, Huy | `package.json`, `pom.xml` | Commit: `Setup environments` |
 | 3 |  |  |  |  |
 
 ## AI có hỗ trợ không?
 
-- [ ] Có
-- [ ] Không
+- [] Có
+- [x] Không
 
 Nếu có, mô tả AI đã hỗ trợ phần nào:
 
@@ -92,7 +95,7 @@ Viết tại đây...
 ```text
 Dán link commit, screenshot hoặc mô tả minh chứng tại đây...
 ```
-
+https://drive.google.com/file/d/1AoqYy2aNAPbfjkftZ-RNXXvShUerj3O9/view?usp=sharing
 ## Ghi chú
 
 ```text
@@ -108,19 +111,19 @@ Viết tại đây...
 ```text
 DD/MM/YYYY
 ```
-
+16/05/2026 - 17/05/2026
 ## Đã hoàn thành
 
-- [ ] Xác định problem statement
-- [ ] Xác định user roles
-- [ ] Viết user stories
-- [ ] Viết use cases
-- [ ] Xác định functional requirements
-- [ ] Xác định non-functional requirements
-- [ ] Xác định business rules
-- [ ] Xác định acceptance criteria
-- [ ] Review yêu cầu với giảng viên/nhóm
-- [ ] Chỉnh sửa yêu cầu sau feedback
+- [] Xác định problem statement
+- [] Xác định user roles
+- [] Viết user stories
+- [] Viết use cases
+- [] Xác định functional requirements
+- [] Xác định non-functional requirements
+- [] Xác định business rules
+- [] Xác định acceptance criteria
+- [] Review yêu cầu với giảng viên/nhóm
+- [] Chỉnh sửa yêu cầu sau feedback
 
 ## Thay đổi chi tiết
 
