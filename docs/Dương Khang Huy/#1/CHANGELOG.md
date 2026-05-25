@@ -85,15 +85,11 @@ Demo giao diện người dùng trên Desktop
 
 ## 4.1. Các chức năng đã hoàn thành
 
-
-|---:|---|---|---|---|
 | Chưa có thông tin. |
 ---
 
 ## 4.2. Các chức năng chưa hoàn thành
 
-
-|---:|---|---|---|
 | Chưa có thông tin. |
 
 ---
