@@ -1,9 +1,15 @@
 ## Reflection - Week 1
+Trong tuần này, chúng tôi đã sử dụng Cursor để thiết lập cấu trúc thư mục ban đầu cho phần Backend .NET và Frontend React. AI đã thể hiện hiệu suất rất cao trong việc tạo ra các cấu hình dự án mẫu sạch sẽ, tách biệt và chuẩn hóa theo kiến trúc đa tầng của doanh nghiệp. Tuy nhiên, kết quả đầu ra của AI còn mang tính chất chung chung và thiếu các ranh giới quy định về cách AI sẽ hành xử trong các phiên làm việc tiếp theo khi các thành viên trong nhóm tương tác với các thư mục con cùng một lúc.
 
-During this week, we used ChatGPT to generate an initial database schema. 
-However, the AI output was too general and did not include our specific business rule about semester-based class sections.
+Để giải quyết hạn chế về việc mất ngữ cảnh này, chúng tôi đã xem xét các đề xuất cấu trúc của AI và đưa ra quyết định chủ động: tạo thêm file `AGENT.md` ngay tại thư mục gốc của kho chứa. File này đóng vai trò như một bộ quy tắc nghiêm ngặt về phong cách code, ranh giới framework và hướng dẫn hành vi cho AI. Sự điều chỉnh về mặt cấu trúc này đã giúp chúng tôi hiểu rằng việc thiết lập các ràng buộc từ sớm sẽ ngăn chặn AI tự ý sinh ra nợ kỹ thuật (technical debt) hoặc làm sai lệch kiến trúc mã nguồn trong các giai đoạn sau của dự án.
 
-We reviewed the AI suggestion and modified the schema by adding SemesterId and ClassSectionId. 
-This helped us understand the importance of validating AI-generated designs before applying them to the real project.
+Bài học chính rút ra từ tuần này là mặc dù AI rất xuất sắc trong việc dựng lên bộ khung cấu trúc, lập trình viên vẫn phải chủ động xây dựng các rào chắn (`AGENT.md`) để quản lý giới hạn không gian làm việc của AI và duy trì tính nhất quán của dự án trong suốt quá trình làm việc nhóm.
 
-The main lesson is that AI can support idea generation, but we must verify and adapt the result based on the actual system requirements.
+---
+
+## Reflection - Week 2
+Trong tuần này, chúng tôi tập trung đồng thời vào hai mục tiêu: hoàn thiện giao diện người dùng Frontend và xây dựng đường ống tự động hóa triển khai. Chúng tôi đã tận dụng Google Anti-gravity để kiểm định các linh kiện UI và sinh mã nguồn cho các trang chức năng còn thiếu bằng Tailwind CSS. Mặc dù công cụ này giúp tăng tốc đáng kể quá trình làm prototype giao diện, kết quả đầu ra của nó vẫn có một vài sai lệch nhỏ về màu sắc và gặp khó khăn trong việc thiết lập chính xác các quy tắc trạng thái đặt sân phức tạp theo yêu cầu của tài liệu SRS, đòi hỏi chúng tôi phải tinh chỉnh thủ công cả về thẩm mỹ lẫn logic.
+
+Song song với đó, chúng tôi sử dụng Google Gemini để xây dựng đường ống CI/CD tự động thông qua GitHub Actions. Mặc dù AI đã cung cấp thành công một bản thiết kế cấu hình YAML hoàn toàn chính xác về mặt cú pháp, nó lại thiếu ngữ cảnh không gian về cấu trúc thư mục lồng nhau của chúng tôi (`./src/frontend`) cũng như hành vi định tuyến đường dẫn thư mục con đặc thù của GitHub Pages, dẫn đến các lỗi chặn thực thi và lỗi không tìm thấy tài nguyên hệ thống trong lần chạy đầu tiên.
+
+Để vượt qua những trở ngại kỹ thuật này, chúng tôi đã tự tay điều chỉnh lại kịch bản của AI bằng cách định nghĩa rõ ràng các ràng buộc trong `working-directory` và cấu hình thuộc tính `cache-dependency-path` hướng tới các file lock. Hơn nữa, chúng tôi đã can thiệp cấu hình thuộc tính `base` bên trong file `vite.config.js` để giải quyết triệt để lỗi tải tài nguyên. Bài học lớn nhất gặt hái được trong tuần này là AI là một công cụ tăng tốc tuyệt vời cho việc tạo mẫu và tự động hóa, nhưng sự can thiệp của con người vẫn là yếu tố quyết định để xác thực logic kinh doanh phức tạp và xử lý sự cố hạ tầng triển khai trong thế giới thực.
