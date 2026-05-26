@@ -1,11 +1,9 @@
 name: Deploy UX/UI to GitHub Pages
 
 on:
-  # Chạy script này mỗi khi có người push code vào nhánh main
   push:
     branches: ["main"]
 
-# Cấp quyền cho GitHub Actions được phép ghi đè lên GitHub Pages
 permissions:
   contents: read
   pages: write
@@ -17,30 +15,39 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
+    
+    # 1. BẢO ROBOT CHUI VÀO ĐÚNG THƯ MỤC FRONTEND
+    defaults:
+      run:
+        working-directory: ./src/frontend
+
     steps:
-      - name:  Lấy mã nguồn
+      - name: 📥 Lấy mã nguồn
         uses: actions/checkout@v4
 
-      - name:  Cài đặt Node.js
+      - name: ⚙️ Cài đặt Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
+          # 2. CHỈ ĐƯỜNG CHO ROBOT TÌM FILE LOCK ĐỂ CACHE
+          cache-dependency-path: ./src/frontend/package-lock.json 
 
-      - name:  Cài đặt thư viện
+      - name: 📦 Cài đặt thư viện
         run: npm install
 
-      - name:  Build dự án Vite
+      - name: 🏗️ Build dự án Vite
         run: npm run build
 
-      - name:  Cấu hình GitHub Pages
+      - name: 🌐 Cấu hình GitHub Pages
         uses: actions/configure-pages@v4
 
-      - name:  Tải thư mục dist lên (Upload artifact)
+      - name: 📤 Tải thư mục dist lên (Upload artifact)
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './dist' # Mặc định Vite build code ra thư mục dist
+          # 3. LẤY FILE TỪ ĐÚNG ĐƯỜNG DẪN SAU KHI BUILD
+          path: './src/frontend/dist' 
 
-      - name:  Triển khai lên GitHub Pages
+      - name: 🚀 Triển khai lên GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
