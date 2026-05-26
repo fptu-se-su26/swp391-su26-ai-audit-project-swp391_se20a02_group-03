@@ -1,6 +1,6 @@
 ##Log#01
--Ngày thực hiện: 12/05/2026
--Người thực hiện:VyHVM
+- Ngày thực hiện: 12/05/2026
+- Người thực hiện:VyHVM
 -Công cụ AI hỗ trợ: Cursor
 -Mục tiêu: Tạo cấu trúc thư mục và kiến trúc dự án theo tiêu chuẩn của .NET (Backend) và React (Frontend).
 -Tham chiếu Prompt: PROMPTS.md#prompt-01
