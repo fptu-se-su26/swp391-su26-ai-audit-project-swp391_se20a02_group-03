@@ -1,0 +1,46 @@
+name: Deploy UX/UI to GitHub Pages
+
+on:
+  # Chạy script này mỗi khi có người push code vào nhánh main
+  push:
+    branches: ["main"]
+
+# Cấp quyền cho GitHub Actions được phép ghi đè lên GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name:  Lấy mã nguồn
+        uses: actions/checkout@v4
+
+      - name:  Cài đặt Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name:  Cài đặt thư viện
+        run: npm install
+
+      - name:  Build dự án Vite
+        run: npm run build
+
+      - name:  Cấu hình GitHub Pages
+        uses: actions/configure-pages@v4
+
+      - name:  Tải thư mục dist lên (Upload artifact)
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './dist' # Mặc định Vite build code ra thư mục dist
+
+      - name:  Triển khai lên GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
