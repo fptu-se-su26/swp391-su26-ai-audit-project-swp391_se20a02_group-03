@@ -3,7 +3,7 @@
 ## Log #01
 - **Date:** 2026-05-28
 - **Author:** Phạm Nguyễn Tiến Đạt
-- **AI Tool:** Gemini
+- **AI Tool:** Antigravity
 - **Purpose:** Integrate GSAP animations, fix Vite environment errors, and build 10 complete UI pages.
 - **Prompt Reference:** PROMPTS.md#prompt-01
 
