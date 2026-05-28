@@ -1,10 +1,12 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Link, useLocation } from 'react-router-dom'
+import { gsap } from 'gsap'
 import './Navbar.css'
 
 export default function Navbar({ theme = 'light' }) {
   const [menuOpen, setMenuOpen] = useState(false)
   const location = useLocation()
+  const navRef = useRef(null)
 
   const navLinks = [
     { label: 'Home',      path: '/' },
@@ -17,8 +19,43 @@ export default function Navbar({ theme = 'light' }) {
 
   const isActive = (path) => location.pathname === path
 
+  // GSAP: slide navbar down on mount
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      // Navbar bar itself
+      gsap.from(navRef.current, {
+        y: -70,
+        opacity: 0,
+        duration: 0.65,
+        ease: 'power3.out',
+      })
+
+      // Stagger each nav link
+      gsap.from('.navbar__link', {
+        opacity: 0,
+        y: -12,
+        duration: 0.5,
+        stagger: 0.07,
+        ease: 'power2.out',
+        delay: 0.3,
+      })
+
+      // Actions buttons
+      gsap.from('.navbar__actions > *', {
+        opacity: 0,
+        x: 16,
+        duration: 0.5,
+        stagger: 0.1,
+        ease: 'power2.out',
+        delay: 0.45,
+      })
+    }, navRef)
+
+    return () => ctx.revert()
+  }, [])
+
   return (
-    <nav className={`navbar navbar--${theme}`}>
+    <nav ref={navRef} className={`navbar navbar--${theme}`}>
       <div className="navbar__inner container">
         {/* Logo */}
         <Link to="/" className="navbar__logo">

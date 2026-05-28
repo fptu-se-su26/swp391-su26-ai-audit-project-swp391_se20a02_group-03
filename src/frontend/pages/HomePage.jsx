@@ -1,7 +1,12 @@
+import { useEffect, useRef } from 'react'
+import { gsap } from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import { Link } from 'react-router-dom'
 import './HomePage.css'
+
+gsap.registerPlugin(ScrollTrigger)
 
 const brands = ['APEXGEAR', 'NEXUSCOURTS', 'VELOCITYATHLETICS', 'PRIMEFIT']
 
@@ -32,14 +37,80 @@ const facilities = [
 ]
 
 export default function HomePage() {
+  const heroRef = useRef(null)
+  const trustedRef = useRef(null)
+  const facilitiesRef = useRef(null)
+
+  // ── Hero entrance animation ──
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      const tl = gsap.timeline({ defaults: { ease: 'power3.out' } })
+
+      tl.from('.hero__eyebrow', { opacity: 0, y: 20, duration: 0.6 })
+        .from('.hero__title', { opacity: 0, y: 50, duration: 0.8 }, '-=0.3')
+        .from('.hero__desc', { opacity: 0, y: 24, duration: 0.6 }, '-=0.5')
+        .from('.hero__actions > *', { opacity: 0, y: 20, duration: 0.5, stagger: 0.12 }, '-=0.4')
+        .from('.hero__img-wrap', { opacity: 0, x: 60, duration: 0.9, ease: 'power2.out' }, '-=0.8')
+        .from('.hero__card', { opacity: 0, y: 20, scale: 0.95, duration: 0.5 }, '-=0.3')
+    }, heroRef)
+
+    return () => ctx.revert()
+  }, [])
+
+  // ── Trusted brands scroll reveal ──
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      gsap.from('.trusted__label', {
+        opacity: 0,
+        y: 16,
+        duration: 0.6,
+        ease: 'power2.out',
+        scrollTrigger: { trigger: trustedRef.current, start: 'top 90%' },
+      })
+      gsap.from('.trusted__brand', {
+        opacity: 0,
+        y: 20,
+        duration: 0.55,
+        stagger: 0.1,
+        ease: 'power2.out',
+        scrollTrigger: { trigger: trustedRef.current, start: 'top 88%' },
+      })
+    }, trustedRef)
+
+    return () => ctx.revert()
+  }, [])
+
+  // ── Facility cards scroll reveal ──
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      gsap.from('.facilities__header', {
+        opacity: 0,
+        y: 30,
+        duration: 0.6,
+        ease: 'power2.out',
+        scrollTrigger: { trigger: facilitiesRef.current, start: 'top 85%' },
+      })
+      gsap.from('.facility-card', {
+        opacity: 0,
+        y: 50,
+        duration: 0.7,
+        stagger: 0.15,
+        ease: 'power3.out',
+        scrollTrigger: { trigger: '.facilities__grid', start: 'top 82%' },
+      })
+    }, facilitiesRef)
+
+    return () => ctx.revert()
+  }, [])
+
   return (
     <div className="home">
       <Navbar theme="light" />
 
       {/* ── Hero ── */}
-      <section className="hero">
+      <section className="hero" ref={heroRef}>
         <div className="container hero__inner">
-          <div className="hero__content animate-fade-up">
+          <div className="hero__content">
             <p className="hero__eyebrow">Elevating Athletic Performance</p>
             <h1 className="hero__title">
               FLUID<br />PERFORMANCE.<br />ELITE CONTROL.
@@ -60,7 +131,7 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="hero__visual animate-fade">
+          <div className="hero__visual">
             <div className="hero__img-wrap">
               <img
                 src="https://images.unsplash.com/photo-1622279457486-62dcc4a431d6?w=800&q=80"
@@ -84,9 +155,9 @@ export default function HomePage() {
       </section>
 
       {/* ── Trusted By ── */}
-      <section className="trusted">
+      <section className="trusted" ref={trustedRef}>
         <div className="container">
-          <p className="trusted__label">TRUSTED BY ELITE FACILITIES & BRANDS</p>
+          <p className="trusted__label">TRUSTED BY ELITE FACILITIES &amp; BRANDS</p>
           <div className="trusted__logos">
             {brands.map(b => (
               <span key={b} className="trusted__brand">{b}</span>
@@ -96,7 +167,7 @@ export default function HomePage() {
       </section>
 
       {/* ── Elite Facilities ── */}
-      <section className="facilities">
+      <section className="facilities" ref={facilitiesRef}>
         <div className="container">
           <div className="facilities__header">
             <div>

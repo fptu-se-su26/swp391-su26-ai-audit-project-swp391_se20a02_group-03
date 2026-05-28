@@ -1,9 +1,38 @@
+import { useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
+import { gsap } from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import './Footer.css'
 
+gsap.registerPlugin(ScrollTrigger)
+
 export default function Footer({ variant = 'light' }) {
+  const footerRef = useRef(null)
+
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      gsap.from('.footer__brand', {
+        opacity: 0,
+        y: 30,
+        duration: 0.7,
+        ease: 'power2.out',
+        scrollTrigger: { trigger: footerRef.current, start: 'top 90%' },
+      })
+      gsap.from('.footer__col', {
+        opacity: 0,
+        y: 30,
+        duration: 0.6,
+        stagger: 0.12,
+        ease: 'power2.out',
+        scrollTrigger: { trigger: footerRef.current, start: 'top 88%' },
+      })
+    }, footerRef)
+
+    return () => ctx.revert()
+  }, [])
+
   return (
-    <footer className={`footer footer--${variant}`}>
+    <footer ref={footerRef} className={`footer footer--${variant}`}>
       <div className="footer__top container">
         {/* Brand */}
         <div className="footer__brand">
