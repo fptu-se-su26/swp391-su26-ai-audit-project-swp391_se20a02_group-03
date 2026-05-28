@@ -21,6 +21,20 @@ import ReportDisputePage from './pages/customer/ReportDisputePage'
 
 import AIChatbot from './components/AIChatbot'
 
+// PRO-SPORT Apex Portal (Courts & More)
+import ApexBookingPage from './pages/apex/ApexBookingPage'
+import ApexMatchesPage from './pages/apex/ApexMatchesPage'
+import ApexShopPage from './pages/apex/ApexShopPage'
+import ApexProfilePage from './pages/apex/ApexProfilePage'
+import ApexActivityPage from './pages/apex/ApexActivityPage'
+import ApexSettingsPage from './pages/apex/ApexSettingsPage'
+import ApexSupportPage from './pages/apex/ApexSupportPage'
+
+// PRO-SPORT MatchPro
+import MatchProNearbyPage from './pages/matchpro/MatchProNearbyPage'
+import MatchProCommunityPage from './pages/matchpro/MatchProCommunityPage'
+import MatchProLeaderboardPage from './pages/matchpro/MatchProLeaderboardPage'
+
 // PRO-SPORT Admin Portal
 import AdminDashboardPage from './pages/admin/AdminDashboardPage'
 import AdminUsersPage from './pages/admin/AdminUsersPage'
@@ -75,8 +89,24 @@ function App() {
                 <Route path="/customer/profile" element={<CustomerProfilePage />} />
                 <Route path="/customer/bookings" element={<BookingHistoryPage />} />
                 <Route path="/customer/report" element={<ReportDisputePage />} />
-                
                 <Route path="/gear" element={<GearCatalogPage />} />
+                
+                {/* MatchPro Routes */}
+                <Route path="/matches" element={<MatchProFeedPage />} />
+                <Route path="/matches/nearby" element={<MatchProNearbyPage />} />
+                <Route path="/matches/community" element={<MatchProCommunityPage />} />
+                <Route path="/matches/leaderboard" element={<MatchProLeaderboardPage />} />
+
+                {/* Apex Portal Routes (Courts) */}
+                <Route path="/courts" element={<Navigate to="/apex" replace />} />
+                <Route path="/apex" element={<ApexHomePage />} />
+                <Route path="/apex/booking" element={<ApexBookingPage />} />
+                <Route path="/apex/matches" element={<ApexMatchesPage />} />
+                <Route path="/apex/shop" element={<ApexShopPage />} />
+                <Route path="/apex/profile" element={<ApexProfilePage />} />
+                <Route path="/apex/activity" element={<ApexActivityPage />} />
+                <Route path="/apex/settings" element={<ApexSettingsPage />} />
+                <Route path="/apex/support" element={<ApexSupportPage />} />
 
                 {/* Admin Portal Routes */}
                 <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
