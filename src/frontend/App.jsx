@@ -8,9 +8,23 @@ import RoleSelectionPage from './pages/RoleSelectionPage'
 import ResetPasswordPage from './pages/ResetPasswordPage'
 import AboutPage from './pages/AboutPage'
 import ContactPage from './pages/ContactPage'
-import ApexHomePage from './pages/apex/ApexHomePage'
-import MatchProFeedPage from './pages/matchpro/MatchProFeedPage'
 import GearCatalogPage from './pages/gear/GearCatalogPage'
+
+// PRO-SPORT Apex Portal (Courts & More)
+import ApexHomePage from './pages/apex/ApexHomePage'
+import ApexBookingPage from './pages/apex/ApexBookingPage'
+import ApexMatchesPage from './pages/apex/ApexMatchesPage'
+import ApexShopPage from './pages/apex/ApexShopPage'
+import ApexProfilePage from './pages/apex/ApexProfilePage'
+import ApexActivityPage from './pages/apex/ApexActivityPage'
+import ApexSettingsPage from './pages/apex/ApexSettingsPage'
+import ApexSupportPage from './pages/apex/ApexSupportPage'
+
+// PRO-SPORT MatchPro
+import MatchProFeedPage from './pages/matchpro/MatchProFeedPage'
+import MatchProNearbyPage from './pages/matchpro/MatchProNearbyPage'
+import MatchProCommunityPage from './pages/matchpro/MatchProCommunityPage'
+import MatchProLeaderboardPage from './pages/matchpro/MatchProLeaderboardPage'
 
 // PRO-SPORT Admin Portal
 import AdminDashboardPage from './pages/admin/AdminDashboardPage'
@@ -50,9 +64,24 @@ function App() {
                 <Route path="/reset-password" element={<ResetPasswordPage />} />
                 <Route path="/about" element={<AboutPage />} />
                 <Route path="/contact" element={<ContactPage />} />
-                <Route path="/courts" element={<ApexHomePage />} />
-                <Route path="/matches" element={<MatchProFeedPage />} />
                 <Route path="/gear" element={<GearCatalogPage />} />
+                
+                {/* MatchPro Routes */}
+                <Route path="/matches" element={<MatchProFeedPage />} />
+                <Route path="/matches/nearby" element={<MatchProNearbyPage />} />
+                <Route path="/matches/community" element={<MatchProCommunityPage />} />
+                <Route path="/matches/leaderboard" element={<MatchProLeaderboardPage />} />
+
+                {/* Apex Portal Routes (Courts) */}
+                <Route path="/courts" element={<Navigate to="/apex" replace />} />
+                <Route path="/apex" element={<ApexHomePage />} />
+                <Route path="/apex/booking" element={<ApexBookingPage />} />
+                <Route path="/apex/matches" element={<ApexMatchesPage />} />
+                <Route path="/apex/shop" element={<ApexShopPage />} />
+                <Route path="/apex/profile" element={<ApexProfilePage />} />
+                <Route path="/apex/activity" element={<ApexActivityPage />} />
+                <Route path="/apex/settings" element={<ApexSettingsPage />} />
+                <Route path="/apex/support" element={<ApexSupportPage />} />
 
                 {/* Admin Portal Routes */}
                 <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
