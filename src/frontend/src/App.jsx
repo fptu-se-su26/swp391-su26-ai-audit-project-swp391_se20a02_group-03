@@ -8,10 +8,8 @@ import RoleSelectionPage from './pages/RoleSelectionPage'
 import ResetPasswordPage from './pages/ResetPasswordPage'
 import AboutPage from './pages/AboutPage'
 import ContactPage from './pages/ContactPage'
-import ApexHomePage from './pages/apex/ApexHomePage'
 import CourtDetailPage from './pages/courts/CourtDetailPage'
 import BookingPage from './pages/courts/BookingPage'
-import MatchProFeedPage from './pages/matchpro/MatchProFeedPage'
 import MatchDetailPage from './pages/matches/MatchDetailPage'
 import CreateMatchPage from './pages/matches/CreateMatchPage'
 import GearCatalogPage from './pages/gear/GearCatalogPage'
@@ -22,6 +20,7 @@ import ReportDisputePage from './pages/customer/ReportDisputePage'
 import AIChatbot from './components/AIChatbot'
 
 // PRO-SPORT Apex Portal (Courts & More)
+import ApexHomePage from './pages/apex/ApexHomePage'
 import ApexBookingPage from './pages/apex/ApexBookingPage'
 import ApexMatchesPage from './pages/apex/ApexMatchesPage'
 import ApexShopPage from './pages/apex/ApexShopPage'
@@ -31,6 +30,7 @@ import ApexSettingsPage from './pages/apex/ApexSettingsPage'
 import ApexSupportPage from './pages/apex/ApexSupportPage'
 
 // PRO-SPORT MatchPro
+import MatchProFeedPage from './pages/matchpro/MatchProFeedPage'
 import MatchProNearbyPage from './pages/matchpro/MatchProNearbyPage'
 import MatchProCommunityPage from './pages/matchpro/MatchProCommunityPage'
 import MatchProLeaderboardPage from './pages/matchpro/MatchProLeaderboardPage'
@@ -68,7 +68,7 @@ import MaintenancePage from './pages/status/MaintenancePage'
 
 function App() {
     return (
-        <Router>
+        <Router basename="/swp391-su26-ai-audit-project-swp391_se20a02_group-03">
             <Routes>
                 {/* Public Routes */}
                 <Route path="/" element={<HomePage />} />
@@ -78,27 +78,29 @@ function App() {
                 <Route path="/reset-password" element={<ResetPasswordPage />} />
                 <Route path="/about" element={<AboutPage />} />
                 <Route path="/contact" element={<ContactPage />} />
+
+                {/* Courts */}
                 <Route path="/courts" element={<ApexHomePage />} />
                 <Route path="/courts/:id" element={<CourtDetailPage />} />
                 <Route path="/courts/:id/book" element={<BookingPage />} />
-                
+
+                {/* Matches / MatchPro */}
                 <Route path="/matches" element={<MatchProFeedPage />} />
                 <Route path="/matches/:id" element={<MatchDetailPage />} />
                 <Route path="/matches/create" element={<CreateMatchPage />} />
-                
-                <Route path="/customer/profile" element={<CustomerProfilePage />} />
-                <Route path="/customer/bookings" element={<BookingHistoryPage />} />
-                <Route path="/customer/report" element={<ReportDisputePage />} />
-                <Route path="/gear" element={<GearCatalogPage />} />
-                
-                {/* MatchPro Routes */}
-                <Route path="/matches" element={<MatchProFeedPage />} />
                 <Route path="/matches/nearby" element={<MatchProNearbyPage />} />
                 <Route path="/matches/community" element={<MatchProCommunityPage />} />
                 <Route path="/matches/leaderboard" element={<MatchProLeaderboardPage />} />
 
-                {/* Apex Portal Routes (Courts) */}
-                <Route path="/courts" element={<Navigate to="/apex" replace />} />
+                {/* Customer */}
+                <Route path="/customer/profile" element={<CustomerProfilePage />} />
+                <Route path="/customer/bookings" element={<BookingHistoryPage />} />
+                <Route path="/customer/report" element={<ReportDisputePage />} />
+
+                {/* Gear */}
+                <Route path="/gear" element={<GearCatalogPage />} />
+
+                {/* Apex Portal Routes */}
                 <Route path="/apex" element={<ApexHomePage />} />
                 <Route path="/apex/booking" element={<ApexBookingPage />} />
                 <Route path="/apex/matches" element={<ApexMatchesPage />} />

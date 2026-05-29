@@ -1,11 +1,11 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { gsap } from 'gsap'
+import { useNavbarEntrance } from '../hooks/useNavbarEntrance'
 
 export default function Navbar({ theme = 'light' }) {
   const [menuOpen, setMenuOpen] = useState(false)
   const location = useLocation()
-  const navRef = useRef(null)
+  const navRef = useNavbarEntrance()
 
   const navLinks = [
     { label: 'Home',      path: '/' },
@@ -18,58 +18,31 @@ export default function Navbar({ theme = 'light' }) {
 
   const isActive = (path) => location.pathname === path
 
-  // GSAP: slide navbar down on mount
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      // Navbar bar itself
-      gsap.from(navRef.current, {
-        y: -70,
-        opacity: 0,
-        duration: 0.65,
-        ease: 'power3.out',
-      })
-
-      // Stagger each nav link
-      gsap.from('.navbar__link', {
-        opacity: 0,
-        y: -12,
-        duration: 0.5,
-        stagger: 0.07,
-        ease: 'power2.out',
-        delay: 0.3,
-      })
-
-      // Actions buttons
-      gsap.from('.navbar__actions > *', {
-        opacity: 0,
-        x: 16,
-        duration: 0.5,
-        stagger: 0.1,
-        ease: 'power2.out',
-        delay: 0.45,
-      })
-    }, navRef)
-
-    return () => ctx.revert()
-  }, [])
+  const isLight = theme === 'light'
 
   return (
-    <nav ref={navRef} className={`navbar navbar--${theme}`}>
-      <div className="navbar__inner container">
+    <nav ref={navRef} className={`fixed top-0 left-0 right-0 z-50 h-[68px] transition-all duration-200 backdrop-blur-md border-b ${isLight ? 'bg-white/95 border-slate-200 shadow-sm' : 'bg-[#0a0e1a]/92 border-white/10'}`}>
+      <div className="flex items-center h-full gap-8 max-w-[1180px] mx-auto px-6">
         {/* Logo */}
-        <Link to="/" className="navbar__logo">
-          <span className="logo-pro">PRO</span>
-          <span className="logo-dash">-</span>
-          <span className="logo-sport">SPORT</span>
+        <Link to="/" className="font-['Oswald'] text-[1.45rem] font-bold tracking-wide flex items-center gap-[1px] shrink-0">
+          <span className={isLight ? 'text-slate-900' : 'text-white'}>PRO</span>
+          <span className="text-[#00c8aa]">-</span>
+          <span className={isLight ? 'text-slate-900' : 'text-white'}>SPORT</span>
         </Link>
 
         {/* Links */}
-        <ul className={`navbar__links ${menuOpen ? 'open' : ''}`}>
+        <ul className={`lg:flex items-center gap-2 list-none ml-auto ${menuOpen ? 'flex flex-col absolute top-[68px] left-0 right-0 p-4 gap-1 shadow-lg border-b ' + (isLight ? 'bg-white border-slate-200' : 'bg-[#0a0e1a] border-white/10') : 'hidden'}`}>
           {navLinks.map((link) => (
-            <li key={link.path}>
+            <li key={link.path} className="w-full lg:w-auto">
               <Link
                 to={link.path}
-                className={`navbar__link ${isActive(link.path) ? 'active' : ''}`}
+                className={`block w-full lg:inline-block text-[0.88rem] font-medium px-3.5 py-1.5 rounded-full transition-colors tracking-wide
+                  ${isActive(link.path) 
+                    ? (isLight ? 'text-[#00c8aa] bg-[#00c8aa]/10' : 'text-[#00c8aa] bg-[#00c8aa]/10')
+                    : (isLight 
+                        ? 'text-slate-500 hover:text-[#00c8aa] hover:bg-[#00c8aa]/10' 
+                        : 'text-white/75 hover:text-[#00c8aa] hover:bg-[#00c8aa]/10')
+                  }`}
                 onClick={() => setMenuOpen(false)}
               >
                 {link.label}
@@ -79,18 +52,20 @@ export default function Navbar({ theme = 'light' }) {
         </ul>
 
         {/* Actions */}
-        <div className="navbar__actions">
-          <Link to="/login" className="navbar__login">Login</Link>
-          <Link to="/register" className="btn-primary navbar__cta">Join Pro</Link>
+        <div className="hidden lg:flex items-center gap-3 shrink-0">
+          <Link to="/login" className={`text-[0.88rem] font-medium px-3.5 py-1.5 rounded-full transition-colors ${isLight ? 'text-slate-500 hover:text-[#00c8aa] hover:bg-[#00c8aa]/10' : 'text-white/75 hover:text-[#00c8aa] hover:bg-[#00c8aa]/10'}`}>Login</Link>
+          <Link to="/register" className="bg-[#00c8aa] hover:bg-[#009e87] hover:shadow-[0_0_24px_rgba(0,200,170,0.25)] hover:-translate-y-[1px] text-white rounded-full px-[18px] py-[8px] font-semibold text-[0.85rem] tracking-wide transition-all inline-flex items-center gap-2">Join Pro</Link>
         </div>
 
         {/* Hamburger */}
         <button
-          className={`navbar__hamburger ${menuOpen ? 'active' : ''}`}
+          className={`lg:hidden flex flex-col gap-[5px] bg-transparent p-1.5 ml-auto relative w-[34px] h-[34px] justify-center items-center`}
           onClick={() => setMenuOpen(!menuOpen)}
           aria-label="Toggle menu"
         >
-          <span /><span /><span />
+          <span className={`block w-[22px] h-[2px] rounded-sm transition-all absolute ${isLight ? 'bg-slate-900' : 'bg-white'} ${menuOpen ? 'rotate-45' : '-translate-y-1.5'}`} />
+          <span className={`block w-[22px] h-[2px] rounded-sm transition-all absolute ${isLight ? 'bg-slate-900' : 'bg-white'} ${menuOpen ? 'opacity-0' : 'opacity-100'}`} />
+          <span className={`block w-[22px] h-[2px] rounded-sm transition-all absolute ${isLight ? 'bg-slate-900' : 'bg-white'} ${menuOpen ? '-rotate-45' : 'translate-y-1.5'}`} />
         </button>
       </div>
     </nav>
