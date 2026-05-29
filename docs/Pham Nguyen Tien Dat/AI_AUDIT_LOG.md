@@ -102,3 +102,64 @@
 ### Kiểm chứng
 - Server Vite hiện tại chạy ổn định mà không bị crash khi hot-reload.
 - Giao diện render hoàn hảo tại các route `/apex` và `/matches`, với hiệu ứng cuộn và animation xuất hiện mượt mà.
+
+
+
+
+
+## Log #05
+**Ngày:** 2026-05-22  
+**Người thực hiện:** Phạm Nguyễn Tiến Đạt  
+**Công cụ AI:** Antigravity  
+**Mục đích:** Xây dựng toàn bộ hệ thống giao diện đa phân hệ (Elite OS, Mobile App, Admin Portal, Shop, Public Pages, Status Pages).  
+**Tham chiếu Prompt:** *"sau đây tôi sẽ gửi các ảnh về thiết kế hệ thống của tôi, bạn hãy code react để thiết kế phần front end để giao diện giống trong ảnh giúp tôi nhé..."*
+
+---
+
+### Tóm tắt kết quả AI
+
+- Sinh ra **40+ React pages** phủ khắp 6 phân hệ độc lập từ ảnh thiết kế:
+  - **Public Pages (7 trang):** `HomePage`, `LoginPage`, `RegisterPage`, `RoleSelectionPage`, `ResetPasswordPage`, `AboutPage`, `ContactPage`
+  - **Admin Portal (8 trang):** `AdminDashboardPage`, `AdminUsersPage`, `AdminCourtsPage`, `AdminBookingsPage`, `AdminInventoryPage`, `AdminPricingPage`, `AdminKycPage`, `AdminComplaintsPage`
+  - **EliteSport OS (6 trang):** `EliteDashboardPage`, `EliteSchedulePage`, `ElitePosWalkInPage`, `EliteEquipmentPage`, `EliteVouchersPage`, `EliteDisputesPage`
+  - **Mobile App (8 trang):** `MobileHomePage`, `MobileDashboardPage`, `MobileMatchesPage`, `MobileBookingPage`, `MobileChatPage`, `MobileWalletPage`, `MobileProfilePage`, `MobileScannerPage`
+  - **Shop (5 trang):** `ShopPage`, `ShopProductPage`, `ShopCartPage`, `ShopCheckoutPage`, `ShopWishlistPage`
+  - **Status Pages (3 trang):** `NotFoundPage` (404), `RestrictedPage` (403), `MaintenancePage`
+- Tạo **6 Layout Component** riêng biệt: `EliteLayout`, `MobileLayout`, `AdminLayout`, `GearLayout`, `ShopLayout`, `MatchProLayout`, `ProSportDashLayout`.
+- Tạo component `AIChatbot.jsx` tích hợp vào layout Mobile.
+- Thiết lập toàn bộ hệ thống routing trong `App.jsx` với 40+ routes.
+
+---
+
+### Quyết định & Can thiệp của con người
+
+**Chấp nhận:** Tái sử dụng toàn bộ cấu trúc JSX, CSS, và logic routing do AI sinh ra làm nền tảng.
+
+**Can thiệp kỹ thuật 1 (Sửa lỗi Build — Entry Point):** AI sinh ra file `index.html` với đường dẫn script trỏ sai (`/src/main.jsx` thay vì `/main.jsx`) khiến Vite không thể build. Tự phát hiện và sửa thủ công — AI không tự nhận ra do không kiểm tra cấu trúc thư mục thực tế.
+
+**Can thiệp kỹ thuật 2 (Sửa lỗi Routing):** AI để comment toàn bộ các route Public trong `App.jsx` khiến trang chủ `/` và các trang `/login`, `/register` trả về 404. Ngoài ra, các route `/about`, `/courts`, `/matches`, `/gear` tồn tại ở Navbar nhưng không được đăng ký. Tự bổ sung và uncomment toàn bộ.
+
+**Can thiệp kỹ thuật 3 (Sửa lỗi CSS tương thích trình duyệt):** AI sử dụng selector CSS `:has()` không được hỗ trợ trên Firefox, gây vỡ layout trên một số trình duyệt. Xóa bỏ toàn bộ, thay bằng cách tiếp cận dùng class thông thường. Đồng thời phát hiện và gộp các CSS rule bị khai báo trùng lặp.
+
+**Can thiệp kỹ thuật 4 (Sửa lỗi Navigation):** AI sinh ra 10 nav link trong `AdminLayout` (Matches, Inventory, Rentals, Products, Payments, Vouchers...) trỏ tới các route không được đăng ký trong `App.jsx`, gây lỗi 404 khi click vào sidebar. Tự phát hiện và xóa toàn bộ các link không hợp lệ.
+
+**Can thiệp kỹ thuật 5 (Sửa lỗi Layout Mobile):** `MobileChatPage` và `MobileBookingPage` sử dụng `position: absolute` cho thanh input/nút sticky, gây chồng lấp nội dung do không nhận biết được scroll container thực tế của `MobileLayout`. Chuyển sang `position: sticky` để xử lý đúng hành vi.
+
+---
+
+### Áp dụng cho
+
+- `src/frontend/src/App.jsx` — Cấu hình toàn bộ routing
+- `src/frontend/index.html` — Sửa entry point
+- `src/frontend/src/layouts/` — Toàn bộ 7 file Layout
+- `src/frontend/src/pages/` — Toàn bộ 40+ trang UI
+- `src/frontend/src/components/AIChatbot.jsx`
+
+---
+
+### Kiểm chứng
+
+- Chạy `npm run build` để xác nhận **0 lỗi**, **108 modules** transform thành công.
+- Duyệt thủ công qua 40+ route trên `localhost:5173` để xác nhận không có trang nào trả về 404.
+- Kiểm tra giao diện Mobile trên Chrome DevTools (Device Toolbar) ở kích thước 414px để xác nhận layout không bị vỡ.
+- Kiểm tra trên Firefox để xác nhận lỗi `:has()` đã được xử lý hoàn toàn.
