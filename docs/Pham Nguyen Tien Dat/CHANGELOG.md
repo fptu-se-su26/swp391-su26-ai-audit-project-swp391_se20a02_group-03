@@ -66,3 +66,46 @@
 
 ### Hỗ trợ từ AI (AI-assisted)
 * Antigravity AI đề xuất thư viện GSAP và tạo sẵn cấu trúc UI, CSS layout ban đầu cho toàn bộ 10 trang mới. Người thực hiện tự tái cấu trúc lại theo chuẩn Component của React.
+
+
+
+
+## [2026-05-29] - Giai đoạn: Xây dựng hệ thống giao diện đa phân hệ
+**Người thực hiện:** Phạm Nguyễn Tiến Đạt
+
+### Thêm mới (Added)
+
+**Public Pages (7 trang):**
+`HomePage`, `LoginPage`, `RegisterPage`, `RoleSelectionPage`, `ResetPasswordPage`, `AboutPage`, `ContactPage`
+
+**Admin Portal (8 trang):**
+`AdminDashboardPage`, `AdminUsersPage`, `AdminCourtsPage`, `AdminBookingsPage`, `AdminInventoryPage`, `AdminPricingPage`, `AdminKycPage`, `AdminComplaintsPage`
+
+**EliteSport OS (6 trang):**
+`EliteDashboardPage`, `EliteSchedulePage`, `ElitePosWalkInPage`, `EliteEquipmentPage`, `EliteVouchersPage`, `EliteDisputesPage`
+
+**Mobile App (8 trang):**
+`MobileHomePage`, `MobileDashboardPage`, `MobileMatchesPage`, `MobileBookingPage`, `MobileChatPage`, `MobileWalletPage`, `MobileProfilePage`, `MobileScannerPage`
+
+**Shop (5 trang):**
+`ShopPage`, `ShopProductPage`, `ShopCartPage`, `ShopCheckoutPage`, `ShopWishlistPage`
+
+**Status Pages (3 trang):**
+`NotFoundPage` (404), `RestrictedPage` (403), `MaintenancePage`
+
+**Layouts & Infrastructure:**
+- 7 Layout Component: `EliteLayout`, `MobileLayout`, `AdminLayout`, `GearLayout`, `ShopLayout`, `MatchProLayout`, `ProSportDashLayout`.
+- Component `AIChatbot.jsx` tích hợp vào Mobile Layout.
+- Thiết lập toàn bộ hệ thống routing trong `App.jsx` với 40+ routes.
+
+### Sửa lỗi (Fixed)
+
+- **[Build] Entry Point sai đường dẫn:** `index.html` trỏ tới `/src/main.jsx` nhưng file thực tế nằm ở `/main.jsx`, khiến Vite không thể build. Phát hiện và sửa thủ công.
+- **[Routing] Routes bị comment:** Toàn bộ Public Routes trong `App.jsx` bị comment out, khiến `/`, `/login`, `/register` trả về 404. Uncomment và bổ sung các route còn thiếu (`/about`, `/courts`, `/matches`, `/gear`).
+- **[CSS] Selector `:has()` không tương thích Firefox:** Xóa bỏ, thay bằng cách tiếp cận dùng class thông thường. Gộp các CSS rule bị khai báo trùng lặp.
+- **[Navigation] Dead links trong AdminLayout:** 10 nav link trong sidebar trỏ tới route không được đăng ký, gây lỗi 404 khi click. Xóa toàn bộ.
+- **[Layout Mobile] `position: absolute` gây chồng nội dung:** `MobileChatPage` và `MobileBookingPage` dùng `position: absolute` cho thanh input/nút CTA. Chuyển sang `position: sticky`.
+
+### Hỗ trợ từ AI (AI-assisted)
+
+Antigravity AI sinh toàn bộ cấu trúc JSX, CSS và hệ thống routing ban đầu cho 40+ trang UI dựa trên ảnh thiết kế. Người thực hiện tự phát hiện và sửa toàn bộ 5 nhóm lỗi kỹ thuật — bao gồm lỗi build, lỗi routing, lỗi CSS trình duyệt và lỗi layout mà AI không tự phát hiện được.
