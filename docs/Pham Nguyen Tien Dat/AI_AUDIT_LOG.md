@@ -1,43 +1,104 @@
-###  Log#01
-- **Ngày thực hiện:** 20/05/2026
-- **Người thực hiện:** Phạm Nguyễn Tiến Đạt
-- **Công cụ AI hỗ trợ:** Google Gemini
-- **Mục tiêu:** Tạo câu lệnh (prompt) chuyên môn bằng tiếng Anh đóng vai trò một Designer chuyên nghiệp để hướng dẫn công cụ Stitch thiết kế giao diện hệ thống đặt sân thể thao phức hợp.
-- **Tham chiếu Prompt:** PROMPTS.md#prompt-01
-- **Đề xuất từ AI:** Sinh ra chuỗi prompt tiếng Anh mô tả chi tiết layout hệ thống gồm thanh điều hướng Sidebar, màn hình chính Main Content, bảng màu năng động (sporty) và các khối Card thống kê doanh thu cho Dashboard.
-- **Quyết định điều chỉnh (Human Decision):** Kiểm tra và can thiệp trực tiếp, bổ sung thêm từ khóa nghiệp vụ đặc thù bị AI bỏ sót bao gồm `"grid calendar view"` (lịch hiển thị dạng lưới để xem trạng thái sân) và `"payment form"` (giao diện điền thông tin thanh toán).
-- **Tập tin áp dụng:** `docs/PROMPTS.md`
-- **Trạng thái kiểm duyệt:** Kiểm duyệt prompt đạt chất lượng tối ưu, sẵn sàng làm dữ liệu đầu vào cho AI sinh giao diện.
+# AI Audit Log
 
-###  Log#02
-- **Ngày thực hiện:** 21/05/2026
+## Log #01
+- **Ngày:** 2026-05-20
 - **Người thực hiện:** Phạm Nguyễn Tiến Đạt
-- **Công cụ AI hỗ trợ:** Stitch By Google
-- **Mục tiêu:** Dựng nhanh bản nháp giao diện tĩnh (Wireframe/Mockup HTML/CSS) cho toàn bộ hệ thống quản lý để nhóm chốt bố cục tổng quan.
-- **Tham chiếu Prompt:** PROMPTS.md#prompt-02
-- **Đề xuất từ AI:** Xuất bản mẫu giao diện trực quan hiển thị trên trình duyệt bao gồm khung lưới điều hướng và cấu trúc hiển thị danh sách lịch đặt sân thô.
-- **Quyết định điều chỉnh (Human Decision):** Sử dụng công cụ Chrome DevTools để kiểm tra sâu vào mã nguồn, trực tiếp căn chỉnh lại các mã màu Hex code và thuộc tính khoảng cách (padding/margin) để đảm bảo khớp hoàn toàn với quy chuẩn nhận diện thương hiệu của dự án.
-- **Tập tin áp dụng:** `src/frontend/mockup`
-- **Trạng thái kiểm duyệt:** Giao diện tĩnh hiển thị chuẩn bố cục, được thông qua làm Base UI cho toàn hệ thống.
+- **Công cụ AI:** Gemini
+- **Mục đích:** Tạo prompt để hướng dẫn Stitch thiết kế giao diện web UI.
+- **Tham chiếu Prompt:** "Như là một DESIGNER, bạn hãy cho tôi prompt để hướng dẫn Stitch làm phần thiết kế UI tĩnh cho dự án Pro-Sport Complex Management System của tôi..."
 
-###  Log#03
-- **Ngày thực hiện:** 22/05/2026
-- **Người thực hiện:** Phạm Nguyễn Tiến Đạt
-- **Công cụ AI hỗ trợ:** Antigravity AI
-- **Mục tiêu:** Chuyển đổi bản vẽ giao diện tĩnh từ Stitch thành các khối Functional Component thực tế chạy trên thư viện React, cấu hình kiểu dáng bằng Tailwind CSS.
-- **Tham chiếu Prompt:** PROMPTS.md#prompt-03
-- **Đề xuất từ AI:** Sinh cấu trúc mã nguồn file `.jsx` cho màn hình Dashboard và Form đặt sân, tích hợp sẵn React Hook cơ bản (`useState`) cùng hệ thống class CSS của Tailwind.
-- **Quyết định điều chỉnh (Human Decision):** Đập rã toàn bộ cấu trúc file Monolithic khổng lồ do AI sinh ra thành các component nguyên tử (`Button.jsx`, `InputField.jsx`, `CourtCard.jsx`) để dễ tái sử dụng. Xóa bỏ hoàn toàn dữ liệu mẫu (Mock data) của AI và viết thư viện **Axios** thực hiện gọi API bất đồng bộ nối thẳng đến Server Backend Java.
-- **Tập tin áp dụng:** `src/frontend/components/BookingForm.jsx`, `src/frontend/components/Dashboard.jsx`
-- **Trạng thái kiểm duyệt:** Biên dịch mã nguồn React thành công, kết nối dynamic và map dữ liệu động từ Backend lên UI mượt mà.
+### Tóm tắt kết quả AI
+- AI đóng vai trò Designer, phân tích các thành phần cần thiết và trả về một bộ prompt tiếng Anh chi tiết được tối ưu cho Stitch.
+- Đề xuất bảng màu thể thao, năng động, bố cục trang chủ, màn hình danh sách sân và giao diện dashboard với các biểu đồ thống kê cơ bản.
 
-###  Log#04
-- **Ngày thực hiện:** 24/05/2026
+### Quyết định & Can thiệp của con người
+- **Chấp nhận:** Sử dụng nguyên cấu trúc prompt tiếng Anh và các gợi ý bố cục UI.
+- **Can thiệp kỹ thuật:** Tùy chỉnh lại tone màu trong prompt của AI để khớp với nhận diện thương hiệu đã chốt của nhóm. Thêm yêu cầu cụ thể hiển thị form thanh toán chi tiết (Payment UI) mà ban đầu AI bỏ sót.
+
+### Áp dụng cho
+- Prompt đầu vào cho công cụ Stitch By Google.
+
+### Kiểm chứng
+- Đánh giá độ hoàn thiện của prompt được tạo ra. Hướng thiết kế giao diện có độ chính xác cao, mặc dù vẫn cần tinh chỉnh thủ công một chút để các component khớp hoàn toàn với luồng người dùng (User Flow).
+
+---
+
+## Log #02
+- **Ngày:** 2026-05-21
 - **Người thực hiện:** Phạm Nguyễn Tiến Đạt
-- **Công cụ AI hỗ trợ:** Antigravity AI
-- **Mục tiêu:** Khắc phục lỗi hiển thị, tối ưu hóa responsive đa thiết bị cho giao diện và thiết lập logic Validation nghiêm ngặt cho Form tiếp nhận thông tin đặt lịch sân.
-- **Tham chiếu Prompt:** Phân đoạn sửa lỗi tại CHANGELOG.md#phase-05
-- **Đề xuất từ AI:** Gợi ý các đoạn mã CSS căn chỉnh lề bề mặt nhằm xử lý hiển thị.
-- **Quyết định điều chỉnh (Human Decision):** Tự tay viết logic lập trình bên trong hàm `handleSubmit` nhằm kiểm tra thời gian thực. Chặn đứng hoàn toàn hành vi người dùng cố tình chọn ngày giờ đặt sân lùi về quá khứ (AI mặc định bỏ qua tính năng kiểm soát này). Đồng thời chèn các tiền tố breakpoint (`md:`, `lg:`) của Tailwind để xử lý triệt để lỗi vỡ khối `div` khi co màn hình về giao diện điện thoại di động.
-- **Tập tin áp dụng:** `src/frontend/components`, `src/frontend/styles`
-- **Trạng thái kiểm duyệt:** Chạy thử nghiệm trên localhost và kiểm tra qua Chrome DevTools ổn định, không ghi nhận lỗi Console, tính năng chặn dữ liệu rác hoạt động chính xác 100%.
+- **Công cụ AI:** Stitch By Google
+- **Mục đích:** Tạo UI và code Frontend tĩnh dựa trên prompt đã chuẩn bị.
+- **Tham chiếu Prompt:** "Design a clean and modern dashboard for a sports complex management system. Include a sidebar for navigation..."
+
+### Tóm tắt kết quả AI
+- Sinh ra mã nguồn (HTML/CSS/JS) cho một giao diện web trực quan.
+- Tạo layout trang Dashboard, thanh điều hướng (Navbar/Sidebar), và các component hiển thị trạng thái sân (trống/đã đặt/đang bảo trì).
+
+### Quyết định & Can thiệp của con người
+- **Chấp nhận:** Sử dụng toàn bộ cấu trúc Layout, lưới (Grid/Flexbox) và mã màu CSS cho các trang lõi.
+- **Can thiệp kỹ thuật 1 (Tách Component):** Tách các file HTML tĩnh nguyên khối thành các file `.jsp` riêng biệt (Header, Footer, Menu) để tái sử dụng theo cấu trúc Java Web.
+- **Can thiệp kỹ thuật 2 (Dữ liệu động & Sửa lỗi Responsive):** Thêm các thẻ JSTL, thay thế dữ liệu giả (mock data) của Stitch bằng dữ liệu động truyền từ Model/Controller, và tinh chỉnh các class CSS để responsive tốt hơn trên thiết bị di động.
+
+### Áp dụng cho
+- Các file `.jsp` (Header, Footer, Menu).
+- Các layout UI Frontend.
+
+### Kiểm chứng
+- Đối chiếu giao diện thực tế với bản nháp do Stitch sinh ra để đảm bảo tính đồng bộ về màu sắc và layout.
+- Tiến hành test trực quan trên cả màn hình PC và Mobile bằng DevTools của trình duyệt.
+
+---
+
+## Log #03
+- **Ngày:** 2026-05-22
+- **Người thực hiện:** Phạm Nguyễn Tiến Đạt
+- **Công cụ AI:** Antigravity
+- **Mục đích:** Thiết kế và sinh mã nguồn cho các React UI Component.
+- **Tham chiếu Prompt:** "Build a responsive React component for a sports court booking form. It should include fields for selecting the date, time slots, court type..."
+
+### Tóm tắt kết quả AI
+- Trả về một cấu trúc React Functional Component hoàn chỉnh.
+- Bao gồm các hook cơ bản (`useState`) để quản lý trạng thái form và các thẻ JSX được style bằng các class Tailwind CSS.
+
+### Quyết định & Can thiệp của con người
+- **Chấp nhận:** Tái sử dụng toàn bộ cấu trúc JSX và class Tailwind CSS cho form đặt sân, hiển thị danh sách sân và component Dashboard.
+- **Can thiệp kỹ thuật 1 (Tái cấu trúc - Refactoring):** Tách nhỏ mã code nguyên khối do AI sinh ra thành các React Component có thể tái sử dụng (ví dụ: `Button`, `InputField`, `CourtCard`).
+- **Can thiệp kỹ thuật 2 (Tích hợp API & Validation):** Tự viết tay logic gọi API (Axios) để lấy dữ liệu sân thực tế từ Java Backend thay vì dùng dữ liệu tĩnh. Thêm logic validation cho form để chặn người dùng chọn ngày trong quá khứ trước khi submit.
+
+### Áp dụng cho
+- `BookingForm.jsx`
+- `Dashboard.jsx`
+- Thư viện UI Component (`Button`, `InputField`, `CourtCard`)
+
+### Kiểm chứng
+- Các component được chạy và test trong môi trường `localhost:3000`.
+- Mở tab Network và Console trong Chrome DevTools để theo dõi các component render thừa và đảm bảo việc gọi API tuân thủ chuẩn RESTful.
+
+---
+
+## Log #04
+- **Ngày:** 2026-05-28
+- **Người thực hiện:** Phạm Nguyễn Tiến Đạt
+- **Công cụ AI:** Antigravity
+- **Mục đích:** Tích hợp hiệu ứng GSAP, sửa lỗi môi trường Vite và xây dựng 10 trang UI hoàn chỉnh.
+- **Tham chiếu Prompt:** "Please act as an expert Frontend Developer and help me upgrade my existing React (Vite) application located at..."
+
+### Tóm tắt kết quả AI
+- Đề xuất cài đặt thư viện `gsap` và `@gsap/react`.
+- Tạo form UI cho 6 trang phân hệ Apex (Booking, Matches, Shop, Profile, Settings, Support).
+- Tạo layout và 4 trang cho phân hệ MatchPro (Trending Feed, Nearby Sports, Community Hub, Leaderboard).
+
+### Quyết định & Can thiệp của con người
+- **Chấp nhận:** Áp dụng toàn bộ cấu trúc UI và CSS layout do AI gợi ý.
+- **Can thiệp kỹ thuật 1 (Tái cấu trúc code):** Nhận thấy việc viết code animation trực tiếp vào component gây rối mắt. Đã quyết định tách logic GSAP thành các custom hooks (`useScrollReveal`, `useNavbarEntrance`) để tái sử dụng và giúp code sạch hơn.
+- **Can thiệp kỹ thuật 2 (Sửa lỗi môi trường):** Tự chẩn đoán và cấu hình lại `vite.config.js` để ignore thư mục `.vs`. Việc này đã giải quyết dứt điểm lỗi crash server `EBUSY` — một vấn đề mà AI ban đầu không lường trước được do đặc thù máy tính cá nhân.
+
+### Áp dụng cho
+- `vite.config.js`
+- `App.jsx`
+- `src/hooks/`
+- `src/pages/apex/` & `src/pages/matches/`
+
+### Kiểm chứng
+- Server Vite hiện tại chạy ổn định mà không bị crash khi hot-reload.
+- Giao diện render hoàn hảo tại các route `/apex` và `/matches`, với hiệu ứng cuộn và animation xuất hiện mượt mà.
