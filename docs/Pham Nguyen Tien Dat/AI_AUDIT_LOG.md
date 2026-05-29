@@ -40,7 +40,7 @@
 - **Can thiệp kỹ thuật 2 (Dữ liệu động & Sửa lỗi Responsive):** Thêm các thẻ JSTL, thay thế dữ liệu giả (mock data) của Stitch bằng dữ liệu động truyền từ Model/Controller, và tinh chỉnh các class CSS để responsive tốt hơn trên thiết bị di động.
 
 ### Áp dụng cho
-- Các file `.jsp` (Header, Footer, Menu).
+- Các file `.jsx` (Header, Footer, Menu).
 - Các layout UI Frontend.
 
 ### Kiểm chứng
