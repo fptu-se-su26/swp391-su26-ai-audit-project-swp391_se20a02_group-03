@@ -1,21 +1,43 @@
 import { Link, useLocation } from 'react-router-dom'
+import { useEffect, useRef } from 'react'
+import { gsap } from 'gsap'
 
 const navLinks = [
-  { path: '/matchpro/feed', label: 'Feed' },
-  { path: '/matchpro/explore', label: 'Explore' },
-  { path: '/matchpro/match', label: 'Match' },
-  { path: '/matchpro/chats', label: 'Chats' },
-  { path: '/matchpro/profile', label: 'Profile' },
+  { path: '/matches', label: 'Feed' },
+  { path: '/matches/nearby', label: 'Nearby' },
+  { path: '/matches/community', label: 'Community' },
+  { path: '/matches/leaderboard', label: 'Leaderboard' },
+  { path: '/matches/create', label: 'Create Match' },
 ]
 
 export default function MatchProLayout({ children }) {
   const location = useLocation()
-  const isActive = (path) => location.pathname.startsWith(path)
+  const isActive = (path) => {
+    if (path === '/matches') return location.pathname === '/matches'
+    return location.pathname.startsWith(path)
+  }
+  const headerRef = useRef(null)
+  const contentRef = useRef(null)
+
+  useEffect(() => {
+    if (headerRef.current) {
+      gsap.fromTo(headerRef.current,
+        { y: -20, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.5, ease: 'power2.out' }
+      )
+    }
+    if (contentRef.current) {
+      gsap.fromTo(contentRef.current,
+        { opacity: 0 },
+        { opacity: 1, duration: 0.6, delay: 0.2, ease: 'power2.out' }
+      )
+    }
+  }, [])
 
   return (
     <div className="min-h-screen bg-[#f0f7fa] flex flex-col">
-      <header className="h-[60px] bg-white border-b border-[#e0ecf0] flex items-center px-8 gap-8 sticky top-0 z-[200] shadow-[0_1px_4px_rgba(0,0,0,0.06)]">
-        <Link to="/matchpro/feed" className="font-['Oswald',sans-serif] text-[1.3rem] font-bold text-[#0d2d3a] tracking-[0.03em] no-underline shrink-0">MatchPro</Link>
+      <header ref={headerRef} className="h-[60px] bg-white border-b border-[#e0ecf0] flex items-center px-8 gap-8 sticky top-0 z-[200] shadow-[0_1px_4px_rgba(0,0,0,0.06)]">
+        <Link to="/matches" className="font-['Oswald',sans-serif] text-[1.3rem] font-bold text-[#0d2d3a] tracking-[0.03em] no-underline shrink-0">MatchPro</Link>
         <nav className="flex gap-1 flex-1 justify-center">
           {navLinks.map(link => (
             <Link
@@ -43,7 +65,7 @@ export default function MatchProLayout({ children }) {
           </button>
         </div>
       </header>
-      <main className="flex-1">{children}</main>
+      <main ref={contentRef} className="flex-1">{children}</main>
     </div>
   )
 }

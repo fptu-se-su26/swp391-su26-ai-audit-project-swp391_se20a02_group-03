@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
+import { useNavbarEntrance } from '../hooks/useNavbarEntrance'
 
 export default function Navbar({ theme = 'light' }) {
   const [menuOpen, setMenuOpen] = useState(false)
   const location = useLocation()
+  const navRef = useNavbarEntrance()
 
   const navLinks = [
     { label: 'Home',      path: '/' },
@@ -19,7 +21,7 @@ export default function Navbar({ theme = 'light' }) {
   const isLight = theme === 'light'
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 h-[68px] transition-all duration-200 backdrop-blur-md border-b ${isLight ? 'bg-white/95 border-slate-200 shadow-sm' : 'bg-[#0a0e1a]/92 border-white/10'}`}>
+    <nav ref={navRef} className={`fixed top-0 left-0 right-0 z-50 h-[68px] transition-all duration-200 backdrop-blur-md border-b ${isLight ? 'bg-white/95 border-slate-200 shadow-sm' : 'bg-[#0a0e1a]/92 border-white/10'}`}>
       <div className="flex items-center h-full gap-8 max-w-[1180px] mx-auto px-6">
         {/* Logo */}
         <Link to="/" className="font-['Oswald'] text-[1.45rem] font-bold tracking-wide flex items-center gap-[1px] shrink-0">

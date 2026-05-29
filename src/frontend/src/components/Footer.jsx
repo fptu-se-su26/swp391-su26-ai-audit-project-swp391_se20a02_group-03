@@ -1,11 +1,29 @@
 import { Link } from 'react-router-dom'
+import { useEffect, useRef } from 'react'
+import { gsap } from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+
+gsap.registerPlugin(ScrollTrigger)
 
 export default function Footer({ variant = 'light' }) {
   const isLight = variant === 'light'
+  const footerRef = useRef(null)
+
+  useEffect(() => {
+    if (footerRef.current) {
+      gsap.fromTo(footerRef.current.children,
+        { opacity: 0, y: 20 },
+        {
+          opacity: 1, y: 0, duration: 0.6, stagger: 0.1, ease: 'power2.out',
+          scrollTrigger: { trigger: footerRef.current, start: 'top 95%' }
+        }
+      )
+    }
+  }, [])
 
   return (
     <footer className={`mt-auto border-t ${isLight ? 'bg-white text-slate-900 border-slate-200' : 'bg-[#111827] text-white border-white/10'}`}>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-[1.8fr_1fr_1fr_1fr] gap-7 md:gap-12 px-6 pt-[52px] pb-[40px] max-w-[1180px] mx-auto">
+      <div ref={footerRef} className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-[1.8fr_1fr_1fr_1fr] gap-7 md:gap-12 px-6 pt-[52px] pb-[40px] max-w-[1180px] mx-auto">
         {/* Brand */}
         <div>
           <div className="font-['Oswald'] text-[1.3rem] font-bold tracking-wide mb-4">

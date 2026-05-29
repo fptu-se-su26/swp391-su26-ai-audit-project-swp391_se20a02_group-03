@@ -1,6 +1,11 @@
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import { Link } from 'react-router-dom'
+import { useEffect, useRef } from 'react'
+import { gsap } from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+
+gsap.registerPlugin(ScrollTrigger)
 
 const brands = ['APEXGEAR', 'NEXUSCOURTS', 'VELOCITYATHLETICS', 'PRIMEFIT']
 
@@ -31,12 +36,46 @@ const facilities = [
 ]
 
 export default function HomePage() {
+  const heroRef = useRef(null)
+  const brandsRef = useRef(null)
+  const facilitiesRef = useRef(null)
+
+  useEffect(() => {
+    // Hero Animation
+    gsap.fromTo(heroRef.current,
+      { opacity: 0, y: 30 },
+      { opacity: 1, y: 0, duration: 1, ease: 'power3.out' }
+    )
+
+    // Brands Stagger Animation
+    if (brandsRef.current) {
+      gsap.fromTo(brandsRef.current.children,
+        { opacity: 0, y: 20 },
+        { 
+          opacity: 1, y: 0, duration: 0.6, stagger: 0.1, ease: 'power2.out',
+          scrollTrigger: { trigger: brandsRef.current, start: 'top 85%' }
+        }
+      )
+    }
+
+    // Facilities Stagger Animation
+    if (facilitiesRef.current) {
+      gsap.fromTo(facilitiesRef.current.children,
+        { opacity: 0, scale: 0.95 },
+        { 
+          opacity: 1, scale: 1, duration: 0.8, stagger: 0.15, ease: 'power2.out',
+          scrollTrigger: { trigger: facilitiesRef.current, start: 'top 80%' }
+        }
+      )
+    }
+  }, [])
+
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar theme="light" />
 
       {/* ── Hero ── */}
-      <section className="pt-[68px] min-h-screen bg-gradient-to-br from-[#f0f7f6] via-[#e8f4f8] to-[#dceef8] flex items-center relative overflow-hidden before:content-[''] before:absolute before:-top-[120px] before:-right-[120px] before:w-[600px] before:h-[600px] before:rounded-full before:bg-[radial-gradient(circle,rgba(0,200,170,0.12)_0%,transparent_70%)] before:pointer-events-none">
+      <section ref={heroRef} className="pt-[68px] min-h-screen bg-gradient-to-br from-[#f0f7f6] via-[#e8f4f8] to-[#dceef8] flex items-center relative overflow-hidden before:content-[''] before:absolute before:-top-[120px] before:-right-[120px] before:w-[600px] before:h-[600px] before:rounded-full before:bg-[radial-gradient(circle,rgba(0,200,170,0.12)_0%,transparent_70%)] before:pointer-events-none">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-[60px] items-center pt-[60px] pb-[80px] max-w-[1180px] mx-auto px-6 text-center lg:text-left w-full">
           <div className="animate-[fadeInUp_0.6s_ease_both]">
             <p className="text-[0.78rem] font-semibold tracking-[0.12em] uppercase text-[#00c8aa] mb-5">Elevating Athletic Performance</p>
@@ -82,11 +121,11 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── Trusted By ── */}
+      {/* 🌟 Trusted By 🌟 */}
       <section className="py-[60px] pb-[48px] border-y border-slate-200 bg-white">
         <div className="max-w-[1180px] mx-auto px-6">
           <p className="text-center text-[0.72rem] font-bold tracking-[0.15em] text-slate-400 uppercase mb-8">TRUSTED BY ELITE FACILITIES & BRANDS</p>
-          <div className="flex justify-center items-center gap-[52px] flex-wrap">
+          <div ref={brandsRef} className="flex justify-center items-center gap-[52px] flex-wrap">
             {brands.map(b => (
               <span key={b} className="font-['Oswald'] text-[1.1rem] font-bold tracking-[0.08em] text-slate-400 transition-colors hover:text-[#00c8aa] cursor-default">{b}</span>
             ))}
@@ -94,7 +133,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── Elite Facilities ── */}
+      {/* 🌟 Elite Facilities 🌟 */}
       <section className="pt-[72px] pb-[80px] bg-white">
         <div className="max-w-[1180px] mx-auto px-6">
           <div className="flex items-end justify-between mb-9 flex-wrap gap-4">
@@ -103,12 +142,12 @@ export default function HomePage() {
               <p className="text-slate-500 text-[0.97rem] mt-2">Book premium courts across the network.</p>
             </div>
             <div className="flex gap-2.5">
-              <button className="w-9 h-9 rounded-full border-[1.5px] border-slate-200 bg-transparent text-[1.2rem] text-slate-500 flex items-center justify-center transition-all hover:border-[#00c8aa] hover:text-[#00c8aa] hover:bg-[#00c8aa]/10" aria-label="Previous">‹</button>
-              <button className="w-9 h-9 rounded-full border-[1.5px] border-slate-200 bg-transparent text-[1.2rem] text-slate-500 flex items-center justify-center transition-all hover:border-[#00c8aa] hover:text-[#00c8aa] hover:bg-[#00c8aa]/10" aria-label="Next">›</button>
+              <button className="w-9 h-9 rounded-full border-[1.5px] border-slate-200 bg-transparent text-[1.2rem] text-slate-500 flex items-center justify-center transition-all hover:border-[#00c8aa] hover:text-[#00c8aa] hover:bg-[#00c8aa]/10" aria-label="Previous">←</button>
+              <button className="w-9 h-9 rounded-full border-[1.5px] border-slate-200 bg-transparent text-[1.2rem] text-slate-500 flex items-center justify-center transition-all hover:border-[#00c8aa] hover:text-[#00c8aa] hover:bg-[#00c8aa]/10" aria-label="Next">→</button>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-[1.4fr_0.8fr] auto-rows-[280px] lg:grid-rows-[240px_240px] gap-4 text-left">
+          <div ref={facilitiesRef} className="grid grid-cols-1 lg:grid-cols-[1.4fr_0.8fr] auto-rows-[280px] lg:grid-rows-[240px_240px] gap-4 text-left">
             {facilities.map(f => (
               <div key={f.id} className={`relative rounded-[20px] overflow-hidden cursor-pointer group ${f.large ? 'lg:row-span-2' : ''}`}>
                 <img src={f.image} alt={f.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />

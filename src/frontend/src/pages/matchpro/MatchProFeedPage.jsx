@@ -1,13 +1,13 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
+import { gsap } from 'gsap'
 import MatchProLayout from '../../layouts/MatchProLayout'
 
 const sidebarLinks = [
-  { label: 'Trending Matches', icon: '📈', active: true },
-  { label: 'Nearby Sports', icon: '📍' },
-  { label: 'Community Hub', icon: '👥' },
-  { label: 'Leaderboards', icon: '🏆' },
-  { label: 'Settings', icon: '⚙️' },
+  { label: 'Trending Matches', icon: '📈', active: true, path: '/matches' },
+  { label: 'Nearby Sports', icon: '📍', path: '/matches/nearby' },
+  { label: 'Community Hub', icon: '👥', path: '/matches/community' },
+  { label: 'Leaderboards', icon: '🏆', path: '/matches/leaderboard' },
 ]
 
 const sportFilters = ['Tất cả', 'Cầu lông', 'Pickleball']
@@ -49,6 +49,16 @@ const leaderboard = [
 
 export default function MatchProFeedPage() {
   const [activeFilter, setActiveFilter] = useState('All Sports')
+  const feedRef = useRef(null)
+
+  useEffect(() => {
+    if (feedRef.current) {
+      gsap.fromTo(feedRef.current.children,
+        { opacity: 0, y: 30 },
+        { opacity: 1, y: 0, duration: 0.5, stagger: 0.1, ease: 'power2.out' }
+      )
+    }
+  }, [activeFilter])
 
   return (
     <MatchProLayout>
@@ -61,13 +71,13 @@ export default function MatchProFeedPage() {
           </div>
           <div className="flex flex-col gap-1.5">
             {sidebarLinks.map(link => (
-              <a key={link.label} href="#" className={`flex items-center gap-3 py-2 px-3 rounded-lg text-sm text-slate-600 no-underline transition-all hover:bg-slate-50 hover:text-slate-900 ${link.active ? 'bg-[rgba(0,200,170,0.08)] text-[#00c8aa] font-semibold' : ''}`}>
+              <Link key={link.label} to={link.path} className={`flex items-center gap-3 py-2 px-3 rounded-lg text-sm text-slate-600 no-underline transition-all hover:bg-slate-50 hover:text-slate-900 ${link.active ? 'bg-[rgba(0,200,170,0.08)] text-[#00c8aa] font-semibold' : ''}`}>
                 <span>{link.icon}</span>
                 <span>{link.label}</span>
-              </a>
+              </Link>
             ))}
           </div>
-          <Link to="/matchpro/match/create" className="bg-[#00c8aa] hover:bg-[#009e87] text-white text-sm font-bold text-center py-2.5 rounded-lg no-underline transition-all">+ Create Match</Link>
+          <Link to="/matches/create" className="bg-[#00c8aa] hover:bg-[#009e87] text-white text-sm font-bold text-center py-2.5 rounded-lg no-underline transition-all">+ Create Match</Link>
         </aside>
 
         {/* Main content */}
@@ -97,9 +107,9 @@ export default function MatchProFeedPage() {
           </div>
 
           {/* Match cards */}
-          <div className="grid grid-cols-2 max-sm:grid-cols-1 gap-4">
+          <div ref={feedRef} className="grid grid-cols-2 max-sm:grid-cols-1 gap-4">
             {matches.map(m => (
-              <Link to={`/matchpro/match/${m.id}`} key={m.id} className="bg-white rounded-[14px] border-[1.5px] border-[#e0ecf0] p-[18px] flex flex-col gap-3.5 no-underline text-inherit transition-all border-l-[3px] border-l-[#00c8aa] hover:shadow-[0_4px_16px_rgba(0,0,0,0.1)] hover:-translate-y-0.5 hover:border-[#00c8aa]">
+              <Link to={`/matches/${m.id}`} key={m.id} className="bg-white rounded-[14px] border-[1.5px] border-[#e0ecf0] p-[18px] flex flex-col gap-3.5 no-underline text-inherit transition-all border-l-[3px] border-l-[#00c8aa] hover:shadow-[0_4px_16px_rgba(0,0,0,0.1)] hover:-translate-y-0.5 hover:border-[#00c8aa]">
                 <div className="flex items-start gap-2.5">
                   <img src={m.avatar} alt={m.host} className="w-10 h-10 rounded-full object-cover shrink-0" />
                   <div>
