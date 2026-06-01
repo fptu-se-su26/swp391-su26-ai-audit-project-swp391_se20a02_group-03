@@ -109,3 +109,21 @@
 ### Hỗ trợ từ AI (AI-assisted)
 
 Antigravity AI sinh toàn bộ cấu trúc JSX, CSS và hệ thống routing ban đầu cho 40+ trang UI dựa trên ảnh thiết kế. Người thực hiện tự phát hiện và sửa toàn bộ 5 nhóm lỗi kỹ thuật — bao gồm lỗi build, lỗi routing, lỗi CSS trình duyệt và lỗi layout mà AI không tự phát hiện được.
+
+
+
+
+
+
+## [2026-06-01] - Giai đoạn: Hoàn thiện phân hệ Gear & Chuẩn hóa đa ngôn ngữ (Tiếng Anh)
+**Người thực hiện:** Phạm Nguyễn Tiến Đạt
+### Thêm mới (Added)
+* **Phân hệ Gear:** Xây dựng mới mã nguồn hoàn chỉnh cho 4 trang phụ trợ bao gồm Equipment Rental Terms (Điều khoản thuê), Maintenance Tracking (Theo dõi bảo trì), Support Hub (Trung tâm hỗ trợ), và Privacy Policy (Chính sách bảo mật).
+* **Định tuyến:** Tích hợp bổ sung các route mới vào `App.jsx` tương ứng với 4 trang phụ trợ vừa tạo.
+### Thay đổi (Changed)
+* **Dịch thuật (Localization):** Quét và chuyển đổi đồng bộ các từ khóa, nhãn (label) tiếng Việt còn sót lại trên giao diện sang tiếng Anh nhằm đảm bảo tính nhất quán (Premium UI) cho người dùng.
+* **Định tuyến SPA:** Cập nhật các liên kết tĩnh (`href="#"`) ở khu vực Footer của `GearLayout.jsx` thành component `<Link>` của React Router, giúp giữ vững kiến trúc Single Page Application (không reload trang khi chuyển hướng).
+### Sửa lỗi (Fixed)
+* **Sự cố quá tải API (Rate Limit):** Quá trình AI phân luồng (spawn) đa luồng dịch thuật tự động song song gây ra lỗi vượt giới hạn API (Error 429). Đã can thiệp đóng băng luồng dịch toàn dự án, ưu tiên dồn tài nguyên xử lý hoàn thiện các trang chức năng cốt lõi của Gear trước để tránh treo hệ thống.
+### Hỗ trợ từ AI (AI-assisted)
+* Antigravity AI hỗ trợ rà soát ngôn ngữ, tự động sinh nội dung, CSS layout và cấu trúc React Component cho 4 trang thuộc phân hệ Gear. Người thực hiện can thiệp trực tiếp khi xảy ra lỗi giới hạn API và tự cấu hình lại liên kết React Router để đảm bảo luồng chuyển hướng không bị gián đoạn.
