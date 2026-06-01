@@ -4,6 +4,7 @@ import { GoogleLogin } from '@react-oauth/google'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import PasswordStrengthMeter from '../components/PasswordStrengthMeter'
+import { useToast } from '../components/Toast'
 import authApi from '../api/authApi'
 
 const steps = ['Details', 'Preferences', 'Verify']
@@ -27,6 +28,8 @@ export default function RegisterPage() {
   const [registeredUserId, setRegisteredUserId] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+  const [sportPreferences, setSportPreferences] = useState([])
+  const toast = useToast()
   
   // Real-time Field Errors
   const [fieldErrors, setFieldErrors] = useState({})
@@ -43,7 +46,7 @@ export default function RegisterPage() {
         break;
       case 'email':
         if (!value.trim()) errMsg = "Required field."
-        else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim())) errMsg = "Vui lòng điền đúng định dạng email."
+        else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim())) errMsg = "Please enter a valid email format."
         break;
       case 'password':
         if (!value) errMsg = "Required field."
@@ -136,7 +139,7 @@ export default function RegisterPage() {
     setLoading(true)
     try {
       await authApi.resendOtp({ email, type: 'Register' })
-      alert("A new OTP has been sent to your email.")
+      toast("A new OTP has been sent to your email.", 'info')
     } catch (err) {
       setError(typeof err === 'string' ? err : 'Failed to resend OTP.')
     } finally {
@@ -178,7 +181,7 @@ export default function RegisterPage() {
     } else if (step === 2) {
       const success = await handleVerifyOtp()
       if (success) {
-        alert('Account created successfully! Please login.')
+        toast('Account created successfully! Please login.', 'success')
         navigate('/login')
       }
     }
@@ -200,7 +203,7 @@ export default function RegisterPage() {
     if (currentOtpCode.length === 6 && currentOtpCode.trim().length === 6) {
       const success = await handleVerifyOtpWithCode(currentOtpCode)
       if (success) {
-        alert('Account created successfully! Please login.')
+        toast('Account created successfully! Please login.', 'success')
         navigate('/login')
       }
     }
@@ -227,7 +230,7 @@ export default function RegisterPage() {
       
       const success = await handleVerifyOtpWithCode(match[0])
       if (success) {
-        alert('Account created successfully! Please login.')
+        toast('Account created successfully! Please login.', 'success')
         navigate('/login')
       }
     }
@@ -361,9 +364,20 @@ export default function RegisterPage() {
                 <p className="text-[0.9rem] font-semibold text-slate-900 mb-1">Select your sport preferences</p>
                 {['Cầu lông', 'Pickleball'].map(sport => (
                   <label key={sport} className="group flex items-center gap-[10px] text-sm text-[#0d2d3a] font-medium cursor-pointer p-3 border-[1.5px] border-slate-200 rounded-xl hover:border-[#00c8aa] transition-colors bg-white">
-                    <input type="checkbox" className="hidden peer" />
-                    <span className="w-4 h-4 border-[1.5px] border-slate-300 rounded flex items-center justify-center transition-all shrink-0 peer-checked:bg-[#00c8aa] peer-checked:border-[#00c8aa]">
-                       <span className="w-2 h-1.5 border-l-[1.5px] border-b-[1.5px] border-white -rotate-45 -translate-y-px opacity-0 peer-checked:opacity-100 transition-opacity" />
+                    <input 
+                      type="checkbox" 
+                      className="hidden peer" 
+                      checked={sportPreferences.includes(sport)}
+                      onChange={() => {
+                        setSportPreferences(prev => 
+                          prev.includes(sport) 
+                            ? prev.filter(s => s !== sport) 
+                            : [...prev, sport]
+                        )
+                      }}
+                    />
+                    <span className={`w-4 h-4 border-[1.5px] border-slate-300 rounded flex items-center justify-center transition-all shrink-0 ${sportPreferences.includes(sport) ? 'bg-[#00c8aa] !border-[#00c8aa]' : ''}`}>
+                       {sportPreferences.includes(sport) && <span className="w-2 h-1.5 border-l-[1.5px] border-b-[1.5px] border-white -rotate-45 -translate-y-px" />}
                     </span>
                     <span>{sport}</span>
                   </label>

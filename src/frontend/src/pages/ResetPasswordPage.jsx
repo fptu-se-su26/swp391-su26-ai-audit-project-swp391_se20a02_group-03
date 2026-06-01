@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import PasswordStrengthMeter from '../components/PasswordStrengthMeter'
+import { useToast } from '../components/Toast'
 import authApi from '../api/authApi'
 
 export default function ResetPasswordPage() {
@@ -14,6 +15,7 @@ export default function ResetPasswordPage() {
   const [showPass, setShowPass] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+  const toast = useToast()
 
   const handleSendOtp = async (e) => {
     e.preventDefault()
@@ -94,8 +96,8 @@ export default function ResetPasswordPage() {
   const handleResetPassword = async (e) => {
     e.preventDefault()
     const otpCode = otp.join('')
-    if (!newPassword || newPassword.length < 6) {
-      setError('Password must be at least 6 characters.')
+    if (!newPassword || newPassword.length < 8) {
+      setError('Password must be at least 8 characters.')
       return
     }
 
@@ -103,7 +105,7 @@ export default function ResetPasswordPage() {
     setLoading(true)
     try {
       await authApi.resetPassword({ email, otpCode, newPassword })
-      alert('Password reset successfully! Please login.')
+      toast('Password reset successfully! Please login.', 'success')
       navigate('/login')
     } catch (err) {
       setError(typeof err === 'string' ? err : 'Failed to reset password.')

@@ -10,7 +10,7 @@ const axiosClient = axios.create({
 // Interceptor for API request
 axiosClient.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -30,6 +30,7 @@ axiosClient.interceptors.response.use(
     // Handle 401 Unauthorized globally
     if (error.response && error.response.status === 401) {
       localStorage.removeItem('token');
+      sessionStorage.removeItem('token');
       // Redirect to login could be handled here or in the component
     }
     // Return structured error message if available

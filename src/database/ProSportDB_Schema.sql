@@ -46,23 +46,31 @@ GO
 -- Bảng 1: Users — Tài khoản người dùng
 CREATE TABLE [dbo].[Users]
 (
-    [UserId]        INT             IDENTITY(1,1)   NOT NULL,
-    [FullName]      NVARCHAR(100)   NOT NULL,
-    [Email]         VARCHAR(255)    NOT NULL,
-    [PasswordHash]  VARCHAR(500)    NOT NULL,
-    [PhoneNumber]   VARCHAR(15)     NULL,
-    [Role]          VARCHAR(20)     NOT NULL,
-    [EKycStatus]    VARCHAR(20)     NOT NULL    CONSTRAINT [DF_Users_EKycStatus]    DEFAULT ('Unverified'),
-    [AvatarUrl]     VARCHAR(500)    NULL,
-    [IsDeleted]     BIT             NOT NULL    CONSTRAINT [DF_Users_IsDeleted]     DEFAULT (0),
-    [CreatedAt]     DATETIME2(7)    NOT NULL    CONSTRAINT [DF_Users_CreatedAt]     DEFAULT (SYSDATETIME()),
-    [UpdatedAt]     DATETIME2(7)    NULL,
+    [UserId]            INT             IDENTITY(1,1)   NOT NULL,
+    [FullName]          NVARCHAR(100)   NOT NULL,
+    [Email]             VARCHAR(255)    NOT NULL,
+    [PasswordHash]      VARCHAR(500)    NULL,
+    [PhoneNumber]       VARCHAR(15)     NULL,
+    [Role]              VARCHAR(20)     NOT NULL,
+    [EKycStatus]        VARCHAR(20)     NOT NULL    CONSTRAINT [DF_Users_EKycStatus]        DEFAULT ('Unverified'),
+    [AvatarUrl]         VARCHAR(500)    NULL,
+    [GoogleId]          VARCHAR(100)    NULL,
+    [IsPhoneVerified]   BIT             NOT NULL    CONSTRAINT [DF_Users_IsPhoneVerified]   DEFAULT (0),
+    [IsDeleted]         BIT             NOT NULL    CONSTRAINT [DF_Users_IsDeleted]         DEFAULT (0),
+    [CreatedAt]         DATETIME2(7)    NOT NULL    CONSTRAINT [DF_Users_CreatedAt]         DEFAULT (SYSDATETIME()),
+    [UpdatedAt]         DATETIME2(7)    NULL,
 
     CONSTRAINT [PK_Users]               PRIMARY KEY CLUSTERED ([UserId]),
     CONSTRAINT [UQ_Users_Email]         UNIQUE ([Email]),
     CONSTRAINT [CK_Users_Role]          CHECK ([Role] IN ('Admin', 'Staff', 'Customer')),
     CONSTRAINT [CK_Users_EKycStatus]    CHECK ([EKycStatus] IN ('Unverified', 'Pending', 'Verified', 'Rejected'))
 );
+GO
+
+-- Unique Index cho GoogleId (nếu khác NULL)
+CREATE UNIQUE NONCLUSTERED INDEX [UQ_Users_GoogleId]
+ON [dbo].[Users] ([GoogleId])
+WHERE [GoogleId] IS NOT NULL;
 GO
 
 -- Bảng 2: EscrowWallets — Ví ký quỹ (quan hệ 1:1 với Users)

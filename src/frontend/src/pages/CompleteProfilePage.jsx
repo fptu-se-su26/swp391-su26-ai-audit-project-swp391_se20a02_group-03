@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
+import { useToast } from '../components/Toast'
 import authApi from '../api/authApi'
 
 export default function CompleteProfilePage() {
@@ -10,6 +11,15 @@ export default function CompleteProfilePage() {
   const [phoneNumber, setPhoneNumber] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+  const toast = useToast()
+
+  // BUG #14 FIX: Check token on mount — redirect if not authenticated
+  useEffect(() => {
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token')
+    if (!token) {
+      navigate('/login')
+    }
+  }, [navigate])
   
   // Real-time Field Errors
   const [fieldErrors, setFieldErrors] = useState({})
@@ -41,9 +51,17 @@ export default function CompleteProfilePage() {
       await authApi.completeProfile({
         phoneNumber
       })
-      alert('Profile updated successfully!')
+      toast('Profile updated successfully!', 'success')
       navigate('/')
     } catch (err) {
+      // BUG #14 FIX: Handle 401 specifically
+      if (err === 'Unauthorized' || err?.includes?.('401')) {
+        localStorage.removeItem('token')
+        sessionStorage.removeItem('token')
+        toast('Session expired. Please login again.', 'error')
+        navigate('/login')
+        return
+      }
       setError(typeof err === 'string' ? err : 'Failed to update profile. Phone number might be in use.')
     } finally {
       setLoading(false)

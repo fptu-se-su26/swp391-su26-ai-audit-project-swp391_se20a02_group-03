@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { GoogleOAuthProvider } from '@react-oauth/google'
+import { ToastProvider } from './components/Toast'
 
 // PRO-SPORT Public Pages
 import HomePage from './pages/HomePage'
@@ -68,18 +69,26 @@ import NotFoundPage from './pages/status/NotFoundPage'
 import RestrictedPage from './pages/status/RestrictedPage'
 import MaintenancePage from './pages/status/MaintenancePage'
 
+// BUG #13 FIX: Redirect guard — authenticated users can't access login/register
+function GuestRoute({ children }) {
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token')
+    if (token) return <Navigate to="/" replace />
+    return children
+}
+
 function App() {
     return (
-        <GoogleOAuthProvider clientId="451555739002-p36a1gvgpgb5pf5585modtkess26flmf.apps.googleusercontent.com">
+        <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || '451555739002-p36a1gvgpgb5pf5585modtkess26flmf.apps.googleusercontent.com'}>
+        <ToastProvider>
             <Router basename="/swp391-su26-ai-audit-project-swp391_se20a02_group-03">
                 <Routes>
                     {/* Public Routes */}
                     <Route path="/" element={<HomePage />} />
-                    <Route path="/login" element={<LoginPage />} />
-                    <Route path="/register" element={<RegisterPage />} />
+                    <Route path="/login" element={<GuestRoute><LoginPage /></GuestRoute>} />
+                    <Route path="/register" element={<GuestRoute><RegisterPage /></GuestRoute>} />
                     <Route path="/complete-profile" element={<CompleteProfilePage />} />
                     <Route path="/role-selection" element={<RoleSelectionPage />} />
-                    <Route path="/reset-password" element={<ResetPasswordPage />} />
+                    <Route path="/reset-password" element={<GuestRoute><ResetPasswordPage /></GuestRoute>} />
                     <Route path="/about" element={<AboutPage />} />
                     <Route path="/contact" element={<ContactPage />} />
 
@@ -151,6 +160,7 @@ function App() {
                 </Routes>
                 <AIChatbot />
             </Router>
+        </ToastProvider>
         </GoogleOAuthProvider>
     )
 }

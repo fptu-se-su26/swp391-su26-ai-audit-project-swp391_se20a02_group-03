@@ -13,7 +13,8 @@ public class RegisterRequestDto
     public string Email { get; set; } = null!;
 
     [Required(ErrorMessage = "Password is required.")]
-    [MinLength(6, ErrorMessage = "Password must be at least 6 characters long.")]
+    [MinLength(8, ErrorMessage = "Password must be at least 8 characters long.")]
+    [RegularExpression(@"^(?=.*[0-9]).{8,}$", ErrorMessage = "Password must contain at least one number.")]
     public string Password { get; set; } = null!;
 
     [Phone(ErrorMessage = "Invalid phone number format.")]
@@ -67,7 +68,8 @@ public class ChangePasswordRequestDto
     public string CurrentPassword { get; set; } = null!;
 
     [Required(ErrorMessage = "New Password is required.")]
-    [MinLength(6, ErrorMessage = "New password must be at least 6 characters long.")]
+    [MinLength(8, ErrorMessage = "New password must be at least 8 characters long.")]
+    [RegularExpression(@"^(?=.*[0-9]).{8,}$", ErrorMessage = "New password must contain at least one number.")]
     public string NewPassword { get; set; } = null!;
 }
 
@@ -88,7 +90,8 @@ public class ResetPasswordRequestDto
     public string OtpCode { get; set; } = null!;
 
     [Required(ErrorMessage = "New Password is required.")]
-    [MinLength(6, ErrorMessage = "New password must be at least 6 characters long.")]
+    [MinLength(8, ErrorMessage = "New password must be at least 8 characters long.")]
+    [RegularExpression(@"^(?=.*[0-9]).{8,}$", ErrorMessage = "New password must contain at least one number.")]
     public string NewPassword { get; set; } = null!;
 }
 

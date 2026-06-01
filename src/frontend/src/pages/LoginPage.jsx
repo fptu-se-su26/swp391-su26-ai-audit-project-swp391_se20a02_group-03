@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { GoogleLogin } from '@react-oauth/google'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
+import { useToast } from '../components/Toast'
 import authApi from '../api/authApi'
 
 export default function LoginPage() {
@@ -31,9 +32,22 @@ export default function LoginPage() {
     }
   }, [])
 
+  const toast = useToast()
+
   const handleLogin = async (e) => {
     e.preventDefault()
     setError(null)
+
+    // BUG #4 FIX: Client-side validation before API call
+    if (!email.trim()) {
+      setError('Please enter your email address.')
+      return
+    }
+    if (!password) {
+      setError('Please enter your password.')
+      return
+    }
+
     setLoading(true)
 
     try {
@@ -41,7 +55,13 @@ export default function LoginPage() {
       // Assuming response has data property and accessToken inside data
       const token = response.data?.accessToken || response.accessToken || response.data?.token || response.token
       if (token) {
-        localStorage.setItem('token', token)
+        // BUG #7 FIX: Use sessionStorage when Remember Me is unchecked
+        if (remember) {
+          localStorage.setItem('token', token)
+        } else {
+          sessionStorage.setItem('token', token)
+        }
+        setFailedAttempts(0)
         if (response.data?.isProfileComplete === false) {
           navigate('/complete-profile')
         } else {
@@ -51,6 +71,8 @@ export default function LoginPage() {
         setError('Login failed. Token not received.')
       }
     } catch (err) {
+      // BUG #5 FIX: Increment failedAttempts so "Reset it now" link shows after 3 failures
+      setFailedAttempts(prev => prev + 1)
       setError(typeof err === 'string' ? err : 'Login failed. Please check your credentials.')
     } finally {
       setLoading(false)

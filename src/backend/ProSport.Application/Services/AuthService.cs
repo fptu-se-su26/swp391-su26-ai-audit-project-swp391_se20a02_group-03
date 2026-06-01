@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Text;
 using Google.Apis.Auth;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using ProSport.Application.DTOs;
 using ProSport.Application.DTOs.Auth;
@@ -18,13 +19,15 @@ public class AuthService : IAuthService
     private readonly IOtpCodeRepository _otpCodeRepository;
     private readonly IConfiguration _configuration;
     private readonly IEmailService _emailService;
+    private readonly ILogger<AuthService> _logger;
 
-    public AuthService(IUserRepository userRepository, IOtpCodeRepository otpCodeRepository, IConfiguration configuration, IEmailService emailService)
+    public AuthService(IUserRepository userRepository, IOtpCodeRepository otpCodeRepository, IConfiguration configuration, IEmailService emailService, ILogger<AuthService> logger)
     {
         _userRepository = userRepository;
         _otpCodeRepository = otpCodeRepository;
         _configuration = configuration;
         _emailService = emailService;
+        _logger = logger;
     }
 
     public async Task<ApiResponseDto<int>> RegisterAsync(RegisterRequestDto request)
@@ -33,6 +36,16 @@ public class AuthService : IAuthService
         {
             var existingUser = await _userRepository.GetByEmailAsync(request.Email);
             User userToProcess = null;
+
+            // BUG #3 FIX: Check phone duplicate BEFORE updating/creating user
+            if (!string.IsNullOrEmpty(request.PhoneNumber))
+            {
+                var existingPhone = await _userRepository.GetByPhoneAsync(request.PhoneNumber);
+                if (existingPhone != null && existingPhone.UserId != existingUser?.UserId)
+                {
+                    return new ApiResponseDto<int>(400, "Phone number already in use.");
+                }
+            }
 
             if (existingUser != null)
             {
@@ -45,15 +58,6 @@ public class AuthService : IAuthService
                 existingUser.PhoneNumber = request.PhoneNumber;
                 await _userRepository.UpdateAsync(existingUser);
                 userToProcess = existingUser;
-            }
-
-            if (!string.IsNullOrEmpty(request.PhoneNumber))
-            {
-                var existingPhone = await _userRepository.GetByPhoneAsync(request.PhoneNumber);
-                if (existingPhone != null && existingPhone.UserId != existingUser?.UserId)
-                {
-                    return new ApiResponseDto<int>(400, "Phone number already in use.");
-                }
             }
 
             if (userToProcess == null)
@@ -71,37 +75,36 @@ public class AuthService : IAuthService
                 userToProcess = await _userRepository.CreateAsync(user);
             }
 
-            if (!string.IsNullOrEmpty(request.PhoneNumber))
+            // BUG #2 FIX: Always send OTP via email regardless of phone number
+            var otpCode = GenerateOtp();
+            await _otpCodeRepository.CreateAsync(new OtpCode
             {
-                var otpCode = GenerateOtp();
-                await _otpCodeRepository.CreateAsync(new OtpCode
-                {
-                    UserId = userToProcess.UserId,
-                    Code = otpCode,
-                    Type = "Register",
-                    ExpiryTime = DateTime.UtcNow.AddMinutes(5),
-                    CreatedAt = DateTime.UtcNow
-                });
-                
-                // SEND REAL EMAIL
-                string emailBody = $@"
-                    <div style='font-family: Arial, sans-serif; max-width: 500px; margin: auto; padding: 20px; border: 1px solid #e0ecf0; border-radius: 12px;'>
-                        <h2 style='color: #0d2d3a; text-align: center;'>Chào mừng đến với PRO-SPORT</h2>
-                        <p>Xin chào <strong>{request.FullName}</strong>,</p>
-                        <p>Cảm ơn bạn đã đăng ký tài khoản. Đây là mã xác nhận (OTP) của bạn, có hiệu lực trong 5 phút:</p>
-                        <div style='text-align: center; margin: 30px 0;'>
-                            <span style='font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #00c8aa; background: #e8f2f8; padding: 15px 30px; border-radius: 8px;'>{otpCode}</span>
-                        </div>
-                        <p style='color: #7b8e98; font-size: 13px; text-align: center;'>Nếu bạn không thực hiện yêu cầu này, vui lòng bỏ qua email này.</p>
+                UserId = userToProcess.UserId,
+                Code = otpCode,
+                Type = "Register",
+                ExpiryTime = DateTime.UtcNow.AddMinutes(5),
+                CreatedAt = DateTime.UtcNow
+            });
+            
+            // SEND REAL EMAIL
+            string emailBody = $@"
+                <div style='font-family: Arial, sans-serif; max-width: 500px; margin: auto; padding: 20px; border: 1px solid #e0ecf0; border-radius: 12px;'>
+                    <h2 style='color: #0d2d3a; text-align: center;'>Chào mừng đến với PRO-SPORT</h2>
+                    <p>Xin chào <strong>{request.FullName}</strong>,</p>
+                    <p>Cảm ơn bạn đã đăng ký tài khoản. Đây là mã xác nhận (OTP) của bạn, có hiệu lực trong 5 phút:</p>
+                    <div style='text-align: center; margin: 30px 0;'>
+                        <span style='font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #00c8aa; background: #e8f2f8; padding: 15px 30px; border-radius: 8px;'>{otpCode}</span>
                     </div>
-                ";
-                await _emailService.SendEmailAsync(request.Email, "PRO-SPORT: Mã Xác Nhận Đăng Ký", emailBody);
-            }
+                    <p style='color: #7b8e98; font-size: 13px; text-align: center;'>Nếu bạn không thực hiện yêu cầu này, vui lòng bỏ qua email này.</p>
+                </div>
+            ";
+            await _emailService.SendEmailAsync(request.Email, "PRO-SPORT: Mã Xác Nhận Đăng Ký", emailBody);
 
             return new ApiResponseDto<int>(200, "Registration successful.", userToProcess.UserId);
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, "Error during registration for email: {Email}", request.Email);
             return new ApiResponseDto<int>(500, "An unexpected error occurred while processing your request.");
         }
     }
@@ -141,6 +144,7 @@ public class AuthService : IAuthService
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, "Error during OTP resend for email: {Email}", request.Email);
             return new ApiResponseDto<bool>(500, "An unexpected error occurred while processing your request.", false);
         }
     }
@@ -167,6 +171,7 @@ public class AuthService : IAuthService
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, "Error during login for email: {Email}", request.Email);
             return new ApiResponseDto<AuthResponseDto>(500, "An unexpected error occurred while processing your request.");
         }
     }
@@ -228,6 +233,7 @@ public class AuthService : IAuthService
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, "Error during Google login");
             return new ApiResponseDto<AuthResponseDto>(500, "An unexpected error occurred while processing your request.");
         }
     }
@@ -277,7 +283,7 @@ public class AuthService : IAuthService
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"[VerifyOtp] Error: {ex.Message}");
+            _logger.LogError(ex, "Error during OTP verification for UserId: {UserId}", request.UserId);
             return new ApiResponseDto<bool>(500, "An unexpected error occurred while processing your request.", false);
         }
     }
@@ -297,6 +303,7 @@ public class AuthService : IAuthService
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, "Error during password change for UserId: {UserId}", userId);
             return new ApiResponseDto<bool>(500, "An unexpected error occurred while processing your request.", false);
         }
     }
@@ -323,6 +330,7 @@ public class AuthService : IAuthService
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, "Error during profile completion for UserId: {UserId}", userId);
             return new ApiResponseDto<bool>(500, "An unexpected error occurred while processing your request.", false);
         }
     }
@@ -364,6 +372,7 @@ public class AuthService : IAuthService
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, "Error during forgot password for email: {Email}", request.Email);
             return new ApiResponseDto<bool>(500, "An unexpected error occurred while processing your request.", false);
         }
     }
@@ -389,6 +398,7 @@ public class AuthService : IAuthService
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, "Error during password reset for email: {Email}", request.Email);
             return new ApiResponseDto<bool>(500, "An unexpected error occurred while processing your request.", false);
         }
     }

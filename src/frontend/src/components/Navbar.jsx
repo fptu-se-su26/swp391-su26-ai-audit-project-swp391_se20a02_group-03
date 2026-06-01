@@ -1,11 +1,25 @@
-import { useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useNavbarEntrance } from '../hooks/useNavbarEntrance'
 
 export default function Navbar({ theme = 'light' }) {
   const [menuOpen, setMenuOpen] = useState(false)
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
   const location = useLocation()
+  const navigate = useNavigate()
   const navRef = useNavbarEntrance()
+
+  useEffect(() => {
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token')
+    setIsLoggedIn(!!token)
+  }, [location])
+
+  const handleLogout = () => {
+    localStorage.removeItem('token')
+    sessionStorage.removeItem('token')
+    setIsLoggedIn(false)
+    navigate('/')
+  }
 
   const navLinks = [
     { label: 'Home',      path: '/' },
@@ -53,8 +67,19 @@ export default function Navbar({ theme = 'light' }) {
 
         {/* Actions */}
         <div className="hidden lg:flex items-center gap-3 shrink-0">
-          <Link to="/login" className={`text-[0.88rem] font-medium px-3.5 py-1.5 rounded-full transition-colors ${isLight ? 'text-slate-500 hover:text-[#00c8aa] hover:bg-[#00c8aa]/10' : 'text-white/75 hover:text-[#00c8aa] hover:bg-[#00c8aa]/10'}`}>Login</Link>
-          <Link to="/register" className="bg-[#00c8aa] hover:bg-[#009e87] hover:shadow-[0_0_24px_rgba(0,200,170,0.25)] hover:-translate-y-[1px] text-white rounded-full px-[18px] py-[8px] font-semibold text-[0.85rem] tracking-wide transition-all inline-flex items-center gap-2">Join Pro</Link>
+          {isLoggedIn ? (
+            <button 
+              onClick={handleLogout}
+              className={`text-[0.88rem] font-medium px-3.5 py-1.5 rounded-full transition-colors ${isLight ? 'text-slate-500 hover:text-red-500 hover:bg-red-50' : 'text-white/75 hover:text-red-400 hover:bg-red-500/10'}`}
+            >
+              Logout
+            </button>
+          ) : (
+            <>
+              <Link to="/login" className={`text-[0.88rem] font-medium px-3.5 py-1.5 rounded-full transition-colors ${isLight ? 'text-slate-500 hover:text-[#00c8aa] hover:bg-[#00c8aa]/10' : 'text-white/75 hover:text-[#00c8aa] hover:bg-[#00c8aa]/10'}`}>Login</Link>
+              <Link to="/register" className="bg-[#00c8aa] hover:bg-[#009e87] hover:shadow-[0_0_24px_rgba(0,200,170,0.25)] hover:-translate-y-[1px] text-white rounded-full px-[18px] py-[8px] font-semibold text-[0.85rem] tracking-wide transition-all inline-flex items-center gap-2">Join Pro</Link>
+            </>
+          )}
         </div>
 
         {/* Hamburger */}
