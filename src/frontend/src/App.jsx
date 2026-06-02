@@ -16,6 +16,12 @@ import BookingPage from './pages/courts/BookingPage'
 import MatchDetailPage from './pages/matches/MatchDetailPage'
 import CreateMatchPage from './pages/matches/CreateMatchPage'
 import GearCatalogPage from './pages/gear/GearCatalogPage'
+import GearDashboardPage from './pages/gear/GearDashboardPage'
+import GearRentalPage from './pages/gear/GearRentalPage'
+import GearRentalTermsPage from './pages/gear/GearRentalTermsPage'
+import GearMaintenancePage from './pages/gear/GearMaintenancePage'
+import GearSupportPage from './pages/gear/GearSupportPage'
+import GearPrivacyPage from './pages/gear/GearPrivacyPage'
 import BookingHistoryPage from './pages/customer/BookingHistoryPage'
 import CustomerProfilePage from './pages/customer/CustomerProfilePage'
 import ReportDisputePage from './pages/customer/ReportDisputePage'
@@ -111,7 +117,14 @@ function App() {
                     <Route path="/customer/report" element={<ReportDisputePage />} />
 
                     {/* Gear */}
-                    <Route path="/gear" element={<GearCatalogPage />} />
+                    <Route path="/gear" element={<Navigate to="/gear/catalog" replace />} />
+                    <Route path="/gear/dashboard" element={<GearDashboardPage />} />
+                    <Route path="/gear/rentals" element={<GearRentalPage />} />
+                    <Route path="/gear/catalog" element={<GearCatalogPage />} />
+                    <Route path="/gear/rental-terms" element={<GearRentalTermsPage />} />
+                    <Route path="/gear/maintenance" element={<GearMaintenancePage />} />
+                    <Route path="/gear/support" element={<GearSupportPage />} />
+                    <Route path="/gear/privacy" element={<GearPrivacyPage />} />
 
                     {/* Apex Portal Routes */}
                     <Route path="/apex" element={<ApexHomePage />} />

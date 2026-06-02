@@ -29,8 +29,10 @@
 
 ```text
 src/
-docs/
-.github/
+  frontend/          # React + Vite (UI)
+  backend/           # ASP.NET Core Web API (ProSportAPI)
+docs/                # SRS, AI audit logs, changelog
+.github/             # CI workflows (when added)
 README.md
 ```
 
@@ -105,9 +107,99 @@ feat, fix, docs, test, refactor, style, chore
 
 ## 8. How to Run
 
-```text
-Students write project running instructions here.
+### 8.1. Prerequisites
+
+| Tool | Version (tested) | Notes |
+|---|---|---|
+| [Node.js](https://nodejs.org/) | 18+ (LTS khuyến nghị) | Chạy frontend |
+| npm | đi kèm Node.js | `npm ci` trong `src/frontend` |
+| [.NET SDK](https://dotnet.microsoft.com/download) | 10.x | Backend target `net10.0` |
+| SQL Server | tùy chọn | Chỉ cần khi cấu hình EF Core (sprint sau); API hiện chạy không bắt buộc DB |
+
+Kiểm tra nhanh:
+
+```powershell
+node -v
+npm -v
+dotnet --version
 ```
+
+### 8.2. First-time setup
+
+Từ thư mục gốc repository:
+
+**Frontend**
+
+```powershell
+cd src/frontend
+copy .env.example .env
+npm ci
+```
+
+**Backend**
+
+```powershell
+cd src/backend
+# Khi cần connection string SQL Server (sprint sau), sao chép file mẫu:
+# copy appsettings.Development.json.example appsettings.Development.json
+# rồi chỉnh ConnectionStrings trong file vừa tạo (file local không commit secret thật).
+dotnet restore
+```
+
+### 8.3. Chạy development
+
+Mở **hai terminal** (frontend và backend).
+
+**Terminal 1 — API**
+
+```powershell
+cd src/backend
+dotnet run --launch-profile http
+```
+
+- API: `http://localhost:5047`
+- OpenAPI (Development): `http://localhost:5047/openapi/v1.json`
+
+**Terminal 2 — Web UI**
+
+```powershell
+cd src/frontend
+npm run dev
+```
+
+- Ứng dụng: `http://localhost:5173` (cổng Vite mặc định; xem log terminal nếu bị chiếm cổng)
+
+Biến `VITE_API_URL` trong `src/frontend/.env` phải trùng URL API (mặc định `http://localhost:5047`).
+
+### 8.4. Build kiểm tra (trước khi PR)
+
+```powershell
+cd src/backend
+dotnet build --configuration Release
+
+cd ../frontend
+npm run build
+```
+
+### 8.5. Xử lý lỗi thường gặp
+
+| Triệu chứng | Cách xử lý |
+|---|---|
+| `dotnet` không nhận lệnh | Cài .NET SDK 10.x và mở lại terminal |
+| `npm ci` báo lock file không khớp `package.json` | Chạy `npm install` một lần trong `src/frontend`, commit `package-lock.json`, sau đó dùng lại `npm ci` |
+| `npm ci` lỗi khác | Xóa `src/frontend/node_modules`, chạy lại `npm ci` |
+| Cổng 5047 hoặc 5173 bị chiếm | Đổi port trong `launchSettings.json` hoặc dừng process đang dùng cổng |
+| Frontend không gọi được API | Kiểm tra `src/frontend/.env` và backend đang chạy |
+
+### 8.6. Environment files (không commit secret)
+
+| File mẫu | Sao chép thành | Mục đích |
+|---|---|---|
+| `src/frontend/.env.example` | `src/frontend/.env` | `VITE_API_URL` |
+| `src/backend/.env.example` | (tùy chọn) biến môi trường shell | `ConnectionStrings__*` khi dùng EF |
+| `src/backend/appsettings.Development.json.example` | `appsettings.Development.json` (local) | Connection string SQL Server khi có DB |
+
+Các file `.env` và `appsettings` chứa mật khẩu thật **không** được đưa lên Git (đã cấu hình trong `.gitignore`).
 
 ---
 
