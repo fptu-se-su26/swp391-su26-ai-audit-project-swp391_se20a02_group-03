@@ -137,7 +137,7 @@ export default function ContactPage() {
           </div>
           <div className="flex flex-col gap-3">
             {faqs.map((f, i) => (
-              <div key={i} className={`border-[1.5px] rounded-md overflow-hidden transition-all ${openFaq === i ? 'border-[#00c8aa]' : 'border-slate-200'}`}>
+              <div key={f.q} className={`border-[1.5px] rounded-md overflow-hidden transition-all ${openFaq === i ? 'border-[#00c8aa]' : 'border-slate-200'}`}>
                 <button className="w-full flex items-center justify-between gap-4 py-4 px-5 bg-transparent text-left text-[0.9rem] font-semibold text-[#0a0e1a] font-['Inter'] cursor-pointer hover:bg-[rgba(0,200,170,0.04)]" onClick={() => setOpenFaq(openFaq === i ? null : i)}>
                   <span>{f.q}</span>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{transform: openFaq === i ? 'rotate(90deg)' : 'none', transition: '0.2s'}}><polyline points="9 18 15 12 9 6"/></svg>

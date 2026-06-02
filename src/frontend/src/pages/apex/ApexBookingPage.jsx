@@ -25,13 +25,18 @@ const sportTypes = ['All', 'Tennis', 'Basketball', 'Padel', 'Squash', 'Badminton
 export default function ApexBookingPage() {
   const [filter, setFilter] = useState('All')
   const [selectedCourt, setSelectedCourt] = useState(null)
-  const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().slice(0, 10))
+  const [selectedDate, setSelectedDate] = useState('')
+  const [minDate, setMinDate] = useState('')
   const [selectedSlots, setSelectedSlots] = useState([])
   const [step, setStep] = useState(1) // 1=select court, 2=pick time, 3=confirm
   const [booked, setBooked] = useState(false)
   const pageRef = useRef(null)
 
   useEffect(() => {
+    const todayStr = new Date().toISOString().slice(0, 10)
+    if (!selectedDate) setSelectedDate(todayStr)
+    setMinDate(todayStr)
+
     const ctx = gsap.context(() => {
       gsap.from('.booking-hero', { opacity: 0, y: 30, duration: 0.6, ease: 'power3.out' })
       gsap.from('.court-card', { opacity: 0, y: 40, duration: 0.5, stagger: 0.08, ease: 'power2.out', delay: 0.2 })
@@ -152,7 +157,7 @@ export default function ApexBookingPage() {
                   <h2 className="timepicker__title">Select Time Slots</h2>
                   <div className="timepicker__date-row">
                     <label>Date</label>
-                    <input type="date" value={selectedDate} min={new Date().toISOString().slice(0,10)}
+                    <input type="date" value={selectedDate} min={minDate}
                       onChange={e => setSelectedDate(e.target.value)} className="timepicker__date-input" id="booking-date" />
                   </div>
                 </div>

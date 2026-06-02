@@ -53,7 +53,7 @@ export default function CourtDetailPage() {
             </div>
             <div className="flex gap-3 mb-6">
               {court.images.map((img, i) => (
-                <button key={i} onClick={() => setActiveImg(i)}
+                <button key={img} onClick={() => setActiveImg(i)}
                   className={`w-20 h-16 rounded-xl overflow-hidden border-2 transition-all shrink-0 ${activeImg === i ? 'border-[#00c8aa] scale-105' : 'border-transparent opacity-60 hover:opacity-90'}`}>
                   <img src={img} alt="" className="w-full h-full object-cover" />
                 </button>
