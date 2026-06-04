@@ -43,8 +43,8 @@ export default function Footer({ variant = 'light' }) {
           <h4 className={`font-['Oswald'] text-[0.78rem] font-bold tracking-[0.12em] uppercase mb-4 ${isLight ? 'text-slate-400' : 'text-white/35'}`}>PLATFORM</h4>
           <ul className="flex flex-col gap-2.5 list-none">
             <li><Link to="/" className={`text-[0.875rem] transition-colors hover:text-[#00c8aa] ${isLight ? 'text-slate-500' : 'text-white/60'}`}>Discover</Link></li>
-            <li><Link to="/about" className={`text-[0.875rem] transition-colors hover:text-[#00c8aa] ${isLight ? 'text-slate-500' : 'text-white/60'}`}>Brand Mission</Link></li>
-            <li><Link to="/courts" className={`text-[0.875rem] transition-colors hover:text-[#00c8aa] ${isLight ? 'text-slate-500' : 'text-white/60'}`}>Country</Link></li>
+            <li><Link to="/brand-mission" className={`text-[0.875rem] transition-colors hover:text-[#00c8aa] ${isLight ? 'text-slate-500' : 'text-white/60'}`}>Brand Mission</Link></li>
+            <li><Link to="/courts" className={`text-[0.875rem] transition-colors hover:text-[#00c8aa] ${isLight ? 'text-slate-500' : 'text-white/60'}`}>Facilities</Link></li>
           </ul>
         </div>
 
@@ -52,9 +52,9 @@ export default function Footer({ variant = 'light' }) {
         <div className="flex flex-col gap-[10px]">
           <h4 className={`font-['Oswald'] text-[0.78rem] font-bold tracking-[0.12em] uppercase mb-4 ${isLight ? 'text-slate-400' : 'text-white/35'}`}>LEGAL</h4>
           <ul className="flex flex-col gap-2.5 list-none">
-            <li><Link to="#" className={`text-[0.875rem] transition-colors hover:text-[#00c8aa] ${isLight ? 'text-slate-500' : 'text-white/60'}`}>Privacy Policy</Link></li>
-            <li><Link to="#" className={`text-[0.875rem] transition-colors hover:text-[#00c8aa] ${isLight ? 'text-slate-500' : 'text-white/60'}`}>Terms of Service</Link></li>
-            <li><Link to="#" className={`text-[0.875rem] transition-colors hover:text-[#00c8aa] ${isLight ? 'text-slate-500' : 'text-white/60'}`}>Sitemap</Link></li>
+            <li><Link to="/privacy" className={`text-[0.875rem] transition-colors hover:text-[#00c8aa] ${isLight ? 'text-slate-500' : 'text-white/60'}`}>Privacy Policy</Link></li>
+            <li><Link to="/terms" className={`text-[0.875rem] transition-colors hover:text-[#00c8aa] ${isLight ? 'text-slate-500' : 'text-white/60'}`}>Terms of Service</Link></li>
+            <li><Link to="/sitemap" className={`text-[0.875rem] transition-colors hover:text-[#00c8aa] ${isLight ? 'text-slate-500' : 'text-white/60'}`}>Sitemap</Link></li>
           </ul>
         </div>
 
