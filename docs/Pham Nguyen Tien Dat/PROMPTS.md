@@ -109,3 +109,29 @@ và
 ### Evaluation
 AI đã hoàn thành rất tốt việc sinh cấu trúc UI tĩnh tĩnh cho 4 trang phụ trợ của phân hệ Gear, đảm bảo tính thẩm mỹ, nhất quán và tích hợp thành công vào kiến trúc SPA hiện tại. 
 Tuy nhiên, với prompt yêu cầu rà soát và dịch tiếng Việt trên quy mô diện rộng (toàn bộ 40+ file dự án), AI đã tự động phân luồng (spawn) hàng loạt sub-agent chạy song song, lập tức dẫn đến lỗi vượt giới hạn API (Error 429 - Resource Exhausted). Tôi đã phải trực tiếp can thiệp: đình chỉ luồng quét toàn bộ dự án, khoanh vùng lại phạm vi làm việc để ưu tiên tài nguyên hoàn thiện 4 trang lõi của Gear trước nhằm tránh treo hệ thống. Cuối cùng, tôi chỉ định rõ AI phải cập nhật thẻ `<Link>` thay vì thẻ `<a>` tĩnh để bảo toàn luồng chuyển hướng của React Router.
+
+
+
+
+## Prompt #07
+**Date:** 2026-06-04  
+**AI Tool:** Antigravity (Gemini)  
+**Author:** Phạm Nguyễn Tiến Đạt  
+**Purpose:** Thiết lập CI Pipeline, tái thiết kế trang About và khởi tạo các trang Nền tảng/Pháp lý (Platform/Legal).
+
+### Prompt
+*"làm đi" (sau khi yêu cầu setup Harness CI)*
+và
+*"hoàn thiện nội dung và giao diện cho phần about (brandMission,.....)"*
+và
+*"phần mấy cái nút này chưa có giao diện cho nó nè code phần giao diện cho nó"*
+
+### Expected Output
+- File cấu hình hệ thống Harness CI (`.harness/prosport_ci_pipeline.yaml`) thực hiện 3 công việc tự động: Build Frontend, Build Backend và rà soát Audit Docs.
+- Giao diện đập đi xây lại (Overhaul) toàn diện cho `AboutPage.jsx` với đầy đủ nội dung: Mission, Stats, Journey, Timeline, Leadership Team kết hợp cùng GSAP animations.
+- Mã nguồn React hoàn chỉnh cho 3 trang pháp lý (`PrivacyPolicyPage`, `TermsOfServicePage`, `SitemapPage`) và 1 trang nền tảng (`BrandMissionPage`).
+- Tự động bổ sung định tuyến vào `App.jsx` và cập nhật các liên kết đang để `#` ở `Footer.jsx` sang link thực tế.
+
+### Evaluation
+AI đã sinh code rất xuất sắc. Giao diện trang About và Brand Mission mang đậm chất Premium UI với hiệu ứng cuộn (GSAP ScrollTrigger) mượt mà. File cấu hình CI/CD sinh ra cũng hoàn toàn chính xác. 
+Tuy nhiên, quá trình chạy thử gặp lỗi crash server Vite (do thiếu các package `@react-oauth/google` và `axios` sau khi pull code mới từ nhánh main về). Tôi đã phải trực tiếp can thiệp và yêu cầu AI chạy lệnh cài bổ sung dependencies để phục hồi dev server. Ngoài ra, tại trang `BrandMissionPage`, AI đã sử dụng thẻ HTML tĩnh (`<a href="/register">`) làm mất base URL của dự án Vite (gây ra lỗi 404 khi bấm vào nút CTA). Tôi đã phát hiện và chỉ đạo AI đổi lại toàn bộ bằng component `<Link>` của React Router để đảm bảo tính toàn vẹn của cấu trúc Single Page Application (SPA).
