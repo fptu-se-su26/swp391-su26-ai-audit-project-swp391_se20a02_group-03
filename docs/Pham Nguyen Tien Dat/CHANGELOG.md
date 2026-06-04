@@ -127,3 +127,21 @@ Antigravity AI sinh toàn bộ cấu trúc JSX, CSS và hệ thống routing ban
 * **Sự cố quá tải API (Rate Limit):** Quá trình AI phân luồng (spawn) đa luồng dịch thuật tự động song song gây ra lỗi vượt giới hạn API (Error 429). Đã can thiệp đóng băng luồng dịch toàn dự án, ưu tiên dồn tài nguyên xử lý hoàn thiện các trang chức năng cốt lõi của Gear trước để tránh treo hệ thống.
 ### Hỗ trợ từ AI (AI-assisted)
 * Antigravity AI hỗ trợ rà soát ngôn ngữ, tự động sinh nội dung, CSS layout và cấu trúc React Component cho 4 trang thuộc phân hệ Gear. Người thực hiện can thiệp trực tiếp khi xảy ra lỗi giới hạn API và tự cấu hình lại liên kết React Router để đảm bảo luồng chuyển hướng không bị gián đoạn.
+
+
+
+## [2026-06-04] - Giai đoạn: Thiết lập CI/CD & Hoàn thiện nền tảng pháp lý (Platform/Legal)
+**Người thực hiện:** Phạm Nguyễn Tiến Đạt
+### Thêm mới (Added)
+* **Hạ tầng CI/CD:** Thiết lập thành công Harness CI pipeline (`.harness/prosport_ci_pipeline.yaml`) với 3 luồng tự động: Build Frontend (Vite/React), Build Backend (.NET) và tự động kiểm tra Audit Docs.
+* **Trang Chính sách (Legal):** Sinh mới 3 trang pháp lý chuẩn SEO và UI cao cấp bao gồm `PrivacyPolicyPage.jsx`, `TermsOfServicePage.jsx` và `SitemapPage.jsx`.
+* **Trang Nền tảng (Platform):** Khởi tạo trang chuyên đề `BrandMissionPage.jsx` độc lập với giao diện Cinematic, typography cỡ lớn và GSAP animations mượt mà.
+* **Định tuyến:** Bổ sung 4 route mới vào `App.jsx` tương ứng với các trang vừa được tạo.
+### Thay đổi (Changed)
+* **Nâng cấp UI (Overhaul):** Đập đi xây lại toàn bộ trang About (`AboutPage.jsx`) với nội dung thực tế phong phú (Mission, Stats, Journey, Timeline, Leadership Team) tích hợp hiệu ứng cuộn GSAP ScrollTrigger.
+* **Cập nhật Footer:** Điều chỉnh toàn bộ các liên kết tĩnh (`href="#"`) trong `Footer.jsx` sang định tuyến thực tế (chuyển "Country" thành "Facilities" trỏ tới `/courts`, gắn link thực cho các trang Legal).
+### Sửa lỗi (Fixed)
+* **Môi trường Dev:** Xử lý lỗi crash Vite dev server do thiếu thư viện (sau khi merge code mới từ nhánh main) bằng cách chủ động cài đặt bổ sung các dependencies bị thiếu (`@react-oauth/google`, `axios`).
+* **Định tuyến SPA (Base URL):** Khắc phục lỗi 404 khi click vào nút CTA "Join Our Mission" ở trang Brand Mission. Lỗi xảy ra do dùng thẻ HTML tĩnh (`<a href>`) làm ứng dụng thoát khỏi base path của Vite. Đã thay thế triệt để bằng component `<Link>` của React Router.
+### Hỗ trợ từ AI (AI-assisted)
+* Antigravity AI (Gemini) hỗ trợ viết file cấu hình cho Harness CI và sinh toàn bộ mã nguồn React, class Tailwind, logic GSAP animation cho các trang About, Brand Mission, Legal. Người thực hiện trực tiếp chẩn đoán, can thiệp xử lý lỗi sập dev server và fix thành công lỗi điều hướng mất base URL đặc thù của kiến trúc SPA.
