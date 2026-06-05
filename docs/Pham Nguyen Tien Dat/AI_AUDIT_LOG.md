@@ -184,6 +184,41 @@
 * `src/frontend/src/pages/gear/GearSupportPage.jsx`
 * `src/frontend/src/pages/gear/GearPrivacyPage.jsx`
 * `src/frontend/src/layouts/GearLayout.jsx`
+
+
+### Log #07
+**Ngày:** 2026-06-04  
+**Người thực hiện:** Phạm Nguyễn Tiến Đạt  
+**Công cụ AI:** Antigravity 
+**Mục đích:** Khởi tạo CI Pipeline, nâng cấp toàn diện trang About và hoàn thiện các trang Chính sách pháp lý (Legal) & Nền tảng (Platform).  
+**Tham chiếu Prompt:** *"làm đi" (setup Harness CI)*, *"hoàn thiện nội dung và giao diện cho phần about (brandMission,.....)"*, *"phần mấy cái nút này chưa có giao diện cho nó nè code phần giao diện cho nó"*, *"phần brand mission chưa có giao diện"*
+
+**Tóm tắt kết quả AI**
+* Thiết lập thành công hệ thống Harness CI pipeline (`.harness/prosport_ci_pipeline.yaml`) với 3 stage: Build Frontend (Vite/React), Build Backend (.NET) và tự động rà soát sự tồn tại của Audit Docs.
+* Đập đi xây lại (Overhaul) toàn bộ trang `AboutPage.jsx` với nội dung thực tế (Mission, Stats, Journey, Timeline, Leadership Team) kèm hiệu ứng GSAP ScrollTrigger cao cấp.
+* Sinh ra 3 trang chính sách pháp lý (Legal) mới: `PrivacyPolicyPage.jsx`, `TermsOfServicePage.jsx` và `SitemapPage.jsx`.
+* Khởi tạo trang chuyên đề `BrandMissionPage.jsx` độc lập với giao diện Cinematic, typography cỡ lớn và GSAP animations mượt mà.
+* Tự động cập nhật toàn bộ hệ thống định tuyến trong `App.jsx` và sửa liên kết trong `Footer.jsx` từ thẻ `#` tĩnh sang route thực tế.
+
+**Quyết định & Can thiệp của con người**
+* **Chấp nhận:** Sử dụng toàn bộ config CI Pipeline và thiết kế giao diện Premium UI của các trang vừa tạo. Cấu trúc HTML/CSS và GSAP animation hoạt động đúng ý đồ.
+* **Can thiệp kỹ thuật 1 (Sửa lỗi Môi trường & Dependencies):** Chủ động yêu cầu AI cài đặt bổ sung các package bị thiếu (`@react-oauth/google`, `axios`) sau khi pull code mới nhất từ nhánh `main` về, giúp dev server (Vite) khởi động lại thành công thay vì bị crash.
+* **Can thiệp kỹ thuật 2 (Sửa lỗi Định tuyến - SPA Base URL):** Phát hiện lỗi 404 khi người dùng click vào nút *"Join Our Mission"*. Nguyên nhân do AI dùng thẻ HTML tĩnh (`<a href="/register">`) thay vì thẻ điều hướng của React Router. Đã chỉ đạo AI sửa lại bằng component `<Link to="/register">`, giúp ứng dụng bám đúng base path cấu hình trong Vite và không bị reload trang.
+
+**Áp dụng cho**
+* `.harness/prosport_ci_pipeline.yaml`
+* `src/frontend/src/pages/AboutPage.jsx`
+* `src/frontend/src/pages/legal/PrivacyPolicyPage.jsx`
+* `src/frontend/src/pages/legal/TermsOfServicePage.jsx`
+* `src/frontend/src/pages/legal/SitemapPage.jsx`
+* `src/frontend/src/pages/platform/BrandMissionPage.jsx`
+* `src/frontend/src/components/Footer.jsx`
+* `src/frontend/src/App.jsx`
+
+**Kiểm chứng**
+* Lệnh `npm run build` chạy thành công (0 lỗi cú pháp hay cảnh báo thiếu import).
+* Dev server Vite (`npm run dev`) build lại nhanh chóng sau khi bổ sung module.
+* Test luồng thao tác trực tiếp trên trình duyệt (Click chuyển trang qua lại ở phần Footer, bấm nút CTA chuyển tới trang Đăng ký) xác nhận điều hướng mượt mà, không gặp lỗi 404 và hiệu ứng cuộn chạy chuẩn.
 * `src/frontend/src/App.jsx`
 **Kiểm chứng**
 * Thực thi lệnh `npm run build` trên terminal, kết quả đóng gói thành công (172 modules transformed) và không xuất hiện cảnh báo/lỗi về cú pháp hay thiếu component.

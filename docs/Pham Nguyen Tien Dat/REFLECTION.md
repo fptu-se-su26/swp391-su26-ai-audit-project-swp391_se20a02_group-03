@@ -92,3 +92,36 @@ Quá trình chuẩn hóa đa ngôn ngữ toàn dự án (quét và dịch thuậ
 ## Bài học rút ra
 - **Ràng buộc hạ tầng và Chiến lược chia nhỏ tác vụ:** Dù AI có khả năng xử lý song song vô cùng mạnh mẽ, chúng vẫn bị ràng buộc khắt khe bởi giới hạn API (Quota) từ nhà cung cấp. Lập trình viên không nên phó mặc các tác vụ "quét toàn dự án" cho AI thao tác tự do, mà cần có kỹ năng chia nhỏ (break down) công việc thành các luồng xử lý cục bộ để đảm bảo an toàn cho hệ thống.
 - **Vai trò điều phối của kỹ sư:** Khi hệ thống AI gặp lỗi sập luồng, con người phải đứng ở vị trí "người điều phối tài nguyên" (Orchestrator) — biết khi nào nên đóng băng tiến trình, đánh giá lại mức độ ưu tiên của công việc và chuyển hướng AI vào các tác vụ cốt lõi mang lại giá trị tức thời.
+
+
+
+# Reflection - Tuần 3: Hoàn thiện Nền tảng, Pháp lý và Chuẩn hóa CI/CD
+
+## Tổng quan quá trình
+Trong tuần này, chúng tôi tập trung vào việc hoàn thiện các mảng ghép cuối cùng của giao diện người dùng, cụ thể là phân hệ Gear (quản lý trang thiết bị thể thao), xây dựng các trang chính sách pháp lý (Privacy Policy, Terms of Service, Sitemap), và trang chủ đề nền tảng (Brand Mission). Đồng thời, tiến hành chuẩn hóa đa ngôn ngữ toàn bộ hệ thống sang Tiếng Anh.
+Bên cạnh việc sử dụng Antigravity AI để tự động thiết kế mã nguồn giao diện với hiệu ứng GSAP ScrollTrigger cao cấp, chúng tôi còn ứng dụng AI để tự động sinh file cấu hình CI/CD (Harness Pipeline) nhằm tự động hóa quy trình Build Frontend, Backend và kiểm tra tài liệu Audit.
+
+---
+
+## Hạn chế của AI và Khó khăn kỹ thuật
+Quá trình chuẩn hóa đa ngôn ngữ toàn dự án và tích hợp code mới đã bộc lộ rõ rệt giới hạn của AI khi hoạt động ở quy mô lớn:
+
+- **Sự cố quá tải API (Rate Limit / Quota Exhausted):** Khi nhận được yêu cầu rà soát và dịch thuật trên diện rộng, AI đã tự động phân luồng (spawn) hàng loạt tiến trình phụ (sub-agents) để chạy song song cùng lúc. Điều này lập tức dẫn đến việc vượt quá hạn mức API cho phép của hệ thống (Error 429), khiến toàn bộ các tiến trình dịch thuật bị sập và thất bại.
+- **Định tuyến tĩnh phá vỡ kiến trúc SPA:** Khi thiết kế giao diện tĩnh (đặc biệt là ở khu vực Footer và các nút CTA như "Join Our Mission"), AI thường sử dụng thẻ HTML cơ bản `<a>` với thuộc tính tĩnh (`href="/register"` hoặc `href="#"`). Nếu đưa vào thực tế, điều này sẽ làm ứng dụng thoát khỏi base path của Vite và tải lại toàn bộ trang (gây lỗi 404), phá vỡ hoàn toàn trải nghiệm mượt mà của kiến trúc Single Page Application (SPA).
+- **Thiếu nhận thức về Môi trường thực thi (Environment Awareness):** Khi kéo code mới từ nhánh chính (main) chứa các thay đổi cấu trúc của team, môi trường dev (Vite) bị thiếu thư viện cục bộ và sập liên tục. Dù AI sinh code rất giỏi nhưng không tự nhận biết được sự thay đổi của cây `package.json` thực tế cho đến khi con người cung cấp trực tiếp đoạn log lỗi.
+
+---
+
+## Giải pháp và Can thiệp của con người
+Để khắc phục tình trạng quá tải hệ thống và đảm bảo dự án đi đúng tiến độ, chúng tôi đã đưa ra các quyết định can thiệp kỹ thuật kịp thời:
+
+- **Quản lý luồng thực thi (Resource Management):** Thay vì để AI tự do xử lý toàn dự án cùng lúc, chúng tôi đã can thiệp đình chỉ (kill) các tiến trình ngầm đang bị treo. Chủ động thu hẹp phạm vi công việc, yêu cầu AI dồn tài nguyên xử lý dứt điểm các trang chức năng cốt lõi trước để tránh nghẽn hệ thống. Việc rà soát ngôn ngữ được chuyển sang hình thức kiểm tra cục bộ thay vì quét diện rộng.
+- **Chuẩn hóa Định tuyến (Routing SPA):** Trực tiếp phát hiện lỗi 404 và chỉ định AI chuyển đổi toàn bộ các thẻ liên kết tĩnh `<a>` thành component `<Link>` của thư viện React Router. Thao tác này giúp cơ chế chuyển hướng nội bộ bám sát base URL, giữ vững hiệu năng của một ứng dụng SPA thực thụ.
+- **Quản trị Môi trường Chủ động:** Thay vì đợi AI tự suy đoán, lập trình viên chủ động đọc log terminal, chẩn đoán chính xác các dependencies bị thiếu (`@react-oauth/google`, `axios`) và ra lệnh trực tiếp (Direct command) cho AI cài đặt bổ sung để phục hồi dev server nhanh chóng.
+
+---
+
+## Bài học rút ra
+- **Ràng buộc hạ tầng và Chiến lược chia nhỏ tác vụ:** Dù AI có khả năng xử lý song song vô cùng mạnh mẽ, chúng vẫn bị ràng buộc khắt khe bởi giới hạn API (Quota) từ nhà cung cấp. Lập trình viên không nên phó mặc các tác vụ "quét toàn dự án" cho AI thao tác tự do, mà cần có kỹ năng chia nhỏ (break down) công việc thành các luồng xử lý cục bộ để đảm bảo an toàn cho hệ thống.
+- **Vai trò điều phối của kỹ sư (Orchestrator):** Khi hệ thống AI gặp lỗi sập luồng, con người phải đứng ở vị trí "người điều phối tài nguyên" — biết khi nào nên đóng băng tiến trình, đánh giá lại mức độ ưu tiên của công việc và chuyển hướng AI vào các tác vụ cốt lõi mang lại giá trị tức thời.
+- **Lập trình viên là "Người Giám sát Môi trường":** AI có thể viết ra hàng ngàn dòng code giao diện hoàn hảo trong nháy mắt, nhưng hệ thống CI/CD, phân giải xung đột package, và kiểm soát cấu hình server cục bộ vẫn là "lãnh địa" bắt buộc phải có sự kiểm soát, đọc log và ra quyết định dứt khoát từ kỹ sư phần mềm.
