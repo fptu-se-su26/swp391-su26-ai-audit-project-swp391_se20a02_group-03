@@ -1,103 +1,41 @@
-# Changelog
+# Nhật ký thay đổi (Changelog)
 
-## 1. Quy định ghi Changelog
+## [2026-05-18] - Giai đoạn: Phân tích yêu cầu & Phân rã Module
+**Người thực hiện:** Dương Khang Huy
 
-File này dùng để ghi lại các thay đổi quan trọng trong quá trình thực hiện bài tập, lab, assignment hoặc project.
+### Thêm mới (Added)
+* Khởi tạo sơ đồ trang (Site Map) tổng thể và bảng phân quyền chi tiết cho các vai trò: Customer, Staff, Admin.
+* Xác định danh sách các module chức năng cốt lõi cho hệ thống quản lý Badminton & Pickleball.
 
-Nguyên tắc ghi changelog:
+### Thay đổi (Changed)
+* Cắt giảm số lượng màn hình từ gợi ý ban đầu để thu hẹp phạm vi vừa vặn với tiến độ đồ án.
+* Tự chỉnh sửa thủ công luồng đặt sân (Booking Flow) và thuê đồ (Rental Flow) để sát với nghiệp vụ thực tế tại Việt Nam.
 
-- Chỉ ghi những gì đã hoàn thành thật sự.
-- Không ghi kế hoạch nếu chưa thực hiện.
-- Mỗi thay đổi nên có ngày, nội dung, người thực hiện và minh chứng.
-- Nếu có AI hỗ trợ, cần ghi rõ AI đã hỗ trợ phần nào.
-- Nếu có commit GitHub, cần ghi link commit.
-- Nếu có lỗi đã sửa, cần ghi rõ lỗi, nguyên nhân và cách xử lý.
-
----
-
-## 2. Thông tin project
-
-| Thông tin | Nội dung |
-|---|---|
-| Môn học | Software Development Project Test |
-| Mã môn học | SWP391 |
-| Lớp | SE20A02 |
-| Học kỳ | SU26 |
-| Tên bài tập / Project | Pro Sport Manager System |
-| Tên sinh viên / Nhóm | Dương Khang Huy - Group 3 |
-| MSSV / Danh sách MSSV | DE190900 |
-| Giảng viên hướng dẫn | QuangLTN3 |
-| Repository URL |  |
-| Ngày bắt đầu | 11/5/2026 |
-| Ngày hoàn thành | 2/7/2026 |
+### Hỗ trợ từ AI (AI-assisted)
+* ChatGPT đóng vai trò UX/UI Designer, phân tích yêu cầu đầu vào để liệt kê danh sách màn hình và đề xuất luồng nghiệp vụ sơ bộ.
 
 ---
 
-## 3. Tổng quan các phiên bản/giai đoạn
+## [2026-05-24] - Giai đoạn: Lên ý tưởng & Thiết kế giao diện UI tĩnh
+**Người thực hiện:** Dương Khang Huy
 
-| Phiên bản/Giai đoạn | Thời gian | Nội dung chính | Trạng thái |
-|---|---|---|---|
-| Phase 01 | 24/5/2026 | Demo UX/UI project  | Completed |
-| Phase 02 |  |  | Not Started |
-| Phase 03 |  |  | Not Started |
-| Phase 04 |  |  | Not Started |
-| Phase 05 |  |  | Not Started |
-| Phase 06 |  |  | Not Started |
+### Thêm mới (Added)
+* Chốt bố cục thiết kế UI tĩnh cho toàn bộ 14 module chức năng trên bản Desktop.
+* Bổ sung yêu cầu thiết kế chi tiết cho các form trạng thái lỗi hệ thống và thông báo thời gian thực.
 
----
+### Thay đổi (Changed)
+* Tùy chỉnh lại thông số màu sắc (Color Palette) và khoảng cách (Spacing) trong Prompt để đồng bộ chính xác với nhận diện thương hiệu đã chốt của nhóm.
+* Tinh chỉnh lại mật độ thông tin hiển thị trên các thẻ Layout Card và Dashboard.
 
-# [Phase 01] Khởi tạo project
-
-## Ngày thực hiện
-
-```text
-24/5/2026
-```
-
-## Thay đổi chi tiết
-
-| STT | Nội dung thay đổi | Người thực hiện | File/Module liên quan | Minh chứng |
-|---:|---|---|---|---|
-| 1 | Thiết kế UX/UI demo web | Dương Khang Huy |  | Github |
-| 2 |  |  |  |  |
-| 3 |  |  |  |  |
-
-## AI có hỗ trợ không?
-
-- [x] Có
-- [ ] Không
-
-## Commit/Screenshot minh chứng
-
-```text
-(https://stitch.withgoogle.com/projects/16441357012891837362)
-```
-
-## Ghi chú
-
-```text
-Demo giao diện người dùng trên Desktop
-```
+### Hỗ trợ từ AI (AI-assisted)
+* ChatGPT hỗ trợ tối ưu bộ Prompt tiếng Anh kỹ thuật; Công cụ Stitch by Google tiếp nhận Prompt để sinh tự động giao diện mockup.
+* **Minh chứng:** [Stitch Project Link](https://stitch.withgoogle.com/projects/16441357012891837362)
 
 ---
 
-# 4. Tổng kết thay đổi cuối project
-
-## 4.1. Các chức năng đã hoàn thành
-
-| Chưa có thông tin. |
----
-
-## 4.2. Các chức năng chưa hoàn thành
-
-| Chưa có thông tin. |
-
----
-
-# 5. Cam kết cập nhật Changelog
-
-Sinh viên/nhóm cam kết rằng nội dung changelog phản ánh đúng các thay đổi đã thực hiện trong quá trình làm bài tập/project.
+## Cam kết cập nhật Changelog
+Nhóm cam kết rằng nội dung changelog phản ánh chính xác các phần việc thực tế đã hoàn thành.
 
 | Đại diện sinh viên/nhóm | Ngày xác nhận |
-|---|---|
-| Hồ Võ Minh Vỹ | 24/5/2026 |
+| :---: | :---: |
+| Dương Khang Huy | 24/05/2026 |
