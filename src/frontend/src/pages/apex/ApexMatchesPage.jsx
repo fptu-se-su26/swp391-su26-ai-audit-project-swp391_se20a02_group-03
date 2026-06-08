@@ -4,21 +4,21 @@ import ApexLayout from '../../layouts/ApexLayout'
 import './ApexMatchesPage.css'
 
 const openMatches = [
-  { id: 1, sport: 'Tennis', type: 'Doubles', level: 'Intermediate', host: 'David K.', hostImg: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&q=80', court: 'Indoor Court A', date: 'Tomorrow', time: '18:00', slots: 2, maxSlots: 4, icon: '🎾' },
-  { id: 2, sport: 'Badminton', type: 'Singles', level: 'Beginner', host: 'Linh N.', hostImg: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=80&q=80', court: 'Hall C', date: 'Sat, Jun 1', time: '08:00', slots: 1, maxSlots: 2, icon: '🏸' },
-  { id: 3, sport: 'Basketball', type: '3v3', level: 'Advanced', host: 'Mike T.', hostImg: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=80&q=80', court: 'Main Arena', date: 'Sun, Jun 2', time: '14:00', slots: 3, maxSlots: 6, icon: '🏀' },
-  { id: 4, sport: 'Padel', type: 'Doubles', level: 'Intermediate', host: 'Sarah J.', hostImg: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&q=80', court: 'Padel Court 1', date: 'Mon, Jun 3', time: '19:00', slots: 2, maxSlots: 4, icon: '🏸' },
-  { id: 5, sport: 'Squash', type: 'Singles', level: 'Pro', host: 'James L.', hostImg: 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=80&q=80', court: 'Squash 2', date: 'Tue, Jun 4', time: '07:00', slots: 1, maxSlots: 2, icon: '🟡' },
+  { id: 1, sport: 'Badminton', type: 'Doubles', level: 'Intermediate', host: 'David K.', hostImg: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&q=80', court: 'Sân Cầu lông A', date: 'Tomorrow', time: '18:00', slots: 2, maxSlots: 4, icon: '🏸' },
+  { id: 2, sport: 'Badminton', type: 'Singles', level: 'Beginner', host: 'Linh N.', hostImg: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=80&q=80', court: 'Sân Cầu lông B', date: 'Sat, Jun 1', time: '08:00', slots: 1, maxSlots: 2, icon: '🏸' },
+  { id: 3, sport: 'Pickleball', type: 'Doubles', level: 'Advanced', host: 'Mike T.', hostImg: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=80&q=80', court: 'Sân Pickleball 1', date: 'Sun, Jun 2', time: '14:00', slots: 2, maxSlots: 4, icon: '🏓' },
+  { id: 4, sport: 'Pickleball', type: 'Doubles', level: 'Intermediate', host: 'Sarah J.', hostImg: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&q=80', court: 'Sân Pickleball 2', date: 'Mon, Jun 3', time: '19:00', slots: 2, maxSlots: 4, icon: '🏓' },
+  { id: 5, sport: 'Badminton', type: 'Singles', level: 'Pro', host: 'James L.', hostImg: 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=80&q=80', court: 'Sân Cầu lông VIP', date: 'Tue, Jun 4', time: '07:00', slots: 1, maxSlots: 2, icon: '🏸' },
 ]
 
 const myMatches = [
-  { id: 1, sport: 'Tennis', opponent: 'David K.', result: 'WON', score: '6-3, 6-4', date: '2 days ago', icon: '🎾' },
-  { id: 2, sport: 'Basketball', opponent: 'Team Alpha', result: 'LOST', score: '58-72', date: 'Last week', icon: '🏀' },
+  { id: 1, sport: 'Badminton', opponent: 'David K.', result: 'WON', score: '21-15, 21-18', date: '2 days ago', icon: '🏸' },
+  { id: 2, sport: 'Pickleball', opponent: 'Team Alpha', result: 'LOST', score: '9-11, 11-8, 7-11', date: 'Last week', icon: '🏓' },
   { id: 3, sport: 'Badminton', opponent: 'Linh N.', result: 'WON', score: '21-15, 21-18', date: 'Last week', icon: '🏸' },
 ]
 
 const levels = ['All Levels', 'Beginner', 'Intermediate', 'Advanced', 'Pro']
-const sports = ['All Sports', 'Tennis', 'Basketball', 'Padel', 'Squash', 'Badminton']
+const sports = ['All Sports', 'Badminton', 'Pickleball']
 
 export default function ApexMatchesPage() {
   const [tab, setTab] = useState('find')

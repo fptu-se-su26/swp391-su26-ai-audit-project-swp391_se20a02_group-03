@@ -33,7 +33,7 @@ const itemTypes = ['Racket', 'Footwear', 'Apparel', 'Ball / Birdie', 'Accessorie
 const conditions = ['Premium', 'New', 'Demo']
 
 const badgeStyles = {
-  new:     'bg-green-500 text-white',
+  new:     'bg-emerald-500 text-white',
   premium: 'bg-amber-500 text-white',
   demo:    'bg-indigo-500 text-white',
 }
@@ -93,34 +93,34 @@ export default function GearCatalogPage() {
 
   return (
     <GearLayout>
-      <div className="flex gap-0 min-h-[calc(100vh-56px-80px)] max-[700px]:flex-col">
+      <div className="flex gap-0 min-h-[calc(100vh-56px-80px)] flex-col md:flex-row">
 
         {/* ── Sidebar ─────────────────────────────────────────────── */}
-        <aside className="w-[240px] max-[700px]:w-full shrink-0 px-5 py-6 bg-white border-r border-[#e0ecf0] max-[700px]:border-r-0 max-[700px]:border-b">
+        <aside className="w-full md:w-64 shrink-0 px-6 py-8 bg-brand-50/50 border-r border-brand-200 md:border-b-0 border-b">
 
           {/* Header */}
-          <div className="flex items-center justify-between mb-5">
+          <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-2">
-              <h3 className="text-base font-bold text-[#0d2d3a]">Filters</h3>
+              <h3 className="text-base font-bold tracking-tight text-brand-900">Filters</h3>
               {activeFilterCount > 0 && (
-                <span className="bg-[#0d8a8a] text-white text-[0.65rem] font-bold rounded-full w-4 h-4 flex items-center justify-center">{activeFilterCount}</span>
+                <span className="bg-brand-900 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">{activeFilterCount}</span>
               )}
             </div>
-            <button onClick={handleReset} className="text-[0.8rem] text-[#0d8a8a] bg-transparent border-none cursor-pointer font-['Inter'] hover:underline">Reset all</button>
+            <button onClick={handleReset} className="text-xs font-semibold text-brand-500 hover:text-brand-900 transition-colors">Reset</button>
           </div>
 
           {/* ── ITEM TYPE ──────────────────────────────── */}
-          <div className="mb-5 pb-5 border-b border-[#f0f4f8]">
-            <p className="text-[0.7rem] font-bold tracking-[0.1em] uppercase text-slate-400 mb-3">Item Type</p>
-            <div className="flex flex-col gap-1">
+          <div className="mb-8">
+            <p className="text-xs font-bold tracking-widest uppercase text-brand-400 mb-4">Item Type</p>
+            <div className="flex flex-col gap-3">
               {itemTypes.map(it => (
-                <label key={it} className="flex items-center gap-2.5 cursor-pointer py-[4px] select-none group" htmlFor={`item-${it}`}>
+                <label key={it} className="flex items-center gap-3 cursor-pointer group" htmlFor={`item-${it}`}>
                   <input type="checkbox" id={`item-${it}`} checked={selectedItems.includes(it)} onChange={() => toggle(selectedItems, setSelectedItems, it)} className="hidden" />
-                  <span className={`w-4 h-4 border-[1.5px] rounded shrink-0 transition-all flex items-center justify-center text-[0.65rem] font-bold ${selectedItems.includes(it) ? 'bg-[#0d8a8a] border-[#0d8a8a] text-white' : 'border-[#e0ecf0] group-hover:border-[#0d8a8a]'}`}>
-                    {selectedItems.includes(it) && '✓'}
+                  <span className={`w-5 h-5 border rounded shrink-0 transition-all flex items-center justify-center ${selectedItems.includes(it) ? 'bg-brand-900 border-brand-900 text-white' : 'border-brand-300 bg-white group-hover:border-brand-400'}`}>
+                    {selectedItems.includes(it) && <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>}
                   </span>
-                  <span className="text-[0.85rem] text-[#0d2d3a] flex-1">{itemTypeIcons[it]} {it}</span>
-                  <span className="text-[0.68rem] text-slate-400 ml-auto">
+                  <span className={`text-sm flex-1 transition-colors ${selectedItems.includes(it) ? 'text-brand-900 font-semibold' : 'text-brand-600'}`}>{itemTypeIcons[it]} {it}</span>
+                  <span className="text-xs text-brand-400 font-medium">
                     {products.filter(p => p.itemType === it).length}
                   </span>
                 </label>
@@ -129,17 +129,17 @@ export default function GearCatalogPage() {
           </div>
 
           {/* ── SPORT ─────────────────────────────────── */}
-          <div className="mb-5 pb-5 border-b border-[#f0f4f8]">
-            <p className="text-[0.7rem] font-bold tracking-[0.1em] uppercase text-slate-400 mb-3">Sport</p>
-            <div className="flex flex-col gap-1">
+          <div className="mb-8">
+            <p className="text-xs font-bold tracking-widest uppercase text-brand-400 mb-4">Sport</p>
+            <div className="flex flex-col gap-3">
               {sports.map(s => (
-                <label key={s} className="flex items-center gap-2.5 cursor-pointer py-[4px] select-none group" htmlFor={`sport-${s}`}>
+                <label key={s} className="flex items-center gap-3 cursor-pointer group" htmlFor={`sport-${s}`}>
                   <input type="checkbox" id={`sport-${s}`} checked={selectedSports.includes(s)} onChange={() => toggle(selectedSports, setSelectedSports, s)} className="hidden" />
-                  <span className={`w-4 h-4 border-[1.5px] rounded shrink-0 transition-all flex items-center justify-center text-[0.65rem] font-bold ${selectedSports.includes(s) ? 'bg-[#0d8a8a] border-[#0d8a8a] text-white' : 'border-[#e0ecf0] group-hover:border-[#0d8a8a]'}`}>
-                    {selectedSports.includes(s) && '✓'}
+                  <span className={`w-5 h-5 border rounded shrink-0 transition-all flex items-center justify-center ${selectedSports.includes(s) ? 'bg-brand-900 border-brand-900 text-white' : 'border-brand-300 bg-white group-hover:border-brand-400'}`}>
+                    {selectedSports.includes(s) && <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>}
                   </span>
-                  <span className="text-[0.85rem] text-[#0d2d3a] flex-1">{s}</span>
-                  <span className="text-[0.68rem] text-slate-400 ml-auto">
+                  <span className={`text-sm flex-1 transition-colors ${selectedSports.includes(s) ? 'text-brand-900 font-semibold' : 'text-brand-600'}`}>{s}</span>
+                  <span className="text-xs text-brand-400 font-medium">
                     {products.filter(p => p.sport === s).length}
                   </span>
                 </label>
@@ -148,12 +148,12 @@ export default function GearCatalogPage() {
           </div>
 
           {/* ── CONDITION ─────────────────────────────── */}
-          <div className="mb-5 pb-5 border-b border-[#f0f4f8]">
-            <p className="text-[0.7rem] font-bold tracking-[0.1em] uppercase text-slate-400 mb-3">Condition</p>
-            <div className="flex flex-wrap gap-1.5">
+          <div className="mb-8">
+            <p className="text-xs font-bold tracking-widest uppercase text-brand-400 mb-4">Condition</p>
+            <div className="flex flex-wrap gap-2">
               {conditions.map(c => (
                 <button key={c}
-                  className={`px-3 py-[5px] rounded-full border-[1.5px] text-[0.78rem] font-medium cursor-pointer font-['Inter'] transition-all hover:border-[#0d8a8a] hover:text-[#0d8a8a] ${selectedConds.includes(c) ? 'bg-[#0d8a8a] border-[#0d8a8a] text-white' : 'bg-white border-[#e0ecf0] text-slate-500'}`}
+                  className={`px-3 py-1.5 rounded-lg border text-xs font-bold cursor-pointer transition-all ${selectedConds.includes(c) ? 'bg-brand-900 border-brand-900 text-white shadow-sm' : 'bg-white border-brand-200 text-brand-600 hover:border-brand-300 hover:bg-brand-50'}`}
                   onClick={() => toggle(selectedConds, setSelectedConds, c)}>
                   {c}
                 </button>
@@ -162,79 +162,81 @@ export default function GearCatalogPage() {
           </div>
 
           {/* ── PRICE ─────────────────────────────────── */}
-          <div className="mb-5 pb-5 border-b border-[#f0f4f8]">
-            <p className="text-[0.7rem] font-bold tracking-[0.1em] uppercase text-slate-400 mb-3">Rental Price ($/hr)</p>
-            <div className="flex items-center gap-2">
-              <div className="flex items-center border-[1.5px] border-[#e0ecf0] rounded-lg px-2.5 py-1.5 gap-1 text-[0.82rem] text-slate-500 flex-1 focus-within:border-[#0d8a8a] transition-colors">
-                <span>$</span>
+          <div className="mb-8">
+            <p className="text-xs font-bold tracking-widest uppercase text-brand-400 mb-4">Price Range</p>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center border border-brand-200 bg-white rounded-lg px-3 py-2.5 text-sm text-brand-500 flex-1 focus-within:border-accent focus-within:ring-1 focus-within:ring-accent transition-all shadow-sm">
+                <span className="mr-1 font-semibold">$</span>
                 <input type="number" placeholder="Min" id="price-min" value={priceMin} onChange={e => setPriceMin(e.target.value)}
-                  className="w-full border-none outline-none font-['Inter'] text-[0.82rem] bg-transparent" />
+                  className="w-full border-none outline-none font-semibold bg-transparent text-brand-900 placeholder:text-brand-300 placeholder:font-normal" />
               </div>
-              <span className="text-slate-300">—</span>
-              <div className="flex items-center border-[1.5px] border-[#e0ecf0] rounded-lg px-2.5 py-1.5 gap-1 text-[0.82rem] text-slate-500 flex-1 focus-within:border-[#0d8a8a] transition-colors">
-                <span>$</span>
+              <span className="text-brand-300 font-medium">-</span>
+              <div className="flex items-center border border-brand-200 bg-white rounded-lg px-3 py-2.5 text-sm text-brand-500 flex-1 focus-within:border-accent focus-within:ring-1 focus-within:ring-accent transition-all shadow-sm">
+                <span className="mr-1 font-semibold">$</span>
                 <input type="number" placeholder="Max" id="price-max" value={priceMax} onChange={e => setPriceMax(e.target.value)}
-                  className="w-full border-none outline-none font-['Inter'] text-[0.82rem] bg-transparent" />
+                  className="w-full border-none outline-none font-semibold bg-transparent text-brand-900 placeholder:text-brand-300 placeholder:font-normal" />
               </div>
             </div>
           </div>
 
-          <button onClick={handleApply} className="btn-primary w-full justify-center mt-1">
+          <button onClick={handleApply} className="btn-primary w-full py-3.5 text-sm">
             Apply Filters {activeFilterCount > 0 && `(${activeFilterCount})`}
           </button>
         </aside>
 
         {/* ── Main Content ──────────────────────────────────────────── */}
-        <div className="flex-1 px-7 py-6">
+        <div className="flex-1 px-8 py-8 bg-brand-50/20">
 
           {/* Title + Controls */}
-          <div className="mb-5">
-            <h1 className="font-['Oswald'] text-2xl font-bold text-[#0d2d3a] mb-3">Catalog</h1>
-            <div className="flex items-center gap-3 flex-wrap">
-              <span className="text-[0.82rem] text-slate-500 flex-1">
-                Showing <strong>{filtered.length}</strong> items
-              </span>
-              <div className="flex gap-1">
+          <div className="flex flex-wrap items-end justify-between gap-4 mb-8">
+            <div>
+              <h1 className="font-heading text-3xl font-bold text-brand-900 mb-1">Catalog</h1>
+              <p className="text-sm font-medium text-brand-500">
+                Showing {filtered.length} high-performance gear
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="flex p-1 bg-brand-100 rounded-lg border border-brand-200">
                 <button onClick={() => setViewMode('grid')}
-                  className={`w-8 h-8 rounded-lg border-[1.5px] cursor-pointer flex items-center justify-center transition-all ${viewMode === 'grid' ? 'border-[#0d8a8a] bg-[#0d8a8a] text-white' : 'border-[#e0ecf0] bg-white text-slate-400 hover:border-[#0d8a8a] hover:text-[#0d8a8a]'}`}
+                  className={`w-9 h-9 rounded-md flex items-center justify-center transition-all ${viewMode === 'grid' ? 'bg-white shadow-sm text-brand-900 border border-brand-200' : 'text-brand-500 hover:text-brand-900'}`}
                   aria-label="Grid view">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="8" height="8"/><rect x="13" y="3" width="8" height="8"/><rect x="3" y="13" width="8" height="8"/><rect x="13" y="13" width="8" height="8"/></svg>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/></svg>
                 </button>
                 <button onClick={() => setViewMode('list')}
-                  className={`w-8 h-8 rounded-lg border-[1.5px] cursor-pointer flex items-center justify-center transition-all ${viewMode === 'list' ? 'border-[#0d8a8a] bg-[#0d8a8a] text-white' : 'border-[#e0ecf0] bg-white text-slate-400 hover:border-[#0d8a8a] hover:text-[#0d8a8a]'}`}
+                  className={`w-9 h-9 rounded-md flex items-center justify-center transition-all ${viewMode === 'list' ? 'bg-white shadow-sm text-brand-900 border border-brand-200' : 'text-brand-500 hover:text-brand-900'}`}
                   aria-label="List view">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
                 </button>
               </div>
               <select value={sort} onChange={e => setSort(e.target.value)}
-                className="py-[7px] px-3 border-[1.5px] border-[#e0ecf0] rounded-lg font-['Inter'] text-[0.82rem] text-[#0d2d3a] outline-none cursor-pointer hover:border-[#0d8a8a] transition-colors" id="gear-sort">
-                <option value="recommended">Sort: Recommended</option>
+                className="h-11 px-4 bg-white border border-brand-200 rounded-lg text-sm font-semibold text-brand-700 outline-none cursor-pointer hover:bg-brand-50 transition-colors shadow-sm focus:ring-2 focus:ring-accent/20">
+                <option value="recommended">Recommended</option>
                 <option value="price-asc">Price: Low to High</option>
                 <option value="price-desc">Price: High to Low</option>
-                <option value="newest">Newest</option>
+                <option value="newest">New Arrivals</option>
               </select>
             </div>
           </div>
 
           {/* Active filter tags */}
           {(applied.sports.length < sports.length || applied.items.length < itemTypes.length || applied.conds.length > 0 || applied.min || applied.max) && (
-            <div className="flex flex-wrap gap-2 mb-4">
+            <div className="flex flex-wrap gap-2 mb-8">
               {applied.items.length < itemTypes.length && applied.items.map(it => (
-                <span key={it} className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#0d8a8a]/10 text-[#0d8a8a] rounded-full text-[0.75rem] font-medium">
+                <span key={it} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-brand-900 text-white rounded-md text-[11px] font-bold uppercase tracking-wider shadow-sm">
                   {itemTypeIcons[it]} {it}
-                  <button onClick={() => { const n = applied.items.filter(x => x !== it); setSelectedItems(n); setApplied(a => ({...a, items: n})) }} className="text-[#0d8a8a] hover:text-red-500 bg-transparent border-none cursor-pointer text-xs leading-none">✕</button>
+                  <button onClick={() => { const n = applied.items.filter(x => x !== it); setSelectedItems(n); setApplied(a => ({...a, items: n})) }} className="text-brand-400 hover:text-white transition-colors ml-1">✕</button>
                 </span>
               ))}
               {applied.conds.map(c => (
-                <span key={c} className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 text-amber-700 rounded-full text-[0.75rem] font-medium">
+                <span key={c} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 text-amber-700 border border-amber-200 rounded-md text-[11px] font-bold uppercase tracking-wider shadow-sm">
                   {c}
-                  <button onClick={() => { const n = applied.conds.filter(x => x !== c); setSelectedConds(n); setApplied(a => ({...a, conds: n})) }} className="text-amber-600 hover:text-red-500 bg-transparent border-none cursor-pointer text-xs">✕</button>
+                  <button onClick={() => { const n = applied.conds.filter(x => x !== c); setSelectedConds(n); setApplied(a => ({...a, conds: n})) }} className="text-amber-500 hover:text-amber-900 transition-colors ml-1">✕</button>
                 </span>
               ))}
               {(applied.min || applied.max) && (
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full text-[0.75rem] font-medium">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-brand-100 text-brand-700 border border-brand-200 rounded-md text-[11px] font-bold uppercase tracking-wider shadow-sm">
                   ${applied.min || '0'} – ${applied.max || '∞'}
-                  <button onClick={() => { setPriceMin(''); setPriceMax(''); setApplied(a => ({...a, min: '', max: ''})) }} className="text-indigo-600 hover:text-red-500 bg-transparent border-none cursor-pointer text-xs">✕</button>
+                  <button onClick={() => { setPriceMin(''); setPriceMax(''); setApplied(a => ({...a, min: '', max: ''})) }} className="text-brand-400 hover:text-brand-900 transition-colors ml-1">✕</button>
                 </span>
               )}
             </div>
@@ -242,40 +244,42 @@ export default function GearCatalogPage() {
 
           {/* Empty state */}
           {filtered.length === 0 && (
-            <div className="py-20 text-center text-slate-400 bg-white rounded-2xl border border-[#e0ecf0]">
-              <p className="text-3xl mb-3">🔍</p>
-              <p className="font-semibold text-[#0d2d3a] mb-1">No items found</p>
-              <p className="text-sm">Try adjusting your filters or <button onClick={handleReset} className="text-[#0d8a8a] bg-transparent border-none cursor-pointer font-semibold hover:underline">Reset all</button></p>
+            <div className="py-24 text-center bg-white rounded-2xl border border-brand-200 border-dashed">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" className="mx-auto mb-4 text-brand-300"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <h3 className="font-heading text-xl font-bold text-brand-900 mb-2">No gear found</h3>
+              <p className="text-sm text-brand-500">We couldn't find anything matching your filters.</p>
+              <button onClick={handleReset} className="mt-6 btn-primary px-6 py-2.5 text-sm">Clear all filters</button>
             </div>
           )}
 
           {/* Grid view */}
           {viewMode === 'grid' && filtered.length > 0 && (
-            <div className="grid grid-cols-3 max-[1100px]:grid-cols-2 max-[700px]:grid-cols-1 gap-5 mb-7">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
               {filtered.map(p => (
-                <Link to={`/gear/catalog/${p.id}`} key={p.id} className="bg-white rounded-[14px] border-[1.5px] border-[#e0ecf0] overflow-hidden no-underline text-inherit transition-all flex flex-col hover:shadow-[0_6px_20px_rgba(0,0,0,0.09)] hover:-translate-y-[3px] group">
-                  <div className="relative h-[180px] overflow-hidden">
-                    <img src={p.img} alt={p.name} className="w-full h-full object-cover transition-transform duration-400 group-hover:scale-[1.04]" />
-                    {p.badge && <span className={`absolute top-2.5 right-2.5 text-[0.68rem] font-bold tracking-[0.06em] px-2 py-[3px] rounded-full ${badgeStyles[p.badge.toLowerCase()] || ''}`}>{p.badge}</span>}
-                    <button className="absolute top-2 left-2.5 w-7 h-7 rounded-full bg-white/90 border-none cursor-pointer text-base flex items-center justify-center text-slate-400 transition-colors hover:text-red-500" aria-label="Wishlist">♡</button>
-                  </div>
-                  <div className="p-3.5 flex-1 flex flex-col gap-2">
-                    <div className="flex items-center justify-between">
-                      <p className="text-[0.68rem] font-bold tracking-[0.1em] uppercase text-slate-400">{p.sport}</p>
-                      <span className="text-[0.72rem] bg-[#f0f9f9] text-[#0d8a8a] rounded-full px-2 py-[2px] font-medium">{itemTypeIcons[p.itemType]} {p.itemType}</span>
-                    </div>
-                    <h3 className="text-[0.95rem] font-bold text-[#0d2d3a] leading-snug">{p.name}</h3>
-                    <div className="flex gap-4 items-end">
-                      <div>
-                        <p className="text-[0.68rem] text-slate-400">{p.type === 'rental' ? 'Rental Rate' : 'Purchase'}</p>
-                        <p className="text-[0.95rem] font-bold text-[#0d8a8a]">{p.priceLabel}</p>
-                      </div>
-                      {p.deposit && <div><p className="text-[0.68rem] text-slate-400">Deposit</p><p className="text-[0.82rem] text-slate-500 font-medium">{p.deposit}</p></div>}
-                      {p.stock && <span className="text-[0.72rem] bg-green-500/10 text-green-500 rounded-full px-2 py-[3px] font-semibold">{p.stock}</span>}
-                    </div>
-                    <button className="btn-primary w-full justify-center py-2.5 text-[0.85rem] mt-auto">
-                      {p.type === 'rental' ? 'Add to Rental' : 'Add to Cart'}
+                <Link to={`/gear/catalog/${p.id}`} key={p.id} className="group bg-white rounded-2xl border border-brand-200 overflow-hidden no-underline text-inherit flex flex-col hover:border-brand-300 hover:shadow-lg transition-all duration-300">
+                  <div className="relative h-56 overflow-hidden bg-brand-50">
+                    <img src={p.img} alt={p.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                    {p.badge && <span className={`absolute top-4 right-4 text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-md shadow-sm ${badgeStyles[p.badge.toLowerCase()] || ''}`}>{p.badge}</span>}
+                    <button className="absolute top-4 left-4 w-9 h-9 rounded-full bg-white/90 backdrop-blur border border-brand-200 flex items-center justify-center text-brand-400 hover:text-red-500 hover:bg-white transition-colors" aria-label="Wishlist">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
                     </button>
+                  </div>
+                  <div className="p-5 flex-1 flex flex-col">
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-[10px] font-bold tracking-widest uppercase text-brand-400">{p.sport}</span>
+                      <span className="text-xs font-semibold bg-brand-50 text-brand-600 rounded-md px-2 py-1">{itemTypeIcons[p.itemType]} {p.itemType}</span>
+                    </div>
+                    <h3 className="font-heading text-lg font-bold text-brand-900 leading-tight mb-4 group-hover:text-accent transition-colors">{p.name}</h3>
+                    <div className="mt-auto flex items-end justify-between border-t border-brand-100 pt-4">
+                      <div>
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-brand-400 mb-1">{p.type === 'rental' ? 'Rent' : 'Buy'}</p>
+                        <p className="text-xl font-bold text-brand-900">{p.priceLabel}</p>
+                      </div>
+                      <div className="flex flex-col items-end gap-1.5">
+                        {p.deposit && <span className="text-xs font-medium text-brand-500">Dep: {p.deposit}</span>}
+                        {p.stock && <span className="text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-md px-2 py-0.5">{p.stock}</span>}
+                      </div>
+                    </div>
                   </div>
                 </Link>
               ))}
@@ -284,27 +288,25 @@ export default function GearCatalogPage() {
 
           {/* List view */}
           {viewMode === 'list' && filtered.length > 0 && (
-            <div className="flex flex-col gap-3 mb-7">
+            <div className="flex flex-col gap-4 mb-10">
               {filtered.map(p => (
-                <Link to={`/gear/catalog/${p.id}`} key={p.id} className="bg-white rounded-xl border-[1.5px] border-[#e0ecf0] overflow-hidden no-underline text-inherit transition-all flex hover:shadow-md hover:-translate-y-[2px] group">
-                  <img src={p.img} alt={p.name} className="w-28 h-28 object-cover shrink-0" />
-                  <div className="p-4 flex-1 flex items-center gap-4">
+                <Link to={`/gear/catalog/${p.id}`} key={p.id} className="group bg-white rounded-2xl border border-brand-200 overflow-hidden no-underline text-inherit flex hover:border-brand-300 hover:shadow-lg transition-all duration-300">
+                  <img src={p.img} alt={p.name} className="w-48 h-full min-h-[160px] object-cover shrink-0" />
+                  <div className="p-6 flex-1 flex items-center justify-between gap-6">
                     <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-[0.68rem] font-bold text-slate-400 uppercase">{p.sport}</span>
-                        <span className="text-[0.72rem] bg-[#f0f9f9] text-[#0d8a8a] rounded-full px-2 py-[1px] font-medium">{itemTypeIcons[p.itemType]} {p.itemType}</span>
-                        {p.badge && <span className={`text-[0.65rem] font-bold px-2 py-[2px] rounded-full ${badgeStyles[p.badge.toLowerCase()]}`}>{p.badge}</span>}
+                      <div className="flex items-center gap-3 mb-3">
+                        <span className="text-[10px] font-bold tracking-widest uppercase text-brand-400">{p.sport}</span>
+                        <span className="text-xs font-semibold bg-brand-50 text-brand-600 rounded-md px-2 py-1">{itemTypeIcons[p.itemType]} {p.itemType}</span>
+                        {p.badge && <span className={`text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-md shadow-sm ${badgeStyles[p.badge.toLowerCase()]}`}>{p.badge}</span>}
                       </div>
-                      <h3 className="text-[0.95rem] font-bold text-[#0d2d3a]">{p.name}</h3>
+                      <h3 className="font-heading text-xl font-bold text-brand-900 mb-3 group-hover:text-accent transition-colors">{p.name}</h3>
+                      {p.stock && <span className="text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-md px-2 py-0.5">{p.stock}</span>}
                     </div>
-                    <div className="text-right shrink-0">
-                      <p className="text-[0.68rem] text-slate-400 mb-0.5">{p.type === 'rental' ? 'Rental Rate' : 'Purchase'}</p>
-                      <p className="text-lg font-bold text-[#0d8a8a]">{p.priceLabel}</p>
-                      {p.deposit && <p className="text-[0.72rem] text-slate-400">Deposit: {p.deposit}</p>}
+                    <div className="text-right shrink-0 border-l border-brand-100 pl-8">
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-brand-400 mb-1.5">{p.type === 'rental' ? 'Rental Rate' : 'Purchase'}</p>
+                      <p className="text-3xl font-bold text-brand-900 mb-2">{p.priceLabel}</p>
+                      {p.deposit && <p className="text-xs font-medium text-brand-500">Deposit: {p.deposit}</p>}
                     </div>
-                    <button className="btn-primary text-[0.85rem] py-2 px-4 shrink-0">
-                      {p.type === 'rental' ? 'Rent' : 'Buy'}
-                    </button>
                   </div>
                 </Link>
               ))}
@@ -313,13 +315,17 @@ export default function GearCatalogPage() {
 
           {/* Pagination */}
           {filtered.length > 0 && (
-            <div className="flex items-center gap-1.5 justify-center">
-              <button className="w-[34px] h-[34px] rounded-lg border-[1.5px] border-[#e0ecf0] bg-white text-sm text-slate-500 cursor-pointer font-['Inter'] transition-all hover:border-[#0d8a8a] hover:text-[#0d8a8a]">‹</button>
-              {[1, 2, 3].map(pg => (
-                <button key={pg} className={`w-[34px] h-[34px] rounded-lg border-[1.5px] text-sm cursor-pointer font-['Inter'] transition-all ${pg === 1 ? 'bg-[#0d8a8a] border-[#0d8a8a] text-white' : 'border-[#e0ecf0] bg-white text-slate-500 hover:border-[#0d8a8a] hover:text-[#0d8a8a]'}`}>{pg}</button>
-              ))}
-              <span className="text-slate-300">...</span>
-              <button className="w-[34px] h-[34px] rounded-lg border-[1.5px] border-[#e0ecf0] bg-white text-sm text-slate-500 cursor-pointer font-['Inter'] transition-all hover:border-[#0d8a8a] hover:text-[#0d8a8a]">›</button>
+            <div className="flex items-center justify-center gap-2">
+              <button className="w-10 h-10 rounded-xl border border-brand-200 bg-white text-brand-500 hover:bg-brand-50 hover:text-brand-900 transition-colors flex items-center justify-center">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="15 18 9 12 15 6"/></svg>
+              </button>
+              <button className="w-10 h-10 rounded-xl bg-brand-900 text-white font-bold text-sm shadow-sm">1</button>
+              <button className="w-10 h-10 rounded-xl border border-brand-200 bg-white text-brand-700 font-bold text-sm hover:bg-brand-50 transition-colors">2</button>
+              <button className="w-10 h-10 rounded-xl border border-brand-200 bg-white text-brand-700 font-bold text-sm hover:bg-brand-50 transition-colors">3</button>
+              <span className="text-brand-400 font-bold px-2">...</span>
+              <button className="w-10 h-10 rounded-xl border border-brand-200 bg-white text-brand-500 hover:bg-brand-50 hover:text-brand-900 transition-colors flex items-center justify-center">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
             </div>
           )}
         </div>
