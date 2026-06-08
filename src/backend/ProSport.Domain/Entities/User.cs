@@ -14,8 +14,11 @@ public class User : BaseEntity
     // Auth specific fields
     public string? GoogleId { get; set; }
     public bool IsPhoneVerified { get; set; }
-    
+
     // Navigation properties
     public EkycProfile? EkycProfile { get; set; }
+    public EscrowWallet? EscrowWallet { get; set; }
     public ICollection<OtpCode> OtpCodes { get; set; } = new List<OtpCode>();
+    public ICollection<Booking> Bookings { get; set; } = new List<Booking>();
+    public ICollection<Match> HostedMatches { get; set; } = new List<Match>();
 }

@@ -5,6 +5,7 @@ public class Match : BaseEntity
     public int MatchId { get; set; }
     public int HostId { get; set; } // Người tạo kèo
     public int CourtId { get; set; }
+    public int? BookingId { get; set; } // Liên kết tới booking đặt sân cho kèo này
     public DateTime MatchDate { get; set; }
     public TimeSpan StartTime { get; set; }
     public TimeSpan EndTime { get; set; }
@@ -18,5 +19,6 @@ public class Match : BaseEntity
     // Navigation properties
     public User Host { get; set; } = null!;
     public Court Court { get; set; } = null!;
+    public Booking? Booking { get; set; }
     public ICollection<MatchParticipant> Participants { get; set; } = new List<MatchParticipant>();
 }
