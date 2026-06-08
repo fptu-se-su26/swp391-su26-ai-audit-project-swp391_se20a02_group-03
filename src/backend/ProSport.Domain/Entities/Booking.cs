@@ -8,9 +8,13 @@ public class Booking : BaseEntity
     public string Status { get; set; } = "Pending"; // Pending, Confirmed, Cancelled, Completed
     public string? PaymentMethod { get; set; } // VNPay, Cash
     public string? PaymentStatus { get; set; } // Pending, Paid, Refunded
+    public string? CheckInCode { get; set; } // Mã QR để Staff quét check-in
+    public decimal CancellationFee { get; set; } = 0; // Phí phạt khi hủy sân
 
     // Navigation properties
     public User User { get; set; } = null!;
     public ICollection<BookingDetail> BookingDetails { get; set; } = new List<BookingDetail>();
     public ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
+    public ICollection<EquipmentRental> EquipmentRentals { get; set; } = new List<EquipmentRental>();
+    public CheckIn? CheckIn { get; set; }
 }

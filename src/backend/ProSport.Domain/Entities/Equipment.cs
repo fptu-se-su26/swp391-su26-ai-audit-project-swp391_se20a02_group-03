@@ -8,6 +8,8 @@ public class Equipment : BaseEntity
     public int TotalQuantity { get; set; }
     public int AvailableQuantity { get; set; }
     public decimal RentalPrice { get; set; } // Giá thuê
+    public string? ImageUrl { get; set; }
+    public string Condition { get; set; } = "Good"; // New, Good, Damaged
     public string? Description { get; set; }
 
     // Navigation properties

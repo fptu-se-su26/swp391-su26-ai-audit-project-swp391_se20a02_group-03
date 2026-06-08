@@ -23,6 +23,12 @@ public class ProSportDbContext : DbContext
     public DbSet<Transaction> Transactions { get; set; } = null!;
     public DbSet<Equipment> Equipments { get; set; } = null!;
     public DbSet<EquipmentRental> EquipmentRentals { get; set; } = null!;
+    // --- Bảng mới ---
+    public DbSet<CheckIn> CheckIns { get; set; } = null!;
+    public DbSet<Voucher> Vouchers { get; set; } = null!;
+    public DbSet<PlayerRating> PlayerRatings { get; set; } = null!;
+    public DbSet<Report> Reports { get; set; } = null!;
+    public DbSet<ChatHistory> ChatHistories { get; set; } = null!;
 
     public override int SaveChanges()
     {
@@ -56,6 +62,10 @@ public class ProSportDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
+        // ========================
+        // === EXISTING ENTITIES ===
+        // ========================
+
         // --- User ---
         modelBuilder.Entity<User>(entity =>
         {
@@ -76,6 +86,11 @@ public class ProSportDbContext : DbContext
                   .WithOne(e => e.User)
                   .HasForeignKey<EkycProfile>(e => e.UserId)
                   .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.EscrowWallet)
+                  .WithOne(e => e.User)
+                  .HasForeignKey<EscrowWallet>(e => e.UserId)
+                  .OnDelete(DeleteBehavior.ClientSetNull);
         });
 
         // --- OtpCode ---
@@ -124,7 +139,7 @@ public class ProSportDbContext : DbContext
                   .OnDelete(DeleteBehavior.ClientSetNull);
         });
 
-        // --- PricingRule ---
+        // --- PricingRule (FIX: thêm CourtTypeId, DayOfWeek) ---
         modelBuilder.Entity<PricingRule>(entity =>
         {
             entity.HasKey(e => e.PricingRuleId);
@@ -135,9 +150,14 @@ public class ProSportDbContext : DbContext
                   .WithMany(c => c.PricingRules)
                   .HasForeignKey(e => e.CourtId)
                   .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.CourtType)
+                  .WithMany()
+                  .HasForeignKey(e => e.CourtTypeId)
+                  .OnDelete(DeleteBehavior.ClientSetNull);
         });
 
-        // --- Booking ---
+        // --- Booking (FIX: thêm CheckInCode, CancellationFee) ---
         modelBuilder.Entity<Booking>(entity =>
         {
             entity.HasKey(e => e.BookingId);
@@ -145,9 +165,12 @@ public class ProSportDbContext : DbContext
             entity.Property(e => e.Status).HasDefaultValue("Pending").HasMaxLength(20);
             entity.Property(e => e.PaymentMethod).HasMaxLength(50);
             entity.Property(e => e.PaymentStatus).HasDefaultValue("Pending").HasMaxLength(20);
+            entity.Property(e => e.CheckInCode).HasMaxLength(50);
+            entity.HasIndex(e => e.CheckInCode).IsUnique().HasFilter("[CheckInCode] IS NOT NULL");
+            entity.Property(e => e.CancellationFee).HasColumnType("decimal(18,2)").HasDefaultValue(0m);
 
             entity.HasOne(e => e.User)
-                  .WithMany()
+                  .WithMany(u => u.Bookings)
                   .HasForeignKey(e => e.UserId)
                   .OnDelete(DeleteBehavior.ClientSetNull);
         });
@@ -169,7 +192,7 @@ public class ProSportDbContext : DbContext
                   .OnDelete(DeleteBehavior.ClientSetNull);
         });
 
-        // --- Match ---
+        // --- Match (FIX: thêm BookingId) ---
         modelBuilder.Entity<Match>(entity =>
         {
             entity.HasKey(e => e.MatchId);
@@ -178,7 +201,7 @@ public class ProSportDbContext : DbContext
             entity.Property(e => e.LevelRequirement).HasMaxLength(50);
 
             entity.HasOne(e => e.Host)
-                  .WithMany()
+                  .WithMany(u => u.HostedMatches)
                   .HasForeignKey(e => e.HostId)
                   .OnDelete(DeleteBehavior.ClientSetNull);
 
@@ -186,14 +209,22 @@ public class ProSportDbContext : DbContext
                   .WithMany()
                   .HasForeignKey(e => e.CourtId)
                   .OnDelete(DeleteBehavior.ClientSetNull);
+
+            entity.HasOne(e => e.Booking)
+                  .WithMany()
+                  .HasForeignKey(e => e.BookingId)
+                  .OnDelete(DeleteBehavior.ClientSetNull);
         });
 
-        // --- MatchParticipant ---
+        // --- MatchParticipant (FIX: thêm Unique (MatchId, UserId)) ---
         modelBuilder.Entity<MatchParticipant>(entity =>
         {
             entity.HasKey(e => e.MatchParticipantId);
             entity.Property(e => e.Role).HasDefaultValue("Joiner").HasMaxLength(20);
             entity.Property(e => e.Status).HasDefaultValue("Pending").HasMaxLength(20);
+
+            // FIX: Chống join trùng — 1 user chỉ tham gia 1 kèo 1 lần
+            entity.HasIndex(e => new { e.MatchId, e.UserId }).IsUnique();
 
             entity.HasOne(e => e.Match)
                   .WithMany(m => m.Participants)
@@ -206,20 +237,18 @@ public class ProSportDbContext : DbContext
                   .OnDelete(DeleteBehavior.ClientSetNull);
         });
 
-        // --- EscrowWallet ---
+        // --- EscrowWallet (FIX: Unique UserId — 1 user = 1 ví) ---
         modelBuilder.Entity<EscrowWallet>(entity =>
         {
             entity.HasKey(e => e.EscrowWalletId);
-            entity.Property(e => e.Balance).HasColumnType("decimal(18,2)").HasDefaultValue(0);
-            entity.Property(e => e.LockedBalance).HasColumnType("decimal(18,2)").HasDefaultValue(0);
+            entity.Property(e => e.Balance).HasColumnType("decimal(18,2)").HasDefaultValue(0m);
+            entity.Property(e => e.LockedBalance).HasColumnType("decimal(18,2)").HasDefaultValue(0m);
 
-            entity.HasOne(e => e.User)
-                  .WithMany()
-                  .HasForeignKey(e => e.UserId)
-                  .OnDelete(DeleteBehavior.ClientSetNull);
+            // FIX: Unique — mỗi user chỉ có đúng 1 ví
+            entity.HasIndex(e => e.UserId).IsUnique();
         });
 
-        // --- Transaction ---
+        // --- Transaction (FIX: thêm MatchId) ---
         modelBuilder.Entity<Transaction>(entity =>
         {
             entity.HasKey(e => e.TransactionId);
@@ -237,15 +266,22 @@ public class ProSportDbContext : DbContext
                   .WithMany(b => b.Transactions)
                   .HasForeignKey(e => e.BookingId)
                   .OnDelete(DeleteBehavior.ClientSetNull);
+
+            entity.HasOne(e => e.Match)
+                  .WithMany()
+                  .HasForeignKey(e => e.MatchId)
+                  .OnDelete(DeleteBehavior.ClientSetNull);
         });
 
-        // --- Equipment ---
+        // --- Equipment (FIX: thêm Condition, ImageUrl) ---
         modelBuilder.Entity<Equipment>(entity =>
         {
             entity.HasKey(e => e.EquipmentId);
             entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
             entity.Property(e => e.Type).IsRequired().HasMaxLength(50);
             entity.Property(e => e.RentalPrice).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.Condition).HasDefaultValue("Good").HasMaxLength(20);
+            entity.Property(e => e.ImageUrl).HasMaxLength(500);
         });
 
         // --- EquipmentRental ---
@@ -262,8 +298,113 @@ public class ProSportDbContext : DbContext
                   .OnDelete(DeleteBehavior.ClientSetNull);
 
             entity.HasOne(e => e.Booking)
-                  .WithMany()
+                  .WithMany(b => b.EquipmentRentals)
                   .HasForeignKey(e => e.BookingId)
+                  .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // ====================
+        // === NEW ENTITIES ===
+        // ====================
+
+        // --- CheckIn (UC-S01, UC-S02) ---
+        modelBuilder.Entity<CheckIn>(entity =>
+        {
+            entity.HasKey(e => e.CheckInId);
+            entity.HasIndex(e => e.BookingId).IsUnique(); // 1 booking = 1 check-in
+
+            entity.HasOne(e => e.Booking)
+                  .WithOne(b => b.CheckIn)
+                  .HasForeignKey<CheckIn>(e => e.BookingId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.Staff)
+                  .WithMany()
+                  .HasForeignKey(e => e.StaffId)
+                  .OnDelete(DeleteBehavior.ClientSetNull);
+        });
+
+        // --- Voucher (UC-S06) ---
+        modelBuilder.Entity<Voucher>(entity =>
+        {
+            entity.HasKey(e => e.VoucherId);
+            entity.Property(e => e.Code).IsRequired().HasMaxLength(20);
+            entity.HasIndex(e => e.Code).IsUnique();
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.DiscountPercent).HasColumnType("decimal(5,2)");
+            entity.Property(e => e.MaxDiscountAmount).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.MinOrderAmount).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+
+            entity.HasOne(e => e.CreatedByStaff)
+                  .WithMany()
+                  .HasForeignKey(e => e.CreatedByStaffId)
+                  .OnDelete(DeleteBehavior.ClientSetNull);
+        });
+
+        // --- PlayerRating (UC-C13) ---
+        modelBuilder.Entity<PlayerRating>(entity =>
+        {
+            entity.HasKey(e => e.PlayerRatingId);
+            // 1 user chỉ đánh giá 1 user khác trong cùng 1 kèo 1 lần
+            entity.HasIndex(e => new { e.RaterId, e.RatedUserId, e.MatchId }).IsUnique();
+
+            entity.HasOne(e => e.Rater)
+                  .WithMany()
+                  .HasForeignKey(e => e.RaterId)
+                  .OnDelete(DeleteBehavior.ClientSetNull);
+
+            entity.HasOne(e => e.RatedUser)
+                  .WithMany()
+                  .HasForeignKey(e => e.RatedUserId)
+                  .OnDelete(DeleteBehavior.ClientSetNull);
+
+            entity.HasOne(e => e.Match)
+                  .WithMany()
+                  .HasForeignKey(e => e.MatchId)
+                  .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // --- Report (UC-C14, UC-A07) ---
+        modelBuilder.Entity<Report>(entity =>
+        {
+            entity.HasKey(e => e.ReportId);
+            entity.Property(e => e.Reason).IsRequired().HasMaxLength(500);
+            entity.Property(e => e.Status).HasDefaultValue("Pending").HasMaxLength(20);
+            entity.Property(e => e.Evidence).HasMaxLength(1000);
+            entity.Property(e => e.AdminNote).HasMaxLength(1000);
+
+            entity.HasOne(e => e.Reporter)
+                  .WithMany()
+                  .HasForeignKey(e => e.ReporterId)
+                  .OnDelete(DeleteBehavior.ClientSetNull);
+
+            entity.HasOne(e => e.ReportedUser)
+                  .WithMany()
+                  .HasForeignKey(e => e.ReportedUserId)
+                  .OnDelete(DeleteBehavior.ClientSetNull);
+
+            entity.HasOne(e => e.Match)
+                  .WithMany()
+                  .HasForeignKey(e => e.MatchId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.ResolvedByAdmin)
+                  .WithMany()
+                  .HasForeignKey(e => e.ResolvedByAdminId)
+                  .OnDelete(DeleteBehavior.ClientSetNull);
+        });
+
+        // --- ChatHistory (UC-C15) ---
+        modelBuilder.Entity<ChatHistory>(entity =>
+        {
+            entity.HasKey(e => e.ChatHistoryId);
+            entity.Property(e => e.Question).IsRequired();
+            entity.Property(e => e.Answer).IsRequired();
+
+            entity.HasOne(e => e.User)
+                  .WithMany()
+                  .HasForeignKey(e => e.UserId)
                   .OnDelete(DeleteBehavior.Cascade);
         });
     }

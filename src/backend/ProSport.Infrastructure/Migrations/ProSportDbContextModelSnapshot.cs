@@ -30,6 +30,15 @@ namespace ProSport.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("BookingId"));
 
+                    b.Property<decimal>("CancellationFee")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("decimal(18,2)")
+                        .HasDefaultValue(0m);
+
+                    b.Property<string>("CheckInCode")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -63,6 +72,10 @@ namespace ProSport.Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("BookingId");
+
+                    b.HasIndex("CheckInCode")
+                        .IsUnique()
+                        .HasFilter("[CheckInCode] IS NOT NULL");
 
                     b.HasIndex("UserId");
 
@@ -111,6 +124,83 @@ namespace ProSport.Infrastructure.Migrations
                     b.HasIndex("CourtId");
 
                     b.ToTable("BookingDetails");
+                });
+
+            modelBuilder.Entity("ProSport.Domain.Entities.ChatHistory", b =>
+                {
+                    b.Property<int>("ChatHistoryId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ChatHistoryId"));
+
+                    b.Property<string>("Answer")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Question")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ChatHistoryId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("ChatHistories");
+                });
+
+            modelBuilder.Entity("ProSport.Domain.Entities.CheckIn", b =>
+                {
+                    b.Property<int>("CheckInId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CheckInId"));
+
+                    b.Property<int>("BookingId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CheckInTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("CheckOutTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("StaffId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("CheckInId");
+
+                    b.HasIndex("BookingId")
+                        .IsUnique();
+
+                    b.HasIndex("StaffId");
+
+                    b.ToTable("CheckIns");
                 });
 
             modelBuilder.Entity("ProSport.Domain.Entities.Court", b =>
@@ -262,11 +352,22 @@ namespace ProSport.Infrastructure.Migrations
                     b.Property<int>("AvailableQuantity")
                         .HasColumnType("int");
 
+                    b.Property<string>("Condition")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)")
+                        .HasDefaultValue("Good");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ImageUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -375,7 +476,8 @@ namespace ProSport.Infrastructure.Migrations
 
                     b.HasKey("EscrowWalletId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId")
+                        .IsUnique();
 
                     b.ToTable("EscrowWallets");
                 });
@@ -387,6 +489,9 @@ namespace ProSport.Infrastructure.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MatchId"));
+
+                    b.Property<int?>("BookingId")
+                        .HasColumnType("int");
 
                     b.Property<int>("CourtId")
                         .HasColumnType("int");
@@ -437,6 +542,8 @@ namespace ProSport.Infrastructure.Migrations
 
                     b.HasKey("MatchId");
 
+                    b.HasIndex("BookingId");
+
                     b.HasIndex("CourtId");
 
                     b.HasIndex("HostId");
@@ -486,9 +593,10 @@ namespace ProSport.Infrastructure.Migrations
 
                     b.HasKey("MatchParticipantId");
 
-                    b.HasIndex("MatchId");
-
                     b.HasIndex("UserId");
+
+                    b.HasIndex("MatchId", "UserId")
+                        .IsUnique();
 
                     b.ToTable("MatchParticipants");
                 });
@@ -538,6 +646,50 @@ namespace ProSport.Infrastructure.Migrations
                     b.ToTable("OtpCodes");
                 });
 
+            modelBuilder.Entity("ProSport.Domain.Entities.PlayerRating", b =>
+                {
+                    b.Property<int>("PlayerRatingId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PlayerRatingId"));
+
+                    b.Property<string>("Comment")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("MatchId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RatedUserId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RaterId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Score")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("PlayerRatingId");
+
+                    b.HasIndex("MatchId");
+
+                    b.HasIndex("RatedUserId");
+
+                    b.HasIndex("RaterId", "RatedUserId", "MatchId")
+                        .IsUnique();
+
+                    b.ToTable("PlayerRatings");
+                });
+
             modelBuilder.Entity("ProSport.Domain.Entities.PricingRule", b =>
                 {
                     b.Property<int>("PricingRuleId")
@@ -546,11 +698,17 @@ namespace ProSport.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PricingRuleId"));
 
-                    b.Property<int>("CourtId")
+                    b.Property<int?>("CourtId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("CourtTypeId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<int?>("DayOfWeek")
+                        .HasColumnType("int");
 
                     b.Property<TimeSpan>("EndTime")
                         .HasColumnType("time");
@@ -576,7 +734,71 @@ namespace ProSport.Infrastructure.Migrations
 
                     b.HasIndex("CourtId");
 
+                    b.HasIndex("CourtTypeId");
+
                     b.ToTable("PricingRules");
+                });
+
+            modelBuilder.Entity("ProSport.Domain.Entities.Report", b =>
+                {
+                    b.Property<int>("ReportId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ReportId"));
+
+                    b.Property<string>("AdminNote")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Evidence")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("MatchId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int>("ReportedUserId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ReporterId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ResolvedByAdminId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)")
+                        .HasDefaultValue("Pending");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("ReportId");
+
+                    b.HasIndex("MatchId");
+
+                    b.HasIndex("ReportedUserId");
+
+                    b.HasIndex("ReporterId");
+
+                    b.HasIndex("ResolvedByAdminId");
+
+                    b.ToTable("Reports");
                 });
 
             modelBuilder.Entity("ProSport.Domain.Entities.Transaction", b =>
@@ -605,6 +827,9 @@ namespace ProSport.Infrastructure.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
+                    b.Property<int?>("MatchId")
+                        .HasColumnType("int");
+
                     b.Property<string>("ReferenceId")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
@@ -629,6 +854,8 @@ namespace ProSport.Infrastructure.Migrations
                     b.HasIndex("BookingId");
 
                     b.HasIndex("EscrowWalletId");
+
+                    b.HasIndex("MatchId");
 
                     b.ToTable("Transactions");
                 });
@@ -704,10 +931,76 @@ namespace ProSport.Infrastructure.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("ProSport.Domain.Entities.Voucher", b =>
+                {
+                    b.Property<int>("VoucherId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("VoucherId"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("CreatedByStaffId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("DiscountPercent")
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<decimal?>("MaxDiscountAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("MinOrderAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("TotalQuantity")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UsedQuantity")
+                        .HasColumnType("int");
+
+                    b.HasKey("VoucherId");
+
+                    b.HasIndex("Code")
+                        .IsUnique();
+
+                    b.HasIndex("CreatedByStaffId");
+
+                    b.ToTable("Vouchers");
+                });
+
             modelBuilder.Entity("ProSport.Domain.Entities.Booking", b =>
                 {
                     b.HasOne("ProSport.Domain.Entities.User", "User")
-                        .WithMany()
+                        .WithMany("Bookings")
                         .HasForeignKey("UserId")
                         .IsRequired();
 
@@ -730,6 +1023,35 @@ namespace ProSport.Infrastructure.Migrations
                     b.Navigation("Booking");
 
                     b.Navigation("Court");
+                });
+
+            modelBuilder.Entity("ProSport.Domain.Entities.ChatHistory", b =>
+                {
+                    b.HasOne("ProSport.Domain.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("ProSport.Domain.Entities.CheckIn", b =>
+                {
+                    b.HasOne("ProSport.Domain.Entities.Booking", "Booking")
+                        .WithOne("CheckIn")
+                        .HasForeignKey("ProSport.Domain.Entities.CheckIn", "BookingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ProSport.Domain.Entities.User", "Staff")
+                        .WithMany()
+                        .HasForeignKey("StaffId")
+                        .IsRequired();
+
+                    b.Navigation("Booking");
+
+                    b.Navigation("Staff");
                 });
 
             modelBuilder.Entity("ProSport.Domain.Entities.Court", b =>
@@ -756,7 +1078,7 @@ namespace ProSport.Infrastructure.Migrations
             modelBuilder.Entity("ProSport.Domain.Entities.EquipmentRental", b =>
                 {
                     b.HasOne("ProSport.Domain.Entities.Booking", "Booking")
-                        .WithMany()
+                        .WithMany("EquipmentRentals")
                         .HasForeignKey("BookingId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -774,8 +1096,8 @@ namespace ProSport.Infrastructure.Migrations
             modelBuilder.Entity("ProSport.Domain.Entities.EscrowWallet", b =>
                 {
                     b.HasOne("ProSport.Domain.Entities.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
+                        .WithOne("EscrowWallet")
+                        .HasForeignKey("ProSport.Domain.Entities.EscrowWallet", "UserId")
                         .IsRequired();
 
                     b.Navigation("User");
@@ -783,15 +1105,21 @@ namespace ProSport.Infrastructure.Migrations
 
             modelBuilder.Entity("ProSport.Domain.Entities.Match", b =>
                 {
+                    b.HasOne("ProSport.Domain.Entities.Booking", "Booking")
+                        .WithMany()
+                        .HasForeignKey("BookingId");
+
                     b.HasOne("ProSport.Domain.Entities.Court", "Court")
                         .WithMany()
                         .HasForeignKey("CourtId")
                         .IsRequired();
 
                     b.HasOne("ProSport.Domain.Entities.User", "Host")
-                        .WithMany()
+                        .WithMany("HostedMatches")
                         .HasForeignKey("HostId")
                         .IsRequired();
+
+                    b.Navigation("Booking");
 
                     b.Navigation("Court");
 
@@ -826,15 +1154,76 @@ namespace ProSport.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("ProSport.Domain.Entities.PlayerRating", b =>
+                {
+                    b.HasOne("ProSport.Domain.Entities.Match", "Match")
+                        .WithMany()
+                        .HasForeignKey("MatchId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ProSport.Domain.Entities.User", "RatedUser")
+                        .WithMany()
+                        .HasForeignKey("RatedUserId")
+                        .IsRequired();
+
+                    b.HasOne("ProSport.Domain.Entities.User", "Rater")
+                        .WithMany()
+                        .HasForeignKey("RaterId")
+                        .IsRequired();
+
+                    b.Navigation("Match");
+
+                    b.Navigation("RatedUser");
+
+                    b.Navigation("Rater");
+                });
+
             modelBuilder.Entity("ProSport.Domain.Entities.PricingRule", b =>
                 {
                     b.HasOne("ProSport.Domain.Entities.Court", "Court")
                         .WithMany("PricingRules")
                         .HasForeignKey("CourtId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("ProSport.Domain.Entities.CourtType", "CourtType")
+                        .WithMany()
+                        .HasForeignKey("CourtTypeId");
+
+                    b.Navigation("Court");
+
+                    b.Navigation("CourtType");
+                });
+
+            modelBuilder.Entity("ProSport.Domain.Entities.Report", b =>
+                {
+                    b.HasOne("ProSport.Domain.Entities.Match", "Match")
+                        .WithMany()
+                        .HasForeignKey("MatchId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Court");
+                    b.HasOne("ProSport.Domain.Entities.User", "ReportedUser")
+                        .WithMany()
+                        .HasForeignKey("ReportedUserId")
+                        .IsRequired();
+
+                    b.HasOne("ProSport.Domain.Entities.User", "Reporter")
+                        .WithMany()
+                        .HasForeignKey("ReporterId")
+                        .IsRequired();
+
+                    b.HasOne("ProSport.Domain.Entities.User", "ResolvedByAdmin")
+                        .WithMany()
+                        .HasForeignKey("ResolvedByAdminId");
+
+                    b.Navigation("Match");
+
+                    b.Navigation("ReportedUser");
+
+                    b.Navigation("Reporter");
+
+                    b.Navigation("ResolvedByAdmin");
                 });
 
             modelBuilder.Entity("ProSport.Domain.Entities.Transaction", b =>
@@ -849,14 +1238,33 @@ namespace ProSport.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("ProSport.Domain.Entities.Match", "Match")
+                        .WithMany()
+                        .HasForeignKey("MatchId");
+
                     b.Navigation("Booking");
 
                     b.Navigation("EscrowWallet");
+
+                    b.Navigation("Match");
+                });
+
+            modelBuilder.Entity("ProSport.Domain.Entities.Voucher", b =>
+                {
+                    b.HasOne("ProSport.Domain.Entities.User", "CreatedByStaff")
+                        .WithMany()
+                        .HasForeignKey("CreatedByStaffId");
+
+                    b.Navigation("CreatedByStaff");
                 });
 
             modelBuilder.Entity("ProSport.Domain.Entities.Booking", b =>
                 {
                     b.Navigation("BookingDetails");
+
+                    b.Navigation("CheckIn");
+
+                    b.Navigation("EquipmentRentals");
 
                     b.Navigation("Transactions");
                 });
@@ -890,7 +1298,13 @@ namespace ProSport.Infrastructure.Migrations
 
             modelBuilder.Entity("ProSport.Domain.Entities.User", b =>
                 {
+                    b.Navigation("Bookings");
+
                     b.Navigation("EkycProfile");
+
+                    b.Navigation("EscrowWallet");
+
+                    b.Navigation("HostedMatches");
 
                     b.Navigation("OtpCodes");
                 });
