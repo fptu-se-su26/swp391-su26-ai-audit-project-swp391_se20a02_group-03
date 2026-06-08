@@ -4,12 +4,12 @@ import ApexLayout from '../../layouts/ApexLayout'
 import './ApexBookingPage.css'
 
 const courts = [
-  { id: 1, name: 'Indoor Tennis Court A', type: 'Tennis', price: 45, status: 'available', icon: '🎾', capacity: 4, features: ['Air Conditioned', 'Pro Lighting', 'Locker Room'] },
-  { id: 2, name: 'Main Basketball Arena', type: 'Basketball', price: 60, status: 'available', icon: '🏀', capacity: 10, features: ['Full Court', 'Scoreboard', 'Bleachers'] },
-  { id: 3, name: 'Padel Court 1', type: 'Padel', price: 35, status: 'available', icon: '🏸', capacity: 4, features: ['Glass Walls', 'Pro Net', 'LED Lighting'] },
-  { id: 4, name: 'Outdoor Hard Court B', type: 'Tennis', price: 30, status: 'available', icon: '🎾', capacity: 4, features: ['UV Resistant', 'Wind Barrier'] },
-  { id: 5, name: 'Squash Court 3', type: 'Squash', price: 28, status: 'booked', icon: '🟡', capacity: 2, features: ['Glass Back Wall', 'Pro Court'] },
-  { id: 6, name: 'Badminton Hall C', type: 'Badminton', price: 22, status: 'available', icon: '🏸', capacity: 4, features: ['Feather Court', 'High Ceiling'] },
+  { id: 1, name: 'Sân Cầu lông A', type: 'Badminton', price: 120, status: 'available', icon: '🏸', capacity: 4, features: ['Điều hoà', 'Đèn LED 800 lux', 'Phòng thay đồ'] },
+  { id: 2, name: 'Sân Cầu lông VIP', type: 'Badminton', price: 180, status: 'available', icon: '🏸', capacity: 4, features: ['Mặt sàn BWF', 'Trần cao 12m', 'Khán đài'] },
+  { id: 3, name: 'Sân Pickleball 1', type: 'Pickleball', price: 100, status: 'available', icon: '🏓', capacity: 4, features: ['Mặt sân Pro', 'Lưới chuẩn IFP', 'Đèn LED'] },
+  { id: 4, name: 'Sân Pickleball 2', type: 'Pickleball', price: 100, status: 'available', icon: '🏓', capacity: 4, features: ['Trong nhà', 'Điều hoà', 'Cho thuê vợt'] },
+  { id: 5, name: 'Sân Cầu lông B', type: 'Badminton', price: 90, status: 'booked', icon: '🏸', capacity: 4, features: ['Ngoài trời', 'Có mái che'] },
+  { id: 6, name: 'Sân Pickleball Ngoài trời', type: 'Pickleball', price: 80, status: 'available', icon: '🏓', capacity: 4, features: ['Ngoài trời', 'Có mái che', 'Bãi giữ xe'] },
 ]
 
 const timeSlots = [
@@ -20,7 +20,7 @@ const timeSlots = [
 
 const bookedSlots = { 1: ['09:00', '10:00'], 2: ['14:00'], 5: ['06:00','07:00','08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00','22:00'] }
 
-const sportTypes = ['All', 'Tennis', 'Basketball', 'Padel', 'Squash', 'Badminton']
+const sportTypes = ['All', 'Badminton', 'Pickleball']
 
 export default function ApexBookingPage() {
   const [filter, setFilter] = useState('All')
