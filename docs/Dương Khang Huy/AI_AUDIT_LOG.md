@@ -43,3 +43,27 @@
 
 ### Kiểm chứng
 - Đánh giá chất lượng UI được sinh ra từ Stitch. Hướng thiết kế giao diện có độ chính xác cao và đồng bộ tốt, tuy nhiên nhóm vẫn phải can thiệp thủ công để tinh chỉnh lại mật độ thông tin trên các thẻ Layout Card và Dashboard sao cho dễ nhìn hơn.
+
+---
+
+## Log #03
+- **Ngày:** 2026-06-02
+- **Người thực hiện:** Dương Khang Huy
+- **Công cụ AI:** Cursor
+- **Mục đích:** Khởi tạo cấu trúc file cấu hình môi trường, gitignore, và tài liệu hướng dẫn chạy dự án (Repo Setup).
+- **Tham chiếu Prompt:** *(Sử dụng Cursor Composer/Chat)* "Tạo cho tôi các file .gitignore chuẩn cho dự án Frontend React (Vite) và Backend .NET 8. Đồng thời tạo các file .env.example và appsettings.Development.json.example với các biến môi trường cần thiết. Cuối cùng, hãy cập nhật README.md hướng dẫn chi tiết cách cài đặt và chạy dự án này."
+
+### Tóm tắt kết quả AI
+- Cursor tự động phân tích ngữ cảnh dự án (chứa Frontend React và Backend C#) để tạo ra các file `.gitignore` tiêu chuẩn cho từng thư mục.
+- Tạo sẵn các file `.env.example` và `appsettings.Development.json.example` với các khóa cơ bản như Database Connection String, JWT Secret.
+- Viết mới nội dung `README.md` bao gồm các bước `npm install`, `dotnet run` chi tiết.
+
+### Quyết định & Can thiệp của con người
+- **Chấp nhận:** Sử dụng 95% nội dung do Cursor sinh ra vì rất chuẩn xác với framework đang dùng.
+- **Can thiệp kỹ thuật:** Kiểm tra lại các biến môi trường, điền thêm cấu hình Connection String mẫu cho SQL Server Local thay vì dùng SQLite như AI ban đầu gợi ý.
+
+### Áp dụng cho
+- Commit khởi tạo hạ tầng dự án (`[DE190900] chore: category-1 repo setup, gitignore, env examples, run docs`).
+
+### Kiểm chứng
+- Clone dự án ra thư mục mới, làm theo hướng dẫn trong `README.md`, chạy thử `npm run dev` và `dotnet run`. Cả hai hệ thống đều khởi động thành công và không bị commit nhầm các file rác như `node_modules` hay `bin/obj`.

@@ -33,3 +33,20 @@ Prompt rõ ràng về mục tiêu và phạm vi hệ thống. Gemini đóng vai 
 Stitch sinh ra giao diện trực quan, cấu trúc layout Grid/Flexbox và mã màu CSS sát với yêu cầu. Tuy nhiên, output là file HTML tĩnh nguyên khối, chưa phù hợp với kiến trúc component-based. Tôi đã phải tự bóc tách thành các file module riêng (Header, Footer, Menu), thay thế mock data bằng dữ liệu động và tinh chỉnh CSS để layout responsive tốt hơn trên thiết bị di động.
 
 ---
+
+## Prompt #03
+**Date:** 2026-06-02  
+**AI Tool:** Cursor  
+**Author:** Dương Khang Huy  
+**Purpose:** Khởi tạo cấu trúc file cấu hình môi trường, gitignore và tài liệu hướng dẫn chạy dự án (Repo Setup).
+
+### Prompt
+*(Sử dụng tính năng Cursor Composer)* "Tạo cho tôi các file .gitignore chuẩn cho dự án Frontend React (Vite) và Backend .NET 8. Đồng thời tạo các file .env.example và appsettings.Development.json.example với các biến môi trường cần thiết (JWT, Database). Cuối cùng, cập nhật README.md hướng dẫn chi tiết cách cài đặt và chạy dự án này."
+
+### Expected Output
+- File `.gitignore` bỏ qua chính xác các thư mục `node_modules`, `bin/`, `obj/`, v.v.
+- Các file mẫu cấu hình môi trường không chứa mật khẩu thật.
+- Tài liệu `README.md` rõ ràng các bước khởi chạy bằng CLI.
+
+### Evaluation
+Cursor sinh file cực kỳ nhanh và chuẩn xác nhờ khả năng nhận diện ngữ cảnh của toàn bộ project. Tuy nhiên, ở `appsettings.Development.json.example`, AI gợi ý dùng SQLite. Tôi đã phải trực tiếp can thiệp và sửa lại thành Connection String của SQL Server Local để phù hợp với định hướng công nghệ của dự án.

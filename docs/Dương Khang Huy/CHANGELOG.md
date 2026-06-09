@@ -33,6 +33,23 @@
 
 ---
 
+## [2026-06-02] - Giai đoạn: Khởi tạo Repository và Cấu hình Môi trường
+**Người thực hiện:** Dương Khang Huy
+
+### Thêm mới (Added)
+* Khởi tạo file `.gitignore` tiêu chuẩn cho cả hai nền tảng Frontend (React) và Backend (.NET).
+* Thêm các file cấu hình môi trường mẫu: `src/backend/.env.example`, `src/frontend/.env.example` và `appsettings.Development.json.example`.
+* Cập nhật tài liệu `README.md` với hướng dẫn cài đặt và khởi chạy dự án chi tiết.
+
+### Thay đổi (Changed)
+* Cập nhật lại Connection String trong `appsettings.Development.json.example` để tương thích với cấu hình SQL Server nội bộ của nhóm.
+
+### Hỗ trợ từ AI (AI-assisted)
+* Cursor đóng vai trò hỗ trợ lập trình, tự động sinh các file boilerplate (`.gitignore`, `.env.example`, `README.md`) dựa trên ngữ cảnh công nghệ của dự án.
+* **Minh chứng:** Commit `[DE190900] chore: category-1 repo setup, gitignore, env examples, run docs`.
+
+---
+
 ## Cam kết cập nhật Changelog
 Nhóm cam kết rằng nội dung changelog phản ánh chính xác các phần việc thực tế đã hoàn thành.
 

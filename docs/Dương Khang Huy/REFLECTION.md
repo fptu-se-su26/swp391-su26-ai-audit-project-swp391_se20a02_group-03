@@ -72,3 +72,27 @@ Mặc dù công cụ này giúp tăng tốc đáng kể quá trình xây dựng 
 - **Kiểm thử thực tế là bắt buộc:** Nhiều lỗi (entry point, routing, CSS trình duyệt, layout scroll) chỉ xuất hiện khi chạy thực tế, không thể phát hiện chỉ bằng cách đọc code.
 - **Cung cấp ngữ cảnh đầy đủ giúp AI hiệu quả hơn:** Các prompt có đính kèm ảnh thiết kế và tài liệu yêu cầu (SRS) cho kết quả sát với mong muốn hơn nhiều so với prompt mô tả thuần văn bản.
 - **Tái cấu trúc ngay từ đầu tiết kiệm thời gian dài hạn:** Việc tách logic animation thành custom hooks và phân tách component ngay trong tuần này giúp toàn bộ codebase dễ bảo trì và mở rộng trong các tuần tiếp theo.
+
+---
+
+# Reflection - Tuần 3: Khởi tạo và Cấu hình Môi trường Phát triển (Category 1)
+
+## Tổng quan quá trình
+
+Trong giai đoạn này, dự án bắt đầu bước vào quá trình setup codebase chính thức. Chúng tôi đã dùng Cursor IDE để tự động hóa việc khởi tạo các file cấu hình môi trường chuẩn cho toàn bộ repository, bao gồm `.gitignore`, `README.md`, và các file `*.env.example`.
+
+## Hạn chế của AI và Khó khăn kỹ thuật
+
+Mặc dù việc setup bằng AI vô cùng nhanh chóng, vẫn tồn tại một số vấn đề:
+- AI thiết lập cấu hình Database mẫu là SQLite vì tính phổ biến trong các bài tutorial, thay vì sử dụng SQL Server như nhóm đã định hướng trong SRS.
+- File `.gitignore` sinh ra đôi khi thiếu sót một số thư mục cache đặc thù của công cụ nội bộ hoặc của một số extension IDE cụ thể.
+
+## Giải pháp và Can thiệp của con người
+
+- **Hiệu chỉnh cấu hình Database:** Tự tay chỉnh sửa lại `appsettings.Development.json.example` để khai báo mẫu Connection String của SQL Server (LocalDB) và hướng dẫn cách thiết lập.
+- **Rà soát File bỏ qua:** Kiểm tra kỹ file `.gitignore` để chắc chắn thư mục `node_modules` và thư mục `bin/`, `obj/` của .NET không lọt vào commit.
+
+## Bài học rút ra
+
+- **AI lý tưởng cho Boilerplate:** Việc viết các file cấu hình cơ bản là tốn thời gian nhưng rập khuôn. Cursor hoàn thành việc này trong vài giây, giúp nhóm lập tức tập trung vào viết logic nghiệp vụ.
+- **Luôn phải rà soát thiết lập mặc định:** Không bao giờ tin tưởng hoàn toàn vào các cài đặt môi trường do AI sinh ra. Luôn phải căn chỉnh lại theo đúng yêu cầu kiến trúc đã thống nhất từ đầu.
