@@ -96,3 +96,19 @@ Mặc dù việc setup bằng AI vô cùng nhanh chóng, vẫn tồn tại một
 
 - **AI lý tưởng cho Boilerplate:** Việc viết các file cấu hình cơ bản là tốn thời gian nhưng rập khuôn. Cursor hoàn thành việc này trong vài giây, giúp nhóm lập tức tập trung vào viết logic nghiệp vụ.
 - **Luôn phải rà soát thiết lập mặc định:** Không bao giờ tin tưởng hoàn toàn vào các cài đặt môi trường do AI sinh ra. Luôn phải căn chỉnh lại theo đúng yêu cầu kiến trúc đã thống nhất từ đầu.
+
+---
+
+# Reflection - Tuần 4: Bảo trì và Cập nhật Công cụ Hệ thống (System Tooling)
+
+## Tổng quan quá trình
+Sau khi dự án đã đi vào guồng quay, một trở ngại lớn xuất hiện: Công cụ kiểm tra chất lượng code (ESLint) nâng cấp lên phiên bản v9 và phá vỡ hoàn toàn cấu trúc file cấu hình cũ (Breaking Changes). Việc này làm tê liệt hoàn toàn hệ thống Linter của nhóm.
+
+## Hạn chế của dự án / Khó khăn kỹ thuật
+Cấu trúc "Flat Config" của ESLint v9 là một khái niệm rất mới, đòi hỏi lập trình viên phải đọc lại hàng chục trang Document để hiểu cách `import` các plugin bằng file JavaScript thuần, thay vì chỉ cấu hình bằng một file JSON đơn giản như trước kia. Việc tự mò mẫm cấu trúc này tốn quá nhiều thời gian không đáng có.
+
+## Giải pháp và Vai trò của AI
+Chúng tôi đã đẩy toàn bộ đầu bài kỹ thuật (plugins cần dùng, các rules cần tắt) cho Antigravity AI. AI xử lý vai trò như một kỹ sư Dev-Tooling chuyên nghiệp: "dịch" cấu hình mong muốn sang cấu trúc mảng (Array) của Flat Config chỉ trong nháy mắt.
+
+## Bài học rút ra
+- **Cứu tinh trong các bản cập nhật "Breaking Changes":** Các framework và công cụ JavaScript liên tục thay đổi cấu trúc lõi. Việc tận dụng AI để viết lại các file cấu hình Boilerplate (như Webpack, Vite, ESLint) giúp lập trình viên không bị sa lầy vào những tài liệu config khó hiểu, từ đó dồn toàn bộ trí lực vào việc code tính năng nghiệp vụ lõi (Business Logic).

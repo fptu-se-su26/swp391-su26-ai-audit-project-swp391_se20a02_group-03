@@ -67,3 +67,25 @@
 
 ### Kiểm chứng
 - Clone dự án ra thư mục mới, làm theo hướng dẫn trong `README.md`, chạy thử `npm run dev` và `dotnet run`. Cả hai hệ thống đều khởi động thành công và không bị commit nhầm các file rác như `node_modules` hay `bin/obj`.
+
+---
+
+## Log #04
+- **Ngày:** 2026-06-10
+- **Người thực hiện:** Dương Khang Huy
+- **Công cụ AI:** Antigravity AI
+- **Mục đích:** Sửa lỗi hệ thống `npm run lint` bị sập bằng cách thiết lập cấu hình ESLint v9 (Flat Config) hỗ trợ môi trường React/Vite.
+- **Tham chiếu Prompt:** *"Tạo mới file src/frontend/eslint.config.js theo định dạng Flat Config (chuẩn ESLint v9) hỗ trợ React và React Hooks. Import các plugin cần thiết: eslint-plugin-react, react-hooks, react-refresh... Tắt rule react/prop-types."*
+
+### Tóm tắt kết quả AI
+- AI đã phân tích yêu cầu và viết thành công file `eslint.config.js` hoàn toàn bằng cú pháp Flat Config (sử dụng Array và ES Modules `import` trực tiếp thay vì khai báo chuỗi string như chuẩn cũ).
+- Tự động phát hiện thiếu dependency và thay mặt người dùng chạy các lệnh `npm install` để bổ sung `@eslint/js` và `globals`.
+
+### Quyết định & Can thiệp của con người
+- **Chấp nhận:** Sử dụng 100% mã nguồn cấu hình do AI viết do đáp ứng hoàn hảo chuẩn v9.
+
+### Áp dụng cho
+- Môi trường quản lý chất lượng code Frontend (`src/frontend/eslint.config.js`).
+
+### Kiểm chứng
+- Chạy lại lệnh `npm run lint`. Hệ thống Linter đã nhận diện được file cấu hình, hoạt động trơn tru và quét ra thành công hơn 40 cảnh báo lặt vặt trong các file `.jsx` hiện hành.

@@ -50,3 +50,20 @@ Stitch sinh ra giao diện trực quan, cấu trúc layout Grid/Flexbox và mã 
 
 ### Evaluation
 Cursor sinh file cực kỳ nhanh và chuẩn xác nhờ khả năng nhận diện ngữ cảnh của toàn bộ project. Tuy nhiên, ở `appsettings.Development.json.example`, AI gợi ý dùng SQLite. Tôi đã phải trực tiếp can thiệp và sửa lại thành Connection String của SQL Server Local để phù hợp với định hướng công nghệ của dự án.
+
+---
+
+## Prompt #04
+**Date:** 2026-06-10
+**AI Tool:** Antigravity AI
+**Author:** Dương Khang Huy
+**Purpose:** Viết cấu trúc Flat Config cho dự án sử dụng ESLint v9 và React Vite.
+
+### Prompt
+*"Ý VỀ LỖI: Lệnh `npm run lint` bị sập hoàn toàn do dự án đã lên ESLint v9 nhưng thiếu file cấu hình `eslint.config.js`. NHIỆM VỤ: Tạo mới file `src/frontend/eslint.config.js` theo định dạng Flat Config. YÊU CẦU: Import các plugin eslint-plugin-react, react-hooks, react-refresh... Cấu hình languageOptions để nhận diện browser và globals... Tắt rule react/prop-types."*
+
+### Expected Output
+- File cấu hình hoạt động được ngay lập tức, khắc phục được lỗi crash linter hiện hành.
+
+### Evaluation
+AI tuân thủ nghiêm ngặt các tham số cấu hình được đưa ra. Điều đáng giá là AI tự động nhận ra file `package.json` chưa cài đặt `globals` nên đã chủ động chạy lệnh NPM bổ sung thư viện trước khi tạo file, giúp tiết kiệm thời gian sửa lỗi (debug) lặt vặt.

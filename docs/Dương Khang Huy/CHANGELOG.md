@@ -50,6 +50,21 @@
 
 ---
 
+## [2026-06-10] - Giai đoạn: Tối ưu môi trường và Nâng cấp Linter Frontend
+**Người thực hiện:** Dương Khang Huy
+
+### Thêm mới (Added)
+* Khởi tạo file cấu hình mới `src/frontend/eslint.config.js` tuân thủ chuẩn Flat Config của ESLint v9.
+* Cài đặt bổ sung các dependencies nội bộ hỗ trợ linter: `globals`, `@eslint/js`.
+
+### Thay đổi (Changed)
+* Chuyển đổi toàn bộ quy tắc linter cho React/Vite từ chuẩn JSON cũ sang chuẩn JavaScript Import.
+* Tắt bỏ rule `react/prop-types` để tối giản cảnh báo thừa khi không dùng TypeScript.
+
+### Hỗ trợ từ AI (AI-assisted)
+* Antigravity AI đóng vai trò Kỹ sư Hệ thống (DevOps/Tooling), tự động biên soạn cấu trúc Flat Config phức tạp và xử lý các lỗi xung đột (conflict dependencies) trong quá trình cài đặt NPM.
+
+---
 ## Cam kết cập nhật Changelog
 Nhóm cam kết rằng nội dung changelog phản ánh chính xác các phần việc thực tế đã hoàn thành.
 
