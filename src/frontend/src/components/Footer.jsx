@@ -42,7 +42,7 @@ export default function Footer({ variant = 'light' }) {
         <div className="flex flex-col gap-4">
           <h4 className={`font-heading text-xs font-bold tracking-widest uppercase ${isLight ? 'text-brand-400' : 'text-brand-600'}`}>PLATFORM</h4>
           <ul className="flex flex-col gap-3 list-none">
-            <li><Link to="/" className={`text-sm font-medium transition-colors hover:text-accent ${isLight ? 'text-brand-600' : 'text-brand-300'}`}>Discover</Link></li>
+            <li><Link to="/#discover" className={`text-sm font-medium transition-colors hover:text-accent ${isLight ? 'text-brand-600' : 'text-brand-300'}`}>Discover</Link></li>
             <li><Link to="/brand-mission" className={`text-sm font-medium transition-colors hover:text-accent ${isLight ? 'text-brand-600' : 'text-brand-300'}`}>Brand Mission</Link></li>
             <li><Link to="/courts" className={`text-sm font-medium transition-colors hover:text-accent ${isLight ? 'text-brand-600' : 'text-brand-300'}`}>Facilities</Link></li>
           </ul>

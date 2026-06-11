@@ -1,6 +1,6 @@
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { useEffect, useRef } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -80,6 +80,7 @@ const stats = [
 ]
 
 export default function HomePage() {
+  const location = useLocation()
   const heroRef = useRef(null)
   const brandsRef = useRef(null)
   const facilitiesRef = useRef(null)
@@ -160,7 +161,14 @@ export default function HomePage() {
         }
       )
     }
-  }, [])
+
+    // Hash scrolling logic for Discover section
+    if (location.hash === '#discover') {
+      setTimeout(() => {
+        document.getElementById('discover')?.scrollIntoView({ behavior: 'smooth' })
+      }, 100)
+    }
+  }, [location.hash])
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -236,7 +244,7 @@ export default function HomePage() {
       {/* ═══════════════════════════════════════════
           FEATURES — Why Pro-Sport (Bento Grid)
           ═══════════════════════════════════════════ */}
-      <section className="py-24 bg-brand-50">
+      <section id="discover" className="py-24 bg-brand-50">
         <div className="max-w-[1180px] mx-auto px-6">
           {/* Section header */}
           <div className="text-center mb-16">
@@ -250,8 +258,8 @@ export default function HomePage() {
           {/* Bento-style grid: 2 tall + 2 short on the right */}
           <div ref={featuresRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
             {features.map((f, i) => (
-              <article 
-                key={i} 
+              <article
+                key={i}
                 className={`group bg-white border border-brand-200/50 rounded-2xl p-7 flex flex-col gap-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-brand-900/5 hover:border-brand-300/60 ${i === 0 ? 'lg:col-span-2 lg:row-span-1' : ''}`}
               >
                 {/* Icon */}
@@ -335,7 +343,7 @@ export default function HomePage() {
           ═══════════════════════════════════════════ */}
       <section className="py-24 bg-brand-50 relative overflow-hidden">
         <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[800px] h-[400px] rounded-full bg-accent/5 blur-[120px] pointer-events-none" />
-        
+
         <div ref={ctaRef} className="max-w-[680px] mx-auto px-6 text-center relative z-10">
           <p className="text-xs font-semibold tracking-[0.18em] uppercase text-accent mb-4">Ready to Play?</p>
           <h2 className="font-heading text-[clamp(2rem,4vw,3rem)] font-bold text-brand-900 tracking-tight leading-tight mb-5">

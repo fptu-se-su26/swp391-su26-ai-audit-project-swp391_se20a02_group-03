@@ -310,7 +310,7 @@ export default function ResetPasswordPage() {
           </form>
 
           {/* Back to login */}
-          <Link to="/login" className="mt-10 text-sm font-semibold text-brand-500 transition-colors duration-200 hover:text-brand-900 self-center flex items-center gap-2">
+          <Link to="/login" className="mt-10 text-sm font-semibold text-brand-500 transition-colors duration-200 hover:text-accent self-center flex items-center gap-2">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
             Back to Login
           </Link>
