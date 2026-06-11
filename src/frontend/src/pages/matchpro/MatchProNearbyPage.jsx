@@ -4,23 +4,22 @@ import MatchProLayout from '../../layouts/MatchProLayout'
 import './MatchProNearbyPage.css'
 
 const venues = [
-  { id: 1, name: 'City Sports Hub', sport: 'Multi-Sport', distance: '0.4 km', courts: 8, hours: '6am-11pm', rating: 4.8, icon: '🏟️', active: 12 },
-  { id: 2, name: 'Westside Tennis Club', sport: 'Tennis', distance: '1.2 km', courts: 4, hours: '7am-10pm', rating: 4.9, icon: '🎾', active: 6 },
-  { id: 3, name: 'Downtown Basketball Court', sport: 'Basketball', distance: '1.8 km', courts: 2, hours: 'Open 24h', rating: 4.5, icon: '🏀', active: 8 },
-  { id: 4, name: 'Padel Zone Pro', sport: 'Padel', distance: '2.3 km', courts: 6, hours: '7am-11pm', rating: 4.7, icon: '🏸', active: 4 },
-  { id: 5, name: 'Champions Badminton Hall', sport: 'Badminton', distance: '3.1 km', courts: 12, hours: '6am-10pm', rating: 4.6, icon: '🏸', active: 9 },
-  { id: 6, name: 'Grand Soccer Field', sport: 'Soccer', distance: '3.8 km', courts: 3, hours: '7am-9pm', rating: 4.4, icon: '⚽', active: 22 },
+  { id: 1, name: 'Pro-Sport Badminton Center', sport: 'Badminton', distance: '0.4 km', courts: 8, hours: '6am-11pm', rating: 4.8, icon: '🏸', active: 12 },
+  { id: 2, name: 'Champions Badminton Hall', sport: 'Badminton', distance: '1.2 km', courts: 6, hours: '7am-10pm', rating: 4.9, icon: '🏸', active: 6 },
+  { id: 3, name: 'Quận 7 Pickleball Club', sport: 'Pickleball', distance: '1.8 km', courts: 4, hours: '6am-10pm', rating: 4.7, icon: '🏓', active: 8 },
+  { id: 4, name: 'Sài Gòn Pickleball Arena', sport: 'Pickleball', distance: '2.3 km', courts: 6, hours: '7am-11pm', rating: 4.6, icon: '🏓', active: 4 },
+  { id: 5, name: 'Downtown Cầu lông Club', sport: 'Badminton', distance: '3.1 km', courts: 12, hours: '6am-10pm', rating: 4.5, icon: '🏸', active: 9 },
 ]
 
 const nearbyPlayers = [
-  { name: 'Marcus T.', sport: 'Tennis', dist: '0.5km', online: true, img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&q=80' },
-  { name: 'Elena R.', sport: 'Padel', dist: '1.1km', online: true, img: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&q=80' },
-  { name: 'Jae K.', sport: 'Basketball', dist: '1.5km', online: false, img: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=80&q=80' },
+  { name: 'Marcus T.', sport: 'Badminton', dist: '0.5km', online: true, img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&q=80' },
+  { name: 'Elena R.', sport: 'Pickleball', dist: '1.1km', online: true, img: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&q=80' },
+  { name: 'Jae K.', sport: 'Badminton', dist: '1.5km', online: false, img: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=80&q=80' },
   { name: 'Mia S.', sport: 'Badminton', dist: '2km', online: true, img: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=80&q=80' },
-  { name: 'Chris N.', sport: 'Soccer', dist: '2.2km', online: false, img: 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=80&q=80' }
+  { name: 'Chris N.', sport: 'Pickleball', dist: '2.2km', online: false, img: 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=80&q=80' }
 ]
 
-const sportFilters = ['All', 'Tennis', 'Basketball', 'Padel', 'Badminton', 'Soccer', 'Squash']
+const sportFilters = ['All', 'Badminton', 'Pickleball']
 const distances = ['1km', '5km', '10km', '20km']
 
 export default function MatchProNearbyPage() {
@@ -63,10 +62,10 @@ export default function MatchProNearbyPage() {
             </div>
             
             {/* Map Pins (Mock) */}
-            <div className="mp-map-pin" style={{ top: '30%', left: '40%' }}>🏟️</div>
-            <div className="mp-map-pin" style={{ top: '50%', left: '60%' }}>🎾</div>
-            <div className="mp-map-pin" style={{ top: '70%', left: '25%' }}>🏀</div>
-            <div className="mp-map-pin" style={{ top: '20%', left: '75%' }}>🏸</div>
+            <div className="mp-map-pin" style={{ top: '30%', left: '40%' }}>🏸</div>
+            <div className="mp-map-pin" style={{ top: '50%', left: '60%' }}>🏓</div>
+            <div className="mp-map-pin" style={{ top: '70%', left: '25%' }}>🏸</div>
+            <div className="mp-map-pin" style={{ top: '20%', left: '75%' }}>🏓</div>
             <div className="mp-map-pin mp-map-pin--user" style={{ top: '50%', left: '50%' }}>📍 You</div>
           </div>
 
@@ -143,26 +142,26 @@ export default function MatchProNearbyPage() {
               <h3>Pickup Games</h3>
             </div>
             <div className="mp-pickup-game">
-              <span className="mp-pickup-icon">🏀</span>
+              <span className="mp-pickup-icon">🏸</span>
               <div className="mp-pickup-info">
-                <p className="mp-pickup-title">3v3 Half Court</p>
-                <p className="mp-pickup-meta">City Hub · In 30 mins</p>
+                <p className="mp-pickup-title">Cầu lông đôi</p>
+                <p className="mp-pickup-meta">Pro-Sport Center · In 30 mins</p>
               </div>
               <button className="btn-primary mp-pickup-join">Join</button>
             </div>
             <div className="mp-pickup-game">
-              <span className="mp-pickup-icon">🎾</span>
+              <span className="mp-pickup-icon">🏓</span>
               <div className="mp-pickup-info">
-                <p className="mp-pickup-title">Doubles Practice</p>
-                <p className="mp-pickup-meta">Westside · 6:00 PM</p>
+                <p className="mp-pickup-title">Pickleball Doubles</p>
+                <p className="mp-pickup-meta">Q7 Pickleball Club · 6:00 PM</p>
               </div>
               <button className="btn-primary mp-pickup-join">Join</button>
             </div>
             <div className="mp-pickup-game">
-              <span className="mp-pickup-icon">⚽</span>
+              <span className="mp-pickup-icon">🏸</span>
               <div className="mp-pickup-info">
-                <p className="mp-pickup-title">Casual 5v5</p>
-                <p className="mp-pickup-meta">Grand Field · 7:30 PM</p>
+                <p className="mp-pickup-title">Cầu lông đơn</p>
+                <p className="mp-pickup-meta">Champions Hall · 7:30 PM</p>
               </div>
               <button className="btn-primary mp-pickup-join">Join</button>
             </div>
