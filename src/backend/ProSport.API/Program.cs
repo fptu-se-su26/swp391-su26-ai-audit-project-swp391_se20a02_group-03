@@ -55,8 +55,14 @@ builder.Services.AddDbContext<ProSportDbContext>(options =>
 // Configure Dependency Injection
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IOtpCodeRepository, OtpCodeRepository>();
+builder.Services.AddScoped<ICourtRepository, CourtRepository>();
+builder.Services.AddScoped<IBookingRepository, BookingRepository>();
+builder.Services.AddScoped<IMatchRepository, MatchRepository>();
+builder.Services.AddScoped<IEscrowRepository, EscrowRepository>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ICourtService, CourtService>();
+builder.Services.AddScoped<IBookingService, BookingService>();
 
 // Configure Rate Limiting
 builder.Services.AddRateLimiter(options =>
