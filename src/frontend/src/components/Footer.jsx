@@ -43,8 +43,8 @@ export default function Footer({ variant = 'light' }) {
           <h4 className={`font-heading text-xs font-bold tracking-widest uppercase ${isLight ? 'text-brand-400' : 'text-brand-600'}`}>PLATFORM</h4>
           <ul className="flex flex-col gap-3 list-none">
             <li><Link to="/" className={`text-sm font-medium transition-colors hover:text-accent ${isLight ? 'text-brand-600' : 'text-brand-300'}`}>Discover</Link></li>
-            <li><Link to="/about" className={`text-sm font-medium transition-colors hover:text-accent ${isLight ? 'text-brand-600' : 'text-brand-300'}`}>Brand Mission</Link></li>
-            <li><Link to="/courts" className={`text-sm font-medium transition-colors hover:text-accent ${isLight ? 'text-brand-600' : 'text-brand-300'}`}>Courts</Link></li>
+            <li><Link to="/brand-mission" className={`text-sm font-medium transition-colors hover:text-accent ${isLight ? 'text-brand-600' : 'text-brand-300'}`}>Brand Mission</Link></li>
+            <li><Link to="/courts" className={`text-sm font-medium transition-colors hover:text-accent ${isLight ? 'text-brand-600' : 'text-brand-300'}`}>Facilities</Link></li>
           </ul>
         </div>
 
@@ -52,9 +52,9 @@ export default function Footer({ variant = 'light' }) {
         <div className="flex flex-col gap-4">
           <h4 className={`font-heading text-xs font-bold tracking-widest uppercase ${isLight ? 'text-brand-400' : 'text-brand-600'}`}>LEGAL</h4>
           <ul className="flex flex-col gap-3 list-none">
-            <li><Link to="#" className={`text-sm font-medium transition-colors hover:text-accent ${isLight ? 'text-brand-600' : 'text-brand-300'}`}>Privacy Policy</Link></li>
-            <li><Link to="#" className={`text-sm font-medium transition-colors hover:text-accent ${isLight ? 'text-brand-600' : 'text-brand-300'}`}>Terms of Service</Link></li>
-            <li><Link to="#" className={`text-sm font-medium transition-colors hover:text-accent ${isLight ? 'text-brand-600' : 'text-brand-300'}`}>Sitemap</Link></li>
+            <li><Link to="/privacy" className={`text-sm font-medium transition-colors hover:text-accent ${isLight ? 'text-brand-600' : 'text-brand-300'}`}>Privacy Policy</Link></li>
+            <li><Link to="/terms" className={`text-sm font-medium transition-colors hover:text-accent ${isLight ? 'text-brand-600' : 'text-brand-300'}`}>Terms of Service</Link></li>
+            <li><Link to="/sitemap" className={`text-sm font-medium transition-colors hover:text-accent ${isLight ? 'text-brand-600' : 'text-brand-300'}`}>Sitemap</Link></li>
           </ul>
         </div>
 
@@ -94,8 +94,8 @@ export default function Footer({ variant = 'light' }) {
         {isLight && (
           <div className="flex gap-6 flex-wrap">
             <Link to="#" className="text-sm font-medium text-brand-500 transition-colors hover:text-brand-900">About Us</Link>
-            <Link to="#" className="text-sm font-medium text-brand-500 transition-colors hover:text-brand-900">Terms</Link>
-            <Link to="#" className="text-sm font-medium text-brand-500 transition-colors hover:text-brand-900">Privacy</Link>
+            <Link to="/terms" className="text-sm font-medium text-brand-500 transition-colors hover:text-brand-900">Terms</Link>
+            <Link to="/privacy" className="text-sm font-medium text-brand-500 transition-colors hover:text-brand-900">Privacy</Link>
             <Link to="/contact" className="text-sm font-medium text-brand-500 transition-colors hover:text-brand-900">Support</Link>
           </div>
         )}
