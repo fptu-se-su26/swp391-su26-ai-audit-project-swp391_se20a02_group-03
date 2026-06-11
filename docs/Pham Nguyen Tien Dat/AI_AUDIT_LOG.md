@@ -223,3 +223,52 @@
 **Kiểm chứng**
 * Thực thi lệnh `npm run build` trên terminal, kết quả đóng gói thành công (172 modules transformed) và không xuất hiện cảnh báo/lỗi về cú pháp hay thiếu component.
 * Xác nhận tính năng điều hướng qua lại giữa Catalog, Rentals, Dashboard và các trang thông tin mới ở Footer hoạt động trơn tru.
+
+
+
+
+
+
+## Log #08
+**Ngày:** 2026-06-11
+**Người thực hiện:** Phạm Nguyễn Tiến Đạt
+**Công cụ AI:** Antigravity
+**Mục đích:** Sửa lỗi điều hướng tính năng "Discover" trong Footer, bổ sung GSAP animation cho trang Contact và chuẩn hóa hệ thống Keyframe animation toàn cục.
+**Tham chiếu Prompt:** *"The 'Discover' link in the Platform section of the Footer is not navigating correctly to the corresponding section on the Home page. Please investigate and fix the routing/scroll behavior."*, *"Please update the remaining pages to match the color tone of the Home page for visual consistency. Apply changes flexibly and aesthetically — avoid a repetitive, cookie-cutter approach. Add appropriate animations and refine the layout to achieve a professional, user-friendly interface overall."*, *"Please revert all color changes back to the original theme. Keep only the newly added animations."*
+
+---
+
+### Tóm tắt kết quả AI
+
+* Chẩn đoán và sửa lỗi điều hướng link "Discover" trong `Footer.jsx`: cập nhật `<Link to="/">` thành `<Link to="/#discover">` đồng thời gắn `id="discover"` cho section Platform Features trong `HomePage.jsx`.
+* Tích hợp hook `useLocation` từ React Router kết hợp `useEffect` để xử lý hash-scroll mượt mà (`scrollIntoView({ behavior: 'smooth' })`) khi người dùng truy cập `/#discover` từ bất kỳ trang nào.
+* Viết lại toàn bộ `ContactPage.jsx`: bổ sung 4 GSAP ScrollTrigger animations (hero fade-in, form slide từ trái, channel cards stagger từ phải, FAQ items fade up), thêm trạng thái thành công sau khi gửi form với hiệu ứng `scale-in`.
+* Chuẩn hóa hệ thống keyframe CSS trong `index.css`: gom tất cả keyframe animation (`authFadeInUp`, `authFloat`, `authSlideInRight`, `scaleIn`, `fadeInUp`) và các utility class tương ứng (`.auth-animate-in`, `.animate-scale-in`, `.animate-fade-up`) vào một nơi duy nhất, loại bỏ khai báo phân tán.
+* Thử nghiệm nâng cấp toàn bộ giao diện sang Dark Theme theo yêu cầu, sau đó revert màu sắc về Light Theme theo yêu cầu thứ hai, chỉ giữ lại phần animation đã thêm.
+
+---
+
+### Quyết định & Can thiệp của con người
+
+* **Chấp nhận:** Toàn bộ logic hash-scroll, cấu trúc GSAP animation và bộ keyframe chuẩn hóa trong `index.css`.
+* **Can thiệp kỹ thuật 1 (Điều chỉnh phạm vi thay đổi):** Sau khi AI áp dụng Dark Theme toàn bộ lên các trang (`bg-brand-950`, `text-white`...), người dùng quyết định revert lại màu sắc ban đầu (Light Theme). Yêu cầu AI chỉ giữ lại phần animation GSAP, không thay đổi màu sắc giao diện — đây là quyết định sản phẩm nằm ngoài phạm vi AI có thể tự đánh giá.
+* **Can thiệp kỹ thuật 2 (Review trước khi hoàn thành):** Yêu cầu AI thực hiện code review toàn bộ logic hash scroll (`useLocation`, `useEffect`, `getElementById`) trước khi commit, đảm bảo tính đúng đắn với cấu hình `basename` của React Router trong Vite.
+
+---
+
+### Áp dụng cho
+
+* `src/frontend/src/components/Footer.jsx` — Sửa link Discover → `/#discover`
+* `src/frontend/src/pages/HomePage.jsx` — Thêm `id="discover"`, tích hợp `useLocation` hash scroll
+* `src/frontend/src/pages/ContactPage.jsx` — Thêm GSAP ScrollTrigger animations + form success state
+* `src/frontend/src/pages/ResetPasswordPage.jsx` — Đồng bộ màu label form
+* `src/frontend/src/index.css` — Chuẩn hóa toàn bộ keyframe & animation utility classes
+
+---
+
+### Kiểm chứng
+
+* Kiểm tra trực tiếp trên trình duyệt: click nút "Discover" trong Footer từ trang `/courts` → trang chủ cuộn mượt đến section `#discover` mà không reload trang.
+* Xác nhận HMR (Hot Module Replacement) của Vite cập nhật đúng tất cả 5 file sau mỗi lần chỉnh sửa, không có lỗi console.
+* Duyệt qua trang Contact, quan sát hiệu ứng ScrollTrigger kích hoạt đúng thứ tự: hero → form card → channel cards (stagger) → FAQ items.
+* Thực hiện `git push` thành công lên nhánh `DE190147/audit-module` (commit `969d022`), không có conflict.
