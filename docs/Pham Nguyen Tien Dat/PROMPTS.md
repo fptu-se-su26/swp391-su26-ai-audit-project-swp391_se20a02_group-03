@@ -135,3 +135,26 @@ và
 ### Evaluation
 AI đã sinh code rất xuất sắc. Giao diện trang About và Brand Mission mang đậm chất Premium UI với hiệu ứng cuộn (GSAP ScrollTrigger) mượt mà. File cấu hình CI/CD sinh ra cũng hoàn toàn chính xác. 
 Tuy nhiên, quá trình chạy thử gặp lỗi crash server Vite (do thiếu các package `@react-oauth/google` và `axios` sau khi pull code mới từ nhánh main về). Tôi đã phải trực tiếp can thiệp và yêu cầu AI chạy lệnh cài bổ sung dependencies để phục hồi dev server. Ngoài ra, tại trang `BrandMissionPage`, AI đã sử dụng thẻ HTML tĩnh (`<a href="/register">`) làm mất base URL của dự án Vite (gây ra lỗi 404 khi bấm vào nút CTA). Tôi đã phát hiện và chỉ đạo AI đổi lại toàn bộ bằng component `<Link>` của React Router để đảm bảo tính toàn vẹn của cấu trúc Single Page Application (SPA).
+
+
+
+
+## Prompt #08
+**Date:** 2026-06-11  
+**AI Tool:** Antigravity  
+**Author:** Phạm Nguyễn Tiến Đạt  
+**Purpose:** Khắc phục lỗi điều hướng Footer, bổ sung GSAP animation cho trang Liên hệ (Contact) và chuẩn hóa hệ thống Keyframe animation toàn cục.
+### Prompt
+*"chưa vào được phần discover ở phần platform ở Home"*  
+và  
+*"sửa các Screen đều theo tone màu như thế này để trang web được đồng bộ, chuyên nghiệp"*  
+và  
+*"cho màu của các trang về như cũ đi chỉ giữ animation th"*
+### Expected Output
+- Sửa lỗi điều hướng khi click vào liên kết "Discover" ở khu vực Footer để trang tự động cuộn đến đúng section tương ứng trên trang chủ.
+- Viết lại toàn bộ trang `ContactPage.jsx` để tích hợp các hiệu ứng GSAP ScrollTrigger cao cấp (Fade-in, Slide, Stagger, Fade-up) và thêm trạng thái gửi form thành công.
+- Gom nhóm và chuẩn hóa toàn bộ các keyframe animation đang nằm rải rác về chung một file `index.css`.
+- Áp dụng, sau đó hoàn tác (revert) các thay đổi về màu sắc giao diện theo quyết định định hướng sản phẩm.
+### Evaluation
+AI đã thể hiện khả năng xuất sắc trong việc chẩn đoán lỗi điều hướng. Thay vì chỉ gắn link đơn thuần, AI đã tự động đề xuất và tích hợp hook `useLocation` kết hợp `useEffect` để xử lý mượt mà tác vụ hash-scroll xuyên trang. Quá trình cấu trúc lại hiệu ứng GSAP và chuẩn hóa CSS keyframe cũng được thực hiện rất gọn gàng và tuân thủ nguyên tắc Clean Code.
+Tuy nhiên, trong quá trình thực thi, khi nhận được yêu cầu đồng bộ tone màu, AI đã tự động quyết định chuyển đổi toàn bộ giao diện sang Dark Theme (nền tối). Mặc dù giao diện Dark Theme sinh ra rất cao cấp, nhưng do không phù hợp với định hướng thiết kế cốt lõi của dự án ở thời điểm hiện tại, tôi đã phải ra quyết định can thiệp (Human Decision): yêu cầu AI lập tức hoàn tác (revert) toàn bộ mã màu về lại nguyên bản (Light Theme) và chỉ được phép giữ lại các cải tiến về mặt animation. Ngoài ra, tôi cũng trực tiếp review lại toàn bộ logic hash-scroll của AI trước khi commit để đảm bảo tính đúng đắn với cấu hình `basename` của React Router.
