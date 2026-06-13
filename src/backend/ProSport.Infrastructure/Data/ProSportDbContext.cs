@@ -168,6 +168,7 @@ public class ProSportDbContext : DbContext
             entity.Property(e => e.CheckInCode).HasMaxLength(50);
             entity.HasIndex(e => e.CheckInCode).IsUnique().HasFilter("[CheckInCode] IS NOT NULL");
             entity.Property(e => e.CancellationFee).HasColumnType("decimal(18,2)").HasDefaultValue(0m);
+            entity.Property(e => e.PaymentDeadline);
 
             entity.HasOne(e => e.User)
                   .WithMany(u => u.Bookings)

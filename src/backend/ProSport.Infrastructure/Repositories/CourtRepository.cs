@@ -18,6 +18,7 @@ public class CourtRepository : ICourtRepository
     {
         return await _context.Courts
             .Include(c => c.CourtType)
+            .Include(c => c.PricingRules)
             .Where(c => !c.IsDeleted)
             .ToListAsync();
     }
@@ -33,10 +34,15 @@ public class CourtRepository : ICourtRepository
     public async Task<IEnumerable<Court>> GetAvailableCourtsAsync(DateTime date, TimeSpan startTime, TimeSpan endTime)
     {
         // Get all courts that don't have overlapping bookings
+        // Bỏ qua: Cancelled bookings + Pending bookings đã hết hạn thanh toán
         return await _context.Courts
             .Include(c => c.CourtType)
             .Where(c => !c.IsDeleted && c.Status == "Available")
             .Where(c => !c.BookingDetails.Any(b => 
+                b.Booking.Status != "Cancelled" && // Bỏ qua các booking đã hủy
+                // Bỏ qua booking Pending đã quá hạn thanh toán (ghost holds)
+                !(b.Booking.Status == "Pending" && b.Booking.PaymentDeadline.HasValue && b.Booking.PaymentDeadline < DateTime.UtcNow) &&
+                !b.Booking.IsDeleted &&
                 b.BookingDate == date.Date && 
                 ((b.StartTime <= startTime && b.EndTime > startTime) ||
                  (b.StartTime < endTime && b.EndTime >= endTime) ||
@@ -55,5 +61,25 @@ public class CourtRepository : ICourtRepository
     {
         _context.Courts.Update(court);
         await _context.SaveChangesAsync();
+    }
+
+    public async Task<IEnumerable<string>> GetBookedSlotsAsync(int courtId, DateTime date)
+    {
+        var bookedDetails = await _context.BookingDetails
+            .Where(bd => bd.CourtId == courtId && bd.BookingDate.Date == date.Date && bd.Booking.Status != "Cancelled")
+            .Where(bd => !(bd.Booking.Status == "Pending" && bd.Booking.PaymentDeadline.HasValue && bd.Booking.PaymentDeadline < DateTime.UtcNow) && !bd.Booking.IsDeleted)
+            .ToListAsync();
+
+        var bookedSlots = new List<string>();
+        foreach (var detail in bookedDetails)
+        {
+            var startHour = detail.StartTime.Hours;
+            var endHour = detail.EndTime.Hours;
+            for (int i = startHour; i < endHour; i++)
+            {
+                bookedSlots.Add($"{i:00}:00");
+            }
+        }
+        return bookedSlots.Distinct();
     }
 }

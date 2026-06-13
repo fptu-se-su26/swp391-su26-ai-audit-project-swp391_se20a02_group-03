@@ -427,4 +427,30 @@ public class AuthService : IAuthService
     {
         return System.Security.Cryptography.RandomNumberGenerator.GetInt32(100000, 1000000).ToString();
     }
+
+    public async Task<ApiResponseDto<AuthResponseDto>> GetProfileAsync(int userId)
+    {
+        try
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+            if (user == null)
+                return new ApiResponseDto<AuthResponseDto>(404, "User not found.");
+
+            return new ApiResponseDto<AuthResponseDto>(200, "Success", new AuthResponseDto
+            {
+                UserId = user.UserId,
+                FullName = user.FullName,
+                Email = user.Email,
+                Role = user.Role,
+                AccessToken = "", // Not needed for profile fetch
+                IsProfileComplete = !string.IsNullOrEmpty(user.PhoneNumber),
+                AvatarUrl = user.AvatarUrl
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting profile for UserId: {UserId}", userId);
+            return new ApiResponseDto<AuthResponseDto>(500, "An unexpected error occurred.");
+        }
+    }
 }

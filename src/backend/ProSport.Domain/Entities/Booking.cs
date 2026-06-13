@@ -10,6 +10,7 @@ public class Booking : BaseEntity
     public string? PaymentStatus { get; set; } // Pending, Paid, Refunded
     public string? CheckInCode { get; set; } // Mã QR để Staff quét check-in
     public decimal CancellationFee { get; set; } = 0; // Phí phạt khi hủy sân
+    public DateTime? PaymentDeadline { get; set; } // Hạn thanh toán (VD: 15 phút), quá hạn sẽ tự hủy
 
     // Navigation properties
     public User User { get; set; } = null!;
