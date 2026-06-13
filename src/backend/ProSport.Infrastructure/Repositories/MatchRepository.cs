@@ -14,46 +14,49 @@ public class MatchRepository : IMatchRepository
         _context = context;
     }
 
-    public async Task<IEnumerable<Match>> GetAllAsync()
+    public async Task<IEnumerable<Match>> GetMatchesByStatusAsync(string status)
     {
         return await _context.Matches
-            .Include(m => m.Host)
-            .Include(m => m.Court)
-            .Include(m => m.Participants)
-                .ThenInclude(p => p.User)
-            .Where(m => !m.IsDeleted)
+            .Where(m => m.Status == status)
+            .OrderBy(m => m.MatchDate).ThenBy(m => m.StartTime)
             .ToListAsync();
     }
 
-    public async Task<Match?> GetByIdAsync(int matchId)
+    public async Task<Match?> GetMatchByIdAsync(int matchId)
     {
         return await _context.Matches
-            .Include(m => m.Host)
-            .Include(m => m.Court)
             .Include(m => m.Participants)
-                .ThenInclude(p => p.User)
-            .FirstOrDefaultAsync(m => m.MatchId == matchId && !m.IsDeleted);
+            .FirstOrDefaultAsync(m => m.MatchId == matchId);
     }
 
-    public async Task<IEnumerable<Match>> GetByHostIdAsync(int hostId)
-    {
-        return await _context.Matches
-            .Include(m => m.Court)
-            .Include(m => m.Participants)
-            .Where(m => m.HostId == hostId && !m.IsDeleted)
-            .ToListAsync();
-    }
-
-    public async Task<Match> CreateAsync(Match match)
+    public async Task<Match> CreateMatchAsync(Match match)
     {
         _context.Matches.Add(match);
         await _context.SaveChangesAsync();
         return match;
     }
 
-    public async Task UpdateAsync(Match match)
+    public async Task UpdateMatchAsync(Match match)
     {
         _context.Matches.Update(match);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task<MatchParticipant?> GetParticipantAsync(int matchId, int userId)
+    {
+        return await _context.MatchParticipants
+            .FirstOrDefaultAsync(p => p.MatchId == matchId && p.UserId == userId);
+    }
+
+    public async Task AddParticipantAsync(MatchParticipant participant)
+    {
+        _context.MatchParticipants.Add(participant);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task UpdateParticipantAsync(MatchParticipant participant)
+    {
+        _context.MatchParticipants.Update(participant);
         await _context.SaveChangesAsync();
     }
 }

@@ -98,7 +98,22 @@ public class CourtService : ICourtService
             CourtTypeName = court.CourtType?.Name ?? "",
             Status = court.Status,
             ImageUrl = court.ImageUrl,
-            Description = court.Description
+            Description = court.Description,
+            PricePerHour = court.PricingRules?.FirstOrDefault()?.PricePerHour ?? 100000
         };
+    }
+
+    public async Task<ApiResponseDto<IEnumerable<string>>> GetBookedSlotsAsync(int courtId, DateTime date)
+    {
+        try
+        {
+            var bookedSlots = await _courtRepository.GetBookedSlotsAsync(courtId, date);
+            return new ApiResponseDto<IEnumerable<string>>(200, "Success", bookedSlots);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting booked slots for court: {CourtId} on {Date}", courtId, date);
+            return new ApiResponseDto<IEnumerable<string>>(500, "An unexpected error occurred.");
+        }
     }
 }
