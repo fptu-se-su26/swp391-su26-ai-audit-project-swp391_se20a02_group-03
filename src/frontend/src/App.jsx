@@ -11,6 +11,10 @@ import RoleSelectionPage from './pages/RoleSelectionPage'
 import ResetPasswordPage from './pages/ResetPasswordPage'
 import AboutPage from './pages/AboutPage'
 import ContactPage from './pages/ContactPage'
+import PrivacyPolicyPage from './pages/legal/PrivacyPolicyPage'
+import TermsOfServicePage from './pages/legal/TermsOfServicePage'
+import SitemapPage from './pages/legal/SitemapPage'
+import BrandMissionPage from './pages/platform/BrandMissionPage'
 import CourtDetailPage from './pages/courts/CourtDetailPage'
 import BookingPage from './pages/courts/BookingPage'
 import MatchDetailPage from './pages/matches/MatchDetailPage'
@@ -105,6 +109,10 @@ function App() {
                     <Route path="/reset-password" element={<GuestRoute><ResetPasswordPage /></GuestRoute>} />
                     <Route path="/about" element={<AboutPage />} />
                     <Route path="/contact" element={<ContactPage />} />
+                    <Route path="/brand-mission" element={<BrandMissionPage />} />
+                    <Route path="/privacy" element={<PrivacyPolicyPage />} />
+                    <Route path="/terms" element={<TermsOfServicePage />} />
+                    <Route path="/sitemap" element={<SitemapPage />} />
 
                     {/* Courts */}
                     <Route path="/courts" element={<ApexHomePage />} />
