@@ -48,6 +48,15 @@ public class MatchService : IMatchService
                 return new ApiResponseDto<MatchDto>(403, "Bạn không có quyền tạo kèo cho sân chưa đặt hoặc của người khác.");
             }
 
+            // Đảm bảo Booking đã thanh toán thành công mới được tạo kèo
+            if (booking.PaymentStatus != Domain.Constants.PaymentStatus.Paid)
+            {
+                return new ApiResponseDto<MatchDto>(400, "Bạn chỉ được đăng kèo khi Booking đã được thanh toán thành công.");
+            }
+
+            // Tự động thiết lập số tiền chia đều (Escrow Amount) dựa trên tổng tiền Booking và số lượng người tham gia tối đa
+            var splitAmount = Math.Round(booking.TotalAmount / dto.MaxParticipants, 0);
+
             var match = new Match
             {
                 HostId = hostId,
@@ -58,7 +67,7 @@ public class MatchService : IMatchService
                 EndTime = dto.EndTime,
                 MaxParticipants = dto.MaxParticipants,
                 CurrentParticipants = 1, // Host
-                EscrowAmount = dto.EscrowAmount,
+                EscrowAmount = splitAmount,
                 Status = "Open",
                 LevelRequirement = dto.LevelRequirement,
                 Notes = dto.Notes

@@ -66,6 +66,7 @@ builder.Services.AddScoped<IBookingService, BookingService>();
 builder.Services.AddScoped<IMatchService, MatchService>();
 builder.Services.AddScoped<IEscrowService, EscrowService>();
 builder.Services.AddScoped<IVnPayService, VnPayService>();
+builder.Services.AddScoped<IChatbotService, ChatbotService>();
 
 // Configure Rate Limiting
 builder.Services.AddRateLimiter(options =>
