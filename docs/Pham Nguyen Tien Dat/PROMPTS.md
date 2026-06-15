@@ -158,3 +158,30 @@ và
 ### Evaluation
 AI đã thể hiện khả năng xuất sắc trong việc chẩn đoán lỗi điều hướng. Thay vì chỉ gắn link đơn thuần, AI đã tự động đề xuất và tích hợp hook `useLocation` kết hợp `useEffect` để xử lý mượt mà tác vụ hash-scroll xuyên trang. Quá trình cấu trúc lại hiệu ứng GSAP và chuẩn hóa CSS keyframe cũng được thực hiện rất gọn gàng và tuân thủ nguyên tắc Clean Code.
 Tuy nhiên, trong quá trình thực thi, khi nhận được yêu cầu đồng bộ tone màu, AI đã tự động quyết định chuyển đổi toàn bộ giao diện sang Dark Theme (nền tối). Mặc dù giao diện Dark Theme sinh ra rất cao cấp, nhưng do không phù hợp với định hướng thiết kế cốt lõi của dự án ở thời điểm hiện tại, tôi đã phải ra quyết định can thiệp (Human Decision): yêu cầu AI lập tức hoàn tác (revert) toàn bộ mã màu về lại nguyên bản (Light Theme) và chỉ được phép giữ lại các cải tiến về mặt animation. Ngoài ra, tôi cũng trực tiếp review lại toàn bộ logic hash-scroll của AI trước khi commit để đảm bảo tính đúng đắn với cấu hình `basename` của React Router.
+
+
+
+
+## Prompt #09
+**Date:** 2026-06-15  
+**AI Tool:** Antigravity (Gemini)  
+**Author:** Phạm Nguyễn Tiến Đạt  
+**Purpose:** Tích hợp module AI Chatbot, ứng dụng kỹ thuật RAG (Retrieval-Augmented Generation) để cấp phát ngữ cảnh động và tái thiết kế System Prompt nhằm tối ưu hóa năng lực xử lý đa nhiệm của mô hình.
+
+### Prompt
+*"Triển khai nhóm chức năng AI Chatbot cho hệ thống"*  
+và  
+*"Thực hiện mount widget Chatbot vào file App.jsx để thiết lập dưới dạng Global Component"*  
+và  
+*"Tiến hành phát triển chức năng của Chatbot sao cho AI có khả năng xử lý đa nhiệm tương tự cấu trúc của Gemini/ChatGPT"*
+
+### Expected Output
+- Tích hợp thành công SDK của OpenAI vào tầng Backend (.NET) thông qua class `ChatbotService`.
+- Ứng dụng kỹ thuật truy xuất dữ liệu động (danh sách sân khả dụng, các luồng cáp kèo đang mở) từ cơ sở dữ liệu để 주입 (inject) vào *System Prompt* theo thời gian thực.
+- Xây dựng component `AIChatbot.jsx` (Frontend) ở định dạng Floating Widget, đảm bảo trải nghiệm người dùng (UX) cao cấp với các hiệu ứng: gõ phím (typing indicator), badge trạng thái chưa đọc, và gợi ý phản hồi nhanh (quick prompts).
+- Tái định cấu trúc *System Prompt* để mở rộng băng thông xử lý, biến AI từ một bot đặc thù (Domain-specific) thành một trợ lý đa nhiệm (General-purpose AI).
+
+### Evaluation
+AI đã hoàn thành xuất sắc việc thiết kế UI Chatbot trên Frontend và triển khai logic C# để cấp phát Context bằng `StringBuilder` tại Backend. Tuy nhiên, trong quá trình thực thi lệnh cập nhật sơ đồ cơ sở dữ liệu (`dotnet ef database update`), hệ thống liên tục trả về ngoại lệ `Build failed` do xung đột khóa tệp tin (File Lock). AI đã không thể tự nhận diện nguyên nhân gốc rễ là do tiến trình server Backend đang chạy ngầm trên background task. Tôi đã trực tiếp can thiệp định tuyến lại luồng công việc: đình chỉ tiến trình Backend, thực thi migration để ánh xạ thực thể (Entity Mapping), sau đó khởi động lại dịch vụ. 
+
+Bên cạnh đó, dưới góc độ Product Owner, tôi đã chủ động can thiệp vào định hướng phát triển tính năng, yêu cầu viết lại *System Prompt* để "mở khóa" năng lực đa nhiệm cho AI. Cuối cùng, khi cấu hình API Key thực tế, hệ thống trả về mã lỗi `HTTP 429`. Bằng kinh nghiệm thực tiễn, tôi đã phân tích log phản hồi từ gateway của OpenAI và xác định nguyên nhân là do tài khoản vượt quá hạn mức sử dụng (Quota Exceeded) chứ không xuất phát từ mã nguồn, qua đó đưa ra phương án xử lý dứt điểm.
