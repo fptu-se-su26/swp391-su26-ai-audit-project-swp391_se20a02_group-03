@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import axiosClient from '../api/axiosClient'
+import DOMPurify from 'dompurify'
 
 const QUICK_PROMPTS = [
   '🎾 Còn sân cầu lông trống hôm nay không?',
@@ -41,7 +42,8 @@ export default function ChatbotWidget() {
       const res = await axiosClient.post('/chatbot/chat', {
         messages: newMessages.map(m => ({ role: m.role, content: m.content })),
       })
-      const reply = res.data?.reply || 'Xin lỗi, tôi không hiểu yêu cầu đó.'
+      // axiosClient interceptor already unwraps response.data, so res IS data
+      const reply = res?.data?.reply || res?.reply || 'Xin lỗi, tôi không hiểu yêu cầu đó.'
       setMessages(prev => [...prev, { role: 'assistant', content: reply }])
       if (!open) setUnread(true)
     } catch {
@@ -61,9 +63,12 @@ export default function ChatbotWidget() {
     }
   }
 
-  // Simple markdown bold parser
+  // Markdown parser + XSS sanitization via DOMPurify
   const parseContent = (text) => {
-    return text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br/>')
+    const html = text
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\n/g, '<br/>')
+    return DOMPurify.sanitize(html, { ALLOWED_TAGS: ['strong', 'br', 'em'], ALLOWED_ATTR: [] })
   }
 
   return (

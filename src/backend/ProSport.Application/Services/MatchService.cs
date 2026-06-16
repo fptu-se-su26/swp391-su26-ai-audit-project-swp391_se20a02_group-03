@@ -54,6 +54,9 @@ public class MatchService : IMatchService
                 return new ApiResponseDto<MatchDto>(400, "Bạn chỉ được đăng kèo khi Booking đã được thanh toán thành công.");
             }
 
+            if (dto.MaxParticipants <= 0)
+                return new ApiResponseDto<MatchDto>(400, "MaxParticipants must be greater than zero.");
+
             // Tự động thiết lập số tiền chia đều (Escrow Amount) dựa trên tổng tiền Booking và số lượng người tham gia tối đa
             var splitAmount = Math.Round(booking.TotalAmount / dto.MaxParticipants, 0);
 
@@ -193,13 +196,17 @@ public class MatchService : IMatchService
                 await _escrowService.ReleaseFundsAsync(userId, match.EscrowAmount, matchId, $"Hoàn cọc do rút khỏi kèo {matchId}");
             }
 
+            // BUG FIX: Capture status BEFORE mutating it — otherwise the check below always fails
+            var wasApproved = participant.Status == "Approved";
+
             participant.Status = "Cancelled";
             await _matchRepository.UpdateParticipantAsync(participant);
 
-            if (participant.Status == "Approved")
+            // Only decrement if the participant was actually Approved (not just Pending)
+            if (wasApproved)
             {
-                match!.CurrentParticipants -= 1;
-                match.Status = "Open";
+                match!.CurrentParticipants = Math.Max(0, match.CurrentParticipants - 1);
+                if (match.Status == "Closed") match.Status = "Open";
                 await _matchRepository.UpdateMatchAsync(match);
             }
 

@@ -6,6 +6,10 @@ export default function MobileWalletPage() {
   const [wallet, setWallet] = useState(null)
   const [transactions, setTransactions] = useState([])
   const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [showDepositModal, setShowDepositModal] = useState(false)
+  const [depositAmount, setDepositAmount] = useState('')
+  const [depositError, setDepositError] = useState('')
 
   useEffect(() => {
     const fetchData = async () => {
@@ -17,7 +21,8 @@ export default function MobileWalletPage() {
         if (walletRes.data) setWallet(walletRes.data);
         if (transRes.data) setTransactions(transRes.data);
       } catch (err) {
-        console.error("Lỗi tải ví Escrow:", err);
+        console.error('Lỗi tải ví Escrow:', err);
+        setError(typeof err === 'string' ? err : 'Unable to load wallet. Please try again.');
       } finally {
         setIsLoading(false);
       }
@@ -25,32 +30,57 @@ export default function MobileWalletPage() {
     fetchData();
   }, []);
 
-  const handleAddFunds = async () => {
-    const amountStr = window.prompt("Nhập số tiền muốn nạp (VNĐ):", "50000");
-    if (!amountStr) return;
-    const amount = parseInt(amountStr.replace(/\D/g, ''));
+  const handleAddFunds = () => {
+    setDepositAmount('');
+    setDepositError('');
+    setShowDepositModal(true);
+  }
+
+  const handleDepositConfirm = async () => {
+    const amount = parseInt(depositAmount.replace(/\D/g, ''));
     if (isNaN(amount) || amount < 10000) {
-      alert("Số tiền không hợp lệ (tối thiểu 10.000 VNĐ)");
+      setDepositError('Số tiền không hợp lệ (tối thiểu 10.000 VNĐ)');
       return;
     }
-
     try {
-      // VNPay integration: OrderType = 'Deposit', ReferenceId = 'MOCK-' + timestamp (Mock behavior matching backend IPN)
       const refId = Date.now().toString();
       const res = await paymentApi.createVnPayUrl(amount, 'Deposit', refId);
       if (res.statusCode === 200 && res.data) {
         window.location.href = res.data;
       } else {
-        alert("Không thể tạo URL thanh toán VNPay");
+        setDepositError('Không thể tạo URL thanh toán VNPay');
       }
     } catch (err) {
       console.error(err);
-      alert("Có lỗi xảy ra khi gọi VNPay API");
+      setDepositError(typeof err === 'string' ? err : 'Có lỗi xảy ra khi gọi VNPay API');
     }
   }
 
   return (
     <MobileLayout>
+      {/* Deposit Modal */}
+      {showDepositModal && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+          <div style={{ background: '#fff', borderRadius: 16, padding: 24, width: '100%', maxWidth: 340 }}>
+            <h3 style={{ margin: '0 0 16px', fontSize: 16, fontWeight: 700, color: '#0d2d3a' }}>Nạp tiền vào ví</h3>
+            <label style={{ fontSize: 13, color: '#64748b', fontWeight: 600 }}>Số tiền (VNĐ)</label>
+            <input
+              type="number"
+              value={depositAmount}
+              onChange={e => { setDepositAmount(e.target.value); setDepositError(''); }}
+              placeholder="Ví dụ: 100000"
+              style={{ width: '100%', marginTop: 8, padding: '10px 12px', border: '1.5px solid #e2e8f0', borderRadius: 10, fontSize: 14, outline: 'none', boxSizing: 'border-box' }}
+              autoFocus
+            />
+            {depositError && <p style={{ color: '#ef4444', fontSize: 12, marginTop: 6 }}>{depositError}</p>}
+            <p style={{ color: '#94a3b8', fontSize: 11, marginTop: 6 }}>Tối thiểu: 10.000 VNĐ</p>
+            <div style={{ display: 'flex', gap: 10, marginTop: 20 }}>
+              <button onClick={() => setShowDepositModal(false)} style={{ flex: 1, padding: '10px 0', border: '1px solid #e2e8f0', borderRadius: 10, background: '#f8fafc', cursor: 'pointer', fontSize: 14, fontWeight: 600 }}>Hủy</button>
+              <button onClick={handleDepositConfirm} style={{ flex: 1, padding: '10px 0', border: 'none', borderRadius: 10, background: '#006070', color: '#fff', cursor: 'pointer', fontSize: 14, fontWeight: 600 }}>Xác nhận</button>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="font-sans -mx-4 -my-5 pb-24">
         
         {/* Balance */}
@@ -132,8 +162,8 @@ export default function MobileWalletPage() {
                       <p className={`text-xs font-bold ${isPositive ? 'text-green-500' : 'text-red-500'}`}>
                         {isPositive ? '+' : '-'}{t.amount.toLocaleString('vi-VN')} đ
                       </p>
-                      <span className={`inline-block text-[0.6rem] font-bold px-1.5 py-0.5 rounded mt-1 ${t.status === 'Completed' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
-                        {t.status.toUpperCase()}
+                      <span className={`inline-block text-[0.6rem] font-bold px-1.5 py-0.5 rounded mt-1 ${(t.status || '') === 'Completed' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
+                        {(t.status ?? 'UNKNOWN').toUpperCase()}
                       </span>
                     </div>
                   </div>

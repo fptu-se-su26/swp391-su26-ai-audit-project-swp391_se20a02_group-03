@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import axiosClient from '../api/axiosClient'
+import DOMPurify from 'dompurify'
 
 const QUICK_PROMPTS = [
   '🎾 Còn sân cầu lông trống hôm nay không?',
@@ -41,7 +42,7 @@ export default function AIChatbot() {
       const res = await axiosClient.post('/chatbot/chat', {
         messages: newMessages.map(m => ({ role: m.role, content: m.content })),
       })
-      const reply = res.data?.reply || 'Xin lỗi, tôi không hiểu yêu cầu đó.'
+      const reply = res?.data?.reply || res?.reply || 'Xin lỗi, tôi không hiểu yêu cầu đó.'
       setMessages(prev => [...prev, { role: 'assistant', content: reply }])
       if (!isOpen) setUnread(true)
     } catch {
@@ -62,10 +63,11 @@ export default function AIChatbot() {
   }
 
   const parseContent = (text) => {
-    return text
+    const html = text
       .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
       .replace(/\n/g, '<br/>')
       .replace(/• /g, '&bull; ')
+    return DOMPurify.sanitize(html, { ALLOWED_TAGS: ['strong', 'br', 'em'], ALLOWED_ATTR: [] })
   }
 
   return (
@@ -261,7 +263,6 @@ export default function AIChatbot() {
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           boxShadow: '0 4px 20px rgba(13,138,138,0.5)',
           transition: 'all 0.3s cubic-bezier(0.34,1.56,0.64,1)',
-          position: 'relative',
         }}
       >
         {isOpen ? (
