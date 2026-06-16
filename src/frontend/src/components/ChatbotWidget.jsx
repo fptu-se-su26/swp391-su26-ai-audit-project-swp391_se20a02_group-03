@@ -8,12 +8,12 @@ const QUICK_PROMPTS = [
   '📋 Hướng dẫn cách đặt sân',
 ]
 
-export default function AIChatbot() {
-  const [isOpen, setIsOpen] = useState(false)
+export default function ChatbotWidget() {
+  const [open, setOpen] = useState(false)
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
-      content: 'Xin chào! 👋 Tôi là trợ lý AI của **Pro-Sport Complex**.\n\nTôi có thể giúp bạn:\n• 🏸 Tìm sân trống theo giờ\n• 🤝 Gợi ý kèo giao lưu phù hợp\n• 💳 Hướng dẫn đặt sân & thanh toán\n\nBạn cần hỗ trợ gì?',
+      content: 'Xin chào! 👋 Tôi là trợ lý AI của **Pro-Sport Complex**. Tôi có thể giúp bạn tìm sân trống, gợi ý kèo giao lưu, và giải đáp mọi thắc mắc về hệ thống. Bạn cần hỗ trợ gì?',
     },
   ])
   const [input, setInput] = useState('')
@@ -22,11 +22,11 @@ export default function AIChatbot() {
   const endRef = useRef(null)
 
   useEffect(() => {
-    if (isOpen) {
+    if (open) {
       setUnread(false)
-      setTimeout(() => endRef.current?.scrollIntoView({ behavior: 'smooth' }), 50)
+      endRef.current?.scrollIntoView({ behavior: 'smooth' })
     }
-  }, [isOpen, messages])
+  }, [open, messages])
 
   const sendMessage = async (text) => {
     const userText = (text || input).trim()
@@ -43,11 +43,11 @@ export default function AIChatbot() {
       })
       const reply = res.data?.reply || 'Xin lỗi, tôi không hiểu yêu cầu đó.'
       setMessages(prev => [...prev, { role: 'assistant', content: reply }])
-      if (!isOpen) setUnread(true)
+      if (!open) setUnread(true)
     } catch {
       setMessages(prev => [...prev, {
         role: 'assistant',
-        content: '⚠️ Hệ thống đang gặp sự cố kết nối. Vui lòng thử lại sau.',
+        content: '⚠️ Hệ thống đang gặp sự cố, vui lòng thử lại sau.',
       }])
     } finally {
       setLoading(false)
@@ -61,19 +61,17 @@ export default function AIChatbot() {
     }
   }
 
+  // Simple markdown bold parser
   const parseContent = (text) => {
-    return text
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\n/g, '<br/>')
-      .replace(/• /g, '&bull; ')
+    return text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br/>')
   }
 
   return (
-    <>
+    <div style={{ position: 'fixed', bottom: 24, right: 24, zIndex: 9999 }}>
       {/* Chat Window */}
-      {isOpen && (
+      {open && (
         <div style={{
-          position: 'fixed', bottom: 88, right: 24, zIndex: 9999,
+          position: 'absolute', bottom: 72, right: 0,
           width: 360, height: 520,
           background: '#fff',
           borderRadius: 20,
@@ -93,29 +91,24 @@ export default function AIChatbot() {
               width: 38, height: 38, borderRadius: '50%',
               background: 'rgba(255,255,255,0.15)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 18, border: '1.5px solid rgba(255,255,255,0.25)',
+              fontSize: 18,
             }}>🤖</div>
             <div style={{ flex: 1 }}>
-              <p style={{ margin: 0, fontWeight: 700, color: '#fff', fontSize: 14, fontFamily: 'Inter, sans-serif' }}>
-                Pro-Sport AI Assistant
-              </p>
+              <p style={{ margin: 0, fontWeight: 700, color: '#fff', fontSize: 14 }}>Pro-Sport AI Assistant</p>
               <p style={{ margin: 0, fontSize: 11, color: 'rgba(255,255,255,0.65)' }}>
-                {loading ? '✦ Đang soạn câu trả lời...' : '● Trực tuyến 24/7'}
+                {loading ? 'Đang trả lời...' : '● Trực tuyến'}
               </p>
             </div>
-            <button onClick={() => setIsOpen(false)} style={{
+            <button onClick={() => setOpen(false)} style={{
               background: 'rgba(255,255,255,0.12)', border: 'none',
               color: '#fff', cursor: 'pointer', borderRadius: '50%',
               width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 16, lineHeight: 1, transition: 'background 0.2s',
+              fontSize: 16, lineHeight: 1,
             }}>✕</button>
           </div>
 
           {/* Messages */}
-          <div style={{
-            flex: 1, overflowY: 'auto', padding: '14px', display: 'flex', flexDirection: 'column', gap: 10,
-            background: '#f8fbfd',
-          }}>
+          <div style={{ flex: 1, overflowY: 'auto', padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 10 }}>
             {messages.map((msg, i) => (
               <div key={i} style={{
                 display: 'flex',
@@ -127,29 +120,23 @@ export default function AIChatbot() {
                     width: 28, height: 28, borderRadius: '50%',
                     background: 'linear-gradient(135deg, #0d8a8a, #0d2d3a)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 13, flexShrink: 0, boxShadow: '0 2px 6px rgba(13,138,138,0.3)',
+                    fontSize: 13, flexShrink: 0,
                   }}>🤖</div>
                 )}
                 <div style={{
-                  maxWidth: '78%',
+                  maxWidth: '75%',
                   background: msg.role === 'user'
                     ? 'linear-gradient(135deg, #0d8a8a, #00b4a0)'
-                    : '#fff',
+                    : '#f0f7fa',
                   color: msg.role === 'user' ? '#fff' : '#0d2d3a',
                   padding: '9px 13px',
-                  borderRadius: msg.role === 'user'
-                    ? '14px 14px 4px 14px'
-                    : '14px 14px 14px 4px',
-                  fontSize: 13, lineHeight: 1.6,
-                  boxShadow: msg.role === 'user'
-                    ? '0 2px 8px rgba(13,138,138,0.3)'
-                    : '0 1px 4px rgba(0,0,0,0.07)',
-                  border: msg.role === 'assistant' ? '1px solid #e8f4f7' : 'none',
+                  borderRadius: msg.role === 'user' ? '14px 14px 4px 14px' : '14px 14px 14px 4px',
+                  fontSize: 13, lineHeight: 1.55,
+                  boxShadow: '0 1px 4px rgba(0,0,0,0.07)',
                 }} dangerouslySetInnerHTML={{ __html: parseContent(msg.content) }} />
               </div>
             ))}
 
-            {/* Typing indicator */}
             {loading && (
               <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8 }}>
                 <div style={{
@@ -158,17 +145,14 @@ export default function AIChatbot() {
                   display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13,
                 }}>🤖</div>
                 <div style={{
-                  background: '#fff', padding: '10px 16px',
-                  borderRadius: '14px 14px 14px 4px',
-                  display: 'flex', gap: 5, alignItems: 'center',
-                  border: '1px solid #e8f4f7',
-                  boxShadow: '0 1px 4px rgba(0,0,0,0.07)',
+                  background: '#f0f7fa', padding: '10px 14px', borderRadius: '14px 14px 14px 4px',
+                  display: 'flex', gap: 4, alignItems: 'center',
                 }}>
-                  {[0, 0.2, 0.4].map((delay, i) => (
+                  {[0, 0.2, 0.4].map((d, i) => (
                     <div key={i} style={{
                       width: 7, height: 7, borderRadius: '50%',
-                      background: '#0d8a8a',
-                      animation: `aiBounce 1s ${delay}s infinite`,
+                      background: '#0d8a8a', opacity: 0.6,
+                      animation: `bounce 1s ${d}s infinite`,
                     }} />
                   ))}
                 </div>
@@ -177,20 +161,14 @@ export default function AIChatbot() {
             <div ref={endRef} />
           </div>
 
-          {/* Quick prompts — only show at start */}
-          {messages.length <= 1 && !loading && (
-            <div style={{
-              padding: '6px 14px 8px',
-              display: 'flex', flexWrap: 'wrap', gap: 6,
-              background: '#f8fbfd',
-              borderTop: '1px solid #e8f4f7',
-            }}>
+          {/* Quick prompts */}
+          {messages.length <= 1 && (
+            <div style={{ padding: '0 14px 8px', display: 'flex', flexWrap: 'wrap', gap: 6 }}>
               {QUICK_PROMPTS.map(q => (
                 <button key={q} onClick={() => sendMessage(q)} style={{
                   fontSize: 11, padding: '5px 10px', borderRadius: 20,
-                  border: '1.5px solid #0d8a8a20', background: 'rgba(13,138,138,0.07)',
+                  border: '1.5px solid #0d8a8a', background: 'rgba(13,138,138,0.06)',
                   color: '#0d8a8a', cursor: 'pointer', fontWeight: 600,
-                  fontFamily: 'Inter, sans-serif',
                   transition: 'all 0.2s',
                 }}>{q}</button>
               ))}
@@ -209,15 +187,13 @@ export default function AIChatbot() {
               value={input}
               onChange={e => setInput(e.target.value)}
               onKeyDown={handleKey}
-              placeholder="Nhập câu hỏi... (Enter để gửi)"
+              placeholder="Nhập câu hỏi của bạn..."
               style={{
-                flex: 1, resize: 'none',
-                border: '1.5px solid #e0ecf0',
+                flex: 1, resize: 'none', border: '1.5px solid #e0ecf0',
                 borderRadius: 12, padding: '8px 12px',
-                fontFamily: 'Inter, sans-serif', fontSize: 13,
-                outline: 'none', transition: 'border-color 0.2s',
-                lineHeight: 1.5, maxHeight: 100, overflowY: 'auto',
-                background: '#f8fbfd', color: '#0d2d3a',
+                fontFamily: 'Inter, sans-serif', fontSize: 13, outline: 'none',
+                transition: 'border-color 0.2s', lineHeight: 1.5,
+                maxHeight: 100, overflowY: 'auto',
               }}
               onFocus={e => e.target.style.borderColor = '#0d8a8a'}
               onBlur={e => e.target.style.borderColor = '#e0ecf0'}
@@ -228,17 +204,13 @@ export default function AIChatbot() {
               disabled={loading || !input.trim()}
               style={{
                 width: 38, height: 38, borderRadius: '50%', border: 'none',
-                background: loading || !input.trim()
-                  ? '#d1d5db'
-                  : 'linear-gradient(135deg, #0d8a8a, #00b4a0)',
-                color: '#fff',
-                cursor: loading || !input.trim() ? 'not-allowed' : 'pointer',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                flexShrink: 0, transition: 'all 0.2s',
-                boxShadow: loading || !input.trim() ? 'none' : '0 2px 8px rgba(13,138,138,0.4)',
+                background: loading || !input.trim() ? '#ccc' : 'linear-gradient(135deg, #0d8a8a, #00b4a0)',
+                color: '#fff', cursor: loading || !input.trim() ? 'not-allowed' : 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                transition: 'all 0.2s', boxShadow: '0 2px 8px rgba(13,138,138,0.3)',
               }}
             >
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5">
                 <line x1="22" y1="2" x2="11" y2="13"/>
                 <polygon points="22 2 15 22 11 13 2 9 22 2"/>
               </svg>
@@ -247,66 +219,52 @@ export default function AIChatbot() {
         </div>
       )}
 
-      {/* FAB Button */}
+      {/* FAB Toggle Button */}
       <button
         id="chatbot-fab-btn"
-        onClick={() => setIsOpen(o => !o)}
+        onClick={() => setOpen(o => !o)}
         style={{
-          position: 'fixed', bottom: 24, right: 24, zIndex: 9999,
           width: 56, height: 56, borderRadius: '50%', border: 'none',
-          background: isOpen
+          background: open
             ? '#0d2d3a'
             : 'linear-gradient(135deg, #0d8a8a 0%, #0d2d3a 100%)',
           color: '#fff', cursor: 'pointer',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          boxShadow: '0 4px 20px rgba(13,138,138,0.5)',
+          boxShadow: '0 4px 20px rgba(13,138,138,0.45)',
           transition: 'all 0.3s cubic-bezier(0.34,1.56,0.64,1)',
+          transform: open ? 'rotate(0deg) scale(1)' : 'rotate(0deg) scale(1)',
           position: 'relative',
         }}
       >
-        {isOpen ? (
+        {open ? (
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5">
-            <line x1="18" y1="6" x2="6" y2="18"/>
-            <line x1="6" y1="6" x2="18" y2="18"/>
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
           </svg>
         ) : (
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
           </svg>
         )}
-        {/* Unread badge */}
-        {unread && !isOpen && (
+        {/* Unread dot */}
+        {unread && !open && (
           <span style={{
             position: 'absolute', top: 4, right: 4,
             width: 12, height: 12, borderRadius: '50%',
             background: '#ef4444', border: '2px solid #fff',
           }} />
         )}
-        {/* Pulse ring when closed */}
-        {!isOpen && (
-          <span style={{
-            position: 'absolute', inset: -4,
-            borderRadius: '50%', border: '2px solid rgba(13,138,138,0.4)',
-            animation: 'aiPulse 2s infinite',
-          }} />
-        )}
       </button>
 
       <style>{`
         @keyframes chatSlideUp {
-          from { opacity: 0; transform: translateY(16px) scale(0.95); }
+          from { opacity: 0; transform: translateY(16px) scale(0.96); }
           to   { opacity: 1; transform: translateY(0) scale(1); }
         }
-        @keyframes aiBounce {
-          0%, 100% { transform: translateY(0); opacity: 0.6; }
-          50%       { transform: translateY(-5px); opacity: 1; }
-        }
-        @keyframes aiPulse {
-          0%   { transform: scale(1); opacity: 0.7; }
-          70%  { transform: scale(1.4); opacity: 0; }
-          100% { transform: scale(1.4); opacity: 0; }
+        @keyframes bounce {
+          0%, 100% { transform: translateY(0); }
+          50%       { transform: translateY(-5px); }
         }
       `}</style>
-    </>
+    </div>
   )
 }

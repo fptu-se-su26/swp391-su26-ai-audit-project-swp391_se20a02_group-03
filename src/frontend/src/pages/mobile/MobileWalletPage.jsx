@@ -1,6 +1,54 @@
+import { useState, useEffect } from 'react'
 import MobileLayout from '../../layouts/MobileLayout'
+import { paymentApi } from '../../api/paymentApi'
 
 export default function MobileWalletPage() {
+  const [wallet, setWallet] = useState(null)
+  const [transactions, setTransactions] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [walletRes, transRes] = await Promise.all([
+          paymentApi.getEscrowWallet(),
+          paymentApi.getMyTransactions()
+        ]);
+        if (walletRes.data) setWallet(walletRes.data);
+        if (transRes.data) setTransactions(transRes.data);
+      } catch (err) {
+        console.error("Lỗi tải ví Escrow:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+  const handleAddFunds = async () => {
+    const amountStr = window.prompt("Nhập số tiền muốn nạp (VNĐ):", "50000");
+    if (!amountStr) return;
+    const amount = parseInt(amountStr.replace(/\D/g, ''));
+    if (isNaN(amount) || amount < 10000) {
+      alert("Số tiền không hợp lệ (tối thiểu 10.000 VNĐ)");
+      return;
+    }
+
+    try {
+      // VNPay integration: OrderType = 'Deposit', ReferenceId = 'MOCK-' + timestamp (Mock behavior matching backend IPN)
+      const refId = Date.now().toString();
+      const res = await paymentApi.createVnPayUrl(amount, 'Deposit', refId);
+      if (res.statusCode === 200 && res.data) {
+        window.location.href = res.data;
+      } else {
+        alert("Không thể tạo URL thanh toán VNPay");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Có lỗi xảy ra khi gọi VNPay API");
+    }
+  }
+
   return (
     <MobileLayout>
       <div className="font-sans -mx-4 -my-5 pb-24">
@@ -8,8 +56,10 @@ export default function MobileWalletPage() {
         {/* Balance */}
         <div className="bg-[#006070] text-white p-6 rounded-b-[24px] flex justify-between items-center shadow-sm">
           <div>
-            <p className="text-[0.62rem] font-bold tracking-wider opacity-60">AVAILABLE BALANCE</p>
-            <h1 className="font-['Oswald'] text-3xl font-bold mt-1 text-white">$4,850.00</h1>
+            <p className="text-[0.62rem] font-bold tracking-wider opacity-60">AVAILABLE BALANCE (VNĐ)</p>
+            <h1 className="font-['Oswald'] text-3xl font-bold mt-1 text-white">
+              {isLoading ? "..." : (wallet?.balance?.toLocaleString('vi-VN') || "0")} đ
+            </h1>
           </div>
           <button className="bg-white/10 border-none w-9 h-9 rounded-full text-white flex items-center justify-center cursor-pointer hover:bg-white/20">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
@@ -42,9 +92,9 @@ export default function MobileWalletPage() {
 
         {/* Add Funds Button */}
         <div className="px-5 mb-6">
-          <button className="w-full bg-[#00c2ff] hover:bg-[#00ace6] text-white py-3 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 border-none cursor-pointer shadow-md transition-all">
+          <button onClick={handleAddFunds} className="w-full bg-[#00c2ff] hover:bg-[#00ace6] text-white py-3 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 border-none cursor-pointer shadow-md transition-all">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
-            Add Funds
+            Nạp tiền qua VNPay
           </button>
         </div>
 
@@ -56,49 +106,40 @@ export default function MobileWalletPage() {
           </div>
 
           <div className="flex flex-col gap-3">
-            
-            <div className="flex items-center bg-white p-3 rounded-xl border border-slate-100 shadow-[0_1px_3px_rgba(0,0,0,0.01)]">
-              <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 bg-blue-100 text-blue-600">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M8.56 2.75c4.37 6.03 6.02 9.42 8.03 17.72"/></svg>
-              </div>
-              <div className="flex-1 ml-3 min-w-0">
-                <h4 className="text-xs font-bold text-slate-800 truncate">Court Booking - Elite Arena</h4>
-                <p className="text-[0.72rem] text-slate-400 mt-0.5">Today, 14:30</p>
-              </div>
-              <div className="text-right shrink-0">
-                <p className="text-xs font-bold text-red-500">-$45.00</p>
-                <span className="inline-block bg-green-100 text-green-700 text-[0.6rem] font-bold px-1.5 py-0.5 rounded mt-1">SUCCESS</span>
-              </div>
-            </div>
-
-            <div className="flex items-center bg-white p-3 rounded-xl border border-slate-100 shadow-[0_1px_3px_rgba(0,0,0,0.01)]">
-              <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 bg-orange-100 text-orange-600">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-              </div>
-              <div className="flex-1 ml-3 min-w-0">
-                <h4 className="text-xs font-bold text-slate-800 truncate">Pro Shop - Vợt Cầu lông</h4>
-                <p className="text-[0.72rem] text-slate-400 mt-0.5">Yesterday, 09:15</p>
-              </div>
-              <div className="text-right shrink-0">
-                <p className="text-xs font-bold text-red-500">-$12.50</p>
-                <span className="inline-block bg-amber-100 text-amber-700 text-[0.6rem] font-bold px-1.5 py-0.5 rounded mt-1">PENDING</span>
-              </div>
-            </div>
-
-            <div className="flex items-center bg-white p-3 rounded-xl border border-slate-100 shadow-[0_1px_3px_rgba(0,0,0,0.01)]">
-              <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 bg-[#00c2ff]/10 text-[#00c2ff]">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 19 19 12"/></svg>
-              </div>
-              <div className="flex-1 ml-3 min-w-0">
-                <h4 className="text-xs font-bold text-slate-800 truncate">Top Up - VNPay</h4>
-                <p className="text-[0.72rem] text-slate-400 mt-0.5">Oct 12, 18:00</p>
-              </div>
-              <div className="text-right shrink-0">
-                <p className="text-xs font-bold text-green-500">+$150.00</p>
-                <span className="inline-block bg-green-100 text-green-700 text-[0.6rem] font-bold px-1.5 py-0.5 rounded mt-1">SUCCESS</span>
-              </div>
-            </div>
-
+            {isLoading ? (
+              <p className="text-center text-sm text-slate-500 py-4">Đang tải lịch sử...</p>
+            ) : transactions.length === 0 ? (
+              <p className="text-center text-sm text-slate-500 py-4">Chưa có giao dịch nào.</p>
+            ) : (
+              transactions.map(t => {
+                const isPositive = t.type === 'Deposit' || t.type === 'EscrowRelease';
+                const Icon = isPositive ? (
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 19 19 12"/></svg>
+                ) : (
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M8.56 2.75c4.37 6.03 6.02 9.42 8.03 17.72"/></svg>
+                );
+                
+                return (
+                  <div key={t.transactionId} className="flex items-center bg-white p-3 rounded-xl border border-slate-100 shadow-[0_1px_3px_rgba(0,0,0,0.01)]">
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${isPositive ? 'bg-[#00c2ff]/10 text-[#00c2ff]' : 'bg-red-100 text-red-600'}`}>
+                      {Icon}
+                    </div>
+                    <div className="flex-1 ml-3 min-w-0">
+                      <h4 className="text-xs font-bold text-slate-800 truncate">{t.description || t.type}</h4>
+                      <p className="text-[0.72rem] text-slate-400 mt-0.5">{new Date(t.createdAt).toLocaleString('vi-VN')}</p>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <p className={`text-xs font-bold ${isPositive ? 'text-green-500' : 'text-red-500'}`}>
+                        {isPositive ? '+' : '-'}{t.amount.toLocaleString('vi-VN')} đ
+                      </p>
+                      <span className={`inline-block text-[0.6rem] font-bold px-1.5 py-0.5 rounded mt-1 ${t.status === 'Completed' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
+                        {t.status.toUpperCase()}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })
+            )}
           </div>
         </div>
 
