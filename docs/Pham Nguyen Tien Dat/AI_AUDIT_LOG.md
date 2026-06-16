@@ -272,3 +272,37 @@
 * Xác nhận HMR (Hot Module Replacement) của Vite cập nhật đúng tất cả 5 file sau mỗi lần chỉnh sửa, không có lỗi console.
 * Duyệt qua trang Contact, quan sát hiệu ứng ScrollTrigger kích hoạt đúng thứ tự: hero → form card → channel cards (stagger) → FAQ items.
 * Thực hiện `git push` thành công lên nhánh `DE190147/audit-module` (commit `969d022`), không có conflict.
+
+
+
+
+## Log #09
+- **Ngày:** 2026-06-15
+- **Người thực hiện:** Phạm Nguyễn Tiến Đạt
+- **Công cụ AI:** Antigravity (Gemini)
+- **Mục đích:** Triển khai toàn bộ cụm tính năng AI Chatbot (TK-030, TK-031, TK-032), tích hợp dữ liệu thực tế (Real-time Context) và xử lý lỗi Build/Database.
+- **Tham chiếu Prompt:** *"triển khai nhóm AI chatbox cho tôi"*, *"Giờ mount widget vào App.jsx để nó xuất hiện trên toàn bộ trang"*, *"hãy phát triển chatbox sao cho nó trả lời được đa nhiệm như các AI khác như gemini"*.
+
+### Tóm tắt kết quả AI
+- **Backend (.NET):** Tích hợp thư viện `OpenAI` v2.1.0. Xây dựng `ChatbotService` với khả năng lấy dữ liệu động từ `ICourtRepository` (danh sách sân) và `IMatchRepository` (danh sách kèo đang mở) để nạp vào *System Prompt* của mô hình `gpt-4o-mini`. Tạo endpoint public `POST /api/chatbot/chat`.
+- **Nâng cấp Đa nhiệm:** Tinh chỉnh lại *System Prompt* để Chatbot không bị gò bó vào riêng nghiệp vụ thể thao, mà hoạt động như một AI đa nhiệm thực thụ (trả lời kiến thức chung, code, tính toán, dịch thuật...) nhưng vẫn hiểu sâu sắc về Pro-Sport Complex.
+- **Frontend (React/Vite):** Thiết kế widget `AIChatbot.jsx` dạng Floating Bubble ở góc dưới màn hình. Tích hợp hiệu ứng *Pulse ring* (vòng đập), *Typing indicator* (3 chấm nhấp nháy), *Quick prompts*, *Unread badge*, và parse cú pháp markdown. Mount thành công vào `App.jsx` để hiển thị global trên toàn site.
+
+### Quyết định & Can thiệp của con người
+- **Chấp nhận:** Áp dụng toàn bộ kiến trúc Dependency Injection cho Chatbot ở Backend và thiết kế Widget UI trên Frontend.
+- **Can thiệp kỹ thuật 1 (Xử lý lỗi File Lock khi Migration):** Khi thực hiện `dotnet ef database update`, hệ thống báo lỗi *Build failed* do tiến trình `dotnet run` đang khóa các file `.dll`. Đã can thiệp đình chỉ tiến trình Backend đang chạy ngầm, sau đó chạy lại lệnh Migration để ánh xạ thành công các Entity vào DB, rồi mới khởi động lại server.
+- **Can thiệp kỹ thuật 2 (Bảo mật & Quota API):** AI yêu cầu nạp API Key OpenAI. Khi điền key thật vào `appsettings.json`, phát hiện lỗi `HTTP 429 (insufficient_quota)` do tài khoản hết hạn mức. Nắm bắt được nguyên lý hoạt động thực tế của tích hợp AI (yêu cầu chi phí/quota) chứ không chỉ dừng ở code logic.
+- **Can thiệp kỹ thuật 3 (Định hướng sản phẩm):** Khi AI ban đầu xây dựng prompt bị giới hạn trong lĩnh vực đặt sân, người dùng đã chủ động chỉ đạo "mở khóa" AI thành dạng đa nhiệm như Gemini, giúp tăng trải nghiệm tổng thể (UX) cho user khi dùng ứng dụng.
+
+### Áp dụng cho
+- `src/backend/ProSport.Infrastructure/Services/ChatbotService.cs` (Logic AI & Context)
+- `src/backend/ProSport.API/Controllers/ChatController.cs`
+- `src/backend/ProSport.API/appsettings.json` (Cấu hình OpenAI API Key)
+- `src/frontend/src/components/AIChatbot.jsx` (Giao diện Client)
+- `src/frontend/src/App.jsx` (Mount Global Component)
+
+### Kiểm chứng
+- Lệnh `dotnet build` và `vite build` đều chạy thành công (0 errors).
+- Server Backend (`localhost:5138`) và Frontend (`localhost:5173`) boot thành công song song.
+- Dùng `Invoke-RestMethod` (PowerShell) để call thử API Đăng ký sinh ra User và mã OTP vào Database thành công, xác nhận EF Core Database Update đã map chuẩn xác các bảng dữ liệu.
+- Component Chatbot render chuẩn xác trên giao diện mà không vỡ layout, có hiệu ứng thu gọn/mở rộng trơn tru.

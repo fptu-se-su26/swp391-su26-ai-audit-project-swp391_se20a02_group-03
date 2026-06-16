@@ -169,3 +169,20 @@ Antigravity AI sinh toàn bộ cấu trúc JSX, CSS và hệ thống routing ban
 
 ### Hỗ trợ từ AI (AI-assisted)
 * Antigravity AI hỗ trợ rà soát cấu trúc code để gỡ lỗi hash-scroll và tự động viết các luồng animation GSAP phức tạp cho trang Contact. Người thực hiện đóng vai trò kiểm soát chất lượng, liên tục đánh giá và trực tiếp yêu cầu AI hoàn tác (revert) các đề xuất nâng cấp màu sắc giao diện (Dark Theme) không phù hợp với định hướng thiết kế cốt lõi ban đầu, chỉ phê duyệt những cải tiến mang tính trải nghiệm (Animation/Routing).
+
+
+## [2026-06-15] - Giai đoạn: Tích hợp AI Chatbot Đa nhiệm & Xử lý sự cố CSDL
+**Người thực hiện:** Phạm Nguyễn Tiến Đạt
+### Thêm mới (Added)
+* **Backend:** Cài đặt package `OpenAI` v2.1.0 cho .NET API. Khởi tạo `ChatbotService` và public endpoint `POST /api/chatbot/chat`.
+* **Frontend:** Thiết kế component `AIChatbot.jsx` dạng Floating Widget với UI cực kỳ trực quan (hiệu ứng đập Pulse ring, 3 chấm gõ phím Typing indicator, Unread badge báo tin nhắn chưa đọc, và gợi ý câu hỏi nhanh Quick prompts).
+* **Kiến trúc dữ liệu:** Khởi tạo cơ chế RAG (Retrieval-Augmented Generation) sơ cấp: Lấy dữ liệu danh sách sân trống (`ICourtRepository`) và kèo thể thao đang mở (`IMatchRepository`) theo thời gian thực để bơm trực tiếp vào *System Prompt* của AI.
+* **Định tuyến:** Mount trực tiếp `<AIChatbot />` vào `App.jsx` bên ngoài thẻ `<Routes>` để Chatbot luôn khả dụng trên toàn bộ trang (Global component).
+### Thay đổi (Changed)
+* **Mở khóa năng lực AI:** Chỉnh sửa *System Prompt* trong `ChatbotService.cs`, nâng cấp AI từ việc chỉ biết tư vấn sân thể thao trở thành một Trợ lý AI Đa nhiệm (tương tự ChatGPT/Gemini), có khả năng trả lời kiến thức chung, viết code, dịch thuật trong khi vẫn ưu tiên nắm rõ thông tin của Pro-Sport Complex.
+* **Cấu hình:** Cập nhật `appsettings.json` bằng OpenAI API Key thực tế (`sk-proj-...`) để chuyển từ chế độ giả lập (Mocking) sang gọi trực tiếp mô hình `gpt-4o-mini`.
+### Sửa lỗi (Fixed)
+* **Database Lock (EF Core):** Xử lý dứt điểm lỗi `Build failed` khi chạy lệnh `dotnet ef database update`. Nguyên nhân do tiến trình server Backend vẫn đang chạy ngầm (`dotnet run`) khiến file `.dll` bị khóa không thể ghi đè. Giải pháp: Tạm dừng tiến trình, chạy migration để ánh xạ thành công các bảng mới, sau đó khởi động lại server.
+* **Xử lý ngoại lệ AI Quota:** Khi cấu hình Key OpenAI thật, phát hiện lỗi `HTTP 429 (insufficient_quota)`. Nhanh chóng đọc log phân tích lỗi từ OpenAI trả về, xác định tài khoản hết hạn mức sử dụng (credit) thay vì lỗi do code, từ đó đưa ra hướng khắc phục chuẩn xác cho người dùng.
+### Hỗ trợ từ AI (AI-assisted)
+* Antigravity AI sinh toàn bộ luồng logic tích hợp OpenAI SDK vào .NET và tạo giao diện React Chatbot mượt mà kèm CSS animations. Người thực hiện đóng vai trò Product Owner (yêu cầu "mở khóa" năng lực đa nhiệm cho AI) và trực tiếp can thiệp gỡ rối (debug) luồng khóa file của Entity Framework, cũng như cấp API Key thực tế để chatbot chính thức đi vào hoạt động.
