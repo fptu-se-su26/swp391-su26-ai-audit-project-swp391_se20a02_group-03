@@ -13,6 +13,18 @@ const sidebarLinks = [
 
 const sportFilters = ['Tất cả', 'Cầu lông', 'Pickleball']
 
+const nearbyPlayers = [
+  { name: 'David K.', dist: '1.2 km away', avatar: 'https://ui-avatars.com/api/?name=David+K&background=00c8aa&color=fff', online: true },
+  { name: 'Sarah M.', dist: '2.5 km away', avatar: 'https://ui-avatars.com/api/?name=Sarah+M&background=f0f7f6&color=00c8aa', online: false },
+  { name: 'Michael T.', dist: '3.1 km away', avatar: 'https://ui-avatars.com/api/?name=Michael+T&background=0d2d3a&color=fff', online: true },
+]
+
+const leaderboard = [
+  { rank: 1, name: 'Alex H.', pts: '2,450', avatar: 'https://ui-avatars.com/api/?name=Alex+H' },
+  { rank: 2, name: 'Jordan L.', pts: '2,120', avatar: 'https://ui-avatars.com/api/?name=Jordan+L' },
+  { rank: 3, name: 'Taylor S.', pts: '1,980', avatar: 'https://ui-avatars.com/api/?name=Taylor+S' },
+]
+
 export default function MatchProFeedPage() {
   const [activeFilter, setActiveFilter] = useState('All Sports')
   const [matches, setMatches] = useState([])
