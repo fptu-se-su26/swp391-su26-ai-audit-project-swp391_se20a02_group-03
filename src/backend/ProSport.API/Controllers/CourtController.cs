@@ -16,11 +16,11 @@ public class CourtController : ControllerBase
         _courtService = courtService;
     }
 
-    // READ - list all courts
+    // READ - list all courts with pagination and filtering
     [HttpGet]
-    public async Task<IActionResult> GetAllCourts()
+    public async Task<IActionResult> GetAllCourts([FromQuery] CourtQueryParameters parameters)
     {
-        var response = await _courtService.GetAllCourtsAsync();
+        var response = await _courtService.GetAllCourtsAsync(parameters);
         return StatusCode(response.StatusCode, response);
     }
 

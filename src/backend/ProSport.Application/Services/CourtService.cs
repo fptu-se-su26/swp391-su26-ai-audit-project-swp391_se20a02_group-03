@@ -16,18 +16,27 @@ public class CourtService : ICourtService
         _logger = logger;
     }
 
-    public async Task<ApiResponseDto<IEnumerable<CourtDto>>> GetAllCourtsAsync()
+    public async Task<ApiResponseDto<PagedResult<CourtDto>>> GetAllCourtsAsync(CourtQueryParameters parameters)
     {
         try
         {
-            var courts = await _courtRepository.GetAllAsync();
-            var dtos = courts.Select(MapToDto);
-            return new ApiResponseDto<IEnumerable<CourtDto>>(200, "Success", dtos);
+            var (courts, totalCount) = await _courtRepository.GetPagedCourtsAsync(parameters);
+            var dtos = courts.Select(MapToDto).ToList();
+            
+            var result = new PagedResult<CourtDto>
+            {
+                Items = dtos,
+                TotalCount = totalCount,
+                CurrentPage = parameters.PageNumber,
+                TotalPages = (int)Math.Ceiling(totalCount / (double)parameters.PageSize)
+            };
+            
+            return new ApiResponseDto<PagedResult<CourtDto>>(200, "Success", result);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error getting all courts");
-            return new ApiResponseDto<IEnumerable<CourtDto>>(500, "An unexpected error occurred.");
+            return new ApiResponseDto<PagedResult<CourtDto>>(500, "An unexpected error occurred.");
         }
     }
 
@@ -141,6 +150,12 @@ public class CourtService : ICourtService
         var court = await _courtRepository.GetByIdAsync(id);
         if (court == null || court.IsDeleted)
             return new ApiResponseDto<object>(404, "Court not found");
+
+        var hasActiveBookings = await _courtRepository.HasActiveBookingsAsync(id);
+        if (hasActiveBookings)
+        {
+            return new ApiResponseDto<object>(400, "Không thể xóa sân đang có lịch đặt trong tương lai.");
+        }
 
         court.IsDeleted = true;
         await _courtRepository.UpdateAsync(court);

@@ -82,4 +82,42 @@ public class CourtRepository : ICourtRepository
         }
         return bookedSlots.Distinct();
     }
+
+    public async Task<(IEnumerable<Court> Items, int TotalCount)> GetPagedCourtsAsync(ProSport.Application.DTOs.CourtQueryParameters parameters)
+    {
+        var query = _context.Courts
+            .Include(c => c.CourtType)
+            .Include(c => c.PricingRules)
+            .Where(c => !c.IsDeleted)
+            .AsQueryable();
+
+        if (!string.IsNullOrEmpty(parameters.SearchTerm))
+        {
+            query = query.Where(c => c.Name.Contains(parameters.SearchTerm));
+        }
+        
+        if (!string.IsNullOrEmpty(parameters.Status))
+        {
+            query = query.Where(c => c.Status == parameters.Status);
+        }
+
+        var totalCount = await query.CountAsync();
+        var items = await query
+            .Skip((parameters.PageNumber - 1) * parameters.PageSize)
+            .Take(parameters.PageSize)
+            .ToListAsync();
+
+        return (items, totalCount);
+    }
+
+    public async Task<bool> HasActiveBookingsAsync(int courtId)
+    {
+        var now = DateTime.UtcNow;
+        return await _context.BookingDetails
+            .Include(bd => bd.Booking)
+            .AnyAsync(bd => bd.CourtId == courtId 
+                         && !bd.Booking.IsDeleted
+                         && (bd.Booking.Status == "Pending" || bd.Booking.Status == "Paid") 
+                         && bd.BookingDate.Date >= now.Date);
+    }
 }
