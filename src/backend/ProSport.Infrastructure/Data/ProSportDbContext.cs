@@ -21,8 +21,10 @@ public class ProSportDbContext : DbContext
     public DbSet<MatchParticipant> MatchParticipants { get; set; } = null!;
     public DbSet<EscrowWallet> EscrowWallets { get; set; } = null!;
     public DbSet<Transaction> Transactions { get; set; } = null!;
+    public DbSet<EquipmentCategory> EquipmentCategories { get; set; } = null!;
     public DbSet<Equipment> Equipments { get; set; } = null!;
     public DbSet<EquipmentRental> EquipmentRentals { get; set; } = null!;
+    public DbSet<InventoryTransaction> InventoryTransactions { get; set; } = null!;
     // --- Bảng mới ---
     public DbSet<CheckIn> CheckIns { get; set; } = null!;
     public DbSet<Voucher> Vouchers { get; set; } = null!;
@@ -274,15 +276,45 @@ public class ProSportDbContext : DbContext
                   .OnDelete(DeleteBehavior.ClientSetNull);
         });
 
-        // --- Equipment (FIX: thêm Condition, ImageUrl) ---
+        // --- EquipmentCategory ---
+        modelBuilder.Entity<EquipmentCategory>(entity =>
+        {
+            entity.HasKey(e => e.EquipmentCategoryId);
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.Description).HasMaxLength(500);
+        });
+
+        // --- Equipment ---
         modelBuilder.Entity<Equipment>(entity =>
         {
             entity.HasKey(e => e.EquipmentId);
             entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
-            entity.Property(e => e.Type).IsRequired().HasMaxLength(50);
-            entity.Property(e => e.RentalPrice).HasColumnType("decimal(18,2)");
-            entity.Property(e => e.Condition).HasDefaultValue("Good").HasMaxLength(20);
+            entity.Property(e => e.Price).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.Status).HasDefaultValue("Available").HasMaxLength(20);
             entity.Property(e => e.ImageUrl).HasMaxLength(500);
+
+            entity.HasOne(e => e.EquipmentCategory)
+                  .WithMany(c => c.Equipments)
+                  .HasForeignKey(e => e.EquipmentCategoryId)
+                  .OnDelete(DeleteBehavior.ClientSetNull);
+        });
+
+        // --- InventoryTransaction ---
+        modelBuilder.Entity<InventoryTransaction>(entity =>
+        {
+            entity.HasKey(e => e.InventoryTransactionId);
+            entity.Property(e => e.TransactionType).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.Notes).HasMaxLength(500);
+
+            entity.HasOne(e => e.Equipment)
+                  .WithMany(eq => eq.InventoryTransactions)
+                  .HasForeignKey(e => e.EquipmentId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.User)
+                  .WithMany()
+                  .HasForeignKey(e => e.UserId)
+                  .OnDelete(DeleteBehavior.ClientSetNull);
         });
 
         // --- EquipmentRental ---
