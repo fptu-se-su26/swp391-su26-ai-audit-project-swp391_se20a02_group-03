@@ -1,88 +1,68 @@
+# Changelog
 
-# Prompt Repository
+## [2026-06-13]
 
-## Prompt #01
+Author: Phat1425
 
-* Date: 12/06/2026
-* Author: Phat1425
-* AI Tool: Claude
-* Purpose: Thiết kế Equipment Rental Module
+### Added
 
-### Prompt
+* Equipment Rental module architecture.
+* Repository Layer.
+* Service Layer.
 
-Analyze the existing ASP.NET Core project architecture and design a complete Equipment Rental module following Clean Architecture principles.
+### AI-assisted
 
-Requirements:
-
-* Repository Pattern
-* Service Layer Pattern
-* DTO Layer
-* Dependency Injection
-* Entity Framework Core
-* RESTful API Support
-
-### Usage
-
-Prompt was provided to Cursor for code generation and implementation support.
-
-### Evaluation
-
-The prompt generated useful architecture suggestions and implementation ideas.
+* Claude generated technical prompts.
+* Cursor generated initial implementation.
+* Final code was reviewed and modified manually.
 
 ---
 
-## Prompt #02
+## [2026-06-15]
 
-* Date: 14/06/2026
-* Author: Phat1425
-* AI Tool: Claude
-* Purpose: DTO design and business logic implementation
+Author: Phat1425
 
-### Prompt
+### Added
 
-Generate DTOs and business workflow for Equipment Rental.
+* Equipment DTO classes.
+* Rental workflow implementation.
 
-Requirements:
+### Changed
 
-* EquipmentDto
-* RentEquipmentRequest
-* ReturnEquipmentRequest
-* Validation Rules
-* Rental Workflow
-* Entity Framework Compatibility
+* Validation logic.
+* Entity Framework configurations.
 
-### Usage
+### Fixed
 
-Used in Cursor to generate DTO classes and workflow implementation.
+* Database mapping inconsistencies.
 
-### Evaluation
+### AI-assisted
 
-The generated code required validation and schema adjustments.
+* Claude supported prompt engineering.
+* Cursor generated implementation drafts.
 
 ---
 
-## Prompt #03
+## [2026-06-17]
 
-* Date: 16/06/2026
-* Author: Phat1425
-* AI Tool: Claude
-* Purpose: Frontend integration and seed data generation
+Author: Phat1425
 
-### Prompt
+### Added
 
-Suggest best practices for integrating React frontend pages with ASP.NET Core APIs and generate sample equipment data for testing.
+* Equipment seed data.
+* Frontend API integration.
 
-Requirements:
+### Changed
 
-* API Integration
-* Seed Data
-* Frontend Service Layer
-* Error Handling
+* Gear pages connected to real APIs.
+* Shop page structure consolidated.
 
-### Usage
+### Fixed
 
-Used in Cursor to support frontend integration and database seeding.
+* API response handling issues.
+* Entity mapping issues.
 
-### Evaluation
+### AI-assisted
 
-The output accelerated implementation but still required manual review and testing.
+* Claude assisted with architecture and integration planning.
+* Cursor assisted with code generation.
