@@ -128,4 +128,28 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+// === ADMIN SEEDER ===
+// Tạo tài khoản Admin mặc định nếu chưa có (idempotent — chỉ chạy 1 lần).
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<ProSportDbContext>();
+    if (!context.Users.Any(u => u.Email == "admin@prosport.vn"))
+    {
+        context.Users.Add(new ProSport.Domain.Entities.User
+        {
+            FullName = "System Admin",
+            Email = "admin@prosport.vn",
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin@123456"),
+            Role = "Admin",
+            IsPhoneVerified = true
+        });
+        context.SaveChanges();
+        Console.WriteLine("[Seeder] Admin user created: admin@prosport.vn / Admin@123456");
+    }
+    else
+    {
+        Console.WriteLine("[Seeder] Admin user already exists. Skipping.");
+    }
+}
+
 app.Run();
