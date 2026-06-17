@@ -20,6 +20,7 @@ import BookingPage from './pages/courts/BookingPage'
 import MatchDetailPage from './pages/matches/MatchDetailPage'
 import CreateMatchPage from './pages/matches/CreateMatchPage'
 import GearCatalogPage from './pages/gear/GearCatalogPage'
+import GearDetailPage from './pages/gear/GearDetailPage'
 import GearDashboardPage from './pages/gear/GearDashboardPage'
 import GearRentalPage from './pages/gear/GearRentalPage'
 import GearRentalTermsPage from './pages/gear/GearRentalTermsPage'
@@ -36,7 +37,6 @@ import AIChatbot from './components/AIChatbot'
 import ApexHomePage from './pages/apex/ApexHomePage'
 import ApexBookingPage from './pages/apex/ApexBookingPage'
 import ApexMatchesPage from './pages/apex/ApexMatchesPage'
-import ApexShopPage from './pages/apex/ApexShopPage'
 import ApexProfilePage from './pages/apex/ApexProfilePage'
 import ApexActivityPage from './pages/apex/ApexActivityPage'
 import ApexSettingsPage from './pages/apex/ApexSettingsPage'
@@ -145,11 +145,11 @@ function App() {
                     <Route path="/customer/bookings" element={<ProtectedRoute><BookingHistoryPage /></ProtectedRoute>} />
                     <Route path="/customer/report" element={<ProtectedRoute><ReportDisputePage /></ProtectedRoute>} />
 
-                    {/* Gear */}
                     <Route path="/gear" element={<Navigate to="/gear/catalog" replace />} />
                     <Route path="/gear/dashboard" element={<GearDashboardPage />} />
                     <Route path="/gear/rentals" element={<GearRentalPage />} />
                     <Route path="/gear/catalog" element={<GearCatalogPage />} />
+                    <Route path="/gear/catalog/:id" element={<GearDetailPage />} />
                     <Route path="/gear/rental-terms" element={<GearRentalTermsPage />} />
                     <Route path="/gear/maintenance" element={<GearMaintenancePage />} />
                     <Route path="/gear/support" element={<GearSupportPage />} />
@@ -159,7 +159,7 @@ function App() {
                     <Route path="/apex" element={<ProtectedRoute><ApexHomePage /></ProtectedRoute>} />
                     <Route path="/apex/booking" element={<ProtectedRoute><ApexBookingPage /></ProtectedRoute>} />
                     <Route path="/apex/matches" element={<ProtectedRoute><ApexMatchesPage /></ProtectedRoute>} />
-                    <Route path="/apex/shop" element={<ProtectedRoute><ApexShopPage /></ProtectedRoute>} />
+                    <Route path="/apex/shop" element={<Navigate to="/gear/catalog" replace />} />
                     <Route path="/apex/profile" element={<ProtectedRoute><ApexProfilePage /></ProtectedRoute>} />
                     <Route path="/apex/activity" element={<ProtectedRoute><ApexActivityPage /></ProtectedRoute>} />
                     <Route path="/apex/settings" element={<ProtectedRoute><ApexSettingsPage /></ProtectedRoute>} />

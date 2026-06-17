@@ -185,3 +185,25 @@ và
 AI đã hoàn thành xuất sắc việc thiết kế UI Chatbot trên Frontend và triển khai logic C# để cấp phát Context bằng `StringBuilder` tại Backend. Tuy nhiên, trong quá trình thực thi lệnh cập nhật sơ đồ cơ sở dữ liệu (`dotnet ef database update`), hệ thống liên tục trả về ngoại lệ `Build failed` do xung đột khóa tệp tin (File Lock). AI đã không thể tự nhận diện nguyên nhân gốc rễ là do tiến trình server Backend đang chạy ngầm trên background task. Tôi đã trực tiếp can thiệp định tuyến lại luồng công việc: đình chỉ tiến trình Backend, thực thi migration để ánh xạ thực thể (Entity Mapping), sau đó khởi động lại dịch vụ. 
 
 Bên cạnh đó, dưới góc độ Product Owner, tôi đã chủ động can thiệp vào định hướng phát triển tính năng, yêu cầu viết lại *System Prompt* để "mở khóa" năng lực đa nhiệm cho AI. Cuối cùng, khi cấu hình API Key thực tế, hệ thống trả về mã lỗi `HTTP 429`. Bằng kinh nghiệm thực tiễn, tôi đã phân tích log phản hồi từ gateway của OpenAI và xác định nguyên nhân là do tài khoản vượt quá hạn mức sử dụng (Quota Exceeded) chứ không xuất phát từ mã nguồn, qua đó đưa ra phương án xử lý dứt điểm.
+
+
+
+## Prompt #10
+**Date:** 2026-06-17  
+**AI Tool:** Antigravity (Gemini)  
+**Author:** Phạm Nguyễn Tiến Đạt  
+**Purpose:** Tiến hành rà soát mã nguồn (Code Audit) và gỡ lỗi toàn diện (Comprehensive Bug Fix) trên toàn bộ kiến trúc hệ thống, bao gồm cả Backend (.NET) và Frontend (React/Vite).
+
+### Prompt
+*"Hãy tiến hành rà soát mã nguồn toàn diện trên toàn bộ hệ thống. Nhiệm vụ của bạn là quét sâu vào tất cả các file trong cấu trúc dự án để phát hiện và tự động đề xuất các bản vá cho mọi lỗ hổng bảo mật (XSS, Unauthorized Access), lỗi luồng nghiệp vụ (Business Logic Flaws) và bất kỳ sự cố tiềm ẩn nào ảnh hưởng đến trải nghiệm người dùng. Nếu có quyết định kỹ thuật nào cần thiết để tối ưu hóa hiệu suất hoặc chuẩn hóa dữ liệu, hãy chủ động áp dụng."*
+
+### Expected Output
+- Phát hiện và sinh mã nguồn khắc phục các lỗ hổng bảo mật (Security Patches) ở cả Client và Server.
+- Khắc phục các lỗi Runtime, sự cố Timezone, xử lý bất đồng bộ và rủi ro vòng lặp vô hạn (Infinite Loop) ở tầng Backend API.
+- Cải thiện kiến trúc UI/UX, sửa lỗi đóng gói dữ liệu (Data Nesting) từ Axios, xử lý các trạng thái tải trang (Loading/Empty States) và tích hợp Lazy Loading ở tầng Frontend.
+- Đảm bảo toàn bộ dự án vượt qua quá trình Compile/Build mà không phát sinh bất kỳ lỗi nào (Zero Errors).
+
+### Evaluation
+AI đã thể hiện xuất sắc khả năng tư duy hệ thống khi tự động khởi tạo (spawn) các Sub-agents chuyên biệt để quét song song hai môi trường Backend và Frontend. AI đã tự động định vị và vá thành công hơn 15+ lỗi quan trọng, điển hình như: khử nhiễm XSS bằng `DOMPurify`, thiết lập `ProtectedRoute`, xử lý triệt để lỗi crash Timezone trên Linux/Docker (`SE Asia Standard Time`) và tối ưu hóa thời gian khởi chạy ứng dụng bằng `React.lazy()`.
+
+Tuy nhiên, trong khâu vận hành quy trình Git (Version Control), AI đã tự động rẽ nhánh và đẩy (push) code lên một branch mới tinh trên máy chủ từ xa thay vì tích hợp vào luồng làm việc hiện tại. Đứng ở góc độ quản lý SDLC (Software Development Life Cycle), tôi đã trực tiếp can thiệp định tuyến lại luồng quản lý phiên bản: chỉ đạo AI xóa nhánh thừa và ép (Force Push) toàn bộ commit sửa lỗi về đúng nhánh gốc `DE190147/audit-module`. Bên cạnh đó, tôi cũng chủ động từ chối lệnh thực thi `git merge main` tự động từ AI để phòng ngừa rủi ro xung đột mã nguồn (Merge Conflicts) cục bộ, quyết định dời việc hợp nhất nhánh lên nền tảng GitHub thông qua cơ chế Pull Request an toàn. Cuối cùng, tôi đã phải cùng AI truy vết và xử lý dứt điểm lỗi SQL `Error 207` phát sinh do sự bất đồng bộ giữa biến kiểu String ở tầng Entity và kiểu Enum ở tầng Application Service.

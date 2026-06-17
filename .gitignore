@@ -66,3 +66,7 @@ pnpm-debug.log*
 
 # Optional tooling
 *.DotSettings.user
+build_output*.txt 
+*.log 
+vite.config.js.timestamp-*.mjs 
+src/backend/ProSport.Infrastructure/errors.json 

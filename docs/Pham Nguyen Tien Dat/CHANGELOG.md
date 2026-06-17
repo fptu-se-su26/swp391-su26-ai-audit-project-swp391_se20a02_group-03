@@ -186,3 +186,28 @@ Antigravity AI sinh toàn bộ cấu trúc JSX, CSS và hệ thống routing ban
 * **Xử lý ngoại lệ AI Quota:** Khi cấu hình Key OpenAI thật, phát hiện lỗi `HTTP 429 (insufficient_quota)`. Nhanh chóng đọc log phân tích lỗi từ OpenAI trả về, xác định tài khoản hết hạn mức sử dụng (credit) thay vì lỗi do code, từ đó đưa ra hướng khắc phục chuẩn xác cho người dùng.
 ### Hỗ trợ từ AI (AI-assisted)
 * Antigravity AI sinh toàn bộ luồng logic tích hợp OpenAI SDK vào .NET và tạo giao diện React Chatbot mượt mà kèm CSS animations. Người thực hiện đóng vai trò Product Owner (yêu cầu "mở khóa" năng lực đa nhiệm cho AI) và trực tiếp can thiệp gỡ rối (debug) luồng khóa file của Entity Framework, cũng như cấp API Key thực tế để chatbot chính thức đi vào hoạt động.
+
+
+
+
+## [2026-06-16] - Giai đoạn: Tổng rà soát & Vá lỗi toàn diện (Comprehensive Bug Fix)
+**Người thực hiện:** Phạm Nguyễn Tiến Đạt
+
+### Thêm mới (Added)
+* **Hiệu suất (Performance):** Tích hợp cơ chế Lazy Loading (`React.lazy` và `Suspense`) cho toàn bộ các route trong ứng dụng React để tối ưu hóa thời gian tải trang ban đầu.
+* **Bảo mật (Security):** Bổ sung thư viện `DOMPurify` để ngăn chặn lỗ hổng XSS (Cross-Site Scripting) khi render nội dung Markdown trong component `ChatbotWidget`.
+* **Cấu hình:** Bổ sung cơ chế đọc danh sách CORS động từ `appsettings.json` thay vì hardcode localhost, giúp backend sẵn sàng triển khai lên môi trường Production.
+
+### Thay đổi (Changed)
+* **UX/UI Mobile:** Chuyển đổi toàn bộ các hàm gọi thông báo mặc định của hệ thống (`window.prompt`, `window.alert`) trên giao diện Mobile Wallet thành các Modal tĩnh nội bộ, giải quyết triệt để tình trạng bị chặn popup trên trình duyệt iOS PWA.
+* **Chuẩn hóa thời gian:** Đồng bộ định dạng giờ trong email xác nhận đặt sân từ hệ 12h (`hh`) sang hệ 24h (`HH`). Chuẩn hóa chuỗi thời gian slot đặt sân từ `HH:mm:ss` sang `HH:mm` để so sánh và hiển thị chính xác trên UI.
+
+### Sửa lỗi (Fixed)
+* **[Security - Auth]** Khóa lỗ hổng đăng nhập: Tài khoản chưa xác thực OTP (Unverified) không còn khả năng đăng nhập thành công. Bọc `ProtectedRoute` để chặn truy cập trái phép vào các cổng Admin/Elite.
+* **[Backend - Database]** Giải quyết dứt điểm lỗi SQL `Error 207 (Invalid column name)` do sự bất đồng bộ giữa biến lưu trữ kiểu String ở tầng Entity (`Booking.cs`) và kiểu Enum (`BookingStatus`) ở tầng Service.
+* **[Backend - Logic]** Vá lỗ hổng lặp vô hạn (Infinite Loop) khiến server treo khi logic tính tiền sân chạm trán bộ quy tắc giá (PricingRule) bất thường. Bổ sung rule bảo vệ: chỉ những đơn đặt sân ở trạng thái `Confirmed` mới được phép Check-in.
+* **[Backend - OS]** Khắc phục lỗi crash ứng dụng khi khởi chạy trên môi trường Linux/Docker do .NET không tìm thấy Timezone `SE Asia Standard Time` chuẩn của Windows (Đã thiết lập fallback sang `Asia/Ho_Chi_Minh`).
+* **[Frontend - API]** Sửa lỗi UI không lấy được thông tin do bóc tách sai gói dữ liệu (Data nesting) từ API trong `ApexMatchesPage` (`res.data` thay vì `res.data.data`). Khắc phục lỗi hiển thị cảnh báo trắng khi thư viện Axios trả về chuỗi String thay vì Error Object.
+
+### Hỗ trợ từ AI (AI-assisted)
+* Antigravity AI (Gemini) tự động phân luồng ngầm hai hệ thống quét lỗi song song (Backend/Frontend Bug Scanner) để rà soát thư mục và sinh ra hơn 15 bản vá lỗi khác nhau. Người thực hiện đóng vai trò rà soát tổng thể, kiểm soát rủi ro (chủ động từ chối tự động Merge Code để tránh xung đột cục bộ) và điều phối AI đẩy thẳng toàn bộ các commit sửa lỗi về nhánh làm việc gốc (`DE190147/audit-module`) nhằm bảo vệ tính toàn vẹn của mã nguồn.
