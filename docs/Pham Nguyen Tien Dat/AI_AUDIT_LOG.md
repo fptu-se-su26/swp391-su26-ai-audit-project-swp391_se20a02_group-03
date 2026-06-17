@@ -339,3 +339,37 @@
 - Lệnh `dotnet build` và `npm run build` không phát sinh bất kỳ lỗi nào.
 - 15 file với hơn 600 dòng code thay đổi đã được commit và đẩy (push) lên GitHub thành công vào nhánh `DE190147/audit-module` (commit `8ce1422`).
 - Giao diện Frontend giờ đã phân biệt rõ ràng trạng thái "Đang tải" (Loading) và "Trống" (Empty State) thay vì gộp chung một text gây nhầm lẫn.
+
+
+
+
+
+## Log #11
+- **Ngày:** 2026-06-18
+- **Người thực hiện:** Phạm Nguyễn Tiến Đạt
+- **Công cụ AI:** Antigravity (Gemini)
+- **Mục đích:** Đồng bộ hóa ngôn ngữ (Việt hoá toàn hệ thống), dọn dẹp ngữ cảnh nghiệp vụ (chỉ giữ Pickleball/Cầu lông), tái cấu trúc (Refactor) giao dịch Backend và xử lý xung đột Git/Push Protection.
+- **Tham chiếu Prompt:** *"cách danh từ riêng thì giữ nguyên"*, *"loại bỏ các thành phần thuộc các môn thể thao khác ra khỏi prj"*, *"cho phần front end về lại lục vừa việt hoá xong"*, *"lưu các phần mới cập nhật vào CodeGraph"*, *"DE190147/audit-module push code mới lên nhánh của tôi"*.
+
+### Tóm tắt kết quả AI
+- **Frontend (Localization & Domain Sanitization):** Viết và thực thi hàng loạt script NodeJS ngầm (`auto-translate-all.js`, `remove-sports.js`) để quét, dịch và thay thế chuỗi tự động cho 40+ trang UI. Loại bỏ triệt để các hình ảnh và từ khóa của các môn thể thao ngoài luồng (Basketball, Tennis, Golf, Padel) và thay thế bằng dữ liệu giả lập về Pickleball/Cầu lông.
+- **Backend (Transaction & Magic Strings):** Refactor `EscrowService.cs` bằng cách áp dụng `IDbContextTransaction` với mức cô lập (Isolation Level) `Serializable` để chống lỗi Data Race khi thao tác song song vào ví tiền. Xóa bỏ hoàn toàn "magic strings" tại `BookingService` và `MatchService`. Khởi tạo Migration mới (`AddPaymentDeadline`).
+- **Giải quyết Conflict (Code Merge):** Nhận diện cú pháp đánh dấu xung đột (`<<<<<<<`, `=======`) của Git tại file `GearRentalPage.jsx` và tự động hợp nhất (merge) code: giữ lại cột "Deposit" mới từ nhánh `main` và ngôn ngữ Tiếng Việt của nhánh hiện tại.
+
+### Quyết định & Can thiệp của con người
+- **Chấp nhận:** Áp dụng toàn bộ kiến trúc giao dịch (Transaction) an toàn tại Backend và dữ liệu ngôn ngữ giao diện do AI sinh ra.
+- **Can thiệp kỹ thuật 1 (Rollback thiết kế thừa):** Khi AI tự động thay đổi style CSS sang "phong cách Nike" làm mất đi sự đồng bộ ban đầu, người dùng đã dứt khoát yêu cầu AI khôi phục (`git checkout`) giao diện về trạng thái nguyên bản lúc vừa dịch xong, loại bỏ hoàn toàn các thay đổi không cần thiết để giữ vững tính nhất quán của hệ thống.
+- **Can thiệp kỹ thuật 2 (Bypass GitHub Push Protection):** Quá trình push code (`git push`) lên Git/CodeGraph bị GitHub chặn đứng (Error GH013) do quét thấy một GCP API Key bị rò rỉ trong file script dịch thuật do AI tạo ra. Người dùng đã can thiệp thủ công bằng cách nhấp vào link bảo mật của GitHub để cấp quyền ngoại lệ (Allow Secret), giúp mã nguồn được push lên nhánh thành công.
+- **Can thiệp kỹ thuật 3 (Sửa lỗi Git Marker):** Phát hiện file `GearRentalPage.jsx` bị lỗi cú pháp do người dùng dán code nhưng quên xóa các dấu conflict marker của Git. Đã yêu cầu AI cung cấp lại toàn bộ file sạch sẽ để dán đè trực tiếp trên máy local.
+
+### Áp dụng cho
+- Hơn 40+ file `.jsx` tại thư mục `src/frontend/src/pages/`
+- `src/backend/ProSport.Application/Services/EscrowService.cs`
+- `src/backend/ProSport.Infrastructure/Migrations/20260617173327_AddPaymentDeadline`
+- Dòng chảy Git (Resolve conflict, Bypass Secret Scanning & Push branch `DE190147/audit-module`)
+
+### Kiểm chứng
+- Lệnh `git push` thực thi thành công, 63 file với hơn 2600 dòng code được đẩy lên CodeGraph/GitHub an toàn.
+- Giao diện render chính xác ngôn ngữ Tiếng Việt nhưng vẫn giữ lại các danh từ chuyên ngành cốt lõi (Dashboard, Gear, MatchPro).
+- Nội dung rác (Bóng rổ, Tennis) đã bị quét sạch 100% khỏi dự án.
+- Trang `GearRentalPage.jsx` hiển thị bảng dữ liệu chuẩn xác (tích hợp cột Tiền cọc), không còn lỗi syntax của Git.
