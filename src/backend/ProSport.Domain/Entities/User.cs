@@ -1,18 +1,38 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace ProSport.Domain.Entities;
 
+[Table("Users")]
 public class User : BaseEntity
 {
+    [Column("UserId")]
     public int UserId { get; set; }
+
+    [Column("FullName")]
     public string FullName { get; set; } = null!;
+
+    [Column("Email")]
     public string Email { get; set; } = null!;
+
+    [Column("PasswordHash")]
     public string? PasswordHash { get; set; }
+
+    [Column("PhoneNumber")]
     public string? PhoneNumber { get; set; }
+
+    [Column("Role")]
     public string Role { get; set; } = null!;
+
+    [Column("EKycStatus")]
     public string EKycStatus { get; set; } = null!;
+
+    [Column("AvatarUrl")]
     public string? AvatarUrl { get; set; }
 
-    // Auth specific fields
+    [Column("GoogleId")]
     public string? GoogleId { get; set; }
+
+    [Column("IsPhoneVerified")]
     public bool IsPhoneVerified { get; set; }
 
     // Navigation properties
