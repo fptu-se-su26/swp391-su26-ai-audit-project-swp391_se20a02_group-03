@@ -66,6 +66,7 @@ builder.Services.AddScoped<IBookingService, BookingService>();
 builder.Services.AddScoped<IMatchService, MatchService>();
 builder.Services.AddScoped<IEscrowService, EscrowService>();
 builder.Services.AddScoped<IVnPayService, VnPayService>();
+builder.Services.AddScoped<IStorageService, LocalStorageService>();
 
 // Configure Rate Limiting
 builder.Services.AddRateLimiter(options =>
@@ -116,6 +117,8 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 app.UseSwagger();
 app.UseSwaggerUI();
+
+app.UseStaticFiles(); // Added for LocalStorageService
 
 // app.UseHttpsRedirection(); // Disabled to avoid redirect issues
 
