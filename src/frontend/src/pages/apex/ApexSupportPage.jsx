@@ -32,7 +32,7 @@ export default function ApexSupportPage() {
           <p className="support-hero__sub">Search our FAQ or contact our team directly.</p>
           <div className="support-hero__search">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input type="text" placeholder="Search for help..." id="support-search" />
+            <input type="text" placeholder="Tìm kiếm for help..." id="support-search" />
           </div>
         </div>
 

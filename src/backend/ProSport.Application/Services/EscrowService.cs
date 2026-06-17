@@ -78,24 +78,27 @@ public class EscrowService : IEscrowService
     {
         try
         {
-            var wallet = await _escrowRepository.GetWalletByUserIdAsync(userId);
-            if (wallet == null) return new ApiResponseDto<bool>(404, "Ví không tồn tại", false);
-
-            wallet.Balance += amount;
-            var transaction = new Domain.Entities.Transaction
+            return await _escrowRepository.ExecuteInTransactionAsync(async () =>
             {
-                EscrowWalletId = wallet.EscrowWalletId,
-                Amount = amount,
-                Type = "Deposit",
-                Status = "Completed",
-                ReferenceId = referenceId,
-                Description = description
-            };
+                var wallet = await _escrowRepository.GetWalletByUserIdAsync(userId);
+                if (wallet == null) return new ApiResponseDto<bool>(404, "Ví không tồn tại", false);
 
-            await _escrowRepository.UpdateWalletAsync(wallet);
-            await _escrowRepository.AddTransactionAsync(transaction);
+                wallet.Balance += amount;
+                var transaction = new Domain.Entities.Transaction
+                {
+                    EscrowWalletId = wallet.EscrowWalletId,
+                    Amount = amount,
+                    Type = ProSport.Domain.Constants.TransactionType.Deposit,
+                    Status = ProSport.Domain.Constants.TransactionStatus.Completed,
+                    ReferenceId = referenceId,
+                    Description = description
+                };
 
-            return new ApiResponseDto<bool>(200, "Nạp tiền thành công", true);
+                await _escrowRepository.UpdateWalletAsync(wallet);
+                await _escrowRepository.AddTransactionAsync(transaction);
+                
+                return new ApiResponseDto<bool>(200, "Nạp tiền thành công", true);
+            });
         }
         catch (Exception ex)
         {
@@ -108,29 +111,32 @@ public class EscrowService : IEscrowService
     {
         try
         {
-            var wallet = await _escrowRepository.GetWalletByUserIdAsync(userId);
-            if (wallet == null) return new ApiResponseDto<bool>(404, "Ví không tồn tại", false);
-
-            if (wallet.Balance < amount)
-                return new ApiResponseDto<bool>(400, "Số dư không đủ để ký quỹ. Vui lòng nạp thêm tiền.", false);
-
-            wallet.Balance -= amount;
-            wallet.LockedBalance += amount;
-
-            var transaction = new Domain.Entities.Transaction
+            return await _escrowRepository.ExecuteInTransactionAsync(async () =>
             {
-                EscrowWalletId = wallet.EscrowWalletId,
-                MatchId = matchId,
-                Amount = amount,
-                Type = "EscrowLock",
-                Status = "Completed",
-                Description = description
-            };
+                var wallet = await _escrowRepository.GetWalletByUserIdAsync(userId);
+                if (wallet == null) return new ApiResponseDto<bool>(404, "Ví không tồn tại", false);
 
-            await _escrowRepository.UpdateWalletAsync(wallet);
-            await _escrowRepository.AddTransactionAsync(transaction);
+                if (wallet.Balance < amount)
+                    return new ApiResponseDto<bool>(400, "Số dư không đủ để ký quỹ. Vui lòng nạp thêm tiền.", false);
 
-            return new ApiResponseDto<bool>(200, "Khóa tiền ký quỹ thành công", true);
+                wallet.Balance -= amount;
+                wallet.LockedBalance += amount;
+
+                var transaction = new Domain.Entities.Transaction
+                {
+                    EscrowWalletId = wallet.EscrowWalletId,
+                    MatchId = matchId,
+                    Amount = amount,
+                    Type = ProSport.Domain.Constants.TransactionType.EscrowLock,
+                    Status = ProSport.Domain.Constants.TransactionStatus.Completed,
+                    Description = description
+                };
+
+                await _escrowRepository.UpdateWalletAsync(wallet);
+                await _escrowRepository.AddTransactionAsync(transaction);
+                
+                return new ApiResponseDto<bool>(200, "Khóa tiền ký quỹ thành công", true);
+            });
         }
         catch (Exception ex)
         {
@@ -143,29 +149,32 @@ public class EscrowService : IEscrowService
     {
         try
         {
-            var wallet = await _escrowRepository.GetWalletByUserIdAsync(userId);
-            if (wallet == null) return new ApiResponseDto<bool>(404, "Ví không tồn tại", false);
-
-            if (wallet.LockedBalance < amount)
-                return new ApiResponseDto<bool>(400, "Số tiền yêu cầu mở khóa vượt quá số dư đang bị khóa", false);
-
-            wallet.LockedBalance -= amount;
-            wallet.Balance += amount;
-
-            var transaction = new Domain.Entities.Transaction
+            return await _escrowRepository.ExecuteInTransactionAsync(async () =>
             {
-                EscrowWalletId = wallet.EscrowWalletId,
-                MatchId = matchId,
-                Amount = amount,
-                Type = "EscrowRelease",
-                Status = "Completed",
-                Description = description
-            };
+                var wallet = await _escrowRepository.GetWalletByUserIdAsync(userId);
+                if (wallet == null) return new ApiResponseDto<bool>(404, "Ví không tồn tại", false);
 
-            await _escrowRepository.UpdateWalletAsync(wallet);
-            await _escrowRepository.AddTransactionAsync(transaction);
+                if (wallet.LockedBalance < amount)
+                    return new ApiResponseDto<bool>(400, "Số tiền yêu cầu mở khóa vượt quá số dư đang bị khóa", false);
 
-            return new ApiResponseDto<bool>(200, "Mở khóa tiền ký quỹ thành công", true);
+                wallet.LockedBalance -= amount;
+                wallet.Balance += amount;
+
+                var transaction = new Domain.Entities.Transaction
+                {
+                    EscrowWalletId = wallet.EscrowWalletId,
+                    MatchId = matchId,
+                    Amount = amount,
+                    Type = ProSport.Domain.Constants.TransactionType.EscrowRelease,
+                    Status = ProSport.Domain.Constants.TransactionStatus.Completed,
+                    Description = description
+                };
+
+                await _escrowRepository.UpdateWalletAsync(wallet);
+                await _escrowRepository.AddTransactionAsync(transaction);
+                
+                return new ApiResponseDto<bool>(200, "Mở khóa tiền ký quỹ thành công", true);
+            });
         }
         catch (Exception ex)
         {
@@ -178,28 +187,31 @@ public class EscrowService : IEscrowService
     {
         try
         {
-            var wallet = await _escrowRepository.GetWalletByUserIdAsync(userId);
-            if (wallet == null) return new ApiResponseDto<bool>(404, "Ví không tồn tại", false);
-
-            if (wallet.LockedBalance < amount)
-                return new ApiResponseDto<bool>(400, "Số dư bị khóa không đủ để khấu trừ", false);
-
-            wallet.LockedBalance -= amount;
-
-            var transaction = new Domain.Entities.Transaction
+            return await _escrowRepository.ExecuteInTransactionAsync(async () =>
             {
-                EscrowWalletId = wallet.EscrowWalletId,
-                MatchId = matchId,
-                Amount = amount,
-                Type = "Payment", // Thường là trả tiền sân hoặc phạt bùng kèo
-                Status = "Completed",
-                Description = description
-            };
+                var wallet = await _escrowRepository.GetWalletByUserIdAsync(userId);
+                if (wallet == null) return new ApiResponseDto<bool>(404, "Ví không tồn tại", false);
 
-            await _escrowRepository.UpdateWalletAsync(wallet);
-            await _escrowRepository.AddTransactionAsync(transaction);
+                if (wallet.LockedBalance < amount)
+                    return new ApiResponseDto<bool>(400, "Số dư bị khóa không đủ để khấu trừ", false);
 
-            return new ApiResponseDto<bool>(200, "Khấu trừ tiền ký quỹ thành công", true);
+                wallet.LockedBalance -= amount;
+
+                var transaction = new Domain.Entities.Transaction
+                {
+                    EscrowWalletId = wallet.EscrowWalletId,
+                    MatchId = matchId,
+                    Amount = amount,
+                    Type = ProSport.Domain.Constants.TransactionType.Payment, // Thường là trả tiền sân hoặc phạt bùng kèo
+                    Status = ProSport.Domain.Constants.TransactionStatus.Completed,
+                    Description = description
+                };
+
+                await _escrowRepository.UpdateWalletAsync(wallet);
+                await _escrowRepository.AddTransactionAsync(transaction);
+                
+                return new ApiResponseDto<bool>(200, "Khấu trừ tiền ký quỹ thành công", true);
+            });
         }
         catch (Exception ex)
         {

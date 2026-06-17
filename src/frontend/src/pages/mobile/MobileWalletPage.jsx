@@ -132,7 +132,7 @@ export default function MobileWalletPage() {
         <div className="px-5 mb-6">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-sm font-bold text-slate-900">Recent Transactions</h3>
-            <span className="text-xs font-semibold text-[#008ba3] cursor-pointer">View All</span>
+            <span className="text-xs font-semibold text-[#008ba3] cursor-pointer">Xem tất cả</span>
           </div>
 
           <div className="flex flex-col gap-3">

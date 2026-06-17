@@ -136,4 +136,6 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+app.MapGet("/", () => "ProSport API is running. Go to /swagger to view the API documentation.");
+
 app.Run();

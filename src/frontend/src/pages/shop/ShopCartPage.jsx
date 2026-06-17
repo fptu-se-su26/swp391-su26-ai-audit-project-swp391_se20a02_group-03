@@ -67,7 +67,7 @@ export default function ShopCartPage() {
               <div className="flex justify-between text-[0.875rem] text-[#64748b]"><span>Estimated Tax</span><span>${tax.toFixed(2)}</span></div>
             </div>
             <div className="flex justify-between text-base font-bold text-[#0d2d3a] my-4">
-              <span>Total</span>
+              <span>Tổng cộng</span>
               <span className="text-[#0d8a8a] text-[1.15rem]">${total.toFixed(2)}</span>
             </div>
             <div className="mb-5">

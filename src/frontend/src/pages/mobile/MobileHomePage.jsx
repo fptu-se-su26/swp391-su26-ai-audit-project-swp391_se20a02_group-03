@@ -43,7 +43,7 @@ export default function MobileHomePage() {
           <section>
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-base font-bold tracking-tight text-slate-900">Active Groups</h3>
-              <span className="text-sm font-semibold text-slate-500 cursor-pointer hover:text-slate-900 transition-colors">View All</span>
+              <span className="text-sm font-semibold text-slate-500 cursor-pointer hover:text-slate-900 transition-colors">Xem tất cả</span>
             </div>
             
             <div className="flex flex-col gap-3">

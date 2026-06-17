@@ -299,7 +299,7 @@ export default function ApexBookingPage() {
                 <div className="timepicker__header">
                   <h2 className="timepicker__title">Select Time Slots</h2>
                   <div className="timepicker__date-row">
-                    <label>Date</label>
+                    <label>Ngày</label>
                     <input type="date" value={selectedDate} min={minDate}
                       onChange={e => { setSelectedDate(e.target.value); setSelectedSlots([]); }} className="timepicker__date-input" id="booking-date" />
                   </div>
@@ -343,14 +343,14 @@ export default function ApexBookingPage() {
                     <p className="booking-summary__type">{selectedCourt.type}</p>
                   </div>
                 </div>
-                <div className="booking-summary__row"><span>Date</span><strong>{selectedDate}</strong></div>
+                <div className="booking-summary__row"><span>Ngày</span><strong>{selectedDate}</strong></div>
                 <div className="booking-summary__row">
                   <span>Time Slots</span>
                   <strong>{selectedSlots.length > 0 ? selectedSlots.join(', ') : '—'}</strong>
                 </div>
                 <div className="booking-summary__row"><span>Duration</span><strong>{selectedSlots.length}h</strong></div>
                 <div className="booking-summary__divider" />
-                <div className="booking-summary__total"><span>Total</span><strong>{totalPrice.toLocaleString('vi-VN')} đ</strong></div>
+                <div className="booking-summary__total"><span>Tổng cộng</span><strong>{totalPrice.toLocaleString('vi-VN')} đ</strong></div>
                 <button className="btn-primary booking-summary__btn" disabled={selectedSlots.length === 0} onClick={() => setStep(3)}>
                   Continue →
                 </button>
@@ -366,9 +366,9 @@ export default function ApexBookingPage() {
             <div className="booking-confirm">
               <h2 className="booking-confirm__title">Confirm Your Booking</h2>
               <div className="booking-confirm__card">
-                <div className="booking-confirm__row"><span>Court</span><strong>{selectedCourt.icon} {selectedCourt.name}</strong></div>
-                <div className="booking-confirm__row"><span>Date</span><strong>{selectedDate}</strong></div>
-                <div className="booking-confirm__row"><span>Time</span><strong>{selectedSlots[0]} – {calculateEndTime(selectedSlots[selectedSlots.length - 1])}</strong></div>
+                <div className="booking-confirm__row"><span>Sân</span><strong>{selectedCourt.icon} {selectedCourt.name}</strong></div>
+                <div className="booking-confirm__row"><span>Ngày</span><strong>{selectedDate}</strong></div>
+                <div className="booking-confirm__row"><span>Thời gian</span><strong>{selectedSlots[0]} – {calculateEndTime(selectedSlots[selectedSlots.length - 1])}</strong></div>
                 <div className="booking-confirm__row"><span>Duration</span><strong>{selectedSlots.length} hour{selectedSlots.length > 1 ? 's' : ''}</strong></div>
                 <div className="booking-confirm__row"><span>Rate</span><strong>{selectedCourt.price.toLocaleString('vi-VN')} đ/hr</strong></div>
                 <div className="booking-confirm__divider" />

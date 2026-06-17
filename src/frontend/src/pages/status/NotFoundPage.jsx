@@ -16,9 +16,9 @@ export default function NotFoundPage() {
           </div>
           
           <h2 className="font-oswald text-[4rem] font-bold text-slate-900 leading-none mb-4">404</h2>
-          <h3 className="text-xl font-bold text-slate-700 mb-4 leading-relaxed">Page Not Found. Looks like you've wandered off the court.</h3>
+          <h3 className="text-xl font-bold text-slate-700 mb-4 leading-relaxed">Không tìm thấy trang. Có vẻ như bạn đã đi lạc khỏi sân đấu.</h3>
           <p className="text-[0.95rem] text-slate-500 leading-relaxed mb-8">
-            The strategic play you are looking for doesn't exist or has been moved to a different playbook. Let's get you back in the game.
+            Trang bạn đang tìm kiếm không tồn tại hoặc đã bị gỡ bỏ. Hãy để chúng tôi đưa bạn trở lại trận đấu.
           </p>
  
           <div className="flex justify-center gap-4 flex-col sm:flex-row">

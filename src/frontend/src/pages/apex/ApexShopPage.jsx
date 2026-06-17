@@ -136,9 +136,9 @@ export default function ApexShopPage() {
                     ))}
                   </div>
                   <div className="cart-panel__total">
-                    <span>Total</span><strong>${cartTotal.toFixed(2)}</strong>
+                    <span>Tổng cộng</span><strong>${cartTotal.toFixed(2)}</strong>
                   </div>
-                  <button className="btn-primary cart-panel__checkout">Checkout</button>
+                  <button className="btn-primary cart-panel__checkout">Thanh toán</button>
                 </>
               )}
             </div>

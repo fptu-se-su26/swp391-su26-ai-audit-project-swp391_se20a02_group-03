@@ -5,3 +5,8 @@ obj/
 ## User-specific
 *.user
 .vs/
+
+## Local secrets — NEVER commit these
+appsettings.Development.json
+appsettings.*.json
+

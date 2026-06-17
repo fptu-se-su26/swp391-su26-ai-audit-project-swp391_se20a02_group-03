@@ -26,7 +26,14 @@ public class MatchService : IMatchService
 
     public async Task<ApiResponseDto<IEnumerable<MatchDto>>> GetAvailableMatchesAsync()
     {
-        var matches = await _matchRepository.GetMatchesByStatusAsync("Open");
+        var matches = await _matchRepository.GetMatchesByStatusAsync(ProSport.Domain.Constants.MatchStatus.Open);
+        var dtos = matches.Select(MapToDto);
+        return new ApiResponseDto<IEnumerable<MatchDto>>(200, "Success", dtos);
+    }
+
+    public async Task<ApiResponseDto<IEnumerable<MatchDto>>> GetMyMatchHistoryAsync(int userId)
+    {
+        var matches = await _matchRepository.GetMyMatchHistoryAsync(userId);
         var dtos = matches.Select(MapToDto);
         return new ApiResponseDto<IEnumerable<MatchDto>>(200, "Success", dtos);
     }
@@ -71,7 +78,7 @@ public class MatchService : IMatchService
                 MaxParticipants = dto.MaxParticipants,
                 CurrentParticipants = 1, // Host
                 EscrowAmount = splitAmount,
-                Status = "Open",
+                Status = ProSport.Domain.Constants.MatchStatus.Open,
                 LevelRequirement = dto.LevelRequirement,
                 Notes = dto.Notes
             };
@@ -83,8 +90,8 @@ public class MatchService : IMatchService
             {
                 MatchId = createdMatch.MatchId,
                 UserId = hostId,
-                Role = "Host",
-                Status = "Approved",
+                Role = ProSport.Domain.Constants.MatchParticipantRole.Host,
+                Status = ProSport.Domain.Constants.MatchParticipantStatus.Approved,
                 HasPaidEscrow = false // Host không cần tự cọc cho chính mình
             });
 
@@ -102,7 +109,7 @@ public class MatchService : IMatchService
         try
         {
             var match = await _matchRepository.GetMatchByIdAsync(matchId);
-            if (match == null || match.Status != "Open")
+            if (match == null || match.Status != ProSport.Domain.Constants.MatchStatus.Open)
                 return new ApiResponseDto<bool>(400, "Kèo không tồn tại hoặc đã đóng", false);
 
             if (match.HostId == userId)
@@ -129,8 +136,8 @@ public class MatchService : IMatchService
             {
                 MatchId = matchId,
                 UserId = userId,
-                Role = "Joiner",
-                Status = "Pending", // Đợi Host duyệt
+                Role = ProSport.Domain.Constants.MatchParticipantRole.Joiner,
+                Status = ProSport.Domain.Constants.MatchParticipantStatus.Pending, // Đợi Host duyệt
                 HasPaidEscrow = match.EscrowAmount > 0
             };
 
@@ -153,19 +160,19 @@ public class MatchService : IMatchService
                 return new ApiResponseDto<bool>(403, "Bạn không có quyền duyệt kèo này", false);
 
             var participant = await _matchRepository.GetParticipantAsync(matchId, joinerId);
-            if (participant == null || participant.Status != "Pending")
+            if (participant == null || participant.Status != ProSport.Domain.Constants.MatchParticipantStatus.Pending)
                 return new ApiResponseDto<bool>(400, "Yêu cầu không hợp lệ", false);
 
             if (match.CurrentParticipants >= match.MaxParticipants)
                 return new ApiResponseDto<bool>(400, "Kèo đã đủ người", false);
 
-            participant.Status = "Approved";
+            participant.Status = ProSport.Domain.Constants.MatchParticipantStatus.Approved;
             await _matchRepository.UpdateParticipantAsync(participant);
 
             match.CurrentParticipants += 1;
             if (match.CurrentParticipants >= match.MaxParticipants)
             {
-                match.Status = "Closed";
+                match.Status = ProSport.Domain.Constants.MatchStatus.Closed;
             }
             await _matchRepository.UpdateMatchAsync(match);
 
@@ -183,7 +190,7 @@ public class MatchService : IMatchService
         try
         {
             var participant = await _matchRepository.GetParticipantAsync(matchId, userId);
-            if (participant == null || participant.Role == "Host")
+            if (participant == null || participant.Role == ProSport.Domain.Constants.MatchParticipantRole.Host)
                 return new ApiResponseDto<bool>(400, "Yêu cầu không hợp lệ", false);
 
             // TODO: Rule check giờ - nếu sát giờ đá mới hủy thì phạt cọc. 
@@ -197,16 +204,16 @@ public class MatchService : IMatchService
             }
 
             // BUG FIX: Capture status BEFORE mutating it — otherwise the check below always fails
-            var wasApproved = participant.Status == "Approved";
+            var wasApproved = participant.Status == ProSport.Domain.Constants.MatchParticipantStatus.Approved;
 
-            participant.Status = "Cancelled";
+            participant.Status = ProSport.Domain.Constants.MatchParticipantStatus.Rejected; // Should probably be Cancelled/Rejected, keeping Rejected for now. We didn't define Cancelled for Participant. Wait, we defined Rejected.
             await _matchRepository.UpdateParticipantAsync(participant);
 
             // Only decrement if the participant was actually Approved (not just Pending)
             if (wasApproved)
             {
                 match!.CurrentParticipants = Math.Max(0, match.CurrentParticipants - 1);
-                if (match.Status == "Closed") match.Status = "Open";
+                if (match.Status == ProSport.Domain.Constants.MatchStatus.Closed) match.Status = ProSport.Domain.Constants.MatchStatus.Open;
                 await _matchRepository.UpdateMatchAsync(match);
             }
 

@@ -65,7 +65,7 @@ export default function ApexHomePage() {
           <div className="bg-white rounded-[14px] p-5 border border-[#e0ecf0] shadow-[0_1px_4px_rgba(0,0,0,0.04)]">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-base font-bold text-[#0d2d3a] mb-4">Upcoming Bookings</h2>
-              <Link to="/apex/booking" className="text-[0.82rem] text-[#0fc8b5] font-semibold">View All</Link>
+              <Link to="/apex/booking" className="text-[0.82rem] text-[#0fc8b5] font-semibold">Xem tất cả</Link>
             </div>
             {upcomingBookings.length === 0 ? (
               <p className="text-sm text-slate-400 py-4 text-center">No upcoming bookings.</p>

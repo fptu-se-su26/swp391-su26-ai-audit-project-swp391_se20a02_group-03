@@ -368,27 +368,29 @@ public class BookingService : IBookingService
                 // Refund 80% vào ví Escrow
                 if (refundAmount > 0)
                 {
-                    var refundResult = await _escrowRepository.DepositToWalletAsync(
-                        booking.UserId, refundAmount);
+                    var refundResult = await _escrowRepository.ExecuteInTransactionAsync(async () =>
+                    {
+                        var wallet = await _escrowRepository.GetWalletByUserIdAsync(booking.UserId);
+                        if (wallet == null) return false;
+
+                        wallet.Balance += refundAmount;
+                        await _escrowRepository.UpdateWalletAsync(wallet);
+
+                        var transaction = new Transaction
+                        {
+                            EscrowWalletId = wallet.EscrowWalletId,
+                            BookingId = booking.BookingId,
+                            Amount = refundAmount,
+                            Type = TransactionType.Refund,
+                            Status = TransactionStatus.Completed,
+                            Description = $"Hoàn tiền hủy sân mã #{booking.BookingId} (trừ 20% phí phạt)"
+                        };
+                        await _escrowRepository.AddTransactionAsync(transaction);
+                        return true;
+                    });
 
                     if (refundResult)
                     {
-                        // Tạo transaction record cho refund
-                        var wallet = await _escrowRepository.GetWalletByUserIdAsync(booking.UserId);
-                        if (wallet != null)
-                        {
-                            var transaction = new Transaction
-                            {
-                                EscrowWalletId = wallet.EscrowWalletId,
-                                BookingId = booking.BookingId,
-                                Amount = refundAmount,
-                                Type = TransactionType.Refund,
-                                Status = TransactionStatus.Completed,
-                                Description = $"Hoàn tiền hủy sân mã #{booking.BookingId} (trừ 20% phí phạt)"
-                            };
-                            await _escrowRepository.AddTransactionAsync(transaction);
-                        }
-
                         booking.PaymentStatus = Domain.Constants.PaymentStatus.Refunded;
                     }
                     else

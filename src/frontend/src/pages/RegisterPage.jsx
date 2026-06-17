@@ -5,7 +5,7 @@ import PasswordStrengthMeter from '../components/PasswordStrengthMeter'
 import { useToast } from '../components/Toast'
 import authApi from '../api/authApi'
 
-const steps = ['Details', 'Preferences', 'Verify']
+const steps = ['Chi tiết', 'Sở thích', 'Xác thực']
 
 export default function RegisterPage() {
   const navigate = useNavigate()
@@ -36,27 +36,27 @@ export default function RegisterPage() {
     let errMsg = ""
     switch (name) {
       case 'fullName':
-        if (!value.trim()) errMsg = "Required field."
-        else if (!/^[a-zA-Z\sÀ-ỹ]+$/.test(value.trim())) errMsg = "No numbers or special chars allowed."
+        if (!value.trim()) errMsg = "Trường bắt buộc."
+        else if (!/^[a-zA-Z\sÀ-ỹ]+$/.test(value.trim())) errMsg = "Không chứa số hoặc ký tự đặc biệt."
         break;
       case 'phoneNumber':
-        if (value.trim() && !/(84|0[3|5|7|8|9])+([0-9]{8})\b/.test(value.trim())) errMsg = "Invalid VN phone number."
+        if (value.trim() && !/(84|0[3|5|7|8|9])+([0-9]{8})\b/.test(value.trim())) errMsg = "Số điện thoại VN không hợp lệ."
         break;
       case 'email':
-        if (!value.trim()) errMsg = "Required field."
-        else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim())) errMsg = "Please enter a valid email format."
+        if (!value.trim()) errMsg = "Trường bắt buộc."
+        else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim())) errMsg = "Vui lòng nhập đúng định dạng email."
         break;
       case 'password':
-        if (!value) errMsg = "Required field."
-        else if (!/^(?=.*[0-9]).{8,}$/.test(value)) errMsg = "Min 8 chars, at least 1 number."
+        if (!value) errMsg = "Trường bắt buộc."
+        else if (!/^(?=.*[0-9]).{8,}$/.test(value)) errMsg = "Tối thiểu 8 ký tự, ít nhất 1 số."
         if (confirmPassword && confirmPassword !== value) {
-          setFieldErrors(prev => ({ ...prev, confirmPassword: "Passwords do not match." }))
+          setFieldErrors(prev => ({ ...prev, confirmPassword: "Mật khẩu không khớp." }))
         } else if (confirmPassword) {
           setFieldErrors(prev => ({ ...prev, confirmPassword: "" }))
         }
         break;
       case 'confirmPassword':
-        if (value !== password) errMsg = "Passwords do not match."
+        if (value !== password) errMsg = "Mật khẩu không khớp."
         break;
       default:
         break;
@@ -81,7 +81,7 @@ export default function RegisterPage() {
     }
 
     if (!agreed) {
-      setError("You must agree to the Terms & Conditions.")
+      setError("Bạn phải đồng ý với Điều khoản & Điều kiện.")
       return false
     }
 
@@ -97,7 +97,7 @@ export default function RegisterPage() {
       setRegisteredUserId(response.data || 0)
       return true
     } catch (err) {
-      setError(typeof err === 'string' ? err : 'Registration failed. Email might already exist.')
+      setError(typeof err === 'string' ? err : 'Đăng ký thất bại. Email có thể đã tồn tại.')
       return false
     } finally {
       setLoading(false)
@@ -115,7 +115,7 @@ export default function RegisterPage() {
       })
       return true
     } catch (err) {
-      setError(typeof err === 'string' ? err : 'Invalid or expired OTP.')
+      setError(typeof err === 'string' ? err : 'OTP không hợp lệ hoặc đã hết hạn.')
       return false
     } finally {
       setLoading(false)
@@ -125,7 +125,7 @@ export default function RegisterPage() {
   const handleVerifyOtp = async () => {
     const otpCode = otp.join('')
     if (otpCode.length < 6) {
-      setError("Please enter the 6-digit OTP.")
+      setError("Vui lòng nhập 6 số OTP.")
       return false
     }
     return await handleVerifyOtpWithCode(otpCode)
@@ -136,9 +136,9 @@ export default function RegisterPage() {
     setLoading(true)
     try {
       await authApi.resendOtp({ email, type: 'Register' })
-      toast("A new OTP has been sent to your email.", 'info')
+      toast("Một OTP mới đã được gửi đến email của bạn.", 'info')
     } catch (err) {
-      setError(typeof err === 'string' ? err : 'Failed to resend OTP.')
+      setError(typeof err === 'string' ? err : 'Gửi lại OTP thất bại.')
     } finally {
       setLoading(false)
     }
@@ -158,10 +158,10 @@ export default function RegisterPage() {
           navigate('/')
         }
       } else {
-        setError('Google Login failed. Token not received.')
+        setError('Đăng nhập Google thất bại. Không nhận được token.')
       }
     } catch (err) {
-      setError(typeof err === 'string' ? err : 'Google Login failed.')
+      setError(typeof err === 'string' ? err : 'Đăng nhập Google thất bại.')
     } finally {
       setLoading(false)
     }
@@ -178,7 +178,7 @@ export default function RegisterPage() {
     } else if (step === 2) {
       const success = await handleVerifyOtp()
       if (success) {
-        toast('Account created successfully! Please login.', 'success')
+        toast('Tạo tài khoản thành công! Vui lòng đăng nhập.', 'success')
         navigate('/login')
       }
     }
@@ -199,7 +199,7 @@ export default function RegisterPage() {
     if (currentOtpCode.length === 6 && currentOtpCode.trim().length === 6) {
       const success = await handleVerifyOtpWithCode(currentOtpCode)
       if (success) {
-        toast('Account created successfully! Please login.', 'success')
+        toast('Tạo tài khoản thành công! Vui lòng đăng nhập.', 'success')
         navigate('/login')
       }
     }
@@ -226,7 +226,7 @@ export default function RegisterPage() {
       
       const success = await handleVerifyOtpWithCode(match[0])
       if (success) {
-        toast('Account created successfully! Please login.', 'success')
+        toast('Tạo tài khoản thành công! Vui lòng đăng nhập.', 'success')
         navigate('/login')
       }
     }
@@ -234,9 +234,9 @@ export default function RegisterPage() {
 
   /* ── Visual panel content per step ── */
   const visualContent = [
-    { title: 'JOIN THE\nELITE\nNETWORK.', subtitle: 'Create your account and start booking courts, connecting with players, and more.' },
-    { title: 'TELL US\nWHAT YOU\nPLAY.', subtitle: 'Help us personalize your experience with your sport preferences.' },
-    { title: 'ALMOST\nTHERE.', subtitle: 'Verify your email to activate your Pro-Sport account.' },
+    { title: 'THAM GIA\nMẠNG LƯỚI\nĐỈNH CAO.', subtitle: 'Tạo tài khoản và bắt đầu đặt sân, kết nối với người chơi và hơn thế nữa.' },
+    { title: 'BẠN CHƠI\nMÔN THỂ THAO\nNÀO.', subtitle: 'Giúp chúng tôi cá nhân hóa trải nghiệm theo sở thích thể thao của bạn.' },
+    { title: 'SẮP\nHOÀN THÀNH.', subtitle: 'Xác thực email để kích hoạt tài khoản Pro-Sport của bạn.' },
   ]
 
   return (
@@ -290,7 +290,7 @@ export default function RegisterPage() {
                 </div>
               ))}
               <span className="ml-3 text-xs font-medium text-brand-500 tracking-wider uppercase">
-                Step {step + 1} of {steps.length}
+                Bước {step + 1} / {steps.length}
               </span>
             </div>
           </div>
@@ -328,16 +328,16 @@ export default function RegisterPage() {
 
           {/* Header */}
           <header className="mb-8">
-            <p className="text-xs font-semibold tracking-[0.15em] uppercase text-accent mb-3">Create account</p>
+            <p className="text-xs font-semibold tracking-[0.15em] uppercase text-accent mb-3">Tạo tài khoản</p>
             <h1 className="font-heading text-[2rem] font-bold text-brand-900 tracking-tight leading-tight">
-              {step === 0 && <>Get started with<br />Pro-Sport</>}
-              {step === 1 && <>Choose your<br />sports</>}
-              {step === 2 && <>Verify your<br />email</>}
+              {step === 0 && <>Bắt đầu với<br />Pro-Sport</>}
+              {step === 1 && <>Chọn môn thể thao<br />của bạn</>}
+              {step === 2 && <>Xác thực email<br />của bạn</>}
             </h1>
             <p className="text-sm text-brand-500 mt-3 leading-relaxed">
-              {step === 0 && 'Fill in your details to create your athlete account.'}
-              {step === 1 && 'Select the sports you play to personalize your feed.'}
-              {step === 2 && `We sent a 6-digit code to ${email}`}
+              {step === 0 && 'Điền thông tin để tạo tài khoản vận động viên của bạn.'}
+              {step === 1 && 'Chọn các môn thể thao bạn chơi để cá nhân hóa bảng tin.'}
+              {step === 2 && `Chúng tôi đã gửi mã 6 số đến ${email}`}
             </p>
           </header>
 
@@ -345,14 +345,14 @@ export default function RegisterPage() {
           {error && error.includes('Email already exists') ? (
             <div className="bg-amber-50 p-4 rounded-xl border border-amber-200 mb-6 flex flex-col items-center text-center auth-animate-fade">
               <span className="text-amber-800 text-sm font-semibold mb-3">
-                This email is already registered.
+                Email này đã được đăng ký.
               </span>
               <div className="flex gap-3 w-full">
                 <Link to="/login" className="flex-1 py-2.5 text-sm font-semibold bg-white text-brand-700 border border-brand-200 rounded-xl text-center hover:bg-brand-50 transition-colors duration-200">
-                  Login Now
+                  Đăng nhập ngay
                 </Link>
                 <Link to="/reset-password" className="flex-1 py-2.5 text-sm font-semibold bg-amber-100 text-amber-800 rounded-xl text-center hover:bg-amber-200 transition-colors duration-200">
-                  Forgot Password?
+                  Quên mật khẩu?
                 </Link>
               </div>
             </div>
@@ -370,17 +370,17 @@ export default function RegisterPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   {/* Full Name */}
                   <div className="flex flex-col gap-2 relative">
-                    <label htmlFor="reg-name" className="text-sm font-semibold text-brand-900">Full Name</label>
+                    <label htmlFor="reg-name" className="text-sm font-semibold text-brand-900">Họ và Tên</label>
                     <div className="relative group">
                       <svg className={`absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none transition-colors duration-300 ${fieldErrors.fullName ? 'text-red-400' : 'text-brand-400 group-focus-within:text-accent'}`} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                      <input id="reg-name" name="fullName" type="text" value={fullName} onBlur={handleBlur} onChange={e => { setFullName(e.target.value); if (fieldErrors.fullName) validateField('fullName', e.target.value) }} required placeholder="John Doe" className={`auth-input pl-11 ${fieldErrors.fullName ? 'border-red-400 focus:border-red-500 focus:ring-red-400/20' : ''}`} />
+                      <input id="reg-name" name="fullName" type="text" value={fullName} onBlur={handleBlur} onChange={e => { setFullName(e.target.value); if (fieldErrors.fullName) validateField('fullName', e.target.value) }} required placeholder="Nguyễn Văn A" className={`auth-input pl-11 ${fieldErrors.fullName ? 'border-red-400 focus:border-red-500 focus:ring-red-400/20' : ''}`} />
                     </div>
                     {fieldErrors.fullName && <span className="text-xs text-red-500 font-medium">{fieldErrors.fullName}</span>}
                   </div>
 
                   {/* Phone */}
                   <div className="flex flex-col gap-2 relative">
-                    <label htmlFor="reg-phone" className="text-sm font-semibold text-brand-900">Phone Number</label>
+                    <label htmlFor="reg-phone" className="text-sm font-semibold text-brand-900">Số điện thoại</label>
                     <div className="relative group">
                       <svg className={`absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none transition-colors duration-300 ${fieldErrors.phoneNumber ? 'text-red-400' : 'text-brand-400 group-focus-within:text-accent'}`} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13.5 19.79 19.79 0 0 1 1.61 5 2 2 0 0 1 3.59 3h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 10.9a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 18z"/></svg>
                       <input id="reg-phone" name="phoneNumber" type="tel" value={phoneNumber} onBlur={handleBlur} onChange={e => { setPhoneNumber(e.target.value); if (fieldErrors.phoneNumber) validateField('phoneNumber', e.target.value) }} placeholder="+84 0000 0000" className={`auth-input pl-11 ${fieldErrors.phoneNumber ? 'border-red-400 focus:border-red-500 focus:ring-red-400/20' : ''}`} />
@@ -391,10 +391,10 @@ export default function RegisterPage() {
 
                 {/* Email */}
                 <div className="flex flex-col gap-2 relative">
-                  <label htmlFor="reg-email" className="text-sm font-semibold text-brand-900">Email Address</label>
+                  <label htmlFor="reg-email" className="text-sm font-semibold text-brand-900">Địa chỉ Email</label>
                   <div className="relative group">
                     <svg className={`absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none transition-colors duration-300 ${fieldErrors.email ? 'text-red-400' : 'text-brand-400 group-focus-within:text-accent'}`} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-                    <input id="reg-email" name="email" type="email" value={email} onBlur={handleBlur} onChange={e => { setEmail(e.target.value); if (fieldErrors.email) validateField('email', e.target.value) }} required placeholder="john.doe@example.com" className={`auth-input pl-11 ${fieldErrors.email ? 'border-red-400 focus:border-red-500 focus:ring-red-400/20' : ''}`} />
+                    <input id="reg-email" name="email" type="email" value={email} onBlur={handleBlur} onChange={e => { setEmail(e.target.value); if (fieldErrors.email) validateField('email', e.target.value) }} required placeholder="nguyenvana@example.com" className={`auth-input pl-11 ${fieldErrors.email ? 'border-red-400 focus:border-red-500 focus:ring-red-400/20' : ''}`} />
                   </div>
                   {fieldErrors.email && <span className="text-xs text-red-500 font-medium">{fieldErrors.email}</span>}
                 </div>
@@ -402,7 +402,7 @@ export default function RegisterPage() {
                 {/* Password + Confirm */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   <div className="flex flex-col gap-2 relative">
-                    <label htmlFor="reg-password" className="text-sm font-semibold text-brand-900">Password</label>
+                    <label htmlFor="reg-password" className="text-sm font-semibold text-brand-900">Mật khẩu</label>
                     <div className="relative group">
                       <svg className={`absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none transition-colors duration-300 ${fieldErrors.password ? 'text-red-400' : 'text-brand-400 group-focus-within:text-accent'}`} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                       <input id="reg-password" name="password" type={showPass ? 'text' : 'password'} value={password} onBlur={handleBlur} onChange={e => { setPassword(e.target.value); if (fieldErrors.password) validateField('password', e.target.value); if (confirmPassword) validateField('confirmPassword', confirmPassword) }} required placeholder="••••••••" className={`auth-input pl-11 pr-11 ${fieldErrors.password ? 'border-red-400 focus:border-red-500 focus:ring-red-400/20' : ''}`} />
@@ -418,7 +418,7 @@ export default function RegisterPage() {
                   </div>
 
                   <div className="flex flex-col gap-2 relative">
-                    <label htmlFor="reg-confirm" className="text-sm font-semibold text-brand-900">Confirm Password</label>
+                    <label htmlFor="reg-confirm" className="text-sm font-semibold text-brand-900">Xác nhận mật khẩu</label>
                     <div className="relative group">
                       <svg className={`absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none transition-colors duration-300 ${fieldErrors.confirmPassword ? 'text-red-400' : 'text-brand-400 group-focus-within:text-accent'}`} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                       <input id="reg-confirm" name="confirmPassword" type={showConfirm ? 'text' : 'password'} value={confirmPassword} onBlur={handleBlur} onChange={e => { setConfirmPassword(e.target.value); if (fieldErrors.confirmPassword) validateField('confirmPassword', e.target.value) }} required placeholder="••••••••" className={`auth-input pl-11 pr-11 ${fieldErrors.confirmPassword ? 'border-red-400 focus:border-red-500 focus:ring-red-400/20' : ''}`} />
@@ -439,7 +439,7 @@ export default function RegisterPage() {
                   <span className={`w-[18px] h-[18px] border-[1.5px] rounded flex items-center justify-center transition-all duration-200 shrink-0 mt-0.5 ${agreed ? 'bg-accent border-accent' : 'border-brand-300 group-hover:border-accent'}`}>
                     {agreed && <span className="w-2 h-1.5 border-l-2 border-b-2 border-white -rotate-45 -translate-y-px" />}
                   </span>
-                  <span className="leading-relaxed">I agree to the <Link to="#" className="text-accent font-semibold hover:underline">Terms &amp; Conditions</Link> and our <Link to="#" className="text-accent font-semibold hover:underline">Privacy Policy</Link></span>
+                  <span className="leading-relaxed">Tôi đồng ý với <Link to="#" className="text-accent font-semibold hover:underline">Điều khoản &amp; Điều kiện</Link> và <Link to="#" className="text-accent font-semibold hover:underline">Chính sách bảo mật</Link></span>
                 </label>
               </div>
             )}
@@ -447,7 +447,7 @@ export default function RegisterPage() {
             {/* ── Step 1: Preferences ── */}
             {step === 1 && (
               <div className="flex flex-col gap-4 auth-animate-slide" key="step-1">
-                <p className="text-sm font-semibold text-brand-900 mb-1">Select your sport preferences</p>
+                <p className="text-sm font-semibold text-brand-900 mb-1">Chọn sở thích thể thao của bạn</p>
                 {['Cầu lông', 'Pickleball'].map(sport => (
                   <label key={sport} className={`group flex items-center gap-4 cursor-pointer p-5 border rounded-xl transition-all duration-300 ${sportPreferences.includes(sport) ? 'bg-accent/5 border-accent text-accent shadow-sm' : 'bg-brand-50/50 border-brand-200/70 text-brand-700 hover:border-brand-300 hover:bg-white hover:-translate-y-px hover:shadow-sm'}`}>
                     <input 
@@ -473,7 +473,7 @@ export default function RegisterPage() {
                     <div className="flex-1">
                       <span className="font-semibold text-sm">{sport}</span>
                       <p className={`text-xs mt-0.5 ${sportPreferences.includes(sport) ? 'text-accent/70' : 'text-brand-400'}`}>
-                        {sport === 'Cầu lông' ? 'Badminton courts & matches' : 'Pickleball courts & community'}
+                        {sport === 'Cầu lông' ? 'Sân cầu lông & các trận đấu' : 'Sân Pickleball & cộng đồng'}
                       </p>
                     </div>
                     <span className={`w-5 h-5 border-[1.5px] rounded flex items-center justify-center transition-all duration-200 shrink-0 ${sportPreferences.includes(sport) ? 'bg-accent border-accent' : 'border-brand-300'}`}>
@@ -491,7 +491,7 @@ export default function RegisterPage() {
                 <div className="w-16 h-16 rounded-2xl bg-accent/10 flex items-center justify-center text-accent">
                   <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
                 </div>
-                <p className="text-sm text-brand-600 font-medium text-center">Enter the verification code sent to<br /><span className="font-semibold text-brand-900">{email}</span></p>
+                <p className="text-sm text-brand-600 font-medium text-center">Nhập mã xác thực đã được gửi đến<br /><span className="font-semibold text-brand-900">{email}</span></p>
                 <div className="flex gap-2.5">
                   {[0,1,2,3,4,5].map(i => (
                     <input 
@@ -520,7 +520,7 @@ export default function RegisterPage() {
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-              ) : step < steps.length - 1 ? 'Continue' : 'Create Account'}
+              ) : step < steps.length - 1 ? 'Continue' : 'Tạo tài khoản'}
             </button>
 
             {step === 1 && (
@@ -536,7 +536,7 @@ export default function RegisterPage() {
 
           {step === 2 && (
             <button onClick={handleResendOtp} disabled={loading} className="mt-6 text-sm font-semibold text-brand-500 hover:text-accent transition-colors duration-200 self-center">
-              Didn't receive the code? <span className="text-accent">Resend OTP</span>
+              Không nhận được mã? <span className="text-accent">Gửi lại OTP</span>
             </button>
           )}
 
@@ -545,7 +545,7 @@ export default function RegisterPage() {
               {/* Divider */}
               <div className="flex items-center gap-4 w-full my-6">
                 <div className="flex-1 h-px bg-brand-200" />
-                <span className="text-xs font-medium text-brand-400 tracking-wider uppercase">or</span>
+                <span className="text-xs font-medium text-brand-400 tracking-wider uppercase">hoặc</span>
                 <div className="flex-1 h-px bg-brand-200" />
               </div>
 
@@ -562,8 +562,8 @@ export default function RegisterPage() {
               </div>
 
               <p className="text-sm text-brand-500 text-center">
-                Already have an account?{' '}
-                <Link to="/login" className="text-accent font-semibold hover:text-accent-hover transition-colors duration-200">Sign in</Link>
+                Đã có tài khoản?{' '}
+                <Link to="/login" className="text-accent font-semibold hover:text-accent-hover transition-colors duration-200">Đăng nhập</Link>
               </p>
             </div>
           )}

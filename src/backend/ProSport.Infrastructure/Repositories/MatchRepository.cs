@@ -22,6 +22,15 @@ public class MatchRepository : IMatchRepository
             .ToListAsync();
     }
 
+    public async Task<IEnumerable<Match>> GetMyMatchHistoryAsync(int userId)
+    {
+        return await _context.Matches
+            .Include(m => m.Participants)
+            .Where(m => m.Participants.Any(p => p.UserId == userId))
+            .OrderByDescending(m => m.MatchDate).ThenByDescending(m => m.StartTime)
+            .ToListAsync();
+    }
+
     public async Task<Match?> GetMatchByIdAsync(int matchId)
     {
         return await _context.Matches
