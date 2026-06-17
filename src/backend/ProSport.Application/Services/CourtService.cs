@@ -116,4 +116,34 @@ public class CourtService : ICourtService
             return new ApiResponseDto<IEnumerable<string>>(500, "An unexpected error occurred.");
         }
     }
+    // UPDATE - modify existing court (admin only)
+    public async Task<ApiResponseDto<CourtDto>> UpdateCourtAsync(int id, UpdateCourtDto dto)
+    {
+        var court = await _courtRepository.GetByIdAsync(id);
+        if (court == null || court.IsDeleted)
+            return new ApiResponseDto<CourtDto>(404, "Court not found");
+
+        // Apply updates if provided
+        if (dto.Name != null) court.Name = dto.Name;
+        if (dto.CourtTypeId.HasValue) court.CourtTypeId = dto.CourtTypeId.Value;
+        if (dto.ImageUrl != null) court.ImageUrl = dto.ImageUrl;
+        if (dto.Description != null) court.Description = dto.Description;
+        if (dto.Status != null) court.Status = dto.Status;
+
+        await _courtRepository.UpdateAsync(court);
+        var updatedDto = MapToDto(court);
+        return new ApiResponseDto<CourtDto>(200, "Court updated", updatedDto);
+    }
+
+    // DELETE - soft delete court (admin only)
+    public async Task<ApiResponseDto<object>> DeleteCourtAsync(int id)
+    {
+        var court = await _courtRepository.GetByIdAsync(id);
+        if (court == null || court.IsDeleted)
+            return new ApiResponseDto<object>(404, "Court not found");
+
+        court.IsDeleted = true;
+        await _courtRepository.UpdateAsync(court);
+        return new ApiResponseDto<object>(200, "Court deleted");
+    }
 }
