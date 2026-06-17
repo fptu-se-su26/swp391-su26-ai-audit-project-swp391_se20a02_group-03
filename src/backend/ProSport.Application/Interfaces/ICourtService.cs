@@ -12,4 +12,9 @@ public interface ICourtService
     Task<ApiResponseDto<CourtDto>> UpdateCourtAsync(int id, UpdateCourtDto dto);
     Task<ApiResponseDto<IEnumerable<string>>> GetBookedSlotsAsync(int courtId, DateTime date);
     Task<ApiResponseDto<object>> DeleteCourtAsync(int id);
+    
+    // Pricing Rules
+    Task<ApiResponseDto<IEnumerable<PricingRuleDto>>> GetPricingRulesAsync(int courtId);
+    Task<ApiResponseDto<PricingRuleDto>> CreatePricingRuleAsync(int courtId, CreatePricingRuleDto dto);
+    Task<ApiResponseDto<object>> DeletePricingRuleAsync(int courtId, int ruleId);
 }

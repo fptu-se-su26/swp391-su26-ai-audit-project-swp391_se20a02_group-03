@@ -120,4 +120,31 @@ public class CourtRepository : ICourtRepository
                          && (bd.Booking.Status == "Pending" || bd.Booking.Status == "Paid") 
                          && bd.BookingDate.Date >= now.Date);
     }
+
+    // Pricing Rules
+    public async Task<IEnumerable<PricingRule>> GetPricingRulesByCourtIdAsync(int courtId)
+    {
+        return await _context.PricingRules
+            .Where(p => p.CourtId == courtId)
+            .ToListAsync();
+    }
+
+    public async Task<PricingRule?> GetPricingRuleByIdAsync(int ruleId)
+    {
+        return await _context.PricingRules
+            .FirstOrDefaultAsync(p => p.PricingRuleId == ruleId);
+    }
+
+    public async Task<PricingRule> AddPricingRuleAsync(PricingRule rule)
+    {
+        _context.PricingRules.Add(rule);
+        await _context.SaveChangesAsync();
+        return rule;
+    }
+
+    public async Task DeletePricingRuleAsync(PricingRule rule)
+    {
+        _context.PricingRules.Remove(rule);
+        await _context.SaveChangesAsync();
+    }
 }

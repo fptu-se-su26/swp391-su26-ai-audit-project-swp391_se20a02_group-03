@@ -74,4 +74,31 @@ public class CourtController : ControllerBase
         var response = await _courtService.DeleteCourtAsync(id);
         return StatusCode(response.StatusCode, response);
     }
+
+    // ==========================================
+    // PRICING RULES
+    // ==========================================
+
+    [HttpGet("{id}/pricing-rules")]
+    public async Task<IActionResult> GetPricingRules(int id)
+    {
+        var response = await _courtService.GetPricingRulesAsync(id);
+        return StatusCode(response.StatusCode, response);
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpPost("{id}/pricing-rules")]
+    public async Task<IActionResult> CreatePricingRule(int id, [FromBody] CreatePricingRuleDto dto)
+    {
+        var response = await _courtService.CreatePricingRuleAsync(id, dto);
+        return StatusCode(response.StatusCode, response);
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpDelete("{id}/pricing-rules/{ruleId}")]
+    public async Task<IActionResult> DeletePricingRule(int id, int ruleId)
+    {
+        var response = await _courtService.DeletePricingRuleAsync(id, ruleId);
+        return StatusCode(response.StatusCode, response);
+    }
 }

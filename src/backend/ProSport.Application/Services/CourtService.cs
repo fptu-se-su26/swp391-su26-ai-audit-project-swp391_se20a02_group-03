@@ -161,4 +161,79 @@ public class CourtService : ICourtService
         await _courtRepository.UpdateAsync(court);
         return new ApiResponseDto<object>(200, "Court deleted");
     }
+
+    // ==========================================
+    // PRICING RULES
+    // ==========================================
+
+    public async Task<ApiResponseDto<IEnumerable<PricingRuleDto>>> GetPricingRulesAsync(int courtId)
+    {
+        var rules = await _courtRepository.GetPricingRulesByCourtIdAsync(courtId);
+        var dtos = rules.Select(MapToPricingRuleDto);
+        return new ApiResponseDto<IEnumerable<PricingRuleDto>>(200, "Success", dtos);
+    }
+
+    public async Task<ApiResponseDto<PricingRuleDto>> CreatePricingRuleAsync(int courtId, CreatePricingRuleDto dto)
+    {
+        var court = await _courtRepository.GetByIdAsync(courtId);
+        if (court == null || court.IsDeleted)
+        {
+            return new ApiResponseDto<PricingRuleDto>(404, "Court not found");
+        }
+
+        var existingRules = await _courtRepository.GetPricingRulesByCourtIdAsync(courtId);
+
+        // Check time overlap
+        foreach (var rule in existingRules)
+        {
+            bool isDayOverlap = dto.DayOfWeek == null || rule.DayOfWeek == null || dto.DayOfWeek == rule.DayOfWeek;
+            if (isDayOverlap)
+            {
+                bool isTimeOverlap = !(dto.EndTime <= rule.StartTime || dto.StartTime >= rule.EndTime);
+                if (isTimeOverlap)
+                {
+                    return new ApiResponseDto<PricingRuleDto>(400, "Khung giờ này đã bị trùng lặp với một mức giá khác.");
+                }
+            }
+        }
+
+        var newRule = new PricingRule
+        {
+            CourtId = courtId,
+            StartTime = dto.StartTime,
+            EndTime = dto.EndTime,
+            PricePerHour = dto.PricePerHour,
+            IsWeekend = dto.IsWeekend,
+            DayOfWeek = dto.DayOfWeek
+        };
+
+        var createdRule = await _courtRepository.AddPricingRuleAsync(newRule);
+        return new ApiResponseDto<PricingRuleDto>(201, "Pricing rule created", MapToPricingRuleDto(createdRule));
+    }
+
+    public async Task<ApiResponseDto<object>> DeletePricingRuleAsync(int courtId, int ruleId)
+    {
+        var rule = await _courtRepository.GetPricingRuleByIdAsync(ruleId);
+        if (rule == null || rule.CourtId != courtId)
+        {
+            return new ApiResponseDto<object>(404, "Pricing rule not found");
+        }
+
+        await _courtRepository.DeletePricingRuleAsync(rule);
+        return new ApiResponseDto<object>(200, "Pricing rule deleted");
+    }
+
+    private static PricingRuleDto MapToPricingRuleDto(PricingRule rule)
+    {
+        return new PricingRuleDto
+        {
+            PricingRuleId = rule.PricingRuleId,
+            CourtId = rule.CourtId,
+            StartTime = rule.StartTime,
+            EndTime = rule.EndTime,
+            PricePerHour = rule.PricePerHour,
+            IsWeekend = rule.IsWeekend,
+            DayOfWeek = rule.DayOfWeek
+        };
+    }
 }
