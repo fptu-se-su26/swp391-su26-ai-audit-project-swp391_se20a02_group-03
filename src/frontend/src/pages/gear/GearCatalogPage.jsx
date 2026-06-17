@@ -1,23 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import GearLayout from '../../layouts/GearLayout'
-
-const products = [
-  { id: 1,  name: 'Wilson Pro Staff RF97',      sport: 'Badminton',  itemType: 'Racket',      badge: 'NEW',     price: 15, priceLabel: '$15/hr',  deposit: '$50', img: 'https://images.unsplash.com/photo-1617083934551-1af7da84de49?w=400&q=80', type: 'rental' },
-  { id: 2,  name: 'Babolat Technical Viper',    sport: 'Pickleball', itemType: 'Racket',      badge: 'PREMIUM', price: 18, priceLabel: '$18/hr',  deposit: '$60', img: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&q=80', type: 'rental' },
-  { id: 3,  name: 'Yonex Astrox 100 ZZ',       sport: 'Badminton',  itemType: 'Racket',      badge: 'PREMIUM', price: 20, priceLabel: '$20/hr',  deposit: '$80', img: 'https://images.unsplash.com/photo-1617083934551-1af7da84de49?w=400&q=80', type: 'rental' },
-  { id: 4,  name: 'Pickleball Paddle Pro Set',  sport: 'Pickleball', itemType: 'Racket',      badge: 'NEW',     price: 20, priceLabel: '$20/hr',  deposit: '$70', img: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&q=80', type: 'rental' },
-  { id: 5,  name: 'Mavis 350 Shuttlecock',      sport: 'Badminton',  itemType: 'Ball / Birdie', badge: 'DEMO',  price: 5,  priceLabel: '$5/tube', deposit: null,  img: 'https://images.unsplash.com/photo-1612452040814-e42b8f2da8ea?w=400&q=80', type: 'purchase', stock: 'Available' },
-  { id: 6,  name: 'Pickleball Ball Set (6)',     sport: 'Pickleball', itemType: 'Ball / Birdie', badge: null,   price: 4,  priceLabel: '$4/set',  deposit: null,  img: 'https://images.unsplash.com/photo-1612452040814-e42b8f2da8ea?w=400&q=80', type: 'purchase', stock: 'Available' },
-  { id: 7,  name: 'Nike Court Lite 3',          sport: 'Badminton',  itemType: 'Footwear',    badge: 'NEW',     price: 10, priceLabel: '$10/hr',  deposit: '$40', img: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&q=80', type: 'rental' },
-  { id: 8,  name: 'K-Swiss Express Light',       sport: 'Pickleball', itemType: 'Footwear',    badge: 'PREMIUM', price: 12, priceLabel: '$12/hr',  deposit: '$45', img: 'https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=400&q=80', type: 'rental' },
-  { id: 9,  name: 'Dry-Fit Badminton Polo',     sport: 'Badminton',  itemType: 'Apparel',     badge: 'NEW',     price: 5,  priceLabel: '$5/hr',   deposit: '$15', img: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&q=80', type: 'rental' },
-  { id: 10, name: 'Pickleball Sport Shorts',    sport: 'Pickleball', itemType: 'Apparel',     badge: null,      price: 4,  priceLabel: '$4/hr',   deposit: '$10', img: 'https://images.unsplash.com/photo-1506629082955-511b1aa562c8?w=400&q=80', type: 'rental' },
-  { id: 11, name: 'Elbow Support Sleeve',        sport: 'Badminton',  itemType: 'Protection',  badge: 'NEW',     price: 3,  priceLabel: '$3/hr',   deposit: '$10', img: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&q=80', type: 'rental' },
-  { id: 12, name: 'Wrist Guard Pro',             sport: 'Pickleball', itemType: 'Protection',  badge: null,      price: 3,  priceLabel: '$3/hr',   deposit: '$10', img: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&q=80', type: 'rental' },
-  { id: 13, name: 'Racket Bag Yonex',            sport: 'Badminton',  itemType: 'Accessories', badge: null,      price: 5,  priceLabel: '$5/hr',   deposit: '$20', img: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400&q=80', type: 'rental' },
-  { id: 14, name: 'Pickleball Carry Bag',        sport: 'Pickleball', itemType: 'Accessories', badge: 'NEW',     price: 4,  priceLabel: '$4/hr',   deposit: '$15', img: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400&q=80', type: 'rental' },
-]
+import { equipmentApi } from '../../api/equipmentApi'
 
 const itemTypeIcons = {
   'Racket':       '🏸',
@@ -45,6 +29,8 @@ const DEFAULT_PRICE_MIN = ''
 const DEFAULT_PRICE_MAX = ''
 
 export default function GearCatalogPage() {
+  const [products, setProducts] = useState([])
+  const [loading, setLoading] = useState(true)
   const [selectedSports,  setSelectedSports]  = useState(DEFAULT_SPORTS)
   const [selectedItems,   setSelectedItems]   = useState(DEFAULT_ITEMS)
   const [selectedConds,   setSelectedConds]   = useState(DEFAULT_CONDS)
@@ -53,6 +39,43 @@ export default function GearCatalogPage() {
   const [viewMode,        setViewMode]        = useState('grid') // 'grid' | 'list'
   const [sort,            setSort]            = useState('recommended')
   const [applied,         setApplied]         = useState({ sports: DEFAULT_SPORTS, items: DEFAULT_ITEMS, conds: DEFAULT_CONDS, min: '', max: '' })
+
+  useEffect(() => {
+    fetchProducts()
+  }, [])
+
+  const fetchProducts = async () => {
+    try {
+      setLoading(true)
+      const response = await equipmentApi.getAll()
+      console.log('API Response:', response) // Debug log as requested
+      
+      if (response.statusCode === 200) {
+        // Map backend fields to frontend expected fields
+        const mappedData = response.data.map(p => ({
+          id: p.equipmentId,
+          name: p.name,
+          sport: p.type,
+          itemType: p.category || 'Accessories',
+          badge: p.rentalPrice > 40000 ? 'PREMIUM' : 'NEW',
+          price: p.rentalPrice,
+          surchargePrice: p.rentalPrice * 1.3,
+          priceLabel: `${p.rentalPrice.toLocaleString()} VND`,
+          surchargePriceLabel: `${(p.rentalPrice * 1.3).toLocaleString()} VND`,
+          deposit: '500,000 VND',
+          img: p.imageUrl || 'https://images.unsplash.com/photo-1617083934551-1af7da84de49?w=400&q=80',
+          type: 'rental',
+          availableQuantity: p.availableQuantity,
+          stock: `In Stock: ${p.availableQuantity}`
+        }))
+        setProducts(mappedData)
+      }
+    } catch (error) {
+      console.error('Error fetching equipment:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const toggle = (arr, setArr, val) =>
     setArr(arr.includes(val) ? arr.filter(x => x !== val) : [...arr, val])
@@ -270,14 +293,14 @@ export default function GearCatalogPage() {
                       <span className="text-xs font-semibold bg-brand-50 text-brand-600 rounded-md px-2 py-1">{itemTypeIcons[p.itemType]} {p.itemType}</span>
                     </div>
                     <h3 className="font-heading text-lg font-bold text-brand-900 leading-tight mb-4 group-hover:text-accent transition-colors">{p.name}</h3>
-                    <div className="mt-auto flex items-end justify-between border-t border-brand-100 pt-4">
-                      <div>
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-brand-400 mb-1">{p.type === 'rental' ? 'Rent' : 'Buy'}</p>
-                        <p className="text-xl font-bold text-brand-900">{p.priceLabel}</p>
+                    <div className="mt-auto flex flex-col gap-3 border-t border-brand-100 pt-4">
+                      <div className="flex justify-between items-center">
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-brand-400">Có đặt sân</span>
+                        <span className="text-sm font-bold text-brand-900">{p.priceLabel}</span>
                       </div>
-                      <div className="flex flex-col items-end gap-1.5">
-                        {p.deposit && <span className="text-xs font-medium text-brand-500">Dep: {p.deposit}</span>}
-                        {p.stock && <span className="text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-md px-2 py-0.5">{p.stock}</span>}
+                      <div className="flex justify-between items-center">
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-brand-400">Không đặt sân</span>
+                        <span className="text-sm font-bold text-amber-600">{p.surchargePriceLabel}</span>
                       </div>
                     </div>
                   </div>

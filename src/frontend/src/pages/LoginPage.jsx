@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { GoogleLogin } from '@react-oauth/google'
 import { useToast } from '../components/Toast'
 import authApi from '../api/authApi'
-
+import { useAuth } from '../context/AuthContext'
 export default function LoginPage() {
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
@@ -31,6 +31,7 @@ export default function LoginPage() {
   }, [])
 
   const toast = useToast()
+  const { login } = useAuth()
 
   const handleLogin = async (e) => {
     e.preventDefault()
@@ -51,17 +52,20 @@ export default function LoginPage() {
       const response = await authApi.login({ email, password })
       const token = response.data?.accessToken || response.accessToken || response.data?.token || response.token
       if (token) {
-        if (remember) {
-          localStorage.setItem('token', token)
-        } else {
-          sessionStorage.setItem('token', token)
-        }
-        setFailedAttempts(0)
-        if (response.data?.isProfileComplete === false) {
-          navigate('/complete-profile')
-        } else {
-          navigate('/')
-        }
+         const userData = {
+        userId:   response.data?.userId   || response.userId,
+        fullName: response.data?.fullName || response.fullName,
+        email:    response.data?.email    || response.email,
+        role:     response.data?.role     || response.role || 'Customer',
+        avatarUrl: response.data?.avatarUrl || response.avatarUrl || null,
+      }
+      login(token, userData, remember)  // ← dùng AuthContext thay vì set storage thủ công
+      setFailedAttempts(0)
+      if (response.data?.isProfileComplete === false) {
+        navigate('/complete-profile')
+      } else {
+        navigate('/')
+  }
       } else {
         setError('Login failed. Token not received.')
       }
@@ -81,7 +85,14 @@ export default function LoginPage() {
       const response = await authApi.googleLogin({ googleIdToken: credentialResponse.credential })
       const token = response.data?.accessToken || response.accessToken || response.data?.token || response.token
       if (token) {
-        localStorage.setItem('token', token)
+          const userData = {
+    userId:    response.data?.userId   || response.userId,
+    fullName:  response.data?.fullName || response.fullName,
+    email:     response.data?.email    || response.email,
+    role:      response.data?.role     || response.role || 'Customer',
+    avatarUrl: response.data?.avatarUrl || response.avatarUrl || null,
+  }
+  login(token, userData, true)
         if (response.data?.isProfileComplete === false) {
           navigate('/complete-profile')
         } else {
