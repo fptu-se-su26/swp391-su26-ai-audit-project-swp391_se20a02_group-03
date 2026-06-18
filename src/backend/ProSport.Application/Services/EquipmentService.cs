@@ -70,6 +70,7 @@ public class EquipmentService : IEquipmentService
         created.EquipmentCategory = category;
 
         return MapEquipmentDtoCombined(created);
+ feat/API_Quan_Ly_Thietbi_Kho
     }
 
     public async Task<EquipmentDto?> UpdateAsync(int id, UpdateEquipmentDto dto)
@@ -101,6 +102,39 @@ public class EquipmentService : IEquipmentService
         return true;
     }
 
+
+    }
+
+    public async Task<EquipmentDto?> UpdateAsync(int id, UpdateEquipmentDto dto)
+    {
+        var equipment = await _equipmentRepository.GetByIdAsync(id);
+        if (equipment == null) return null;
+
+        equipment.EquipmentCategoryId = dto.EquipmentCategoryId;
+        equipment.Name = dto.Name;
+        equipment.EquipmentName = dto.Name;
+        equipment.Description = dto.Description;
+        equipment.Price = dto.Price;
+        equipment.Status = dto.Status;
+        equipment.ImageUrl = dto.ImageUrl;
+
+        await _equipmentRepository.UpdateAsync(equipment);
+        var category = await _categoryRepository.GetByIdAsync(equipment.EquipmentCategoryId);
+        equipment.EquipmentCategory = category;
+
+        return MapEquipmentDtoCombined(equipment);
+    }
+
+    public async Task<bool> DeleteAsync(int id)
+    {
+        var equipment = await _equipmentRepository.GetByIdAsync(id);
+        if (equipment == null) return false;
+
+        await _equipmentRepository.DeleteAsync(equipment);
+        return true;
+    }
+
+ main
     // Rent/Return Methods
     public async Task<ApiResponseDto<IEnumerable<EquipmentDto>>> GetAllAsync()
     {
@@ -349,8 +383,13 @@ public class EquipmentService : IEquipmentService
     }
 
  feat/API_Quan_Ly_Thietbi_Kho
+ feat/API_Quan_Ly_Thietbi_Kho
     private static EquipmentDto MapEquipmentDtoCombined(Equipment e) => new()
 
+
+ feat/DE190130_API_Tham_Gia_&_Vi_Escrow
+    private static EquipmentDto MapEquipmentDtoCombined(Equipment e) => new()
+ main
     public async Task<EquipmentDashboardDto> GetDashboardStatsAsync()
     {
         var rentals = (await _equipmentRepository.GetAllRentalsAsync()).ToList();

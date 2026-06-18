@@ -73,11 +73,26 @@ builder.Services.AddScoped<IEquipmentService, EquipmentService>();
 builder.Services.AddScoped<IInventoryService, InventoryService>();
 builder.Services.AddScoped<IVnPayService, VnPayService>();
  feat/API_Quan_Ly_Thietbi_Kho
+ feat/API_Quan_Ly_Thietbi_Kho
+
+ feat/DE190130_API_Tham_Gia_&_Vi_Escrow
+feat/DE190130_API_Tham_Gia_&_Vi_Escrow
+ main
 builder.Services.AddScoped<IStorageService, LocalStorageService>();
 
+feat/DE190130_API_Quan_Ly_San
 builder.Services.AddScoped<IStorageService, LocalStorageService>();
 
+main
+main
 
+
+builder.Services.AddScoped<IStorageService, LocalStorageService>();
+
+ feat/API_Quan_Ly_Thietbi_Kho
+
+
+ main
  main
 builder.Services.AddScoped<IChatbotService, ChatbotService>();
 builder.Services.AddScoped<ICartRepository, CartRepository>();
@@ -137,6 +152,10 @@ var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI();
  feat/API_Quan_Ly_Thietbi_Kho
+ feat/API_Quan_Ly_Thietbi_Kho
+
+feat/DE190130_API_Tham_Gia_&_Vi_Escrow
+ main
 
 app.UseStaticFiles(); // Added for LocalStorageService
 

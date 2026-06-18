@@ -7,6 +7,9 @@ public class EscrowWallet : BaseEntity
     public decimal Balance { get; set; } = 0; // Số dư khả dụng
     public decimal LockedBalance { get; set; } = 0; // Số dư đang bị đóng băng cho các kèo
 
+    [System.ComponentModel.DataAnnotations.Timestamp]
+    public byte[] RowVersion { get; set; } = null!;
+
     // Navigation properties
     public User User { get; set; } = null!;
     public ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
