@@ -243,7 +243,8 @@ public class BookingService : IBookingService
             }
 
             // Bảo mật: Kiểm tra xem số tiền trả qua VNPay có đúng bằng số tiền hóa đơn không
-            if (booking.TotalAmount != paidAmount)
+            // Dùng tolerance thay vì == để tránh rounding issue khi VNPay parse amount
+            if (Math.Abs(booking.TotalAmount - paidAmount) > 1m) // tolerance 1 VND
             {
                 _logger.LogWarning(
                     "Payment amount mismatch for booking {BookingId}: expected {Expected}, got {Actual}",
@@ -267,7 +268,7 @@ public class BookingService : IBookingService
                 var courtNames = string.Join(", ", booking.BookingDetails.Select(bd => bd.Court?.Name ?? $"Court {bd.CourtId}"));
                 var firstDetail = booking.BookingDetails.FirstOrDefault();
                 var bookingDate = firstDetail?.BookingDate.ToString("dd/MM/yyyy");
-                var timeRange = $"{firstDetail?.StartTime:HH\\:mm} - {firstDetail?.EndTime:HH\\:mm}";
+                var timeRange = $"{firstDetail?.StartTime:hh\\:mm} - {firstDetail?.EndTime:hh\\:mm}";
 
                 var detailsHtml = $@"
                     <p><b>Booking ID:</b> #{booking.BookingId}</p>

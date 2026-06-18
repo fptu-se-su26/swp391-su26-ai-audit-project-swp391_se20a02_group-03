@@ -14,6 +14,8 @@ export function ToastProvider({ children }) {
     setToasts(prev => [...prev, { id, message, type, duration }])
   }, [])
 
+  addToast.addToast = addToast;
+
   const removeToast = useCallback((id) => {
     setToasts(prev => prev.filter(t => t.id !== id))
   }, [])
@@ -58,13 +60,19 @@ function Toast({ id, message, type, duration, onDismiss }) {
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-blue-500">
         <circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" />
       </svg>
+    ),
+    warning: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-amber-500">
+        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+      </svg>
     )
   }
 
   const styles = {
     success: 'bg-emerald-50 border-emerald-200 text-emerald-800',
     error: 'bg-red-50 border-red-200 text-red-800',
-    info: 'bg-blue-50 border-blue-200 text-blue-800'
+    info: 'bg-blue-50 border-blue-200 text-blue-800',
+    warning: 'bg-amber-50 border-amber-200 text-amber-800'
   }
 
   const s = styles[type] || styles.info
