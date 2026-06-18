@@ -12,8 +12,8 @@ using ProSport.Infrastructure.Data;
 namespace ProSport.Infrastructure.Migrations
 {
     [DbContext(typeof(ProSportDbContext))]
-    [Migration("20260618034408_AddCartItems")]
-    partial class AddCartItems
+    [Migration("20260618045048_AddCartAndEquipmentUpdates")]
+    partial class AddCartAndEquipmentUpdates
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
