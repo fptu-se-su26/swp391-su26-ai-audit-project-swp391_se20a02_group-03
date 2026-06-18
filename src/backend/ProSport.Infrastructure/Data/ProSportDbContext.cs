@@ -21,8 +21,10 @@ public class ProSportDbContext : DbContext
     public DbSet<MatchParticipant> MatchParticipants { get; set; } = null!;
     public DbSet<EscrowWallet> EscrowWallets { get; set; } = null!;
     public DbSet<Transaction> Transactions { get; set; } = null!;
+    public DbSet<EquipmentCategory> EquipmentCategories { get; set; } = null!;
     public DbSet<Equipment> Equipments { get; set; } = null!;
     public DbSet<EquipmentRental> EquipmentRentals { get; set; } = null!;
+    public DbSet<InventoryTransaction> InventoryTransactions { get; set; } = null!;
     // --- Bảng mới ---
     public DbSet<CheckIn> CheckIns { get; set; } = null!;
     public DbSet<Voucher> Vouchers { get; set; } = null!;
@@ -257,6 +259,7 @@ public class ProSportDbContext : DbContext
             entity.HasKey(e => e.EscrowWalletId);
             entity.Property(e => e.Balance).HasColumnType("decimal(18,2)").HasDefaultValue(0m);
             entity.Property(e => e.LockedBalance).HasColumnType("decimal(18,2)").HasDefaultValue(0m);
+            entity.Property(e => e.RowVersion).IsRowVersion();
 
             // FIX: Unique — mỗi user chỉ có đúng 1 ví
             entity.HasIndex(e => e.UserId).IsUnique();
@@ -285,14 +288,25 @@ public class ProSportDbContext : DbContext
                   .OnDelete(DeleteBehavior.Cascade);
         });
 
-        // --- Equipment (Fixed to match SQL Schema) ---
+        // --- EquipmentCategory ---
+        modelBuilder.Entity<EquipmentCategory>(entity =>
+        {
+            entity.HasKey(e => e.EquipmentCategoryId);
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.Description).HasMaxLength(500);
+        });
+
+        // --- Equipment (Merged) ---
         modelBuilder.Entity<Equipment>(entity =>
         {
             entity.ToTable("Equipments");
             entity.HasKey(e => e.EquipmentId);
-            entity.Property(e => e.EquipmentName).IsRequired().HasMaxLength(100);
-            entity.Property(e => e.Category).IsRequired().HasMaxLength(30).HasDefaultValue("Racket");
-            entity.Property(e => e.SportType).IsRequired().HasMaxLength(20);
+            entity.Property(e => e.Name).HasMaxLength(100);
+            entity.Property(e => e.Price).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.Status).HasDefaultValue("Available").HasMaxLength(20);
+            entity.Property(e => e.EquipmentName).HasMaxLength(100);
+            entity.Property(e => e.Category).HasMaxLength(30).HasDefaultValue("Racket");
+            entity.Property(e => e.SportType).HasMaxLength(20);
             entity.Property(e => e.RetailPrice).HasColumnType("decimal(18,2)");
             entity.Property(e => e.RentalPrice)
                   .HasColumnType("decimal(18,2)")
@@ -300,6 +314,29 @@ public class ProSportDbContext : DbContext
             entity.Property(e => e.RentalStock).HasDefaultValue(0);
             entity.Property(e => e.SalesStock).HasDefaultValue(0);
             entity.Property(e => e.ImageUrl).HasMaxLength(500);
+
+            entity.HasOne(e => e.EquipmentCategory)
+                  .WithMany(c => c.Equipments)
+                  .HasForeignKey(e => e.EquipmentCategoryId)
+                  .OnDelete(DeleteBehavior.ClientSetNull);
+        });
+
+        // --- InventoryTransaction ---
+        modelBuilder.Entity<InventoryTransaction>(entity =>
+        {
+            entity.HasKey(e => e.InventoryTransactionId);
+            entity.Property(e => e.TransactionType).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.Notes).HasMaxLength(500);
+
+            entity.HasOne(e => e.Equipment)
+                  .WithMany(eq => eq.InventoryTransactions)
+                  .HasForeignKey(e => e.EquipmentId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.User)
+                  .WithMany()
+                  .HasForeignKey(e => e.UserId)
+                  .OnDelete(DeleteBehavior.ClientSetNull);
         });
 
         // --- BookingDetails_Equipments (Equipment rentals) ---

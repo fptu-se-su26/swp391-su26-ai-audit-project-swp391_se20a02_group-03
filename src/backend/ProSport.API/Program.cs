@@ -60,21 +60,41 @@ builder.Services.AddScoped<IBookingRepository, BookingRepository>();
 builder.Services.AddScoped<IEquipmentRepository, EquipmentRepository>();
 builder.Services.AddScoped<IMatchRepository, MatchRepository>();
 builder.Services.AddScoped<IEscrowRepository, EscrowRepository>();
+builder.Services.AddScoped<IEquipmentCategoryRepository, EquipmentCategoryRepository>();
+builder.Services.AddScoped<IInventoryRepository, InventoryRepository>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICourtService, CourtService>();
 builder.Services.AddScoped<IBookingService, BookingService>();
-builder.Services.AddScoped<IEquipmentService, EquipmentService>();
 builder.Services.AddScoped<IMatchService, MatchService>();
 builder.Services.AddScoped<IEscrowService, EscrowService>();
+builder.Services.AddScoped<IEquipmentCategoryService, EquipmentCategoryService>();
+builder.Services.AddScoped<IEquipmentService, EquipmentService>();
+builder.Services.AddScoped<IInventoryService, InventoryService>();
 builder.Services.AddScoped<IVnPayService, VnPayService>();
+ DE190147/audit-module
  DE190147/audit-module
 builder.Services.AddScoped<IStorageService, LocalStorageService>();
 
 
+ feat/DE190130_API_Tham_Gia_&_Vi_Escrow
+feat/DE190130_API_Tham_Gia_&_Vi_Escrow
+builder.Services.AddScoped<IStorageService, LocalStorageService>();
+ main
+
+feat/DE190130_API_Quan_Ly_San
 builder.Services.AddScoped<IStorageService, LocalStorageService>();
 
+main
+main
 
+
+builder.Services.AddScoped<IStorageService, LocalStorageService>();
+
+ DE190147/audit-module
+
+
+ main
  main
 builder.Services.AddScoped<IChatbotService, ChatbotService>();
 builder.Services.AddScoped<ICartRepository, CartRepository>();
@@ -133,9 +153,15 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 app.UseSwagger();
 app.UseSwaggerUI();
+feat/DE190130_API_Tham_Gia_&_Vi_Escrow
 
 app.UseStaticFiles(); // Added for LocalStorageService
 
+
+
+app.UseStaticFiles(); // Added for LocalStorageService
+
+ main
 // app.UseHttpsRedirection(); // Disabled to avoid redirect issues
 
 app.UseCors("AllowFrontend");
