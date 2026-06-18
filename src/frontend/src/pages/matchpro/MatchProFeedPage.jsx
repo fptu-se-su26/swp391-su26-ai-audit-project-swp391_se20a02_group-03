@@ -13,6 +13,19 @@ const sidebarLinks = [
 
 const sportFilters = ['Tất cả', 'Cầu lông', 'Pickleball']
 
+// Mock data to prevent crash
+const nearbyPlayers = [
+  { name: 'Alex M.', dist: '0.5km', online: true, avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&q=80' },
+  { name: 'Sarah J.', dist: '1.2km', online: true, avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&q=80' },
+  { name: 'Mike T.', dist: '2.0km', online: false, avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&q=80' },
+]
+
+const leaderboard = [
+  { rank: 1, name: 'David Kim', pts: 2450, avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&q=80' },
+  { rank: 2, name: 'Elena R.', pts: 2100, avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=80&q=80' },
+  { rank: 3, name: 'Chris N.', pts: 1950, avatar: 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=80&q=80' },
+]
+
 export default function MatchProFeedPage() {
   const [activeFilter, setActiveFilter] = useState('All Sports')
   const [matches, setMatches] = useState([])
@@ -92,9 +105,9 @@ export default function MatchProFeedPage() {
                     {m.hostId}
                   </div>
                   <div>
-                    <p className="font-bold text-[0.9rem] text-[#0d2d3a]">{m.title}</p>
+                    <p className="font-bold text-[0.9rem] text-[#0d2d3a]">Kèo Giao Lưu Sân #{m.courtId}</p>
                     <p className="text-[0.72rem] text-slate-400">Host ID: {m.hostId}</p>
-                    <p className="text-[0.78rem] text-slate-500 mt-0.5">{m.skillLevel}</p>
+                    <p className="text-[0.78rem] text-slate-500 mt-0.5">{m.levelRequirement || 'Mọi trình độ'}</p>
                   </div>
                   <span className="ml-auto text-[0.7rem] font-bold px-2 py-1 rounded-full whitespace-nowrap shrink-0 bg-amber-50 text-amber-500">
                     {m.maxParticipants - m.currentParticipants} SLOTS LEFT
@@ -102,8 +115,8 @@ export default function MatchProFeedPage() {
                 </div>
                 <div className="flex flex-col gap-[5px] text-[0.8rem] text-slate-500">
                   <span>📍 {new Date(m.matchDate).toLocaleDateString()}</span>
-                  <span>🕐 {m.startTime}</span>
-                  <span className="font-bold text-[#00c8aa]">Phí tham gia: {m.escrowAmount.toLocaleString('vi-VN')} VNĐ</span>
+                  <span>🕐 {m.startTime?.slice(0, 5)} - {m.endTime?.slice(0, 5)}</span>
+                  <span className="font-bold text-[#00c8aa]">Phí tham gia: {m.escrowAmount?.toLocaleString('vi-VN')} VNĐ</span>
                 </div>
                 <button className="btn-primary w-full justify-center p-2.5 rounded-lg text-sm">Xem Chi Tiết</button>
               </Link>

@@ -50,12 +50,14 @@ export default function ApexBookingPage() {
           setCourts(mappedCourts)
         }
       })
-      .catch(err => addToast("Lỗi tải danh sách sân: " + err.message, "error"))
+      // BUG-11 FIX: axiosClient rejects with string — err.message is undefined on strings
+      .catch(err => addToast('Lỗi tải danh sách sân: ' + (typeof err === 'string' ? err : err.message || 'Unknown error'), 'error'))
       
     // Load Wallet
     paymentApi.getEscrowWallet()
       .then(res => {
-        if (res.data) setEscrowBalance(res.data.balance)
+        // BUG-12 FIX: axiosClient returns envelope, res IS envelope, res.data is the payload
+        if (res.data) setEscrowBalance(res.data.balance || 0)
       })
       .catch(err => console.error("Lỗi ví", err))
   }, [])
@@ -79,12 +81,15 @@ export default function ApexBookingPage() {
       bookingApi.getBookedSlots(selectedCourt.id, selectedDate)
         .then(res => {
           if (res.data) {
-            setBookedSlots(res.data)
+            // BUG-22 FIX: Normalize time format to HH:mm for consistent comparison
+            const slots = Array.isArray(res.data) ? res.data : []
+            const normalized = slots.map(s => typeof s === 'string' ? s.substring(0, 5) : s)
+            setBookedSlots(normalized)
           } else {
             setBookedSlots([])
           }
         })
-        .catch(err => console.error("Lỗi tải giờ bận", err))
+        .catch(err => console.error('Lỗi tải giờ bận', err))
     }
   }, [selectedCourt, selectedDate])
 
@@ -236,7 +241,17 @@ export default function ApexBookingPage() {
             </div>
 
             <div className="courts-grid">
-              {filtered.length === 0 && <p className="text-brand-500">Đang tải danh sách sân hoặc không có sân phù hợp...</p>}
+              {/* BUG-21 FIX: Separate loading and empty states */}
+              {courts.length === 0 && filtered.length === 0 && (
+                <p className="text-brand-500" style={{ gridColumn: '1/-1', textAlign: 'center', padding: '40px 20px' }}>
+                  Đang tải danh sách sân...
+                </p>
+              )}
+              {courts.length > 0 && filtered.length === 0 && (
+                <p className="text-brand-500" style={{ gridColumn: '1/-1', textAlign: 'center', padding: '40px 20px' }}>
+                  Không có sân phù hợp với bộ lọc hiện tại.
+                </p>
+              )}
               {filtered.map(court => (
                 <div
                   key={court.id}
