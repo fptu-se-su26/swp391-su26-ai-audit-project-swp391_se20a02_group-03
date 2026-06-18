@@ -21,7 +21,7 @@ export default function EliteEquipmentPage() {
     fetchPendingReturns()
   }, [])
 
-  const fetchPendingReturns = async () => {
+  async function fetchPendingReturns() {
     try {
       setLoading(true)
       const response = await equipmentApi.getPendingReturns()
@@ -38,7 +38,7 @@ export default function EliteEquipmentPage() {
     }
   }
 
-  const handleInspect = async () => {
+  async function handleInspect() {
     if (!selected) return
 
     try {

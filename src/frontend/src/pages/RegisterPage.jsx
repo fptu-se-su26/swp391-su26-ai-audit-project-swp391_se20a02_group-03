@@ -32,7 +32,7 @@ export default function RegisterPage() {
   // Real-time Field Errors
   const [fieldErrors, setFieldErrors] = useState({})
 
-  const validateField = (name, value) => {
+  function validateField(name, value) {
     let errMsg = ""
     switch (name) {
       case 'fullName':
@@ -65,11 +65,11 @@ export default function RegisterPage() {
     return errMsg === ""
   }
 
-  const handleBlur = (e) => {
+  function handleBlur(e) {
     validateField(e.target.name, e.target.value)
   }
 
-  const handleRegister = async () => {
+  async function handleRegister() {
     const isNameValid = validateField('fullName', fullName)
     const isPhoneValid = validateField('phoneNumber', phoneNumber)
     const isEmailValid = validateField('email', email)
@@ -104,7 +104,7 @@ export default function RegisterPage() {
     }
   }
 
-  const handleVerifyOtpWithCode = async (otpCodeToVerify) => {
+  async function handleVerifyOtpWithCode(otpCodeToVerify) {
     setError(null)
     setLoading(true)
     try {
@@ -122,7 +122,7 @@ export default function RegisterPage() {
     }
   }
 
-  const handleVerifyOtp = async () => {
+  async function handleVerifyOtp() {
     const otpCode = otp.join('')
     if (otpCode.length < 6) {
       setError("Vui lòng nhập 6 số OTP.")
@@ -131,7 +131,7 @@ export default function RegisterPage() {
     return await handleVerifyOtpWithCode(otpCode)
   }
 
-  const handleResendOtp = async () => {
+  async function handleResendOtp() {
     setError(null)
     setLoading(true)
     try {
@@ -144,7 +144,7 @@ export default function RegisterPage() {
     }
   }
 
-  const handleGoogleSuccess = async (credentialResponse) => {
+  async function handleGoogleSuccess(credentialResponse) {
     setError(null)
     setLoading(true)
     try {
@@ -167,7 +167,7 @@ export default function RegisterPage() {
     }
   }
 
-  const next = async (e) => {
+  async function next(e) {
     e.preventDefault()
     
     if (step === 0) {
@@ -184,7 +184,7 @@ export default function RegisterPage() {
     }
   }
 
-  const handleOtpChange = async (index, value) => {
+  async function handleOtpChange(index, value) {
     if (value && isNaN(value)) return
     const newOtp = [...otp]
     newOtp[index] = value
@@ -205,7 +205,7 @@ export default function RegisterPage() {
     }
   }
 
-  const handleKeyDown = (index, e) => {
+  function handleKeyDown(index, e) {
     if (e.key === 'Backspace' && !otp[index] && index > 0) {
       const prevInput = document.getElementById(`otp-${index - 1}`)
       if (prevInput) {
@@ -214,7 +214,7 @@ export default function RegisterPage() {
     }
   }
 
-  const handlePaste = async (e) => {
+  async function handlePaste(e) {
     e.preventDefault()
     const pastedData = e.clipboardData.getData('text/plain').trim()
     const match = pastedData.match(/^\d{6}$/)

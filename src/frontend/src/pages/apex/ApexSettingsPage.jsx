@@ -10,7 +10,7 @@ export default function ApexSettingsPage() {
   const [privacy, setPrivacy] = useState({ publicProfile: true, showActivity: true, showMatches: false })
   const [saved, setSaved] = useState(false)
 
-  const handleSave = () => {
+  function handleSave() {
     setSaved(true)
     setTimeout(() => setSaved(false), 2000)
   }

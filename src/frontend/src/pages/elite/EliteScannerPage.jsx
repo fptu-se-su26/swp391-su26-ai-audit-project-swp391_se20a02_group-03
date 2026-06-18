@@ -48,7 +48,7 @@ export default function EliteScannerPage() {
     }
   }, [])
 
-  const resetScanner = () => {
+  function resetScanner() {
       setScanResult(null)
       setError(null)
       // We would ideally resume the scanner here but Html5QrcodeScanner is destroyed on unmount.

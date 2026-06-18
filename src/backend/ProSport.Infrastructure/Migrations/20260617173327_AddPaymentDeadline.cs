@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -6,16 +6,15 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ProSport.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class AddPaymentDeadline : Migration
+    public partial class AddPaymentDeadline173327 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<DateTime>(
-                name: "PaymentDeadline",
-                table: "Bookings",
-                type: "datetime2",
-                nullable: true);
+            migrationBuilder.Sql("""
+                IF COL_LENGTH('dbo.Bookings', 'PaymentDeadline') IS NULL
+                    ALTER TABLE [Bookings] ADD [PaymentDeadline] datetime2 NULL;
+                """);
         }
 
         /// <inheritdoc />

@@ -46,7 +46,7 @@ export default function BookingPage() {
   })
 
   // Tính endTime dựa trên slot (90 phút mặc định)
-  const calculateEndTime = (startTime) => {
+  function calculateEndTime(startTime) {
     const [h, m] = startTime.split(':').map(Number);
     const dateObj = new Date();
     dateObj.setHours(h, m + 90, 0);
@@ -54,7 +54,7 @@ export default function BookingPage() {
   }
 
   // Format ngày hiển thị
-  const formatDate = (dateStr) => {
+  function formatDate(dateStr) {
     try {
       const d = new Date(dateStr);
       const today = new Date();
@@ -105,7 +105,7 @@ export default function BookingPage() {
       .catch(err => console.error("Lỗi ví", err));
   }, [courtId]);
 
-  const handleBooking = async () => {
+  async function handleBooking() {
     // Chống double-click
     if (isSubmitting.current) return;
     isSubmitting.current = true;

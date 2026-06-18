@@ -12,7 +12,7 @@ const navLinks = [
 
 export default function MatchProLayout({ children }) {
   const location = useLocation()
-  const isActive = (path) => {
+  function isActive(path) {
     if (path === '/matches') return location.pathname === '/matches'
     return location.pathname.startsWith(path)
   }

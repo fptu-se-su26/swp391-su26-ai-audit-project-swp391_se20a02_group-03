@@ -36,7 +36,7 @@ export default function ApexShopPage() {
     (mode === 'buy' || p.rental !== null)
   )
 
-  const addToCart = (product) => {
+  function addToCart(product) {
     setCart(prev => {
       const existing = prev.find(i => i.id === product.id)
       if (existing) return prev.map(i => i.id === product.id ? { ...i, qty: i.qty + 1 } : i)

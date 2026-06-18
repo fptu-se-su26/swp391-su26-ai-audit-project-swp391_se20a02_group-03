@@ -108,46 +108,9 @@ public class MatchService : IMatchService
     {
         try
         {
-DE190147/audit-module
-            var match = await _matchRepository.GetMatchByIdAsync(matchId);
-            if (match == null || match.Status != ProSport.Domain.Constants.MatchStatus.Open)
-                return new ApiResponseDto<bool>(400, "Kèo không tồn tại hoặc đã đóng", false);
-
-            if (match.HostId == userId)
-                return new ApiResponseDto<bool>(400, "Bạn là Host của kèo này", false);
-
-            if (match.CurrentParticipants >= match.MaxParticipants)
-                return new ApiResponseDto<bool>(400, "Kèo đã đủ người", false);
-
-            var existingParticipant = await _matchRepository.GetParticipantAsync(matchId, userId);
-            if (existingParticipant != null)
-                return new ApiResponseDto<bool>(400, "Bạn đã tham gia hoặc đang chờ duyệt kèo này", false);
-
-            // GỌI ESCROW ĐỂ KHÓA TIỀN CỌC
-            if (match.EscrowAmount > 0)
-            {
-                var lockResponse = await _escrowService.LockFundsAsync(userId, match.EscrowAmount, matchId, $"Ký quỹ xin tham gia kèo {matchId}");
-                if (lockResponse.StatusCode != 200)
-                {
-                    return new ApiResponseDto<bool>(lockResponse.StatusCode, lockResponse.Message, false);
-                }
-            }
-
-            var participant = new MatchParticipant
-            {
-                MatchId = matchId,
-                UserId = userId,
-                Role = ProSport.Domain.Constants.MatchParticipantRole.Joiner,
-                Status = ProSport.Domain.Constants.MatchParticipantStatus.Pending, // Đợi Host duyệt
-                HasPaidEscrow = match.EscrowAmount > 0
-            };
-
-           await _matchRepository.AddParticipantAsync(participant);
-
             // Delegate toàn bộ logic phức tạp (lock, validate, transaction) xuống Repository
             await _matchRepository.ExecuteJoinMatchTransactionAsync(matchId, userId);
-            
- main
+
             return new ApiResponseDto<bool>(200, "Đã gửi yêu cầu tham gia và khóa tiền ký quỹ thành công", true);
         }
         catch (InvalidOperationException ex) when (ex.Message.Contains("Giao dịch đang được xử lý"))
@@ -178,30 +141,11 @@ DE190147/audit-module
         {
             var match = await _matchRepository.GetMatchByIdAsync(matchId);
             if (match == null || match.HostId != hostId)
- DE190147/audit-module
-                return new ApiResponseDto<bool>(403, "Bạn không có quyền duyệt kèo này", false);
-
-            var participant = await _matchRepository.GetParticipantAsync(matchId, joinerId);
-            if (participant == null || participant.Status != ProSport.Domain.Constants.MatchParticipantStatus.Pending)
-                return new ApiResponseDto<bool>(400, "Yêu cầu không hợp lệ", false);
-
-            if (match.CurrentParticipants >= match.MaxParticipants)
-                return new ApiResponseDto<bool>(400, "Kèo đã đủ người", false);
-
-            participant.Status = ProSport.Domain.Constants.MatchParticipantStatus.Approved;
-            await _matchRepository.UpdateParticipantAsync(participant);
-
                 return new ApiResponseDto<IEnumerable<object>>(403, "Bạn không có quyền xem danh sách này", null);
- main
 
             var participants = await _matchRepository.GetParticipantsByMatchAsync(matchId, status);
             var result = participants.Select(p => new
             {
- DE190147/audit-module
-                match.Status = ProSport.Domain.Constants.MatchStatus.Closed;
-            }
-            await _matchRepository.UpdateMatchAsync(match);
-
                 p.MatchParticipantId,
                 p.MatchId,
                 p.UserId,
@@ -210,7 +154,6 @@ DE190147/audit-module
                 p.Status,
                 p.HasPaidEscrow
             });
- main
 
             return new ApiResponseDto<IEnumerable<object>>(200, "Success", result);
         }

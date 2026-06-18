@@ -23,7 +23,7 @@ export default function ApexLayout({ children, title }) {
   const [userProfile, setUserProfile] = useState(null)
 
   useEffect(() => {
-    const fetchProfile = async () => {
+    async function fetchProfile() {
       try {
         const res = await authApi.getProfile()
         if (res?.data?.data) {
@@ -36,13 +36,13 @@ export default function ApexLayout({ children, title }) {
     fetchProfile()
   }, [])
 
-  const handleLogout = () => {
+  function handleLogout() {
     localStorage.removeItem('token')
     sessionStorage.removeItem('token')
     navigate('/login')
   }
 
-  const isActive = (path) => {
+  function isActive(path) {
     if (path === '/apex') return location.pathname === '/apex'
     return location.pathname.startsWith(path)
   }

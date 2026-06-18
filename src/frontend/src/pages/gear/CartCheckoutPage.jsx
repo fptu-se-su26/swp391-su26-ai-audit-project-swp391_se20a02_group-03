@@ -7,7 +7,7 @@ import GearLayout from '../../layouts/GearLayout';
 import { ShoppingCart, Calendar, Info, ArrowLeft, CheckCircle2, ChevronRight, MapPin } from 'lucide-react';
 import { useToast } from '../../components/Toast';
 
-const formatVND = (amount) => {
+function formatVND(amount) {
     return new Intl.NumberFormat('vi-VN', {
         style: 'currency',
         currency: 'VND'
@@ -27,7 +27,7 @@ export default function CartCheckoutPage() {
         fetchUserBookings();
     }, []);
 
-    const fetchUserBookings = async () => {
+    async function fetchUserBookings() {
         try {
             setLoading(true);
             const response = await bookingApi.getMyBookings();
@@ -43,7 +43,7 @@ export default function CartCheckoutPage() {
         }
     };
 
-    const handleCheckout = async () => {
+    async function handleCheckout() {
         setIsProcessing(true);
         try {
             const payload = {

@@ -23,7 +23,7 @@ export default function GearDetailPage() {
     fetchUserBookings()
   }, [id])
 
-  const fetchGearDetails = async () => {
+  async function fetchGearDetails() {
     try {
       setLoading(true)
       const response = await equipmentApi.getById(id)
@@ -37,7 +37,7 @@ export default function GearDetailPage() {
     }
   }
 
-  const fetchUserBookings = async () => {
+  async function fetchUserBookings() {
     const token = localStorage.getItem('token') || sessionStorage.getItem('token');
     if (!token) return;
 
@@ -52,7 +52,7 @@ export default function GearDetailPage() {
     }
   }
 
-  const handleAddToCart = async (bookingId = null) => {
+  async function handleAddToCart(bookingId = null) {
     setIsAdding(true)
     try {
       const res = await addToCart(parseInt(id), quantity, bookingId)
@@ -70,7 +70,7 @@ export default function GearDetailPage() {
     }
   }
 
-  const handleRentClick = () => {
+  function handleRentClick() {
     setShowRentModal(true)
   }
 

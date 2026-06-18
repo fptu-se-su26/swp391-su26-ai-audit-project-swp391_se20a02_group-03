@@ -4,7 +4,7 @@ import { useCart } from '../../context/CartContext';
 import { Trash2, ShoppingBag, ArrowLeft, Plus, Minus, CreditCard } from 'lucide-react';
 import GearLayout from '../../layouts/GearLayout';
 
-const formatVND = (amount) => {
+function formatVND(amount) {
     return new Intl.NumberFormat('vi-VN', {
         style: 'currency',
         currency: 'VND'

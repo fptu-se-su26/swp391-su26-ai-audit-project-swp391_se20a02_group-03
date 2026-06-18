@@ -11,7 +11,7 @@ export default function ShopCartPage() {
   const [items, setItems] = useState(initItems)
   const [promo, setPromo] = useState('')
 
-  const updateQty = (id, delta) => {
+  function updateQty(id, delta) {
     setItems(items.map(item => item.id === id ? {...item, qty: Math.max(1, item.qty + delta)} : item))
   }
 

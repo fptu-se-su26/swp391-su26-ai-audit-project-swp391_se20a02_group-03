@@ -91,7 +91,7 @@ export default function ApexBookingPage() {
 
   const filtered = courts.filter(c => filter === 'All' || c.type === filter)
 
-  const toggleSlot = (slot) => {
+  function toggleSlot(slot) {
     if (bookedSlots.includes(slot)) return
     
     // Đảm bảo chọn giờ liên tiếp
@@ -116,12 +116,12 @@ export default function ApexBookingPage() {
 
   const totalPrice = selectedCourt ? selectedSlots.length * selectedCourt.price : 0
 
-  const calculateEndTime = (lastSlot) => {
+  function calculateEndTime(lastSlot) {
     const h = parseInt(lastSlot.split(':')[0])
     return `${String(h + 1).padStart(2, '0')}:00`
   }
 
-  const handleConfirm = async () => {
+  async function handleConfirm() {
     if (selectedSlots.length === 0) return
     
     if (paymentMethod === 'escrow' && escrowBalance < totalPrice) {

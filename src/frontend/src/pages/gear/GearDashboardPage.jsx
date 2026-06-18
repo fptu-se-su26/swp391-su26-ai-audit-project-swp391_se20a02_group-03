@@ -17,7 +17,7 @@ export default function GearDashboardPage() {
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('all')
 
-  const formatVND = (amount) => {
+  function formatVND(amount) {
     return new Intl.NumberFormat('vi-VN', { 
       style: 'currency', 
       currency: 'VND' 
@@ -30,7 +30,7 @@ export default function GearDashboardPage() {
     return () => clearInterval(interval)
   }, [])
 
-  const fetchData = async () => {
+  async function fetchData() {
     try {
       setLoading(true)
       const [dashRes, rentalsRes] = await Promise.all([

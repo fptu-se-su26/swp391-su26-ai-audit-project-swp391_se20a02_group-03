@@ -10,21 +10,21 @@ export default function PasswordStrengthMeter({ password }) {
 
   const strength = requirements.filter(req => req.regex.test(password)).length
 
-  const getStrengthColor = () => {
+  function getStrengthColor() {
     if (strength === 0) return 'bg-brand-200'
     if (strength <= 2) return 'bg-red-500'
     if (strength === 3) return 'bg-amber-500'
     return 'bg-emerald-500'
   }
   
-  const getTextColor = () => {
+  function getTextColor() {
     if (strength === 0) return 'text-brand-400'
     if (strength <= 2) return 'text-red-600'
     if (strength === 3) return 'text-amber-600'
     return 'text-emerald-600'
   }
 
-  const getStrengthText = () => {
+  function getStrengthText() {
     if (strength === 0) return ''
     if (strength <= 2) return 'Weak'
     if (strength === 3) return 'Good'
