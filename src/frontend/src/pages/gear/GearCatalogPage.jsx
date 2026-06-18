@@ -50,7 +50,7 @@ export default function GearCatalogPage() {
     fetchProducts()
   }, [])
 
-  const fetchProducts = async () => {
+  async function fetchProducts() {
     try {
       setLoading(true)
       const response = await equipmentApi.getAll()
@@ -86,7 +86,7 @@ export default function GearCatalogPage() {
   const toggle = (arr, setArr, val) =>
     setArr(arr.includes(val) ? arr.filter(x => x !== val) : [...arr, val])
 
-  const handleReset = () => {
+  function handleReset() {
     setSelectedSports(DEFAULT_SPORTS)
     setSelectedItems(DEFAULT_ITEMS)
     setSelectedConds(DEFAULT_CONDS)
@@ -95,7 +95,7 @@ export default function GearCatalogPage() {
     setApplied({ sports: DEFAULT_SPORTS, items: DEFAULT_ITEMS, conds: DEFAULT_CONDS, min: '', max: '' })
   }
 
-  const handleApply = () => {
+  function handleApply() {
     setApplied({ sports: selectedSports, items: selectedItems, conds: selectedConds, min: priceMin, max: priceMax })
   }
 
@@ -116,7 +116,7 @@ export default function GearCatalogPage() {
     return matchSport && matchItem && matchCond && matchMin && matchMax
   })
 
-  const handleQuickAddToCart = async (e, product) => {
+  async function handleQuickAddToCart(e, product) {
     e.preventDefault(); e.stopPropagation();
     const qty = quantities[product.id] || 1;
     try {
@@ -131,7 +131,7 @@ export default function GearCatalogPage() {
     }
   };
 
-  const updateProductQty = (id, val) => {
+  function updateProductQty(id, val) {
     setQuantities(prev => ({ ...prev, [id]: Math.max(1, val) }));
   };
 

@@ -24,7 +24,7 @@ export default function CompleteProfilePage() {
   // Real-time Field Errors
   const [fieldErrors, setFieldErrors] = useState({})
 
-  const validateField = (value) => {
+  function validateField(value) {
     let errMsg = ""
     if (!value.trim()) errMsg = "Trường bắt buộc."
     else if (!/(84|0[3|5|7|8|9])+([0-9]{8})\b/.test(value.trim())) errMsg = "Số điện thoại VN không hợp lệ."
@@ -33,11 +33,11 @@ export default function CompleteProfilePage() {
     return errMsg === ""
   }
 
-  const handleBlur = (e) => {
+  function handleBlur(e) {
     validateField(e.target.value)
   }
 
-  const handleComplete = async (e) => {
+  async function handleComplete(e) {
     e.preventDefault()
     const isPhoneValid = validateField(phoneNumber)
 

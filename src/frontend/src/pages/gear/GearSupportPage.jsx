@@ -22,7 +22,7 @@ export default function GearSupportPage() {
   const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' })
   const [sent, setSent] = useState(false)
 
-  const handleSubmit = (e) => {
+  function handleSubmit(e) {
     e.preventDefault()
     setSent(true)
   }

@@ -10,7 +10,7 @@ export default function ApexHomePage() {
   const [upcomingBookings, setUpcomingBookings] = useState([])
 
   useEffect(() => {
-    const fetchData = async () => {
+    async function fetchData() {
       try {
         const [profileRes, bookingsRes] = await Promise.all([
           authApi.getProfile(),

@@ -29,7 +29,7 @@ export default function AIChatbot() {
     }
   }, [isOpen, messages])
 
-  const sendMessage = async (text) => {
+  async function sendMessage(text) {
     const userText = (text || input).trim()
     if (!userText || loading) return
 
@@ -55,14 +55,14 @@ export default function AIChatbot() {
     }
   }
 
-  const handleKey = (e) => {
+  function handleKey(e) {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
       sendMessage()
     }
   }
 
-  const parseContent = (text) => {
+  function parseContent(text) {
     const html = text
       .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
       .replace(/\n/g, '<br/>')

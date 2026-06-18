@@ -30,7 +30,7 @@ export default function CreateMatchPage() {
       .catch(err => console.error(err))
   }, [])
 
-  const handleCreate = async () => {
+  async function handleCreate() {
     if (!formData.bookingId) {
       addToast("Vui lòng chọn một sân đã đặt", "error")
       return

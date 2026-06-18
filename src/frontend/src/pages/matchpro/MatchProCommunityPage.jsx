@@ -36,21 +36,21 @@ export default function MatchProCommunityPage() {
   const [newPostText, setNewPostText] = useState('')
   const pageRef = useRef(null)
 
-  const toggleLike = (id) => {
+  function toggleLike(id) {
     const newLikes = new Set(likedPosts)
     if (newLikes.has(id)) newLikes.delete(id)
     else newLikes.add(id)
     setLikedPosts(newLikes)
   }
 
-  const toggleGroup = (id) => {
+  function toggleGroup(id) {
     const newJoined = new Set(joinedGroups)
     if (newJoined.has(id)) newJoined.delete(id)
     else newJoined.add(id)
     setJoinedGroups(newJoined)
   }
 
-  const handlePost = () => {
+  function handlePost() {
     if (newPostText.trim()) {
       alert("Post created successfully!")
       setNewPostText('')

@@ -18,7 +18,7 @@ export default function PaymentReturnPage() {
     if (isProcessed.current) return;
     isProcessed.current = true;
 
-    const processPayment = async () => {
+    async function processPayment() {
       try {
         const queryString = searchParams.toString();
         if (!queryString) {
@@ -84,7 +84,7 @@ export default function PaymentReturnPage() {
     return () => clearTimeout(timer);
   }, [status, countdown]);
 
-  const formatTime = (t) => {
+  function formatTime(t) {
     if (!t) return '';
     // Handle "HH:MM:SS" → "HH:MM"
     return t.length > 5 ? t.slice(0, 5) : t;

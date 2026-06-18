@@ -15,7 +15,7 @@ export default function ApexSupportPage() {
   const [form, setForm] = useState({ subject: '', category: 'Booking', message: '' })
   const [submitted, setSubmitted] = useState(false)
 
-  const handleSubmit = (e) => {
+  function handleSubmit(e) {
     e.preventDefault()
     setSubmitted(true)
     setTimeout(() => setSubmitted(false), 3000)

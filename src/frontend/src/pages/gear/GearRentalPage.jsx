@@ -31,7 +31,7 @@ export default function GearRentalPage() {
     fetchRentals()
   }, [])
 
-  const fetchRentals = async () => {
+  async function fetchRentals() {
     try {
       setLoading(true)
       const response = await equipmentApi.getMyRentals()
@@ -59,7 +59,7 @@ export default function GearRentalPage() {
     }
   }
 
-  const handleReturn = async (rentalId) => {
+  async function handleReturn(rentalId) {
     try {
       const response = await equipmentApi.return({ equipmentRentalId: rentalId })
       if (response.statusCode === 200) {

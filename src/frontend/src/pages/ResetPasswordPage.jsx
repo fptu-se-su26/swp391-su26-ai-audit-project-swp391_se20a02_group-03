@@ -15,7 +15,7 @@ export default function ResetPasswordPage() {
   const [error, setError] = useState(null)
   const toast = useToast()
 
-  const handleSendOtp = async (e) => {
+  async function handleSendOtp(e) {
     e.preventDefault()
     if (!email) {
       setError('Vui lòng nhập email của bạn.')
@@ -33,7 +33,7 @@ export default function ResetPasswordPage() {
     }
   }
 
-  const handleOtpChange = async (index, value) => {
+  async function handleOtpChange(index, value) {
     if (value && isNaN(value)) return
     const newOtp = [...otp]
     newOtp[index] = value
@@ -50,7 +50,7 @@ export default function ResetPasswordPage() {
     }
   }
 
-  const handleKeyDown = (index, e) => {
+  function handleKeyDown(index, e) {
     if (e.key === 'Backspace' && !otp[index] && index > 0) {
       const prevInput = document.getElementById(`reset-otp-${index - 1}`)
       if (prevInput) {
@@ -59,7 +59,7 @@ export default function ResetPasswordPage() {
     }
   }
 
-  const handlePaste = async (e) => {
+  async function handlePaste(e) {
     e.preventDefault()
     const pastedData = e.clipboardData.getData('text/plain').trim()
     const match = pastedData.match(/^\d{6}$/)
@@ -73,7 +73,7 @@ export default function ResetPasswordPage() {
     }
   }
 
-  const autoVerifyOtp = async (otpCode) => {
+  async function autoVerifyOtp(otpCode) {
     setError(null)
     setLoading(true)
     try {
@@ -86,12 +86,12 @@ export default function ResetPasswordPage() {
     }
   }
 
-  const handleVerifyOtp = async (e) => {
+  async function handleVerifyOtp(e) {
     e.preventDefault()
     await autoVerifyOtp(otp.join(''))
   }
 
-  const handleResetPassword = async (e) => {
+  async function handleResetPassword(e) {
     e.preventDefault()
     const otpCode = otp.join('')
     if (!newPassword || newPassword.length < 8) {

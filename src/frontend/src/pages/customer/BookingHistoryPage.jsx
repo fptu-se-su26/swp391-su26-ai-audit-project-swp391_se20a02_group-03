@@ -33,7 +33,7 @@ export default function BookingHistoryPage() {
     queueMicrotask(fetchBookings);
   }, [fetchBookings]);
 
-  const handleCancel = async (bookingId) => {
+  async function handleCancel(bookingId) {
     if (!window.confirm('Bạn có chắc chắn muốn hủy đơn đặt sân này?')) return;
     try {
       const res = await bookingApi.cancelBooking(bookingId);
@@ -48,7 +48,7 @@ export default function BookingHistoryPage() {
     }
   };
 
-  const handlePayment = async (bookingId, amount) => {
+  async function handlePayment(bookingId, amount) {
       // For simplicity, direct to VNPay. In a real app, you might want to show a modal to choose payment method.
       try {
           const vnpayRes = await paymentApi.createVnPayUrl(amount, 'Booking', bookingId);
@@ -70,7 +70,7 @@ export default function BookingHistoryPage() {
     return true;
   });
 
-  const getStatusColor = (status) => {
+  function getStatusColor(status) {
     switch (status) {
       case 'Confirmed': return 'bg-green-100 text-green-700';
       case 'Pending': return 'bg-yellow-100 text-yellow-700';
@@ -80,7 +80,7 @@ export default function BookingHistoryPage() {
     }
   };
 
-  const formatTime = (t) => {
+  function formatTime(t) {
     if (!t) return '';
     // Handle "HH:MM:SS" → "HH:MM"
     return t.length > 5 ? t.slice(0, 5) : t;

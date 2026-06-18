@@ -12,7 +12,7 @@ export default function MobileWalletPage() {
   const [depositError, setDepositError] = useState('')
 
   useEffect(() => {
-    const fetchData = async () => {
+    async function fetchData() {
       try {
         const [walletRes, transRes] = await Promise.all([
           paymentApi.getEscrowWallet(),
@@ -30,13 +30,13 @@ export default function MobileWalletPage() {
     fetchData();
   }, []);
 
-  const handleAddFunds = () => {
+  function handleAddFunds() {
     setDepositAmount('');
     setDepositError('');
     setShowDepositModal(true);
   }
 
-  const handleDepositConfirm = async () => {
+  async function handleDepositConfirm() {
     const amount = parseInt(depositAmount.replace(/\D/g, ''));
     if (isNaN(amount) || amount < 10000) {
       setDepositError('Số tiền không hợp lệ (tối thiểu 10.000 VNĐ)');

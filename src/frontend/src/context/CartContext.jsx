@@ -14,7 +14,7 @@ export const CartProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [cartData, setCartData] = useState(null); // Keep the full API response for totals
 
-  const fetchCart = async () => {
+  async function fetchCart() {
     if (!user) return;
     try {
       setLoading(true);
@@ -50,7 +50,7 @@ export const CartProvider = ({ children }) => {
     localStorage.setItem('cartItems', JSON.stringify(cartItems));
   }, [cartItems]);
 
-  const addToCart = async (equipmentId, quantity, bookingId = null) => {
+  async function addToCart(equipmentId, quantity, bookingId = null) {
     if (!user) return { success: false, message: 'Vui lòng đăng nhập để thêm vào giỏ hàng' };
     try {
       const res = await cartApi.addToCart({ equipmentId, quantity, bookingId });
@@ -64,7 +64,7 @@ export const CartProvider = ({ children }) => {
     }
   };
 
-  const updateQuantity = async (cartItemId, quantity) => {
+  async function updateQuantity(cartItemId, quantity) {
     try {
       const res = await cartApi.updateQuantity(cartItemId, quantity);
       if (res.success || res.statusCode === 200) {
@@ -75,7 +75,7 @@ export const CartProvider = ({ children }) => {
     }
   };
 
-  const removeFromCart = async (cartItemId) => {
+  async function removeFromCart(cartItemId) {
     try {
       const res = await cartApi.removeItem(cartItemId);
       if (res.success || res.statusCode === 200) {
@@ -86,7 +86,7 @@ export const CartProvider = ({ children }) => {
     }
   };
 
-  const clearCart = async () => {
+  async function clearCart() {
     try {
       const res = await cartApi.clearCart();
       if (res.success || res.statusCode === 200) {
@@ -100,7 +100,7 @@ export const CartProvider = ({ children }) => {
     }
   };
 
-  const getCart = () => {
+  function getCart() {
     return { items: cartItems, ...cartData };
   };
 

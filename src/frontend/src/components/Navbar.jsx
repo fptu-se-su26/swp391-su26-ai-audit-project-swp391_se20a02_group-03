@@ -14,7 +14,7 @@ export default function Navbar({ theme = 'light' }) {
     setIsLoggedIn(!!token)
   }, [location])
 
-  const handleLogout = () => {
+  function handleLogout() {
     localStorage.removeItem('token')
     sessionStorage.removeItem('token')
     setIsLoggedIn(false)

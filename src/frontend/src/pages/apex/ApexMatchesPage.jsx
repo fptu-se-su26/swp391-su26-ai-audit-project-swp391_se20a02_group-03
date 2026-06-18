@@ -28,7 +28,7 @@ export default function ApexMatchesPage() {
   const pageRef = useRef(null)
 
   useEffect(() => {
-    const initData = async () => {
+    async function initData() {
       try {
         const [profileRes, matchesRes] = await Promise.all([
           authApi.getProfile(),
@@ -89,7 +89,7 @@ export default function ApexMatchesPage() {
     (sportFilter === 'All Sports' || m.sport === sportFilter)
   )
 
-  const handleJoin = async (id) => {
+  async function handleJoin(id) {
     try {
       await matchApi.joinMatch(id)
       setJoined(prev => [...prev, id])

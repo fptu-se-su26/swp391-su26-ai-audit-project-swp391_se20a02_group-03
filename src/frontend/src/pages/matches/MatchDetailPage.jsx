@@ -16,7 +16,7 @@ export default function MatchDetailPage() {
     loadMatch()
   }, [id])
 
-  const loadMatch = () => {
+  function loadMatch() {
     matchApi.getMatchById(id)
       .then(res => {
         if(res.data) setMatch(res.data)
@@ -24,7 +24,7 @@ export default function MatchDetailPage() {
       .catch(err => console.error(err))
   }
 
-  const handleJoin = async () => {
+  async function handleJoin() {
     setIsLoading(true)
     try {
       const res = await matchApi.joinMatch(id)

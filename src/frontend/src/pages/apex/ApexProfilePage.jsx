@@ -30,7 +30,7 @@ export default function ApexProfilePage() {
     return () => ctx.revert()
   }, [])
 
-  const save = () => {
+  function save() {
     setEditing(false)
     gsap.from('.profile-header__name', { scale: 1.04, duration: 0.3, ease: 'back.out(1.5)' })
   }

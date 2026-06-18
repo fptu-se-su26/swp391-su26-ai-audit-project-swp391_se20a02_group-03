@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ProSport.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class AddPaymentDeadline : Migration
+    public partial class AddPaymentDeadline173327 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

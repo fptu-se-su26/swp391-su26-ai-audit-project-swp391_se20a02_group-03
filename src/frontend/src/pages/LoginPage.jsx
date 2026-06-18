@@ -17,7 +17,7 @@ export default function LoginPage() {
   const [failedAttempts, setFailedAttempts] = useState(0)
 
   useEffect(() => {
-    const handleKeyUp = (e) => {
+    function handleKeyUp(e) {
       if (e.getModifierState) {
         setCapsLockOn(e.getModifierState('CapsLock'))
       }
@@ -33,7 +33,7 @@ export default function LoginPage() {
   const toast = useToast()
   const { login } = useAuth()
 
-  const handleLogin = async (e) => {
+  async function handleLogin(e) {
     e.preventDefault()
     setError(null)
 
@@ -78,7 +78,7 @@ export default function LoginPage() {
   }
 
 
-  const handleGoogleSuccess = async (credentialResponse) => {
+  async function handleGoogleSuccess(credentialResponse) {
     setError(null)
     setLoading(true)
     try {
