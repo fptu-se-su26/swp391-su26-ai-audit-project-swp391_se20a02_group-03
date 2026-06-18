@@ -19,6 +19,8 @@ public class EquipmentRental
     public decimal? AdditionalCharge { get; set; }
     public DateTime RentedAt { get; set; } = DateTime.UtcNow;
 
+    public int? EquipmentUnitId { get; set; }
     public Equipment Equipment { get; set; } = null!;
+    public EquipmentUnit? EquipmentUnit { get; set; }
     public Booking? Booking { get; set; }
 }

@@ -68,8 +68,17 @@ builder.Services.AddScoped<IEquipmentService, EquipmentService>();
 builder.Services.AddScoped<IMatchService, MatchService>();
 builder.Services.AddScoped<IEscrowService, EscrowService>();
 builder.Services.AddScoped<IVnPayService, VnPayService>();
+ DE190147/audit-module
 builder.Services.AddScoped<IStorageService, LocalStorageService>();
+
+
+builder.Services.AddScoped<IStorageService, LocalStorageService>();
+
+
+ main
 builder.Services.AddScoped<IChatbotService, ChatbotService>();
+builder.Services.AddScoped<ICartRepository, CartRepository>();
+builder.Services.AddScoped<ICartService, CartService>();
 
 // Configure Rate Limiting
 builder.Services.AddRateLimiter(options =>

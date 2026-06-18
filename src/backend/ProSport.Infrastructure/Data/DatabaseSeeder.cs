@@ -69,6 +69,32 @@ public static class DatabaseSeeder
         var equipments = BuildEquipmentCatalog();
         context.Equipments.AddRange(equipments);
         await context.SaveChangesAsync();
+
+        await SeedUnitsAsync(context, equipments);
+    }
+
+    private static async Task SeedUnitsAsync(ProSportDbContext context, List<Equipment> equipments)
+    {
+        if (await context.EquipmentUnits.AnyAsync()) return;
+
+        var units = new List<EquipmentUnit>();
+        foreach (var equipment in equipments)
+        {
+            // Seed 5 units for each equipment
+            for (int i = 1; i <= 5; i++)
+            {
+                units.Add(new EquipmentUnit
+                {
+                    EquipmentId = equipment.EquipmentId,
+                    SerialNumber = $"{equipment.SportType.Substring(0, 3).ToUpper()}-{equipment.EquipmentId:D3}-{i:D2}",
+                    Status = "Available",
+                    RentalCount = 0,
+                    Condition = "New"
+                });
+            }
+        }
+        context.EquipmentUnits.AddRange(units);
+        await context.SaveChangesAsync();
     }
 
     private static async Task EnsureCategoryColumnAsync(ProSportDbContext context)

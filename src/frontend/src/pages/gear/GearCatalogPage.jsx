@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import GearLayout from '../../layouts/GearLayout'
 import { equipmentApi } from '../../api/equipmentApi'
+import { useCart } from '../../context/CartContext'
+import { useToast } from '../../components/Toast'
 
 const itemTypeIcons = {
   'Racket':       '🏸',
@@ -16,6 +18,7 @@ const sports    = ['Badminton', 'Pickleball']
 const itemTypes = ['Racket', 'Footwear', 'Apparel', 'Ball / Birdie', 'Accessories', 'Protection']
 const conditions = ['Premium', 'New', 'Demo']
 
+
 const badgeStyles = {
   new:     'bg-emerald-500 text-white',
   premium: 'bg-amber-500 text-white',
@@ -29,8 +32,11 @@ const DEFAULT_PRICE_MIN = ''
 const DEFAULT_PRICE_MAX = ''
 
 export default function GearCatalogPage() {
+  const { addToCart } = useCart()
+  const { addToast } = useToast()
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
+  const [quantities, setQuantities] = useState({}) // Store quantities per product
   const [selectedSports,  setSelectedSports]  = useState(DEFAULT_SPORTS)
   const [selectedItems,   setSelectedItems]   = useState(DEFAULT_ITEMS)
   const [selectedConds,   setSelectedConds]   = useState(DEFAULT_CONDS)
@@ -109,6 +115,25 @@ export default function GearCatalogPage() {
     const matchMax   = applied.max === '' || p.price <= Number(applied.max)
     return matchSport && matchItem && matchCond && matchMin && matchMax
   })
+
+  const handleQuickAddToCart = async (e, product) => {
+    e.preventDefault(); e.stopPropagation();
+    const qty = quantities[product.id] || 1;
+    try {
+      const res = await addToCart(product.id, qty);
+      if (res.success) {
+        addToast(`Đã thêm ${qty} x ${product.name} vào giỏ hàng`, 'success');
+      } else {
+        addToast(res.message, 'error');
+      }
+    } catch (error) {
+      addToast('Lỗi khi thêm vào giỏ hàng', 'error');
+    }
+  };
+
+  const updateProductQty = (id, val) => {
+    setQuantities(prev => ({ ...prev, [id]: Math.max(1, val) }));
+  };
 
   if (sort === 'price-asc')  filtered = [...filtered].sort((a,b) => a.price - b.price)
   if (sort === 'price-desc') filtered = [...filtered].sort((a,b) => b.price - a.price)
@@ -293,15 +318,21 @@ export default function GearCatalogPage() {
                       <span className="text-xs font-semibold bg-brand-50 text-brand-600 rounded-md px-2 py-1">{itemTypeIcons[p.itemType]} {p.itemType}</span>
                     </div>
                     <h3 className="font-heading text-lg font-bold text-brand-900 leading-tight mb-4 group-hover:text-accent transition-colors">{p.name}</h3>
-                    <div className="mt-auto flex flex-col gap-3 border-t border-brand-100 pt-4">
-                      <div className="flex justify-between items-center">
-                        <span className="text-[10px] font-bold uppercase tracking-widest text-brand-400">Có đặt sân</span>
-                        <span className="text-sm font-bold text-brand-900">{p.priceLabel}</span>
+                    <div className="mt-auto flex flex-col gap-4 border-t border-brand-100 pt-4">
+                      <div className="flex justify-between items-center text-sm font-bold text-brand-900">
+                        <span>{p.priceLabel}</span>
+                        <div className="flex items-center border border-brand-200 rounded-lg overflow-hidden h-8">
+                          <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); updateProductQty(p.id, (quantities[p.id] || 1) - 1); }} className="px-2 hover:bg-brand-50 text-brand-900 font-bold border-r border-brand-200">-</button>
+                          <span className="px-3 min-w-[32px] text-center text-xs font-bold">{quantities[p.id] || 1}</span>
+                          <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); updateProductQty(p.id, (quantities[p.id] || 1) + 1); }} className="px-2 hover:bg-brand-50 text-brand-900 font-bold border-l border-brand-200">+</button>
+                        </div>
                       </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-[10px] font-bold uppercase tracking-widest text-brand-400">Không đặt sân</span>
-                        <span className="text-sm font-bold text-amber-600">{p.surchargePriceLabel}</span>
-                      </div>
+                      <button 
+                        onClick={(e) => handleQuickAddToCart(e, p)}
+                        className="w-full py-2.5 bg-brand-900 text-white text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-accent transition-all duration-300 transform active:scale-[0.98]"
+                      >
+                        Thêm vào giỏ
+                      </button>
                     </div>
                   </div>
                 </Link>
@@ -325,9 +356,26 @@ export default function GearCatalogPage() {
                       <h3 className="font-heading text-xl font-bold text-brand-900 mb-3 group-hover:text-accent transition-colors">{p.name}</h3>
                       {p.stock && <span className="text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-md px-2 py-0.5">{p.stock}</span>}
                     </div>
-                    <div className="text-right shrink-0 border-l border-brand-100 pl-8">
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-brand-400 mb-1.5">{p.type === 'rental' ? 'Rental Rate' : 'Purchase'}</p>
-                      <p className="text-3xl font-bold text-brand-900 mb-2">{p.priceLabel}</p>
+                    <div className="text-right shrink-0 border-l border-brand-100 pl-8 flex flex-col items-end gap-3">
+                      <div>
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-brand-400 mb-1.5">{p.type === 'rental' ? 'Rental Rate' : 'Purchase'}</p>
+                        <p className="text-3xl font-bold text-brand-900">{p.priceLabel}</p>
+                      </div>
+                      
+                      <div className="flex items-center gap-4">
+                        <div className="flex items-center border border-brand-200 rounded-lg overflow-hidden h-9 bg-white">
+                          <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); updateProductQty(p.id, (quantities[p.id] || 1) - 1); }} className="px-3 hover:bg-brand-50 text-brand-900 font-bold border-r border-brand-200">-</button>
+                          <span className="px-4 min-w-[40px] text-center font-bold text-sm">{quantities[p.id] || 1}</span>
+                          <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); updateProductQty(p.id, (quantities[p.id] || 1) + 1); }} className="px-3 hover:bg-brand-50 text-brand-900 font-bold border-l border-brand-200">+</button>
+                        </div>
+                        <button 
+                          onClick={(e) => handleQuickAddToCart(e, p)}
+                          className="px-6 py-2.5 bg-brand-900 text-white text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-accent transition-all whitespace-nowrap"
+                        >
+                          Thêm vào giỏ
+                        </button>
+                      </div>
+                      
                       {p.deposit && <p className="text-xs font-medium text-brand-500">Deposit: {p.deposit}</p>}
                     </div>
                   </div>

@@ -18,4 +18,5 @@ public class EquipmentRentalDto
     public decimal? DepositRefundAmount { get; set; }
     public decimal? AdditionalCharge { get; set; }
     public DateTime RentedAt { get; set; }
+    public string? SerialNumber { get; set; }
 }

@@ -21,4 +21,7 @@ export const equipmentApi = {
 
   // Staff: kiểm định tình trạng & xử lý cọc
   inspectReturn: (rentalId, data) => axiosClient.put(`/equipment/return/${rentalId}/inspect`, data),
+
+  // Dashboard stats
+  getDashboard: () => axiosClient.get('/equipment/dashboard'),
 };
