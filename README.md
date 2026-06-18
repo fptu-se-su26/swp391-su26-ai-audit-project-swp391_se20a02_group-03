@@ -21,7 +21,7 @@
 | 2 | DE190147 | Phạm Nguyễn Tiến Đạt | tiendat2277sg-wq | Member |  |
 | 3 | DE190900 | Dương Khang Huy | khuy17 | Member |  |
 | 4 | DE191003 |  Hồ Tấn Phát  | Phat1425 | Member |  |
-| 5 | DE190130 | Nguyễn Đăng Phúc | chuotphuc311005-lgtm | Member |  |
+| 5 | DE190130 | Nguyễn Đăng Phúc | ndangphuc-lgtm | Member |  |
 
 ---
 

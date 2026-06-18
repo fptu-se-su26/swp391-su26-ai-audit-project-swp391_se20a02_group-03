@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ProSport.Application.DTOs;
 using ProSport.Application.Interfaces;
+using ProSport.Domain.Constants;
 using System.Security.Claims;
 
 namespace ProSport.API.Controllers;
@@ -35,8 +36,13 @@ public class PaymentController : ControllerBase
             return Unauthorized(new ApiResponseDto<object>(401, "Unauthorized"));
         }
 
+        if (string.IsNullOrWhiteSpace(orderType) || string.IsNullOrWhiteSpace(referenceId))
+        {
+            return BadRequest(new ApiResponseDto<object>(400, "Thiếu thông tin thanh toán"));
+        }
+
         // Bảo mật: Lấy số tiền thực tế từ DB nếu là Booking + check ownership
-        if (orderType == "Booking")
+        if (orderType == VnPayOrderType.Booking)
         {
             if (int.TryParse(referenceId, out int bookingId))
             {
@@ -52,10 +58,20 @@ public class PaymentController : ControllerBase
                     return Forbid();
                 }
 
+                if (bookingRes.Data.Status != BookingStatus.Pending)
+                {
+                    return BadRequest(new ApiResponseDto<object>(400, $"Booking đang ở trạng thái {bookingRes.Data.Status}, không thể thanh toán"));
+                }
+
                 // Kiểm tra booking đã thanh toán chưa
-                if (bookingRes.Data.PaymentStatus == "Paid")
+                if (bookingRes.Data.PaymentStatus == PaymentStatus.Paid)
                 {
                     return BadRequest(new ApiResponseDto<object>(400, "Booking đã được thanh toán"));
+                }
+
+                if (bookingRes.Data.PaymentDeadline.HasValue && DateTime.UtcNow > bookingRes.Data.PaymentDeadline.Value)
+                {
+                    return BadRequest(new ApiResponseDto<object>(400, "Booking đã hết hạn thanh toán. Vui lòng đặt lại."));
                 }
 
                 // Lấy số tiền từ DB, không tin FE gửi lên
@@ -65,6 +81,17 @@ public class PaymentController : ControllerBase
             {
                 return BadRequest(new ApiResponseDto<object>(400, "ReferenceId không hợp lệ"));
             }
+        }
+        else if (orderType == VnPayOrderType.Deposit)
+        {
+            if (amount <= 0)
+            {
+                return BadRequest(new ApiResponseDto<object>(400, "Số tiền nạp ví phải lớn hơn 0"));
+            }
+        }
+        else
+        {
+            return BadRequest(new ApiResponseDto<object>(400, "Loại thanh toán không hợp lệ"));
         }
 
         var url = _vnPayService.CreatePaymentUrl(ipAddress, userId, amount, orderType, referenceId);
@@ -90,10 +117,16 @@ public class PaymentController : ControllerBase
                 "VNPay IPN received: OrderType={OrderType}, ReferenceId={RefId}, Amount={Amount}, ResponseCode={Code}, TxnId={TxnId}",
                 response.OrderType, response.ReferenceId, response.Amount, response.VnPayResponseCode, response.VnPayTransactionId);
 
+            if (!response.IsValidSignature)
+            {
+                _logger.LogWarning("VNPay IPN: Invalid signature. ResponseCode: {Code}", response.VnPayResponseCode);
+                return Ok(new { RspCode = "97", Message = "Invalid signature" });
+            }
+
             if (!response.Success)
             {
-                _logger.LogWarning("VNPay IPN: Invalid signature or failed transaction. ResponseCode: {Code}", response.VnPayResponseCode);
-                return Ok(new { RspCode = "97", Message = "Invalid signature" });
+                _logger.LogInformation("VNPay IPN: Payment not successful. ResponseCode: {Code}", response.VnPayResponseCode);
+                return Ok(new { RspCode = "00", Message = "Payment failed or cancelled" });
             }
 
             // Xử lý nạp tiền ví Escrow
@@ -158,9 +191,14 @@ public class PaymentController : ControllerBase
             .ToList();
         var response = _vnPayService.GetPaymentResult(queryDictionary);
 
+        if (!response.IsValidSignature)
+        {
+            return BadRequest(new ApiResponseDto<object>(400, "Chữ ký VNPay không hợp lệ", response));
+        }
+
         if (!response.Success)
         {
-            return BadRequest(new ApiResponseDto<object>(400, "Thanh toán thất bại hoặc chữ ký không hợp lệ", response));
+            return BadRequest(new ApiResponseDto<object>(400, "Thanh toán thất bại hoặc đã bị hủy", response));
         }
 
         // Fallback: Nếu IPN chưa kịp xử lý (network delay), Return URL sẽ cố gắng xử lý (idempotent)

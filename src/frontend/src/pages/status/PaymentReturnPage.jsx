@@ -9,6 +9,7 @@ export default function PaymentReturnPage() {
   const [status, setStatus] = useState('processing'); // 'processing', 'success', 'failed'
   const [message, setMessage] = useState('Đang xử lý giao dịch...');
   const [bookingData, setBookingData] = useState(null);
+  const [depositAmount, setDepositAmount] = useState(null);
   const [countdown, setCountdown] = useState(15);
   const isProcessed = useRef(false); // Chống React StrictMode gọi 2 lần
 
@@ -20,6 +21,12 @@ export default function PaymentReturnPage() {
     const processPayment = async () => {
       try {
         const queryString = searchParams.toString();
+        if (!queryString) {
+          setStatus('failed');
+          setMessage('Không tìm thấy thông tin giao dịch.');
+          return;
+        }
+
         const orderInfoRaw = searchParams.get('vnp_OrderInfo');
         let parsedInfo = 'Giao dịch';
         
@@ -42,32 +49,36 @@ export default function PaymentReturnPage() {
           if (response.data?.booking) {
             setBookingData(response.data.booking);
           }
+          // Hiển thị số tiền nạp ví khi order type là Deposit
+          if (response.data?.amount && !response.data?.booking) {
+            setDepositAmount(response.data.amount);
+          }
         } else {
           setStatus('failed');
           setMessage(response.message || 'Giao dịch không thành công.');
         }
       } catch (error) {
         setStatus('failed');
-        const errorMsg = error?.response?.data?.message || error?.message || 'Đã xảy ra lỗi trong quá trình xác thực thanh toán.';
+        // axiosClient interceptor rejects with a plain string, not Error object
+        const errorMsg = typeof error === 'string' ? error : (error?.response?.data?.message || error?.message || 'Đã xảy ra lỗi trong quá trình xác thực thanh toán.');
         setMessage(typeof errorMsg === 'string' ? errorMsg : 'Đã xảy ra lỗi trong quá trình xác thực thanh toán.');
       }
     };
 
-    if (searchParams.toString()) {
-      processPayment();
-    } else {
-      setStatus('failed');
-      setMessage('Không tìm thấy thông tin giao dịch.');
-    }
-  }, []);
+    processPayment();
+  }, [searchParams]);
 
   // Countdown timer khi đang processing
   useEffect(() => {
     if (status !== 'processing') return;
     if (countdown <= 0) {
-      setStatus('failed');
-      setMessage('Quá thời gian xử lý. Vui lòng kiểm tra lịch sử đặt sân.');
-      return;
+      // Use a 0ms timer so setState runs in the timer callback, not
+      // synchronously inside the effect body (satisfies react-hooks/set-state-in-effect).
+      const expire = setTimeout(() => {
+        setStatus('failed');
+        setMessage('Quá thời gian xử lý. Vui lòng kiểm tra lịch sử đặt sân.');
+      }, 0);
+      return () => clearTimeout(expire);
     }
     const timer = setTimeout(() => setCountdown(c => c - 1), 1000);
     return () => clearTimeout(timer);
@@ -139,6 +150,20 @@ export default function PaymentReturnPage() {
                       <p className="font-mono text-lg font-bold text-accent tracking-wider">{bookingData.checkInCode}</p>
                     </div>
                   )}
+                </div>
+              )}
+
+              {/* Hiển thị chi tiết nạp tiền nếu là Deposit */}
+              {depositAmount && !bookingData && (
+                <div className="bg-brand-50 rounded-2xl p-5 mb-6 text-left border border-brand-100">
+                  <h3 className="font-bold text-brand-900 text-sm mb-3 flex items-center gap-2">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                    Chi tiết nạp tiền
+                  </h3>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-brand-500">Số tiền nạp</span>
+                    <span className="font-bold text-accent">{Number(depositAmount).toLocaleString('vi-VN')} đ</span>
+                  </div>
                 </div>
               )}
               

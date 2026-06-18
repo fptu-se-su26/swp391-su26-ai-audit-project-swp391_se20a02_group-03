@@ -16,13 +16,15 @@ public class CourtController : ControllerBase
         _courtService = courtService;
     }
 
+    // READ - list all courts with pagination and filtering
     [HttpGet]
-    public async Task<IActionResult> GetAllCourts()
+    public async Task<IActionResult> GetAllCourts([FromQuery] CourtQueryParameters parameters)
     {
-        var response = await _courtService.GetAllCourtsAsync();
+        var response = await _courtService.GetAllCourtsAsync(parameters);
         return StatusCode(response.StatusCode, response);
     }
 
+    // READ - get by id
     [HttpGet("{id}")]
     public async Task<IActionResult> GetCourtById(int id)
     {
@@ -30,6 +32,7 @@ public class CourtController : ControllerBase
         return StatusCode(response.StatusCode, response);
     }
 
+    // READ - available courts
     [HttpGet("available")]
     public async Task<IActionResult> GetAvailableCourts([FromQuery] DateTime date, [FromQuery] TimeSpan startTime, [FromQuery] TimeSpan endTime)
     {
@@ -37,19 +40,65 @@ public class CourtController : ControllerBase
         return StatusCode(response.StatusCode, response);
     }
 
+    // READ - booked slots
     [HttpGet("{id}/booked-slots")]
     public async Task<IActionResult> GetBookedSlots(int id, [FromQuery] DateTime date)
     {
-        // For simplicity, we delegate this to CourtService
         var response = await _courtService.GetBookedSlotsAsync(id, date);
         return StatusCode(response.StatusCode, response);
     }
 
+    // CREATE - new court (admin only)
     [Authorize(Roles = "Admin")]
     [HttpPost]
     public async Task<IActionResult> CreateCourt([FromBody] CreateCourtDto dto)
     {
         var response = await _courtService.CreateCourtAsync(dto);
+        return StatusCode(response.StatusCode, response);
+    }
+
+    // UPDATE - modify existing court (admin only)
+    [Authorize(Roles = "Admin")]
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateCourt(int id, [FromBody] UpdateCourtDto dto)
+    {
+        var response = await _courtService.UpdateCourtAsync(id, dto);
+        return StatusCode(response.StatusCode, response);
+    }
+
+    // DELETE - soft delete court (admin only)
+    [Authorize(Roles = "Admin")]
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteCourt(int id)
+    {
+        var response = await _courtService.DeleteCourtAsync(id);
+        return StatusCode(response.StatusCode, response);
+    }
+
+    // ==========================================
+    // PRICING RULES
+    // ==========================================
+
+    [HttpGet("{id}/pricing-rules")]
+    public async Task<IActionResult> GetPricingRules(int id)
+    {
+        var response = await _courtService.GetPricingRulesAsync(id);
+        return StatusCode(response.StatusCode, response);
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpPost("{id}/pricing-rules")]
+    public async Task<IActionResult> CreatePricingRule(int id, [FromBody] CreatePricingRuleDto dto)
+    {
+        var response = await _courtService.CreatePricingRuleAsync(id, dto);
+        return StatusCode(response.StatusCode, response);
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpDelete("{id}/pricing-rules/{ruleId}")]
+    public async Task<IActionResult> DeletePricingRule(int id, int ruleId)
+    {
+        var response = await _courtService.DeletePricingRuleAsync(id, ruleId);
         return StatusCode(response.StatusCode, response);
     }
 }

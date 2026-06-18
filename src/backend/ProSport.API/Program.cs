@@ -68,6 +68,7 @@ builder.Services.AddScoped<IEquipmentService, EquipmentService>();
 builder.Services.AddScoped<IMatchService, MatchService>();
 builder.Services.AddScoped<IEscrowService, EscrowService>();
 builder.Services.AddScoped<IVnPayService, VnPayService>();
+builder.Services.AddScoped<IStorageService, LocalStorageService>();
 builder.Services.AddScoped<IChatbotService, ChatbotService>();
 
 // Configure Rate Limiting
@@ -121,13 +122,12 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwagger();
+app.UseSwaggerUI();
 
-app.UseHttpsRedirection();
+app.UseStaticFiles(); // Added for LocalStorageService
+
+// app.UseHttpsRedirection(); // Disabled to avoid redirect issues
 
 app.UseCors("AllowFrontend");
 
@@ -142,10 +142,35 @@ using (var scope = app.Services.CreateScope())
     var context = scope.ServiceProvider.GetRequiredService<ProSportDbContext>();
     await DatabaseSeeder.EnsureEquipmentRentalSchemaAsync(context);
     await DatabaseSeeder.SeedEquipmentAsync(context);
+    await DatabaseSeeder.SeedCourtsAsync(context);
 }
 
 app.MapControllers();
 
 app.MapGet("/", () => "ProSport API is running. Go to /swagger to view the API documentation.");
+
+// === ADMIN SEEDER ===
+// Tạo tài khoản Admin mặc định nếu chưa có (idempotent — chỉ chạy 1 lần).
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<ProSportDbContext>();
+    if (!context.Users.Any(u => u.Email == "admin@prosport.vn"))
+    {
+        context.Users.Add(new ProSport.Domain.Entities.User
+        {
+            FullName = "System Admin",
+            Email = "admin@prosport.vn",
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin@123456"),
+            Role = "Admin",
+            IsPhoneVerified = true
+        });
+        context.SaveChanges();
+        Console.WriteLine("[Seeder] Admin user created: admin@prosport.vn / Admin@123456");
+    }
+    else
+    {
+        Console.WriteLine("[Seeder] Admin user already exists. Skipping.");
+    }
+}
 
 app.Run();

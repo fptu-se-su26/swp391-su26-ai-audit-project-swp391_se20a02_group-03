@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using ProSport.Application.Interfaces;
+using ProSport.Domain.Constants;
 using ProSport.Domain.Entities;
 using ProSport.Infrastructure.Data;
 
@@ -59,6 +60,20 @@ public class EscrowRepository : IEscrowRepository
         try
         {
             var wallet = await _context.EscrowWallets.FirstOrDefaultAsync(w => w.UserId == userId);
+            var booking = await _context.Bookings.FirstOrDefaultAsync(b =>
+                b.BookingId == bookingId &&
+                b.UserId == userId &&
+                !b.IsDeleted);
+
+            if (booking == null ||
+                booking.Status != BookingStatus.Pending ||
+                booking.PaymentStatus == PaymentStatus.Paid ||
+                (booking.PaymentDeadline.HasValue && DateTime.UtcNow > booking.PaymentDeadline.Value))
+            {
+                await dbTransaction.RollbackAsync();
+                return false;
+            }
+
             if (wallet == null || wallet.Balance < amount)
             {
                 await dbTransaction.RollbackAsync();
@@ -72,8 +87,8 @@ public class EscrowRepository : IEscrowRepository
                 EscrowWalletId = wallet.EscrowWalletId,
                 BookingId = bookingId,
                 Amount = amount,
-                Type = ProSport.Domain.Constants.TransactionType.Payment,
-                Status = ProSport.Domain.Constants.TransactionStatus.Completed,
+                Type = TransactionType.Payment,
+                Status = TransactionStatus.Completed,
                 ReferenceId = $"Booking_{bookingId}",
                 Description = $"Thanh toán đặt sân mã #{bookingId}"
             };
