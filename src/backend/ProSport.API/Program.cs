@@ -72,6 +72,7 @@ builder.Services.AddScoped<IEquipmentCategoryService, EquipmentCategoryService>(
 builder.Services.AddScoped<IEquipmentService, EquipmentService>();
 builder.Services.AddScoped<IInventoryService, InventoryService>();
 builder.Services.AddScoped<IVnPayService, VnPayService>();
+ feat/DE190130_API_Tham_Gia_&_Vi_Escrow
 feat/DE190130_API_Tham_Gia_&_Vi_Escrow
 builder.Services.AddScoped<IStorageService, LocalStorageService>();
 
@@ -80,7 +81,15 @@ builder.Services.AddScoped<IStorageService, LocalStorageService>();
 
 main
 main
+
+
+builder.Services.AddScoped<IStorageService, LocalStorageService>();
+
+
+ main
 builder.Services.AddScoped<IChatbotService, ChatbotService>();
+builder.Services.AddScoped<ICartRepository, CartRepository>();
+builder.Services.AddScoped<ICartService, CartService>();
 
 // Configure Rate Limiting
 builder.Services.AddRateLimiter(options =>

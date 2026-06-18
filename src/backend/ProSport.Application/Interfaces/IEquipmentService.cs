@@ -20,4 +20,5 @@ public interface IEquipmentService
     Task<ApiResponseDto<EquipmentRentalDto>> InspectReturnAsync(int rentalId, InspectEquipmentRentalRequest request);
     Task<ApiResponseDto<IEnumerable<EquipmentRentalDto>>> GetUserRentalsAsync(int userId);
     Task<ApiResponseDto<IEnumerable<EquipmentRentalDto>>> GetPendingInspectionsAsync();
+    Task<EquipmentDashboardDto> GetDashboardStatsAsync();
 }

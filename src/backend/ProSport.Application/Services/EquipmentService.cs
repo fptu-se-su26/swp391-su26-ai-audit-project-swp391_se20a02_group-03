@@ -127,8 +127,25 @@ public class EquipmentService : IEquipmentService
             var equipment = await _equipmentRepository.GetByIdAsync(request.EquipmentId);
             if (equipment == null) return new ApiResponseDto<bool>(404, "Equipment not found");
 
-            if (equipment.RentalStock < request.Quantity)
-                return new ApiResponseDto<bool>(400, "Not enough equipment available");
+            // Unit-level tracking logic
+            EquipmentUnit? selectedUnit = null;
+            if (!string.IsNullOrEmpty(request.PreferredSerialNumber))
+            {
+                selectedUnit = await _equipmentRepository.GetEquipmentUnitBySerialAsync(request.PreferredSerialNumber);
+                if (selectedUnit == null || selectedUnit.EquipmentId != request.EquipmentId || selectedUnit.Status != "Available")
+                {
+                    return new ApiResponseDto<bool>(400, "Preferred unit is not available");
+                }
+            }
+            else
+            {
+                var availableUnits = await _equipmentRepository.GetAvailableUnitsForEquipmentAsync(request.EquipmentId);
+                selectedUnit = availableUnits.FirstOrDefault();
+                if (selectedUnit == null)
+                {
+                    return new ApiResponseDto<bool>(400, "No available units for this equipment");
+                }
+            }
 
             decimal unitPrice = equipment.RentalPrice;
             if (request.BookingId == null)
@@ -136,22 +153,27 @@ public class EquipmentService : IEquipmentService
                 unitPrice *= 1.3m;
             }
 
-            equipment.RentalStock -= request.Quantity;
+            // Note: We don't manually decrement equipment.RentalStock here because it will be computed from units
+            // but we still need to keep the entity consistent if properties are used.
+            // For now, let's keep it as is or update it based on the new logic.
+            equipment.RentalStock = (await _equipmentRepository.GetAvailableUnitsForEquipmentAsync(equipment.EquipmentId)).Count() - 1;
             await _equipmentRepository.UpdateEquipmentAsync(equipment);
 
             var rental = new EquipmentRental
             {
                 EquipmentId = request.EquipmentId,
+                EquipmentUnitId = selectedUnit.EquipmentUnitId,
                 BookingId = request.BookingId,
                 UserId = userId,
-                Quantity = request.Quantity,
+                Quantity = 1, // Unit-level tracking assumes 1 unit per rental record
                 UnitPrice = unitPrice,
-                DepositAmount = EquipmentRentalRules.CalculateDeposit(equipment.RetailPrice, request.Quantity),
+                DepositAmount = EquipmentRentalRules.CalculateDeposit(equipment.RetailPrice, 1),
                 DepositStatus = "Held",
                 RentalStatus = "Rented",
                 RentedAt = DateTime.UtcNow
             };
 
+            await _equipmentRepository.UpdateEquipmentUnitStatusAsync(selectedUnit.EquipmentUnitId, "Rented");
             await _equipmentRepository.CreateRentalAsync(rental);
 
             return new ApiResponseDto<bool>(200, "Equipment rented successfully", true);
@@ -219,6 +241,17 @@ public class EquipmentService : IEquipmentService
                     rental.DepositRefundAmount = rental.DepositAmount;
                     rental.AdditionalCharge = 0;
                     rental.DepositStatus = "Refunded";
+                    
+                    if (rental.EquipmentUnitId.HasValue)
+                    {
+                        var unit = await _equipmentRepository.GetEquipmentUnitByIdAsync(rental.EquipmentUnitId.Value);
+                        if (unit != null)
+                        {
+                            unit.Status = "Available";
+                            unit.RentalCount += 1;
+                            await _equipmentRepository.UpdateEquipmentUnitAsync(unit);
+                        }
+                    }
                     break;
 
                 case "Damaged":
@@ -232,6 +265,17 @@ public class EquipmentService : IEquipmentService
                     rental.DepositRefundAmount = rental.DepositAmount - damageFee;
                     rental.AdditionalCharge = 0;
                     rental.DepositStatus = "Deducted";
+
+                    if (rental.EquipmentUnitId.HasValue)
+                    {
+                        var unit = await _equipmentRepository.GetEquipmentUnitByIdAsync(rental.EquipmentUnitId.Value);
+                        if (unit != null)
+                        {
+                            unit.Status = "Maintenance";
+                            unit.RentalCount += 1;
+                            await _equipmentRepository.UpdateEquipmentUnitAsync(unit);
+                        }
+                    }
                     break;
 
                 case "Lost":
@@ -240,10 +284,30 @@ public class EquipmentService : IEquipmentService
                     rental.DepositRefundAmount = Math.Max(0, rental.DepositAmount - replacementCost);
                     rental.AdditionalCharge = Math.Max(0, replacementCost - rental.DepositAmount);
                     rental.DepositStatus = "Deducted";
+
+                    if (rental.EquipmentUnitId.HasValue)
+                    {
+                        var unit = await _equipmentRepository.GetEquipmentUnitByIdAsync(rental.EquipmentUnitId.Value);
+                        if (unit != null)
+                        {
+                            unit.Status = "Liquidated";
+                            // RentalCount does not increase for lost items
+                            await _equipmentRepository.UpdateEquipmentUnitAsync(unit);
+                        }
+                    }
                     break;
             }
 
             await _equipmentRepository.UpdateRentalAsync(rental);
+            
+            // Re-fetch to get updated navigation properties if needed, or update equipment.RentalStock
+            var equipment = await _equipmentRepository.GetByIdAsync(rental.EquipmentId);
+            if (equipment != null)
+            {
+                var availableUnits = await _equipmentRepository.GetAvailableUnitsForEquipmentAsync(equipment.EquipmentId);
+                equipment.RentalStock = availableUnits.Count();
+                await _equipmentRepository.UpdateEquipmentAsync(equipment);
+            }
 
             return new ApiResponseDto<EquipmentRentalDto>(200, "Inspection completed successfully.", MapRentalDto(rental));
         }
@@ -284,7 +348,50 @@ public class EquipmentService : IEquipmentService
         }
     }
 
+ feat/DE190130_API_Tham_Gia_&_Vi_Escrow
     private static EquipmentDto MapEquipmentDtoCombined(Equipment e) => new()
+    public async Task<EquipmentDashboardDto> GetDashboardStatsAsync()
+    {
+        var rentals = (await _equipmentRepository.GetAllRentalsAsync()).ToList();
+        var units = (await _equipmentRepository.GetAllUnitsAsync()).ToList();
+        var allEquipment = (await _equipmentRepository.GetAllAsync()).ToList();
+
+        var stats = new EquipmentDashboardDto
+        {
+            ActiveRentals = rentals.Count(r => r.RentalStatus == "Active" || r.RentalStatus == "Rented"),
+            TotalRevenue = rentals.Where(r => r.RentalStatus == "Completed" || r.RentalStatus == "Returned" || r.RentalStatus == "Inspected") 
+                                  .Sum(r => r.UnitPrice * r.Quantity),
+            
+            PendingInspections = rentals.Count(r => r.RentalStatus == "Returned" && string.IsNullOrEmpty(r.ReturnCondition)),
+            
+            TotalEquipmentValue = allEquipment.Sum(e => e.RetailPrice * (e.Units?.Count ?? 0)),
+            
+            UnitsByStatus = new UnitsByStatusDto
+            {
+                Available = units.Count(u => u.Status == "Available"),
+                Rented = units.Count(u => u.Status == "Rented"),
+                Maintenance = units.Count(u => u.Status == "Maintenance"),
+                Liquidated = units.Count(u => u.Status == "Liquidated")
+            },
+            
+            TopRentedEquipment = rentals
+                .GroupBy(r => r.EquipmentId)
+                .Select(g => new TopEquipmentDto
+                {
+                    EquipmentName = g.First().Equipment.EquipmentName,
+                    TotalRentals = g.Count(),
+                    Revenue = g.Sum(r => r.UnitPrice * r.Quantity)
+                })
+                .OrderByDescending(x => x.TotalRentals)
+                .Take(5)
+                .ToList()
+        };
+
+        return stats;
+    }
+
+    private static EquipmentDto MapEquipmentDto(Equipment e) => new()
+ main
     {
         EquipmentId = e.EquipmentId,
         EquipmentCategoryId = e.EquipmentCategoryId,
@@ -298,7 +405,9 @@ public class EquipmentService : IEquipmentService
         Type = e.SportType ?? "Badminton",
         RetailPrice = e.RetailPrice,
         RentalPrice = e.RentalPrice,
-        RentalStock = e.RentalStock,
+        RentalStock = e.Units != null && e.Units.Any() 
+            ? e.Units.Count(u => u.Status == "Available" && !u.IsDeleted) 
+            : e.RentalStock,
         SalesStock = e.SalesStock,
         ImageUrl = e.ImageUrl
     };
@@ -320,6 +429,7 @@ public class EquipmentService : IEquipmentService
         DamageFee = r.DamageFee,
         DepositRefundAmount = r.DepositRefundAmount,
         AdditionalCharge = r.AdditionalCharge,
-        RentedAt = r.RentedAt
+        RentedAt = r.RentedAt,
+        SerialNumber = r.EquipmentUnit?.SerialNumber
     };
 }
