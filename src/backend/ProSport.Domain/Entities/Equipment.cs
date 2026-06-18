@@ -15,4 +15,5 @@ public class Equipment : BaseEntity
 
     // Navigation properties
     public ICollection<EquipmentRental> Rentals { get; set; } = new List<EquipmentRental>();
+    public ICollection<EquipmentUnit> Units { get; set; } = new List<EquipmentUnit>();
 }

@@ -50,9 +50,6 @@ namespace ProSport.Infrastructure.Migrations
                     b.Property<DateTime?>("PaymentDeadline")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime?>("PaymentDeadline")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("PaymentMethod")
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
@@ -136,6 +133,53 @@ namespace ProSport.Infrastructure.Migrations
                     b.HasIndex("CourtId");
 
                     b.ToTable("BookingDetails");
+                });
+
+            modelBuilder.Entity("ProSport.Domain.Entities.CartItem", b =>
+                {
+                    b.Property<int>("CartItemId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CartItemId"));
+
+                    b.Property<int?>("BookingId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("CreatedAt");
+
+                    b.Property<int>("EquipmentId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit")
+                        .HasColumnName("IsDeleted");
+
+                    b.Property<string>("PreferredSerialNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("UnitPrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("UpdatedAt");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("CartItemId");
+
+                    b.HasIndex("EquipmentId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("CartItems", (string)null);
                 });
 
             modelBuilder.Entity("ProSport.Domain.Entities.ChatHistory", b =>
@@ -474,6 +518,9 @@ namespace ProSport.Infrastructure.Migrations
                     b.Property<int>("EquipmentId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("EquipmentUnitId")
+                        .HasColumnType("int");
+
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
@@ -510,7 +557,58 @@ namespace ProSport.Infrastructure.Migrations
 
                     b.HasIndex("EquipmentId");
 
+                    b.HasIndex("EquipmentUnitId");
+
                     b.ToTable("BookingDetails_Equipments", (string)null);
+                });
+
+            modelBuilder.Entity("ProSport.Domain.Entities.EquipmentUnit", b =>
+                {
+                    b.Property<int>("EquipmentUnitId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("EquipmentUnitId"));
+
+                    b.Property<string>("Condition")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("CreatedAt");
+
+                    b.Property<int>("EquipmentId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit")
+                        .HasColumnName("IsDeleted");
+
+                    b.Property<int>("RentalCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("SerialNumber")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)")
+                        .HasDefaultValue("Available");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("UpdatedAt");
+
+                    b.HasKey("EquipmentUnitId");
+
+                    b.HasIndex("EquipmentId");
+
+                    b.ToTable("EquipmentUnits", (string)null);
                 });
 
             modelBuilder.Entity("ProSport.Domain.Entities.EscrowWallet", b =>
@@ -1133,6 +1231,25 @@ namespace ProSport.Infrastructure.Migrations
                     b.Navigation("Court");
                 });
 
+            modelBuilder.Entity("ProSport.Domain.Entities.CartItem", b =>
+                {
+                    b.HasOne("ProSport.Domain.Entities.Equipment", "Equipment")
+                        .WithMany()
+                        .HasForeignKey("EquipmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ProSport.Domain.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Equipment");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("ProSport.Domain.Entities.ChatHistory", b =>
                 {
                     b.HasOne("ProSport.Domain.Entities.User", "User")
@@ -1194,7 +1311,25 @@ namespace ProSport.Infrastructure.Migrations
                         .HasForeignKey("EquipmentId")
                         .IsRequired();
 
+                    b.HasOne("ProSport.Domain.Entities.EquipmentUnit", "EquipmentUnit")
+                        .WithMany()
+                        .HasForeignKey("EquipmentUnitId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.Navigation("Booking");
+
+                    b.Navigation("Equipment");
+
+                    b.Navigation("EquipmentUnit");
+                });
+
+            modelBuilder.Entity("ProSport.Domain.Entities.EquipmentUnit", b =>
+                {
+                    b.HasOne("ProSport.Domain.Entities.Equipment", "Equipment")
+                        .WithMany("Units")
+                        .HasForeignKey("EquipmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Equipment");
                 });
@@ -1391,6 +1526,8 @@ namespace ProSport.Infrastructure.Migrations
             modelBuilder.Entity("ProSport.Domain.Entities.Equipment", b =>
                 {
                     b.Navigation("Rentals");
+
+                    b.Navigation("Units");
                 });
 
             modelBuilder.Entity("ProSport.Domain.Entities.EscrowWallet", b =>

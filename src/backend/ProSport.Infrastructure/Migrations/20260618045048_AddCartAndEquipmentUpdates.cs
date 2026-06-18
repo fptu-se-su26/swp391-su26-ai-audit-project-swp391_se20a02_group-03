@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ProSport.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class AddCartAndEquipmentUpdates : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -84,9 +84,9 @@ namespace ProSport.Infrastructure.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     CourtTypeId = table.Column<int>(type: "int", nullable: false),
-                    Status = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false, defaultValue: "Available"),
-                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Status = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false, defaultValue: "Available"),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false)
@@ -99,6 +99,32 @@ namespace ProSport.Infrastructure.Migrations
                         column: x => x.CourtTypeId,
                         principalTable: "CourtTypes",
                         principalColumn: "CourtTypeId");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "EquipmentUnits",
+                columns: table => new
+                {
+                    EquipmentUnitId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    EquipmentId = table.Column<int>(type: "int", nullable: false),
+                    SerialNumber = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    RentalCount = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false, defaultValue: "Available"),
+                    Condition = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_EquipmentUnits", x => x.EquipmentUnitId);
+                    table.ForeignKey(
+                        name: "FK_EquipmentUnits_Equipments_EquipmentId",
+                        column: x => x.EquipmentId,
+                        principalTable: "Equipments",
+                        principalColumn: "EquipmentId",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -127,6 +153,39 @@ namespace ProSport.Infrastructure.Migrations
                         column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "UserId");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CartItems",
+                columns: table => new
+                {
+                    CartItemId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<int>(type: "int", nullable: false),
+                    EquipmentId = table.Column<int>(type: "int", nullable: false),
+                    Quantity = table.Column<int>(type: "int", nullable: false),
+                    PreferredSerialNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    UnitPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    BookingId = table.Column<int>(type: "int", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CartItems", x => x.CartItemId);
+                    table.ForeignKey(
+                        name: "FK_CartItems_Equipments_EquipmentId",
+                        column: x => x.EquipmentId,
+                        principalTable: "Equipments",
+                        principalColumn: "EquipmentId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CartItems_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "UserId",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -344,7 +403,8 @@ namespace ProSport.Infrastructure.Migrations
                     DamageFee = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
                     DepositRefundAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
                     AdditionalCharge = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
-                    RentedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "SYSDATETIME()")
+                    RentedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "SYSDATETIME()"),
+                    EquipmentUnitId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -354,6 +414,12 @@ namespace ProSport.Infrastructure.Migrations
                         column: x => x.BookingId,
                         principalTable: "Bookings",
                         principalColumn: "BookingId");
+                    table.ForeignKey(
+                        name: "FK_BookingDetails_Equipments_EquipmentUnits_EquipmentUnitId",
+                        column: x => x.EquipmentUnitId,
+                        principalTable: "EquipmentUnits",
+                        principalColumn: "EquipmentUnitId",
+                        onDelete: ReferentialAction.SetNull);
                     table.ForeignKey(
                         name: "FK_BookingDetails_Equipments_Equipments_EquipmentId",
                         column: x => x.EquipmentId,
@@ -606,6 +672,11 @@ namespace ProSport.Infrastructure.Migrations
                 column: "EquipmentId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_BookingDetails_Equipments_EquipmentUnitId",
+                table: "BookingDetails_Equipments",
+                column: "EquipmentUnitId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Bookings_CheckInCode",
                 table: "Bookings",
                 column: "CheckInCode",
@@ -615,6 +686,16 @@ namespace ProSport.Infrastructure.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Bookings_UserId",
                 table: "Bookings",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CartItems_EquipmentId",
+                table: "CartItems",
+                column: "EquipmentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CartItems_UserId",
+                table: "CartItems",
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
@@ -649,6 +730,11 @@ namespace ProSport.Infrastructure.Migrations
                 table: "EkycProfiles",
                 column: "UserId",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_EquipmentUnits_EquipmentId",
+                table: "EquipmentUnits",
+                column: "EquipmentId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_EscrowWallets_UserId",
@@ -783,6 +869,9 @@ namespace ProSport.Infrastructure.Migrations
                 name: "BookingDetails_Equipments");
 
             migrationBuilder.DropTable(
+                name: "CartItems");
+
+            migrationBuilder.DropTable(
                 name: "ChatHistories");
 
             migrationBuilder.DropTable(
@@ -813,13 +902,16 @@ namespace ProSport.Infrastructure.Migrations
                 name: "Vouchers");
 
             migrationBuilder.DropTable(
-                name: "Equipments");
+                name: "EquipmentUnits");
 
             migrationBuilder.DropTable(
                 name: "EscrowWallets");
 
             migrationBuilder.DropTable(
                 name: "Matches");
+
+            migrationBuilder.DropTable(
+                name: "Equipments");
 
             migrationBuilder.DropTable(
                 name: "Bookings");

@@ -4,13 +4,19 @@ import GearLayout from '../../layouts/GearLayout'
 import { equipmentApi } from '../../api/equipmentApi'
 import { bookingApi } from '../../api/bookingApi'
 
+import { useCart } from '../../context/CartContext'
+import { useToast } from '../../components/Toast'
+
 export default function GearDetailPage() {
   const { id } = useParams()
+  const { addToCart } = useCart()
+  const { addToast } = useToast()
   const [gear, setGear] = useState(null)
   const [loading, setLoading] = useState(true)
   const [quantity, setQuantity] = useState(1)
   const [userBookings, setUserBookings] = useState([])
   const [showRentModal, setShowRentModal] = useState(false)
+  const [isAdding, setIsAdding] = useState(false)
 
   useEffect(() => {
     fetchGearDetails()
@@ -33,41 +39,34 @@ export default function GearDetailPage() {
 
   const fetchUserBookings = async () => {
     const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-    if (!token) return; // Silent skip for guests
+    if (!token) return;
 
     try {
       const response = await bookingApi.getMyBookings()
       if (response && response.statusCode === 200) {
-        // Filter for upcoming/active bookings
         const active = response.data.filter(b => b.status === 'Pending' || b.status === 'Paid')
         setUserBookings(active)
       }
     } catch (error) {
       console.error('Error fetching bookings:', error)
-      // We don't alert here to avoid annoying the user on page load
-      // The modal will show a "Login required" or "Error" state later
     }
   }
 
-  const handleConfirmRent = async (bookingId = null) => {
+  const handleAddToCart = async (bookingId = null) => {
+    setIsAdding(true)
     try {
-      const payload = {
-        equipmentId: parseInt(id),
-        bookingId: bookingId,
-        quantity: quantity
-      }
-      
-      const response = await equipmentApi.rent(payload)
-      if (response.statusCode === 200) {
-        alert(bookingId ? 'Thuê thành công với giá ưu đãi!' : 'Thuê thành công với phụ phí 30%!')
+      const res = await addToCart(parseInt(id), quantity, bookingId)
+      if (res.success) {
+        addToast(`Đã thêm ${quantity} x ${gear.name} vào giỏ hàng`, 'success')
         setShowRentModal(false)
-        // Refresh gear details or redirect
       } else {
-        alert(response.message || 'Có lỗi xảy ra')
+        addToast(res.message, 'error')
       }
     } catch (error) {
-      console.error('Rental error:', error)
-      alert('Lỗi kết nối server')
+      console.error('Add to cart error:', error)
+      addToast('Lỗi khi thêm vào giỏ hàng', 'error')
+    } finally {
+      setIsAdding(false)
     }
   }
 
@@ -159,7 +158,7 @@ export default function GearDetailPage() {
                   onClick={handleRentClick}
                   className="btn-primary flex-1 py-3 text-base shadow-lg shadow-brand-900/10"
                 >
-                  Thuê Ngay
+                  Thêm Vào Giỏ
                 </button>
               </div>
               <p className="text-[10px] text-brand-400 mt-4 text-center">
@@ -196,8 +195,9 @@ export default function GearDetailPage() {
               {/* Option 1: Standalone (Surcharge) */}
               <div className="relative group">
                 <button 
-                  onClick={() => handleConfirmRent(null)}
+                  onClick={() => handleAddToCart(null)}
                   className="w-full text-left p-4 rounded-2xl border-2 border-brand-100 hover:border-amber-200 hover:bg-amber-50/30 transition-all duration-300"
+                  disabled={isAdding}
                 >
                   <p className="text-[10px] font-bold uppercase tracking-widest text-brand-400 mb-1">Thuê lẻ (Surcharge 30%)</p>
                   <p className="text-lg font-bold text-brand-900">{(gear.rentalPrice * 1.3).toLocaleString()} VND <span className="text-xs font-medium text-brand-500 font-sans">/ ngày</span></p>
@@ -222,8 +222,9 @@ export default function GearDetailPage() {
                   userBookings.map(b => (
                     <button 
                       key={b.bookingId}
-                      onClick={() => handleConfirmRent(b.bookingId)}
+                      onClick={() => handleAddToCart(b.bookingId)}
                       className="w-full text-left p-4 rounded-2xl border-2 border-brand-100 hover:border-accent hover:bg-accent/5 transition-all duration-300"
+                      disabled={isAdding}
                     >
                       <div className="flex justify-between items-start mb-2">
                         <p className="text-xs font-bold text-brand-900">Booking #{b.bookingId}</p>
