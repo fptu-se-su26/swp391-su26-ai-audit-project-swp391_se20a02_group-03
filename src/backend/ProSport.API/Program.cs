@@ -142,6 +142,7 @@ using (var scope = app.Services.CreateScope())
     var context = scope.ServiceProvider.GetRequiredService<ProSportDbContext>();
     await DatabaseSeeder.EnsureEquipmentRentalSchemaAsync(context);
     await DatabaseSeeder.SeedEquipmentAsync(context);
+    await DatabaseSeeder.SeedCourtsAsync(context);
 }
 
 app.MapControllers();
