@@ -73,6 +73,8 @@ builder.Services.AddScoped<IStorageService, LocalStorageService>();
 
 main
 builder.Services.AddScoped<IChatbotService, ChatbotService>();
+builder.Services.AddScoped<ICartRepository, CartRepository>();
+builder.Services.AddScoped<ICartService, CartService>();
 
 // Configure Rate Limiting
 builder.Services.AddRateLimiter(options =>

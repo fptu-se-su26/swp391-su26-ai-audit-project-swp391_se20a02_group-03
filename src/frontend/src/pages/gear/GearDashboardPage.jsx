@@ -12,22 +12,35 @@ const statusConfig = {
 }
 
 export default function GearDashboardPage() {
+  const [dashboardData, setDashboardData] = useState(null)
   const [rentals, setRentals] = useState([])
-  const [equipmentCount, setEquipmentCount] = useState(0)
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('all')
 
+  const formatVND = (amount) => {
+    return new Intl.NumberFormat('vi-VN', { 
+      style: 'currency', 
+      currency: 'VND' 
+    }).format(amount);
+  };
+
   useEffect(() => {
     fetchData()
+    const interval = setInterval(fetchData, 30000) // Auto-refresh every 30s
+    return () => clearInterval(interval)
   }, [])
 
   const fetchData = async () => {
     try {
       setLoading(true)
-      const [rentalsRes, equipmentRes] = await Promise.all([
-        equipmentApi.getMyRentals(),
-        equipmentApi.getAll()
+      const [dashRes, rentalsRes] = await Promise.all([
+        equipmentApi.getDashboard(),
+        equipmentApi.getMyRentals()
       ])
+
+      if (dashRes.success) {
+        setDashboardData(dashRes.data)
+      }
 
       if (rentalsRes.statusCode === 200) {
         setRentals(rentalsRes.data.map(r => ({
@@ -36,14 +49,10 @@ export default function GearDashboardPage() {
           customer: 'Me',
           avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=60&q=80',
           item: r.equipmentName,
-          status: r.status === 'Rented' ? 'active' : (r.status === 'Returned' ? 'returned' : r.status),
-          price: `$${r.totalPrice / (r.quantity || 1)}`,
+          status: r.rentalStatus === 'Rented' ? 'active' : (r.rentalStatus === 'Returned' ? 'returned' : r.rentalStatus),
+          price: formatVND(r.unitPrice),
           due: 'N/A'
         })))
-      }
-
-      if (equipmentRes.statusCode === 200) {
-        setEquipmentCount(equipmentRes.data.length)
       }
     } catch (error) {
       console.error('Error fetching dashboard data:', error)
@@ -52,21 +61,35 @@ export default function GearDashboardPage() {
     }
   }
 
-  const inventoryAlerts = rentals.length > 0 ? rentals.slice(0, 3).map(r => ({
-    item: r.item,
-    status: 'low',
-    stock: 2,
-    total: 10
-  })) : [] // Mocking some alerts if data exists
-
-  const activeRentalsCount = rentals.filter(r => r.status === 'active' || r.status === 'Rented').length
-  const totalRevenue = rentals.reduce((acc, r) => acc + r.totalPrice, 0)
-
   const stats = [
-    { label: 'Active Rentals', value: activeRentalsCount.toString(), change: 'Real-time', color: '#0d8a8a', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg> },
-    { label: 'Overdue Returns', value: '0', change: 'All clear', color: '#ef4444', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> },
-    { label: 'Total Revenue', value: `$${totalRevenue.toLocaleString()}`, change: 'Accumulated', color: '#6366f1', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg> },
-    { label: 'Total Equipment', value: equipmentCount.toString(), change: 'Items available', color: '#f59e0b', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> },
+    { 
+      label: 'Active Rentals', 
+      value: dashboardData?.activeRentals?.toString() || '0', 
+      change: 'Units currently out', 
+      color: '#0d8a8a', 
+      icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg> 
+    },
+    { 
+      label: 'Pending Inspection', 
+      value: dashboardData?.pendingInspections?.toString() || '0', 
+      change: 'Requires staff review', 
+      color: '#f59e0b', 
+      icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> 
+    },
+    { 
+      label: 'Total Revenue', 
+      value: formatVND(dashboardData?.totalRevenue || 0), 
+      change: 'Accumulated total', 
+      color: '#6366f1', 
+      icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg> 
+    },
+    { 
+      label: 'Equipment Value', 
+      value: formatVND(dashboardData?.totalEquipmentValue || 0), 
+      change: 'Asset valuation', 
+      color: '#ef4444', 
+      icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> 
+    },
   ]
 
   return (
@@ -154,50 +177,52 @@ export default function GearDashboardPage() {
           {/* Right Column */}
           <div className="flex flex-col gap-6">
 
-            {/* Revenue Chart placeholder */}
+            {/* Units Status */}
             <div className="bg-white rounded-2xl border border-brand-200 p-6 shadow-sm">
-              <h2 className="font-heading text-lg font-bold text-brand-900 mb-6">Weekly Revenue</h2>
-              <div className="flex items-end gap-2 h-32">
-                {[40,65,45,80,55,90,72].map((h, i) => (
-                  <div key={i} className="flex-1 flex flex-col items-center gap-2">
-                    <div className={`w-full rounded-md transition-colors ${i === 5 ? 'bg-accent' : 'bg-brand-100'}`} style={{ height: `${h}%` }}></div>
-                    <span className="text-xs font-semibold text-brand-400">{'SMTWTFS'[i]}</span>
+              <h2 className="font-heading text-lg font-bold text-brand-900 mb-6">Units Status</h2>
+              <div className="flex flex-col gap-4">
+                {[
+                  { label: 'Available', count: dashboardData?.unitsByStatus?.available, color: 'bg-emerald-500', bg: 'bg-emerald-50' },
+                  { label: 'Rented', count: dashboardData?.unitsByStatus?.rented, color: 'bg-blue-500', bg: 'bg-blue-50' },
+                  { label: 'Maintenance', count: dashboardData?.unitsByStatus?.maintenance, color: 'bg-amber-500', bg: 'bg-amber-50' },
+                  { label: 'Liquidated', count: dashboardData?.unitsByStatus?.liquidated, color: 'bg-red-500', bg: 'bg-red-50' },
+                ].map((status, i) => (
+                  <div key={i}>
+                    <div className="flex justify-between items-center mb-1.5">
+                      <span className="text-sm font-semibold text-brand-600">{status.label}</span>
+                      <span className="text-sm font-bold text-brand-900">{status.count || 0}</span>
+                    </div>
+                    <div className="h-2 bg-brand-50 rounded-full overflow-hidden">
+                      <div 
+                        className={`h-full rounded-full ${status.color}`} 
+                        style={{ width: `${((status.count || 0) / (Object.values(dashboardData?.unitsByStatus || {}).reduce((a,b) => a+b, 0) || 1)) * 100}%` }}
+                      ></div>
+                    </div>
                   </div>
                 ))}
-              </div>
-              <div className="flex justify-between mt-6 pt-5 border-t border-brand-100">
-                <div>
-                  <p className="text-xs font-semibold text-brand-400 uppercase tracking-wider mb-1">This Week</p>
-                  <p className="font-bold text-brand-900 text-base">$1,240</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-xs font-semibold text-brand-400 uppercase tracking-wider mb-1">Last Week</p>
-                  <p className="font-bold text-brand-500 text-base">$980</p>
-                </div>
               </div>
             </div>
 
-            {/* Inventory Alerts */}
+            {/* Top Rented Equipment */}
             <div className="bg-white rounded-2xl border border-brand-200 p-6 shadow-sm">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="font-heading text-lg font-bold text-brand-900">Inventory Alerts</h2>
-                <span className="bg-red-50 text-red-600 text-xs font-bold px-2.5 py-1 rounded-md">{inventoryAlerts.length} Issues</span>
+                <h2 className="font-heading text-lg font-bold text-brand-900">Top Equipment</h2>
               </div>
               <div className="flex flex-col gap-5">
-                {inventoryAlerts.map((item, i) => (
-                  <div key={i}>
-                    <div className="flex justify-between items-center mb-2">
-                      <p className="text-sm font-semibold text-brand-900 truncate flex-1">{item.item}</p>
-                      <span className={`text-[10px] font-bold uppercase tracking-wider ml-3 px-1.5 py-0.5 rounded ${item.status === 'out' ? 'bg-red-50 text-red-600' : 'bg-amber-50 text-amber-600'}`}>
-                        {item.status === 'out' ? 'Out of Stock' : 'Low Stock'}
-                      </span>
+                {(dashboardData?.topRentedEquipment || []).map((item, i) => (
+                  <div key={i} className="flex items-center justify-between">
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-brand-900 truncate">{item.equipmentName}</p>
+                      <p className="text-xs text-brand-400">{item.totalRentals} rentals</p>
                     </div>
-                    <div className="h-1.5 bg-brand-100 rounded-full overflow-hidden">
-                      <div className="h-full rounded-full transition-all" style={{ width: `${(item.stock / item.total) * 100}%`, background: item.status === 'out' ? '#ef4444' : '#f59e0b' }}></div>
+                    <div className="text-right">
+                      <p className="text-sm font-bold text-accent">{formatVND(item.revenue)}</p>
                     </div>
-                    <p className="text-xs font-medium text-brand-500 mt-1.5">{item.stock}/{item.total} available</p>
                   </div>
                 ))}
+                {(!dashboardData?.topRentedEquipment?.length) && (
+                  <p className="text-sm text-brand-400 text-center py-4">No rental data yet</p>
+                )}
               </div>
             </div>
 
