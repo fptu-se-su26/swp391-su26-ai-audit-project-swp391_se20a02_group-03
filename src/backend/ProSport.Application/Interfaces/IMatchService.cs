@@ -5,6 +5,7 @@ namespace ProSport.Application.Interfaces;
 public interface IMatchService
 {
     Task<ApiResponseDto<IEnumerable<MatchDto>>> GetAvailableMatchesAsync();
+    Task<ApiResponseDto<IEnumerable<MatchDto>>> GetMyMatchHistoryAsync(int userId);
     Task<ApiResponseDto<MatchDto>> GetMatchByIdAsync(int matchId);
     
     // Host tạo kèo

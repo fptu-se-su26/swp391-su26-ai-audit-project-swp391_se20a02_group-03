@@ -6,14 +6,14 @@ export default function AdminDashboardPage() {
       <div className="space-y-6">
         <div className="flex justify-between items-start mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 mb-1">Dashboard Overview</h1>
-            <p className="text-sm text-slate-500">Real-time pulse of your sports facility operations.</p>
+            <h1 className="text-2xl font-bold text-slate-900 mb-1">Tổng quan Bảng điều khiển</h1>
+            <p className="text-sm text-slate-500">Nhịp đập thời gian thực của hoạt động cơ sở thể thao.</p>
           </div>
           <div className="flex gap-3">
             <select className="border border-slate-200 rounded-md py-2 px-3 font-['Inter'] text-sm text-slate-900 outline-none bg-white">
-              <option>Last 7 Days</option>
-              <option>Last 30 Days</option>
-              <option>This Year</option>
+              <option>7 ngày qua</option>
+              <option>30 ngày qua</option>
+              <option>Năm nay</option>
             </select>
             <button className="bg-white border border-slate-200 text-slate-800 py-2 px-4 rounded-md text-sm font-medium cursor-pointer flex items-center gap-2 transition-all hover:bg-slate-50 hover:border-slate-300">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
@@ -31,7 +31,7 @@ export default function AdminDashboardPage() {
               </div>
               <span className="text-xs font-semibold py-1 px-2 rounded-full bg-green-100 text-green-800">+12.4%</span>
             </div>
-            <p className="text-sm font-medium text-slate-500 mb-1">Total Revenue</p>
+            <p className="text-sm font-medium text-slate-500 mb-1">Tổng Doanh thu</p>
             <p className="font-['Oswald'] text-4xl font-bold text-slate-900 leading-none">$248.5k</p>
           </div>
           <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
@@ -41,7 +41,7 @@ export default function AdminDashboardPage() {
               </div>
               <span className="text-xs font-semibold py-1 px-2 rounded-full bg-green-100 text-green-800">+5.2%</span>
             </div>
-            <p className="text-sm font-medium text-slate-500 mb-1">Active Bookings</p>
+            <p className="text-sm font-medium text-slate-500 mb-1">Lượt Đặt sân Tích cực</p>
             <p className="font-['Oswald'] text-4xl font-bold text-slate-900 leading-none">142</p>
           </div>
           <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
@@ -50,7 +50,7 @@ export default function AdminDashboardPage() {
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
               </div>
             </div>
-            <p className="text-sm font-medium text-slate-500 mb-1">Live Matches</p>
+            <p className="text-sm font-medium text-slate-500 mb-1">Kèo đấu Đang diễn ra</p>
             <p className="font-['Oswald'] text-4xl font-bold text-slate-900 leading-none">18</p>
           </div>
           <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
@@ -60,7 +60,7 @@ export default function AdminDashboardPage() {
               </div>
               <span className="text-xs font-semibold py-1 px-2 rounded-full bg-slate-100 text-slate-600">89% Utilized</span>
             </div>
-            <p className="text-sm font-medium text-slate-500 mb-1">Equipment Out</p>
+            <p className="text-sm font-medium text-slate-500 mb-1">Thiết bị Cho mượn</p>
             <p className="font-['Oswald'] text-4xl font-bold text-slate-900 leading-none">54</p>
           </div>
         </div>
@@ -70,7 +70,7 @@ export default function AdminDashboardPage() {
             {/* Revenue Trends */}
             <div className="bg-white rounded-lg border border-slate-200 p-6 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
               <div className="flex justify-between items-center mb-5">
-                <h2 className="text-lg font-bold text-slate-900">Revenue Trends</h2>
+                <h2 className="text-lg font-bold text-slate-900">Xu hướng Doanh thu</h2>
                 <button className="bg-transparent border-none cursor-pointer text-[#94a3b8] text-[1.2rem] font-bold">···</button>
               </div>
               <div className="h-[240px] bg-[#fafafa] rounded-lg flex items-center justify-center relative overflow-hidden">
@@ -91,7 +91,7 @@ export default function AdminDashboardPage() {
             {/* Court Utilization Heatmap */}
             <div className="bg-white rounded-lg border border-slate-200 p-6 shadow-[0_1px_2px_rgba(0,0,0,0.02)] mt-6">
               <div className="flex justify-between items-center mb-5">
-                <h2 className="text-lg font-bold text-slate-900">Court Utilization Heatmap</h2>
+                <h2 className="text-lg font-bold text-slate-900">Bản đồ Nhiệt Sử dụng Sân</h2>
                 <div className="flex gap-1">
                   <div className="w-3 h-3 rounded-sm" style={{ background: '#e0f2fe' }}></div>
                   <div className="w-3 h-3 rounded-sm" style={{ background: '#7dd3fc' }}></div>
@@ -122,8 +122,8 @@ export default function AdminDashboardPage() {
           <div>
             <div className="bg-white rounded-lg border border-slate-200 p-6 shadow-[0_1px_2px_rgba(0,0,0,0.02)] h-full flex flex-col">
               <div className="mb-6">
-                <h2 className="text-lg font-bold text-slate-900">Real-time Activity</h2>
-                <p className="text-sm text-slate-500 mt-1">System events across all facilities</p>
+                <h2 className="text-lg font-bold text-slate-900">Hoạt động Thời gian thực</h2>
+                <p className="text-sm text-slate-500 mt-1">Các sự kiện hệ thống trên toàn bộ cơ sở</p>
               </div>
               <div className="flex flex-col flex-1">
                 {[
@@ -147,7 +147,7 @@ export default function AdminDashboardPage() {
                 ))}
               </div>
               <div className="mt-auto pt-5 border-t border-slate-200 text-center">
-                <a href="#" className="text-[#0d8a8a] hover:text-[#0b7373] text-sm font-semibold no-underline hover:underline">View All Logs</a>
+                <a href="#" className="text-[#0d8a8a] hover:text-[#0b7373] text-sm font-semibold no-underline hover:underline">Xem Tất cả Nhật ký</a>
               </div>
             </div>
           </div>

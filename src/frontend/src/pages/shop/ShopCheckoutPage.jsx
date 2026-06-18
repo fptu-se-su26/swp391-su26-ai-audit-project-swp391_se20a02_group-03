@@ -138,7 +138,7 @@ export default function ShopCheckoutPage() {
             <div className="flex justify-between text-[0.82rem] text-[#64748b]"><span>Tax</span><span>$22.00</span></div>
           </div>
           <div className="flex justify-between text-base font-bold text-[#0d2d3a] my-3.5 pt-3 border-t-[1.5px] border-[#e0ecf0]">
-            <span>Total</span>
+            <span>Tổng cộng</span>
             <span className="text-[#0d8a8a] text-[1.15rem]">$297.00</span>
           </div>
           <button className="bg-[#0d8a8a] hover:bg-[#0b7373] text-white font-semibold flex items-center justify-center w-full gap-2 p-3.5 rounded-full text-[0.95rem] border-none cursor-pointer transition-colors">

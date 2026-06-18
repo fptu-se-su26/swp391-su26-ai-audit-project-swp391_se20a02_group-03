@@ -150,7 +150,7 @@ export default function MatchProFeedPage() {
 
           <div className="bg-white rounded-[14px] border border-[#e0ecf0] p-4">
             <div className="flex items-center justify-between mb-3.5">
-              <h3 className="text-[0.95rem] font-bold text-[#0d2d3a]">Leaderboard</h3>
+              <h3 className="text-[0.95rem] font-bold text-[#0d2d3a]">Bảng xếp hạng</h3>
               <span>🏆</span>
             </div>
             {leaderboard.map((p, i) => (

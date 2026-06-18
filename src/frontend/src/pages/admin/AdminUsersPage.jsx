@@ -32,12 +32,12 @@ export default function AdminUsersPage() {
           <div className="flex justify-between items-center p-5 border-b border-slate-200">
             <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-full py-2 px-4 w-80 focus-within:border-[#0d8a8a]">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-slate-400"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-              <input type="text" placeholder="Search by name or email..." className="border-none outline-none font-['Inter'] text-sm text-slate-900 w-full" />
+              <input type="text" placeholder="Tìm kiếm by name or email..." className="border-none outline-none font-['Inter'] text-sm text-slate-900 w-full" />
             </div>
             <div className="flex gap-2">
               <button className="py-[6px] px-4 rounded-full border border-[#e0f2fe] text-sm font-medium cursor-pointer bg-[#e0f2fe] text-[#0284c7]">All Users</button>
               <button className="py-[6px] px-4 rounded-full border border-slate-200 bg-white text-slate-500 text-sm font-medium cursor-pointer hover:bg-slate-50">Admin</button>
-              <button className="py-[6px] px-4 rounded-full border border-slate-200 bg-white text-slate-500 text-sm font-medium cursor-pointer hover:bg-slate-50">Staff</button>
+              <button className="py-[6px] px-4 rounded-full border border-slate-200 bg-white text-slate-500 text-sm font-medium cursor-pointer hover:bg-slate-50">Nhân sự</button>
               <button className="py-[6px] px-4 rounded-full border border-slate-200 bg-white text-slate-500 text-sm font-medium cursor-pointer hover:bg-slate-50">Customer</button>
             </div>
           </div>
@@ -49,7 +49,7 @@ export default function AdminUsersPage() {
                 <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Role</th>
                 <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Verification</th>
                 <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Last Active</th>
-                <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Actions</th>
+                <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Thao tác</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">

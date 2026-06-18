@@ -100,7 +100,7 @@ export default function GearRentalPage() {
             <div className="flex items-center gap-3 mb-3">
               <div className="flex items-center gap-2 bg-white border border-[#e0ecf0] rounded-full py-2 px-4 flex-1 max-w-xs focus-within:border-[#0d8a8a] transition-colors">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-slate-400"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                <input value={search} onChange={e => setSearch(e.target.value)} type="text" placeholder="Search customer or item..." className="border-none bg-transparent text-sm outline-none text-[#0d2d3a] placeholder:text-slate-400 flex-1" />
+                <input value={search} onChange={e => setSearch(e.target.value)} type="text" placeholder="Tìm kiếm customer or item..." className="border-none bg-transparent text-sm outline-none text-[#0d2d3a] placeholder:text-slate-400 flex-1" />
               </div>
               <button className="flex items-center gap-2 px-3 py-2 text-sm border border-[#e0ecf0] rounded-lg bg-white text-slate-500 hover:border-[#0d8a8a] hover:text-[#0d8a8a] transition-colors cursor-pointer">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
@@ -131,12 +131,12 @@ export default function GearRentalPage() {
               <thead>
                 <tr className="border-b border-[#f0f4f8] bg-[#f9fbfc]">
                   <th className="text-left px-5 py-3 text-[0.7rem] font-bold tracking-wider text-slate-400 uppercase">Customer</th>
-                  <th className="text-left px-4 py-3 text-[0.7rem] font-bold tracking-wider text-slate-400 uppercase">Equipment</th>
+                  <th className="text-left px-4 py-3 text-[0.7rem] font-bold tracking-wider text-slate-400 uppercase">Thiết bị</th>
                   <th className="text-left px-4 py-3 text-[0.7rem] font-bold tracking-wider text-slate-400 uppercase">Period</th>
-                  <th className="text-left px-4 py-3 text-[0.7rem] font-bold tracking-wider text-slate-400 uppercase">Total</th>
-                  <th className="text-left px-4 py-3 text-[0.7rem] font-bold tracking-wider text-slate-400 uppercase">Deposit</th>
-                  <th className="text-left px-4 py-3 text-[0.7rem] font-bold tracking-wider text-slate-400 uppercase">Status</th>
-                  <th className="text-left px-4 py-3 text-[0.7rem] font-bold tracking-wider text-slate-400 uppercase">Actions</th>
+                  <th className="text-left px-4 py-3 text-[0.7rem] font-bold tracking-wider text-slate-400 uppercase">Tổng cộng</th>
+                  <th className="text-left px-4 py-3 text-[0.7rem] font-bold tracking-wider text-slate-400 uppercase">Tiền cọc</th>
+                  <th className="text-left px-4 py-3 text-[0.7rem] font-bold tracking-wider text-slate-400 uppercase">Trạng thái</th>
+                  <th className="text-left px-4 py-3 text-[0.7rem] font-bold tracking-wider text-slate-400 uppercase">Thao tác</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#f0f4f8]">
@@ -186,9 +186,9 @@ export default function GearRentalPage() {
                             <button className="px-2.5 py-1.5 text-[0.72rem] font-semibold bg-red-50 text-red-700 border border-red-200 rounded-lg hover:bg-red-100 transition-colors cursor-pointer">Contact</button>
                           )}
                           {r.status === 'pending' && (
-                            <button className="px-2.5 py-1.5 text-[0.72rem] font-semibold bg-[#0d8a8a]/10 text-[#0d8a8a] border border-[#0d8a8a]/20 rounded-lg hover:bg-[#0d8a8a]/20 transition-colors cursor-pointer">Confirm</button>
+                            <button className="px-2.5 py-1.5 text-[0.72rem] font-semibold bg-[#0d8a8a]/10 text-[#0d8a8a] border border-[#0d8a8a]/20 rounded-lg hover:bg-[#0d8a8a]/20 transition-colors cursor-pointer">Xác nhận</button>
                           )}
-                          <button className="px-2.5 py-1.5 text-[0.72rem] font-semibold bg-white text-slate-500 border border-[#e0ecf0] rounded-lg hover:border-[#0d8a8a] hover:text-[#0d8a8a] transition-colors cursor-pointer">View</button>
+                          <button className="px-2.5 py-1.5 text-[0.72rem] font-semibold bg-white text-slate-500 border border-[#e0ecf0] rounded-lg hover:border-[#0d8a8a] hover:text-[#0d8a8a] transition-colors cursor-pointer">Xem chi tiết</button>
                         </div>
                       </td>
                     </tr>

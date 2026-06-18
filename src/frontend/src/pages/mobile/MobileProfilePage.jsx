@@ -39,7 +39,7 @@ export default function MobileProfilePage() {
         <div className="px-4">
           <div className="grid grid-cols-2 gap-3">
             <div className="bg-slate-50 border border-slate-200/60 rounded-2xl p-4 flex flex-col">
-              <span className="text-[11px] font-semibold tracking-wider text-slate-500 uppercase">Matches</span>
+              <span className="text-[11px] font-semibold tracking-wider text-slate-500 uppercase">Kèo đấu</span>
               <span className="text-2xl font-bold tracking-tight text-slate-900 mt-1">142</span>
             </div>
             <div className="bg-slate-50 border border-slate-200/60 rounded-2xl p-4 flex flex-col">
@@ -61,7 +61,7 @@ export default function MobileProfilePage() {
         <div className="px-4">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-base font-bold tracking-tight text-slate-900">Recent Matches</h3>
-            <span className="text-sm font-semibold text-slate-500 cursor-pointer hover:text-slate-900 transition-colors">View All</span>
+            <span className="text-sm font-semibold text-slate-500 cursor-pointer hover:text-slate-900 transition-colors">Xem tất cả</span>
           </div>
 
           <div className="flex flex-col gap-3">

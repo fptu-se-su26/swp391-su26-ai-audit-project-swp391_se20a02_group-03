@@ -48,3 +48,24 @@ public static class VnPayOrderType
     public const string Booking = "Booking";
     public const string Deposit = "Deposit";
 }
+
+public static class MatchStatus
+{
+    public const string Open = "Open";
+    public const string Closed = "Closed";
+    public const string Completed = "Completed";
+    public const string Cancelled = "Cancelled";
+}
+
+public static class MatchParticipantRole
+{
+    public const string Host = "Host";
+    public const string Joiner = "Joiner";
+}
+
+public static class MatchParticipantStatus
+{
+    public const string Pending = "Pending";
+    public const string Approved = "Approved";
+    public const string Rejected = "Rejected";
+}

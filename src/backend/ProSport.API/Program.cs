@@ -72,9 +72,15 @@ builder.Services.AddScoped<IEquipmentCategoryService, EquipmentCategoryService>(
 builder.Services.AddScoped<IEquipmentService, EquipmentService>();
 builder.Services.AddScoped<IInventoryService, InventoryService>();
 builder.Services.AddScoped<IVnPayService, VnPayService>();
+ DE190147/audit-module
+ DE190147/audit-module
+builder.Services.AddScoped<IStorageService, LocalStorageService>();
+
+
  feat/DE190130_API_Tham_Gia_&_Vi_Escrow
 feat/DE190130_API_Tham_Gia_&_Vi_Escrow
 builder.Services.AddScoped<IStorageService, LocalStorageService>();
+ main
 
 feat/DE190130_API_Quan_Ly_San
 builder.Services.AddScoped<IStorageService, LocalStorageService>();
@@ -85,7 +91,10 @@ main
 
 builder.Services.AddScoped<IStorageService, LocalStorageService>();
 
+ DE190147/audit-module
 
+
+ main
  main
 builder.Services.AddScoped<IChatbotService, ChatbotService>();
 builder.Services.AddScoped<ICartRepository, CartRepository>();
@@ -172,6 +181,8 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.MapControllers();
+
+app.MapGet("/", () => "ProSport API is running. Go to /swagger to view the API documentation.");
 
 // === ADMIN SEEDER ===
 // Tạo tài khoản Admin mặc định nếu chưa có (idempotent — chỉ chạy 1 lần).
