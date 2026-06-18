@@ -246,6 +246,7 @@ public class ProSportDbContext : DbContext
             entity.HasKey(e => e.EscrowWalletId);
             entity.Property(e => e.Balance).HasColumnType("decimal(18,2)").HasDefaultValue(0m);
             entity.Property(e => e.LockedBalance).HasColumnType("decimal(18,2)").HasDefaultValue(0m);
+            entity.Property(e => e.RowVersion).IsRowVersion();
 
             // FIX: Unique — mỗi user chỉ có đúng 1 ví
             entity.HasIndex(e => e.UserId).IsUnique();
