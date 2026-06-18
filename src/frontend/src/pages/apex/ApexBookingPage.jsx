@@ -18,8 +18,8 @@ export default function ApexBookingPage() {
   const [filter, setFilter] = useState('All')
   const [courts, setCourts] = useState([])
   const [selectedCourt, setSelectedCourt] = useState(null)
-  const [selectedDate, setSelectedDate] = useState('')
-  const [minDate, setMinDate] = useState('')
+  const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().slice(0, 10))
+  const [minDate] = useState(() => new Date().toISOString().slice(0, 10))
   const [selectedSlots, setSelectedSlots] = useState([])
   const [bookedSlots, setBookedSlots] = useState([])
   const [step, setStep] = useState(1) // 1=select court, 2=pick time, 3=confirm
@@ -60,14 +60,10 @@ export default function ApexBookingPage() {
         if (res.data) setEscrowBalance(res.data.balance || 0)
       })
       .catch(err => console.error("Lỗi ví", err))
-  }, [])
+  }, [addToast])
 
-  // Init Date & GSAP
+  // GSAP entrance animation
   useEffect(() => {
-    const todayStr = new Date().toISOString().slice(0, 10)
-    if (!selectedDate) setSelectedDate(todayStr)
-    setMinDate(todayStr)
-
     const ctx = gsap.context(() => {
       gsap.from('.booking-hero', { opacity: 0, y: 30, duration: 0.6, ease: 'power3.out' })
       gsap.from('.court-card', { opacity: 0, y: 40, duration: 0.5, stagger: 0.08, ease: 'power2.out', delay: 0.2 })
@@ -167,7 +163,7 @@ export default function ApexBookingPage() {
           const vnpayRes = await paymentApi.createVnPayUrl(0, 'Booking', bookingId)
           if (vnpayRes.statusCode === 200 && vnpayRes.data) {
              addToast('Bạn có 15 phút để hoàn tất thanh toán. Quá hạn sẽ tự động hủy đơn.', 'warning')
-             window.location.href = vnpayRes.data
+             window.location.assign(vnpayRes.data)
              return
           } else {
              addToast("Không thể tạo link thanh toán VNPay", "error")

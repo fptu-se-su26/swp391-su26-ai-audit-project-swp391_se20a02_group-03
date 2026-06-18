@@ -72,7 +72,14 @@ builder.Services.AddScoped<IEquipmentCategoryService, EquipmentCategoryService>(
 builder.Services.AddScoped<IEquipmentService, EquipmentService>();
 builder.Services.AddScoped<IInventoryService, InventoryService>();
 builder.Services.AddScoped<IVnPayService, VnPayService>();
+feat/DE190130_API_Tham_Gia_&_Vi_Escrow
 builder.Services.AddScoped<IStorageService, LocalStorageService>();
+
+feat/DE190130_API_Quan_Ly_San
+builder.Services.AddScoped<IStorageService, LocalStorageService>();
+
+main
+main
 builder.Services.AddScoped<IChatbotService, ChatbotService>();
 
 // Configure Rate Limiting
@@ -128,9 +135,15 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 app.UseSwagger();
 app.UseSwaggerUI();
+feat/DE190130_API_Tham_Gia_&_Vi_Escrow
 
 app.UseStaticFiles(); // Added for LocalStorageService
 
+
+
+app.UseStaticFiles(); // Added for LocalStorageService
+
+ main
 // app.UseHttpsRedirection(); // Disabled to avoid redirect issues
 
 app.UseCors("AllowFrontend");
@@ -146,6 +159,7 @@ using (var scope = app.Services.CreateScope())
     var context = scope.ServiceProvider.GetRequiredService<ProSportDbContext>();
     await DatabaseSeeder.EnsureEquipmentRentalSchemaAsync(context);
     await DatabaseSeeder.SeedEquipmentAsync(context);
+    await DatabaseSeeder.SeedCourtsAsync(context);
 }
 
 app.MapControllers();

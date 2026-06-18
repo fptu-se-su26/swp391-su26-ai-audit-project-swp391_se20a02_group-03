@@ -69,12 +69,27 @@ public class VnPayService : IVnPayService
         var vnp_TransactionId = vnpay.GetResponseData("vnp_TransactionNo");
         var vnp_SecureHash = collections.FirstOrDefault(p => p.Key == "vnp_SecureHash").Value?.ToString() ?? "";
         var vnp_ResponseCode = vnpay.GetResponseData("vnp_ResponseCode");
-        var vnp_Amount = Convert.ToInt64(vnpay.GetResponseData("vnp_Amount")) / 100;
+        var vnp_TransactionStatus = vnpay.GetResponseData("vnp_TransactionStatus");
+        if (!long.TryParse(vnpay.GetResponseData("vnp_Amount"), out var rawAmount))
+        {
+            return new VnPayResponseDto
+            {
+                IsValidSignature = false,
+                Success = false,
+                VnPayResponseCode = vnp_ResponseCode
+            };
+        }
+        var vnp_Amount = rawAmount / 100m;
 
         bool checkSignature = vnpay.ValidateSignature(vnp_SecureHash, _configuration["VnPay:HashSecret"]!);
         if (!checkSignature)
         {
-            return new VnPayResponseDto { Success = false };
+            return new VnPayResponseDto
+            {
+                IsValidSignature = false,
+                Success = false,
+                VnPayResponseCode = vnp_ResponseCode
+            };
         }
 
         // Parse OrderInfo với pipe separator: {OrderType}|{ReferenceId}|{UserId}
@@ -89,7 +104,8 @@ public class VnPayService : IVnPayService
 
         return new VnPayResponseDto
         {
-            Success = vnp_ResponseCode == "00", // 00 là giao dịch thành công
+            IsValidSignature = true,
+            Success = vnp_ResponseCode == "00" && (string.IsNullOrEmpty(vnp_TransactionStatus) || vnp_TransactionStatus == "00"),
             OrderType = orderType,
             ReferenceId = refId,
             UserId = userId,
