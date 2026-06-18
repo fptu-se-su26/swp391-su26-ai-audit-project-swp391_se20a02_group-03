@@ -1,50 +1,119 @@
 using Microsoft.Extensions.Logging;
 using ProSport.Application.DTOs;
 using ProSport.Application.Interfaces;
-using ProSport.Application.Services;
 using ProSport.Domain.Entities;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace ProSport.Application.Services;
 
 public class EquipmentService : IEquipmentService
 {
     private readonly IEquipmentRepository _equipmentRepository;
+    private readonly IEquipmentCategoryRepository _categoryRepository;
     private readonly ILogger<EquipmentService> _logger;
 
-    public EquipmentService(IEquipmentRepository equipmentRepository, ILogger<EquipmentService> logger)
+    public EquipmentService(
+        IEquipmentRepository equipmentRepository, 
+        IEquipmentCategoryRepository categoryRepository,
+        ILogger<EquipmentService> logger)
     {
         _equipmentRepository = equipmentRepository;
+        _categoryRepository = categoryRepository;
         _logger = logger;
     }
 
+    // CRUD Methods
+    public async Task<PagedResult<EquipmentDto>> GetPagedAsync(EquipmentQueryParameters parameters)
+    {
+        var (items, totalCount) = await _equipmentRepository.GetPagedAsync(parameters);
+
+        var dtoItems = items.Select(e => MapEquipmentDtoCombined(e)).ToList();
+
+        return new PagedResult<EquipmentDto>
+        {
+            Items = dtoItems,
+            TotalCount = totalCount,
+            CurrentPage = parameters.PageNumber,
+            TotalPages = (int)Math.Ceiling((double)totalCount / parameters.PageSize)
+        };
+    }
+
+    public async Task<EquipmentDto?> GetByIdAsync(int id)
+    {
+        var e = await _equipmentRepository.GetByIdAsync(id);
+        if (e == null) return null;
+
+        return MapEquipmentDtoCombined(e);
+    }
+
+    public async Task<EquipmentDto> CreateAsync(CreateEquipmentDto dto)
+    {
+        var equipment = new Equipment
+        {
+            EquipmentCategoryId = dto.EquipmentCategoryId,
+            Name = dto.Name,
+            EquipmentName = dto.Name,
+            Category = "Racket",
+            SportType = "Badminton",
+            Description = dto.Description,
+            Price = dto.Price,
+            ImageUrl = dto.ImageUrl,
+            StockQuantity = 0,
+            Status = "Available"
+        };
+
+        var created = await _equipmentRepository.CreateAsync(equipment);
+        var category = await _categoryRepository.GetByIdAsync(created.EquipmentCategoryId);
+        created.EquipmentCategory = category;
+
+        return MapEquipmentDtoCombined(created);
+    }
+
+    public async Task<EquipmentDto?> UpdateAsync(int id, UpdateEquipmentDto dto)
+    {
+        var equipment = await _equipmentRepository.GetByIdAsync(id);
+        if (equipment == null) return null;
+
+        equipment.EquipmentCategoryId = dto.EquipmentCategoryId;
+        equipment.Name = dto.Name;
+        equipment.EquipmentName = dto.Name;
+        equipment.Description = dto.Description;
+        equipment.Price = dto.Price;
+        equipment.Status = dto.Status;
+        equipment.ImageUrl = dto.ImageUrl;
+
+        await _equipmentRepository.UpdateAsync(equipment);
+        var category = await _categoryRepository.GetByIdAsync(equipment.EquipmentCategoryId);
+        equipment.EquipmentCategory = category;
+
+        return MapEquipmentDtoCombined(equipment);
+    }
+
+    public async Task<bool> DeleteAsync(int id)
+    {
+        var equipment = await _equipmentRepository.GetByIdAsync(id);
+        if (equipment == null) return false;
+
+        await _equipmentRepository.DeleteAsync(equipment);
+        return true;
+    }
+
+    // Rent/Return Methods
     public async Task<ApiResponseDto<IEnumerable<EquipmentDto>>> GetAllAsync()
     {
         try
         {
             var equipments = await _equipmentRepository.GetAllAsync();
-            var dtos = equipments.Select(MapEquipmentDto);
+            var dtos = equipments.Select(MapEquipmentDtoCombined);
             return new ApiResponseDto<IEnumerable<EquipmentDto>>(200, "Success", dtos);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error getting all equipment");
             return new ApiResponseDto<IEnumerable<EquipmentDto>>(500, "An unexpected error occurred.");
-        }
-    }
-
-    public async Task<ApiResponseDto<EquipmentDto>> GetByIdAsync(int id)
-    {
-        try
-        {
-            var equipment = await _equipmentRepository.GetByIdAsync(id);
-            if (equipment == null) return new ApiResponseDto<EquipmentDto>(404, "Equipment not found");
-
-            return new ApiResponseDto<EquipmentDto>(200, "Success", MapEquipmentDto(equipment));
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error getting equipment by id: {Id}", id);
-            return new ApiResponseDto<EquipmentDto>(500, "An unexpected error occurred.");
         }
     }
 
@@ -279,6 +348,8 @@ public class EquipmentService : IEquipmentService
         }
     }
 
+ feat/DE190130_API_Tham_Gia_&_Vi_Escrow
+    private static EquipmentDto MapEquipmentDtoCombined(Equipment e) => new()
     public async Task<EquipmentDashboardDto> GetDashboardStatsAsync()
     {
         var rentals = (await _equipmentRepository.GetAllRentalsAsync()).ToList();
@@ -320,26 +391,32 @@ public class EquipmentService : IEquipmentService
     }
 
     private static EquipmentDto MapEquipmentDto(Equipment e) => new()
+ main
     {
         EquipmentId = e.EquipmentId,
-        Name = e.EquipmentName,
-        Category = e.Category,
-        Type = e.SportType,
+        EquipmentCategoryId = e.EquipmentCategoryId,
+        CategoryName = e.EquipmentCategory?.Name ?? "Unknown",
+        Name = e.Name ?? e.EquipmentName,
+        Description = e.Description,
+        Price = e.Price,
+        StockQuantity = e.StockQuantity,
+        Status = e.Status ?? "Available",
+        Category = e.Category ?? "Racket",
+        Type = e.SportType ?? "Badminton",
         RetailPrice = e.RetailPrice,
         RentalPrice = e.RentalPrice,
         RentalStock = e.Units != null && e.Units.Any() 
             ? e.Units.Count(u => u.Status == "Available" && !u.IsDeleted) 
             : e.RentalStock,
         SalesStock = e.SalesStock,
-        ImageUrl = e.ImageUrl,
-        Description = e.Description
+        ImageUrl = e.ImageUrl
     };
 
     private static EquipmentRentalDto MapRentalDto(EquipmentRental r) => new()
     {
         EquipmentRentalId = r.DetailId,
         EquipmentId = r.EquipmentId,
-        EquipmentName = r.Equipment.EquipmentName,
+        EquipmentName = r.Equipment.EquipmentName ?? r.Equipment.Name,
         BookingId = r.BookingId,
         Quantity = r.Quantity,
         UnitPrice = r.UnitPrice,

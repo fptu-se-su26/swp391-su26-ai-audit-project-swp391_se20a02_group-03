@@ -40,7 +40,7 @@ public class MatchController : ControllerBase
         return StatusCode(response.StatusCode, response);
     }
 
-    [Authorize]
+    [Authorize(Roles = "Customer")]
     [HttpPost("{id}/join")]
     public async Task<IActionResult> JoinMatch(int id)
     {
@@ -50,11 +50,29 @@ public class MatchController : ControllerBase
     }
 
     [Authorize]
-    [HttpPost("{id}/approve/{joinerId}")]
-    public async Task<IActionResult> ApproveJoiner(int id, int joinerId)
+    [HttpGet("{id}/participants")]
+    public async Task<IActionResult> GetParticipants(int id, [FromQuery] string status = "Pending")
     {
         var hostId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-        var response = await _matchService.ApproveJoinerAsync(id, hostId, joinerId);
+        var response = await _matchService.GetParticipantsByMatchAsync(id, hostId, status);
+        return StatusCode(response.StatusCode, response);
+    }
+
+    [Authorize]
+    [HttpPut("{id}/participants/{participantId}/approve")]
+    public async Task<IActionResult> ApproveJoiner(int id, int participantId)
+    {
+        var hostId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+        var response = await _matchService.ApproveJoinerAsync(id, hostId, participantId);
+        return StatusCode(response.StatusCode, response);
+    }
+
+    [Authorize]
+    [HttpPut("{id}/participants/{participantId}/reject")]
+    public async Task<IActionResult> RejectJoiner(int id, int participantId)
+    {
+        var hostId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+        var response = await _matchService.RejectJoinerAsync(id, hostId, participantId);
         return StatusCode(response.StatusCode, response);
     }
 
@@ -64,6 +82,23 @@ public class MatchController : ControllerBase
     {
         var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
         var response = await _matchService.LeaveMatchAsync(id, userId);
+        return StatusCode(response.StatusCode, response);
+    }
+    [Authorize]
+    [HttpPut("{id}/complete")]
+    public async Task<IActionResult> CompleteMatch(int id)
+    {
+        var hostId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+        var response = await _matchService.CompleteMatchAsync(id, hostId);
+        return StatusCode(response.StatusCode, response);
+    }
+
+    [Authorize]
+    [HttpPut("{id}/cancel")]
+    public async Task<IActionResult> CancelMatch(int id)
+    {
+        var hostId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+        var response = await _matchService.CancelMatchAsync(id, hostId);
         return StatusCode(response.StatusCode, response);
     }
 }

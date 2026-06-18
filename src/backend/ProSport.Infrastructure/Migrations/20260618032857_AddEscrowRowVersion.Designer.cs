@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ProSport.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using ProSport.Infrastructure.Data;
 namespace ProSport.Infrastructure.Migrations
 {
     [DbContext(typeof(ProSportDbContext))]
-    partial class ProSportDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260618032857_AddEscrowRowVersion")]
+    partial class AddEscrowRowVersion
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -40,24 +43,14 @@ namespace ProSport.Infrastructure.Migrations
                         .HasColumnType("nvarchar(50)");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("CreatedAt");
+                        .HasColumnType("datetime2");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit")
-                        .HasColumnName("IsDeleted");
-
-                    b.Property<DateTime?>("PaymentDeadline")
-                        .HasColumnType("datetime2");
-feat/DE190130_API_Tham_Gia_&_Vi_Escrow
-                    b.Property<DateTime?>("PaymentDeadline")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("bit");
 
                     b.Property<DateTime?>("PaymentDeadline")
                         .HasColumnType("datetime2");
 
-
- main
                     b.Property<string>("PaymentMethod")
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
@@ -79,8 +72,7 @@ feat/DE190130_API_Tham_Gia_&_Vi_Escrow
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("UpdatedAt");
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
@@ -114,15 +106,13 @@ feat/DE190130_API_Tham_Gia_&_Vi_Escrow
                         .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("CreatedAt");
+                        .HasColumnType("datetime2");
 
                     b.Property<TimeSpan>("EndTime")
                         .HasColumnType("time");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit")
-                        .HasColumnName("IsDeleted");
+                        .HasColumnType("bit");
 
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
@@ -131,8 +121,7 @@ feat/DE190130_API_Tham_Gia_&_Vi_Escrow
                         .HasColumnType("time");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("UpdatedAt");
+                        .HasColumnType("datetime2");
 
                     b.HasKey("BookingDetailId");
 
@@ -141,53 +130,6 @@ feat/DE190130_API_Tham_Gia_&_Vi_Escrow
                     b.HasIndex("CourtId");
 
                     b.ToTable("BookingDetails");
-                });
-
-            modelBuilder.Entity("ProSport.Domain.Entities.CartItem", b =>
-                {
-                    b.Property<int>("CartItemId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CartItemId"));
-
-                    b.Property<int?>("BookingId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("CreatedAt");
-
-                    b.Property<int>("EquipmentId")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit")
-                        .HasColumnName("IsDeleted");
-
-                    b.Property<string>("PreferredSerialNumber")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("UnitPrice")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("UpdatedAt");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("CartItemId");
-
-                    b.HasIndex("EquipmentId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("CartItems", (string)null);
                 });
 
             modelBuilder.Entity("ProSport.Domain.Entities.ChatHistory", b =>
@@ -203,20 +145,17 @@ feat/DE190130_API_Tham_Gia_&_Vi_Escrow
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("CreatedAt");
+                        .HasColumnType("datetime2");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit")
-                        .HasColumnName("IsDeleted");
+                        .HasColumnType("bit");
 
                     b.Property<string>("Question")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("UpdatedAt");
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
@@ -246,12 +185,10 @@ feat/DE190130_API_Tham_Gia_&_Vi_Escrow
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("CreatedAt");
+                        .HasColumnType("datetime2");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit")
-                        .HasColumnName("IsDeleted");
+                        .HasColumnType("bit");
 
                     b.Property<string>("Notes")
                         .HasColumnType("nvarchar(max)");
@@ -260,8 +197,7 @@ feat/DE190130_API_Tham_Gia_&_Vi_Escrow
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("UpdatedAt");
+                        .HasColumnType("datetime2");
 
                     b.HasKey("CheckInId");
 
@@ -285,8 +221,7 @@ feat/DE190130_API_Tham_Gia_&_Vi_Escrow
                         .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("CreatedAt");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
@@ -295,8 +230,7 @@ feat/DE190130_API_Tham_Gia_&_Vi_Escrow
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit")
-                        .HasColumnName("IsDeleted");
+                        .HasColumnType("bit");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -311,8 +245,7 @@ feat/DE190130_API_Tham_Gia_&_Vi_Escrow
                         .HasDefaultValue("Available");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("UpdatedAt");
+                        .HasColumnType("datetime2");
 
                     b.HasKey("CourtId");
 
@@ -330,15 +263,13 @@ feat/DE190130_API_Tham_Gia_&_Vi_Escrow
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CourtTypeId"));
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("CreatedAt");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit")
-                        .HasColumnName("IsDeleted");
+                        .HasColumnType("bit");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -346,8 +277,7 @@ feat/DE190130_API_Tham_Gia_&_Vi_Escrow
                         .HasColumnType("nvarchar(50)");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("UpdatedAt");
+                        .HasColumnType("datetime2");
 
                     b.HasKey("CourtTypeId");
 
@@ -367,8 +297,7 @@ feat/DE190130_API_Tham_Gia_&_Vi_Escrow
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("CreatedAt");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("FaceImageUrl")
                         .IsRequired()
@@ -389,8 +318,7 @@ feat/DE190130_API_Tham_Gia_&_Vi_Escrow
                         .HasColumnType("nvarchar(20)");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit")
-                        .HasColumnName("IsDeleted");
+                        .HasColumnType("bit");
 
                     b.Property<string>("RejectionReason")
                         .HasColumnType("nvarchar(max)");
@@ -403,8 +331,7 @@ feat/DE190130_API_Tham_Gia_&_Vi_Escrow
                         .HasDefaultValue("Pending");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("UpdatedAt");
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
@@ -428,42 +355,27 @@ feat/DE190130_API_Tham_Gia_&_Vi_Escrow
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("EquipmentId"));
 
-feat/DE190130_API_Tham_Gia_&_Vi_Escrow
-
-                    b.Property<string>("Category")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)")
-                        .HasDefaultValue("Racket");
-
- main
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("CreatedAt");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
- feat/DE190130_API_Tham_Gia_&_Vi_Escrow
                     b.Property<int>("EquipmentCategoryId")
                         .HasColumnType("int");
-
-                    b.Property<string>("EquipmentName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-main
 
                     b.Property<string>("ImageUrl")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit")
-                        .HasColumnName("IsDeleted");
+                        .HasColumnType("bit");
 
- feat/DE190130_API_Tham_Gia_&_Vi_Escrow
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
 
@@ -477,43 +389,14 @@ main
                     b.Property<int>("StockQuantity")
                         .HasColumnType("int");
 
-                    b.Property<decimal>("RentalPrice")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("decimal(18,2)")
-                        .HasComputedColumnSql("CAST([RetailPrice] * 0.05 AS DECIMAL(18,2))", true);
-
-                    b.Property<int>("RentalStock")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(0);
-
-                    b.Property<decimal>("RetailPrice")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("SalesStock")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(0);
-
-                    b.Property<string>("SportType")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
- main
-
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("UpdatedAt");
+                        .HasColumnType("datetime2");
 
                     b.HasKey("EquipmentId");
 
- feat/DE190130_API_Tham_Gia_&_Vi_Escrow
                     b.HasIndex("EquipmentCategoryId");
 
                     b.ToTable("Equipments");
-
-                    b.ToTable("Equipments", (string)null);
- main
                 });
 
             modelBuilder.Entity("ProSport.Domain.Entities.EquipmentCategory", b =>
@@ -549,134 +432,50 @@ main
 
             modelBuilder.Entity("ProSport.Domain.Entities.EquipmentRental", b =>
                 {
-                    b.Property<int>("DetailId")
+                    b.Property<int>("EquipmentRentalId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DetailId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("EquipmentRentalId"));
 
-                    b.Property<decimal?>("AdditionalCharge")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int?>("BookingId")
+                    b.Property<int>("BookingId")
                         .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<decimal?>("DamageFee")
                         .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("DamageNote")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<decimal>("DepositAmount")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("decimal(18,2)")
-                        .HasDefaultValue(0m);
-
-                    b.Property<decimal?>("DepositRefundAmount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("DepositStatus")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)")
-                        .HasDefaultValue("Held");
-
-                    b.Property<int>("EquipmentId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("EquipmentUnitId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
-                    b.Property<string>("RentalStatus")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)")
-                        .HasDefaultValue("Rented");
-
-                    b.Property<DateTime>("RentedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("SYSDATETIME()");
-
-                    b.Property<string>("ReturnCondition")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<decimal>("Subtotal")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("decimal(18,2)")
-                        .HasComputedColumnSql("[Quantity] * [UnitPrice]", true);
-
-                    b.Property<decimal>("UnitPrice")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("DetailId");
-
-                    b.HasIndex("BookingId");
-
-                    b.HasIndex("EquipmentId");
-
-                    b.HasIndex("EquipmentUnitId");
-
-                    b.ToTable("BookingDetails_Equipments", (string)null);
-                });
-
-            modelBuilder.Entity("ProSport.Domain.Entities.EquipmentUnit", b =>
-                {
-                    b.Property<int>("EquipmentUnitId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("EquipmentUnitId"));
-
-                    b.Property<string>("Condition")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("CreatedAt");
 
                     b.Property<int>("EquipmentId")
                         .HasColumnType("int");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit")
-                        .HasColumnName("IsDeleted");
+                        .HasColumnType("bit");
 
-                    b.Property<int>("RentalCount")
+                    b.Property<int>("Quantity")
                         .HasColumnType("int");
-
-                    b.Property<string>("SerialNumber")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("Status")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)")
-                        .HasDefaultValue("Available");
+                        .HasDefaultValue("Rented");
+
+                    b.Property<decimal>("TotalPrice")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("UpdatedAt");
+                        .HasColumnType("datetime2");
 
-                    b.HasKey("EquipmentUnitId");
+                    b.HasKey("EquipmentRentalId");
+
+                    b.HasIndex("BookingId");
 
                     b.HasIndex("EquipmentId");
 
-                    b.ToTable("EquipmentUnits", (string)null);
+                    b.ToTable("EquipmentRentals");
                 });
 
             modelBuilder.Entity("ProSport.Domain.Entities.EscrowWallet", b =>
@@ -693,12 +492,10 @@ main
                         .HasDefaultValue(0m);
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("CreatedAt");
+                        .HasColumnType("datetime2");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit")
-                        .HasColumnName("IsDeleted");
+                        .HasColumnType("bit");
 
                     b.Property<decimal>("LockedBalance")
                         .ValueGeneratedOnAdd()
@@ -712,8 +509,7 @@ main
                         .HasColumnType("rowversion");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("UpdatedAt");
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
@@ -723,7 +519,7 @@ main
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("EscrowWallets", (string)null);
+                    b.ToTable("EscrowWallets");
                 });
 
             modelBuilder.Entity("ProSport.Domain.Entities.InventoryTransaction", b =>
@@ -788,8 +584,7 @@ main
                         .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("CreatedAt");
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("CurrentParticipants")
                         .HasColumnType("int");
@@ -804,8 +599,7 @@ main
                         .HasColumnType("int");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit")
-                        .HasColumnName("IsDeleted");
+                        .HasColumnType("bit");
 
                     b.Property<string>("LevelRequirement")
                         .HasMaxLength(50)
@@ -831,8 +625,7 @@ main
                         .HasDefaultValue("Open");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("UpdatedAt");
+                        .HasColumnType("datetime2");
 
                     b.HasKey("MatchId");
 
@@ -854,15 +647,13 @@ main
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MatchParticipantId"));
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("CreatedAt");
+                        .HasColumnType("datetime2");
 
                     b.Property<bool>("HasPaidEscrow")
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit")
-                        .HasColumnName("IsDeleted");
+                        .HasColumnType("bit");
 
                     b.Property<int>("MatchId")
                         .HasColumnType("int");
@@ -882,8 +673,7 @@ main
                         .HasDefaultValue("Pending");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("UpdatedAt");
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
@@ -895,7 +685,7 @@ main
                     b.HasIndex("MatchId", "UserId")
                         .IsUnique();
 
-                    b.ToTable("MatchMembers", (string)null);
+                    b.ToTable("MatchParticipants");
                 });
 
             modelBuilder.Entity("ProSport.Domain.Entities.OtpCode", b =>
@@ -909,16 +699,16 @@ main
                     b.Property<string>("Code")
                         .IsRequired()
                         .HasMaxLength(6)
-                        .HasColumnType("varchar(6)");
+                        .HasColumnType("nvarchar(6)");
 
                     b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasColumnName("CreatedAt")
-                        .HasDefaultValueSql("SYSDATETIME()");
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime>("ExpiryTime")
                         .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<bool>("IsUsed")
                         .ValueGeneratedOnAdd()
@@ -928,7 +718,10 @@ main
                     b.Property<string>("Type")
                         .IsRequired()
                         .HasMaxLength(20)
-                        .HasColumnType("varchar(20)");
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
@@ -937,7 +730,7 @@ main
 
                     b.HasIndex("UserId", "Type", "IsUsed", "ExpiryTime");
 
-                    b.ToTable("OtpCodes", (string)null);
+                    b.ToTable("OtpCodes");
                 });
 
             modelBuilder.Entity("ProSport.Domain.Entities.PlayerRating", b =>
@@ -952,12 +745,10 @@ main
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("CreatedAt");
+                        .HasColumnType("datetime2");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit")
-                        .HasColumnName("IsDeleted");
+                        .HasColumnType("bit");
 
                     b.Property<int>("MatchId")
                         .HasColumnType("int");
@@ -972,8 +763,7 @@ main
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("UpdatedAt");
+                        .HasColumnType("datetime2");
 
                     b.HasKey("PlayerRatingId");
 
@@ -1002,8 +792,7 @@ main
                         .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("CreatedAt");
+                        .HasColumnType("datetime2");
 
                     b.Property<int?>("DayOfWeek")
                         .HasColumnType("int");
@@ -1012,8 +801,7 @@ main
                         .HasColumnType("time");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit")
-                        .HasColumnName("IsDeleted");
+                        .HasColumnType("bit");
 
                     b.Property<bool>("IsWeekend")
                         .ValueGeneratedOnAdd()
@@ -1027,8 +815,7 @@ main
                         .HasColumnType("time");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("UpdatedAt");
+                        .HasColumnType("datetime2");
 
                     b.HasKey("PricingRuleId");
 
@@ -1052,16 +839,14 @@ main
                         .HasColumnType("nvarchar(1000)");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("CreatedAt");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Evidence")
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit")
-                        .HasColumnName("IsDeleted");
+                        .HasColumnType("bit");
 
                     b.Property<int>("MatchId")
                         .HasColumnType("int");
@@ -1088,8 +873,7 @@ main
                         .HasDefaultValue("Pending");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("UpdatedAt");
+                        .HasColumnType("datetime2");
 
                     b.HasKey("ReportId");
 
@@ -1119,8 +903,7 @@ main
                         .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("CreatedAt");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
@@ -1129,8 +912,7 @@ main
                         .HasColumnType("int");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit")
-                        .HasColumnName("IsDeleted");
+                        .HasColumnType("bit");
 
                     b.Property<int?>("MatchId")
                         .HasColumnType("int");
@@ -1152,8 +934,7 @@ main
                         .HasColumnType("nvarchar(50)");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("UpdatedAt");
+                        .HasColumnType("datetime2");
 
                     b.HasKey("TransactionId");
 
@@ -1170,78 +951,60 @@ main
                 {
                     b.Property<int>("UserId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("UserId");
+                        .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserId"));
 
                     b.Property<string>("AvatarUrl")
                         .HasMaxLength(500)
-                        .HasColumnType("varchar(500)")
-                        .HasColumnName("AvatarUrl");
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasColumnName("CreatedAt")
-                        .HasDefaultValueSql("SYSDATETIME()");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("EKycStatus")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(20)
-                        .HasColumnType("varchar(20)")
-                        .HasDefaultValue("Unverified")
-                        .HasColumnName("EKycStatus");
+                        .HasColumnType("nvarchar(20)")
+                        .HasDefaultValue("Unverified");
 
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(255)
-                        .HasColumnType("varchar(255)")
-                        .HasColumnName("Email");
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<string>("FullName")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)")
-                        .HasColumnName("FullName");
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("GoogleId")
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)")
-                        .HasColumnName("GoogleId");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false)
-                        .HasColumnName("IsDeleted");
+                        .HasColumnType("bit");
 
                     b.Property<bool>("IsPhoneVerified")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
-                        .HasDefaultValue(false)
-                        .HasColumnName("IsPhoneVerified");
+                        .HasDefaultValue(false);
 
                     b.Property<string>("PasswordHash")
                         .HasMaxLength(500)
-                        .HasColumnType("varchar(500)")
-                        .HasColumnName("PasswordHash");
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<string>("PhoneNumber")
                         .HasMaxLength(15)
-                        .HasColumnType("varchar(15)")
-                        .HasColumnName("PhoneNumber");
+                        .HasColumnType("nvarchar(15)");
 
                     b.Property<string>("Role")
                         .IsRequired()
                         .HasMaxLength(20)
-                        .HasColumnType("varchar(20)")
-                        .HasColumnName("Role");
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("UpdatedAt");
+                        .HasColumnType("datetime2");
 
                     b.HasKey("UserId");
 
@@ -1252,7 +1015,7 @@ main
                         .IsUnique()
                         .HasFilter("[GoogleId] IS NOT NULL");
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("ProSport.Domain.Entities.Voucher", b =>
@@ -1269,8 +1032,7 @@ main
                         .HasColumnType("nvarchar(20)");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("CreatedAt");
+                        .HasColumnType("datetime2");
 
                     b.Property<int?>("CreatedByStaffId")
                         .HasColumnType("int");
@@ -1287,8 +1049,7 @@ main
                         .HasDefaultValue(true);
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit")
-                        .HasColumnName("IsDeleted");
+                        .HasColumnType("bit");
 
                     b.Property<decimal?>("MaxDiscountAmount")
                         .HasColumnType("decimal(18,2)");
@@ -1308,8 +1069,7 @@ main
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("UpdatedAt");
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("UsedQuantity")
                         .HasColumnType("int");
@@ -1350,25 +1110,6 @@ main
                     b.Navigation("Booking");
 
                     b.Navigation("Court");
-                });
-
-            modelBuilder.Entity("ProSport.Domain.Entities.CartItem", b =>
-                {
-                    b.HasOne("ProSport.Domain.Entities.Equipment", "Equipment")
-                        .WithMany()
-                        .HasForeignKey("EquipmentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ProSport.Domain.Entities.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Equipment");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("ProSport.Domain.Entities.ChatHistory", b =>
@@ -1435,32 +1176,16 @@ main
                 {
                     b.HasOne("ProSport.Domain.Entities.Booking", "Booking")
                         .WithMany("EquipmentRentals")
-                        .HasForeignKey("BookingId");
+                        .HasForeignKey("BookingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("ProSport.Domain.Entities.Equipment", "Equipment")
                         .WithMany("Rentals")
                         .HasForeignKey("EquipmentId")
                         .IsRequired();
 
-                    b.HasOne("ProSport.Domain.Entities.EquipmentUnit", "EquipmentUnit")
-                        .WithMany()
-                        .HasForeignKey("EquipmentUnitId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
                     b.Navigation("Booking");
-
-                    b.Navigation("Equipment");
-
-                    b.Navigation("EquipmentUnit");
-                });
-
-            modelBuilder.Entity("ProSport.Domain.Entities.EquipmentUnit", b =>
-                {
-                    b.HasOne("ProSport.Domain.Entities.Equipment", "Equipment")
-                        .WithMany("Units")
-                        .HasForeignKey("EquipmentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
 
                     b.Navigation("Equipment");
                 });
@@ -1630,8 +1355,7 @@ main
 
                     b.HasOne("ProSport.Domain.Entities.Match", "Match")
                         .WithMany()
-                        .HasForeignKey("MatchId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("MatchId");
 
                     b.Navigation("Booking");
 
@@ -1677,8 +1401,6 @@ main
                     b.Navigation("InventoryTransactions");
 
                     b.Navigation("Rentals");
-
-                    b.Navigation("Units");
                 });
 
             modelBuilder.Entity("ProSport.Domain.Entities.EquipmentCategory", b =>
