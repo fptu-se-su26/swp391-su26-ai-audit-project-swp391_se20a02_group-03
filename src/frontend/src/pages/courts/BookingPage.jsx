@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { Link, useSearchParams, useParams, useNavigate } from 'react-router-dom'
+import { Link, useSearchParams, useParams } from 'react-router-dom'
 import Navbar from '../../components/Navbar'
 import Footer from '../../components/Footer'
 import { bookingApi } from '../../api/bookingApi'
@@ -27,7 +27,6 @@ function getCurrentUser() {
 export default function BookingPage() {
   const { id: courtId } = useParams()
   const [searchParams] = useSearchParams()
-  const navigate = useNavigate()
   const { addToast } = useToast()
   const isSubmitting = useRef(false) // Chống double-click
   
@@ -147,7 +146,7 @@ export default function BookingPage() {
           // Backend sẽ tự lấy amount từ DB, FE chỉ gửi bookingId
           const vnpayRes = await paymentApi.createVnPayUrl(0, 'Booking', bookingId);
           if (vnpayRes.statusCode === 200 && vnpayRes.data) {
-             window.location.href = vnpayRes.data; // Redirect sang VNPAY
+             window.location.assign(vnpayRes.data); // Redirect sang VNPAY
              return;
           } else {
              addToast("Không thể tạo link thanh toán VNPay: " + (vnpayRes.message || 'Lỗi không xác định'), "error");
@@ -165,7 +164,7 @@ export default function BookingPage() {
         addToast("Lỗi đặt sân: " + (res.message || 'Lỗi không xác định'), "error");
       }
     } catch (error) {
-      addToast(error?.response?.data?.message || error?.message || "Có lỗi xảy ra", "error");
+      addToast(typeof error === 'string' ? error : (error?.response?.data?.message || error?.message || "Có lỗi xảy ra"), "error");
     } finally {
       setIsLoading(false);
       isSubmitting.current = false;

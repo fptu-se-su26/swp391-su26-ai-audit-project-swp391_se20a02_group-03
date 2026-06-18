@@ -1,8 +1,8 @@
 using Microsoft.Extensions.Logging;
 using ProSport.Application.DTOs;
 using ProSport.Application.Interfaces;
+using ProSport.Domain.Constants;
 using ProSport.Domain.Entities;
-using System.Transactions;
 
 namespace ProSport.Application.Services;
 
@@ -78,22 +78,39 @@ public class EscrowService : IEscrowService
     {
         try
         {
+            if (amount <= 0)
+                return new ApiResponseDto<bool>(400, "Số tiền nạp phải lớn hơn 0", false);
+
             var wallet = await _escrowRepository.GetWalletByUserIdAsync(userId);
-            if (wallet == null) return new ApiResponseDto<bool>(404, "Ví không tồn tại", false);
+            if (wallet == null)
+            {
+                wallet = new EscrowWallet { UserId = userId, Balance = 0, LockedBalance = 0 };
+                await _escrowRepository.CreateWalletAsync(wallet);
+            }
+
+            var existingTransactions = await _escrowRepository.GetTransactionsByWalletIdAsync(wallet.EscrowWalletId);
+            if (!string.IsNullOrWhiteSpace(referenceId) &&
+                existingTransactions.Any(t => t.ReferenceId == referenceId && t.Type == TransactionType.Deposit))
+            {
+                return new ApiResponseDto<bool>(200, "Giao dịch nạp tiền đã được xử lý trước đó", true);
+            }
 
             wallet.Balance += amount;
             var transaction = new Domain.Entities.Transaction
             {
                 EscrowWalletId = wallet.EscrowWalletId,
                 Amount = amount,
-                Type = "Deposit",
-                Status = "Completed",
+                Type = TransactionType.Deposit,
+                Status = TransactionStatus.Completed,
                 ReferenceId = referenceId,
                 Description = description
             };
 
-            await _escrowRepository.UpdateWalletAsync(wallet);
+            // Add transaction FIRST so that if UpdateWallet fails, we at least have
+            // an audit record. Both share the same DbContext so changes accumulate;
+            // the final SaveChanges in UpdateWalletAsync flushes both.
             await _escrowRepository.AddTransactionAsync(transaction);
+            await _escrowRepository.UpdateWalletAsync(wallet);
 
             return new ApiResponseDto<bool>(200, "Nạp tiền thành công", true);
         }
@@ -219,13 +236,13 @@ public class EscrowService : IEscrowService
             if (booking.UserId != userId)
                 return new ApiResponseDto<bool>(403, "Bạn không có quyền thanh toán cho đơn này", false);
 
-            if (booking.PaymentStatus == "Paid")
+            if (booking.PaymentStatus == PaymentStatus.Paid)
                 return new ApiResponseDto<bool>(400, "Đơn đặt sân này đã được thanh toán", false);
 
             // Kiểm tra booking đã hết hạn thanh toán chưa
             if (booking.PaymentDeadline.HasValue && DateTime.UtcNow > booking.PaymentDeadline.Value)
             {
-                booking.Status = "Cancelled";
+                booking.Status = BookingStatus.Cancelled;
                 await _bookingRepository.UpdateAsync(booking);
                 return new ApiResponseDto<bool>(400, "Đơn đặt sân đã hết hạn thanh toán. Vui lòng đặt lại.", false);
             }
@@ -235,12 +252,18 @@ public class EscrowService : IEscrowService
                 userId, booking.TotalAmount, bookingId);
 
             if (!payResult)
-                return new ApiResponseDto<bool>(400, "Số dư không đủ để thanh toán. Vui lòng nạp thêm tiền.", false);
+            {
+                var latestBooking = await _bookingRepository.GetByIdAsync(bookingId);
+                if (latestBooking?.PaymentStatus == PaymentStatus.Paid)
+                    return new ApiResponseDto<bool>(400, "Đơn đặt sân này đã được thanh toán", false);
+
+                return new ApiResponseDto<bool>(400, "Số dư không đủ hoặc đơn đặt sân không còn hợp lệ để thanh toán.", false);
+            }
 
             // Cập nhật booking
-            booking.PaymentMethod = "Escrow";
-            booking.PaymentStatus = "Paid";
-            booking.Status = "Confirmed";
+            booking.PaymentMethod = PaymentMethod.Escrow;
+            booking.PaymentStatus = PaymentStatus.Paid;
+            booking.Status = BookingStatus.Confirmed;
             booking.CheckInCode = $"QR-{booking.BookingId}-{Guid.NewGuid().ToString()[..8]}";
             await _bookingRepository.UpdateAsync(booking);
 

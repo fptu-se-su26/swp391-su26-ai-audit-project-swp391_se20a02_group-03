@@ -69,6 +69,32 @@ public static class DatabaseSeeder
         var equipments = BuildEquipmentCatalog();
         context.Equipments.AddRange(equipments);
         await context.SaveChangesAsync();
+
+        await SeedUnitsAsync(context, equipments);
+    }
+
+    private static async Task SeedUnitsAsync(ProSportDbContext context, List<Equipment> equipments)
+    {
+        if (await context.EquipmentUnits.AnyAsync()) return;
+
+        var units = new List<EquipmentUnit>();
+        foreach (var equipment in equipments)
+        {
+            // Seed 5 units for each equipment
+            for (int i = 1; i <= 5; i++)
+            {
+                units.Add(new EquipmentUnit
+                {
+                    EquipmentId = equipment.EquipmentId,
+                    SerialNumber = $"{equipment.SportType.Substring(0, 3).ToUpper()}-{equipment.EquipmentId:D3}-{i:D2}",
+                    Status = "Available",
+                    RentalCount = 0,
+                    Condition = "New"
+                });
+            }
+        }
+        context.EquipmentUnits.AddRange(units);
+        await context.SaveChangesAsync();
     }
 
     private static async Task EnsureCategoryColumnAsync(ProSportDbContext context)
@@ -422,4 +448,47 @@ public static class DatabaseSeeder
             Description = "Băng khuỷu tay co giãn, giảm mỏi cơ tay khi đánh liên tục."
         },
     };
+
+    public static async Task SeedCourtsAsync(ProSportDbContext context)
+    {
+        if (await context.CourtTypes.AnyAsync())
+        {
+            return;
+        }
+
+        var badmintonType = new CourtType { Name = "Badminton", Description = "Sân cầu lông tiêu chuẩn" };
+        var pickleballType = new CourtType { Name = "Pickleball", Description = "Sân Pickleball tiêu chuẩn" };
+        context.CourtTypes.AddRange(badmintonType, pickleballType);
+        await context.SaveChangesAsync();
+
+        var courts = new List<Court>
+        {
+            new Court { Name = "Sân Cầu Lông A1", CourtTypeId = badmintonType.CourtTypeId, Status = "Available", Description = "Sân thảm PVC Yonex cao cấp", ImageUrl = "https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=600" },
+            new Court { Name = "Sân Cầu Lông A2", CourtTypeId = badmintonType.CourtTypeId, Status = "Available", Description = "Sân thảm PVC Yonex cao cấp", ImageUrl = "https://images.unsplash.com/photo-1517649763962-0c62306601b7?w=600" },
+            new Court { Name = "Sân Cầu Lông A3", CourtTypeId = badmintonType.CourtTypeId, Status = "Available", Description = "Sân thảm gỗ cao cấp", ImageUrl = "https://images.unsplash.com/photo-1521537634581-227f84850b41?w=600" },
+            new Court { Name = "Sân Pickleball P1", CourtTypeId = pickleballType.CourtTypeId, Status = "Available", Description = "Sân ngoài trời tiêu chuẩn Mỹ", ImageUrl = "https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?w=600" },
+            new Court { Name = "Sân Pickleball P2", CourtTypeId = pickleballType.CourtTypeId, Status = "Available", Description = "Sân ngoài trời tiêu chuẩn Mỹ", ImageUrl = "https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=600" }
+        };
+        context.Courts.AddRange(courts);
+        await context.SaveChangesAsync();
+
+        var badmintonPricing = new List<PricingRule>
+        {
+            new PricingRule { CourtTypeId = badmintonType.CourtTypeId, StartTime = new TimeSpan(5, 0, 0), EndTime = new TimeSpan(17, 0, 0), PricePerHour = 80000m, IsWeekend = false },
+            new PricingRule { CourtTypeId = badmintonType.CourtTypeId, StartTime = new TimeSpan(17, 0, 0), EndTime = new TimeSpan(22, 0, 0), PricePerHour = 120000m, IsWeekend = false },
+            new PricingRule { CourtTypeId = badmintonType.CourtTypeId, StartTime = new TimeSpan(5, 0, 0), EndTime = new TimeSpan(22, 0, 0), PricePerHour = 140000m, IsWeekend = true }
+        };
+
+        var pickleballPricing = new List<PricingRule>
+        {
+            new PricingRule { CourtTypeId = pickleballType.CourtTypeId, StartTime = new TimeSpan(5, 0, 0), EndTime = new TimeSpan(17, 0, 0), PricePerHour = 100000m, IsWeekend = false },
+            new PricingRule { CourtTypeId = pickleballType.CourtTypeId, StartTime = new TimeSpan(17, 0, 0), EndTime = new TimeSpan(22, 0, 0), PricePerHour = 150000m, IsWeekend = false },
+            new PricingRule { CourtTypeId = pickleballType.CourtTypeId, StartTime = new TimeSpan(5, 0, 0), EndTime = new TimeSpan(22, 0, 0), PricePerHour = 180000m, IsWeekend = true }
+        };
+
+        context.PricingRules.AddRange(badmintonPricing);
+        context.PricingRules.AddRange(pickleballPricing);
+        await context.SaveChangesAsync();
+    }
 }
+

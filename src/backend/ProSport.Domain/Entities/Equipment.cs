@@ -22,4 +22,5 @@ public class Equipment : BaseEntity
     public EquipmentCategory EquipmentCategory { get; set; } = null!;
     public ICollection<InventoryTransaction> InventoryTransactions { get; set; } = new List<InventoryTransaction>();
     public ICollection<EquipmentRental> Rentals { get; set; } = new List<EquipmentRental>();
+    public ICollection<EquipmentUnit> Units { get; set; } = new List<EquipmentUnit>();
 }

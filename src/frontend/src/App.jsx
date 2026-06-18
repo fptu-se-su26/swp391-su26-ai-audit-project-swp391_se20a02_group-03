@@ -32,6 +32,9 @@ import CustomerProfilePage from './pages/customer/CustomerProfilePage'
 import ReportDisputePage from './pages/customer/ReportDisputePage'
 
 import AIChatbot from './components/AIChatbot'
+import { CartProvider } from './context/CartContext'
+import CartPage from './pages/gear/CartPage'
+import CartCheckoutPage from './pages/gear/CartCheckoutPage'
 
 // PRO-SPORT Apex Portal (Courts & More)
 import ApexHomePage from './pages/apex/ApexHomePage'
@@ -110,6 +113,7 @@ function App() {
     return (
         <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || '451555739002-p36a1gvgpgb5pf5585modtkess26flmf.apps.googleusercontent.com'}>
         <ToastProvider>
+        <CartProvider>
             <Router basename="/swp391-su26-ai-audit-project-swp391_se20a02_group-03">
                 <Suspense fallback={<PageLoader />}>
                 <Routes>
@@ -150,6 +154,8 @@ function App() {
                     <Route path="/gear/rentals" element={<GearRentalPage />} />
                     <Route path="/gear/catalog" element={<GearCatalogPage />} />
                     <Route path="/gear/catalog/:id" element={<GearDetailPage />} />
+                    <Route path="/gear/cart" element={<ProtectedRoute><CartPage /></ProtectedRoute>} />
+                    <Route path="/gear/cart/checkout" element={<ProtectedRoute><CartCheckoutPage /></ProtectedRoute>} />
                     <Route path="/gear/rental-terms" element={<GearRentalTermsPage />} />
                     <Route path="/gear/maintenance" element={<GearMaintenancePage />} />
                     <Route path="/gear/support" element={<GearSupportPage />} />
@@ -205,6 +211,7 @@ function App() {
                 </Suspense>
                 <AIChatbot />
             </Router>
+        </CartProvider>
         </ToastProvider>
         </GoogleOAuthProvider>
     )

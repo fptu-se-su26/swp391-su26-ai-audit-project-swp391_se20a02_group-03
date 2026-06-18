@@ -31,6 +31,8 @@ public class ProSportDbContext : DbContext
     public DbSet<PlayerRating> PlayerRatings { get; set; } = null!;
     public DbSet<Report> Reports { get; set; } = null!;
     public DbSet<ChatHistory> ChatHistories { get; set; } = null!;
+    public DbSet<EquipmentUnit> EquipmentUnits { get; set; } = null!;
+    public DbSet<CartItem> CartItems { get; set; } = null!;
 
     public override int SaveChanges()
     {
@@ -365,6 +367,26 @@ public class ProSportDbContext : DbContext
                   .HasForeignKey(e => e.BookingId)
                   .OnDelete(DeleteBehavior.ClientSetNull)
                   .IsRequired(false);
+
+            entity.HasOne(er => er.EquipmentUnit)
+                  .WithMany()
+                  .HasForeignKey(er => er.EquipmentUnitId)
+                  .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        // --- EquipmentUnits ---
+        modelBuilder.Entity<EquipmentUnit>(entity =>
+        {
+            entity.ToTable("EquipmentUnits");
+            entity.HasKey(e => e.EquipmentUnitId);
+            entity.Property(e => e.SerialNumber).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.Status).IsRequired().HasMaxLength(20).HasDefaultValue("Available");
+            entity.Property(e => e.Condition).HasMaxLength(100);
+
+            entity.HasOne(e => e.Equipment)
+                  .WithMany(e => e.Units)
+                  .HasForeignKey(e => e.EquipmentId)
+                  .OnDelete(DeleteBehavior.Cascade);
         });
 
         // ====================
@@ -470,6 +492,21 @@ public class ProSportDbContext : DbContext
                   .WithMany()
                   .HasForeignKey(e => e.UserId)
                   .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // --- CartItem ---
+        modelBuilder.Entity<CartItem>(entity =>
+        {
+            entity.ToTable("CartItems");
+            entity.HasKey(ci => ci.CartItemId);
+
+            entity.HasOne(ci => ci.Equipment)
+                  .WithMany()
+                  .HasForeignKey(ci => ci.EquipmentId);
+
+            entity.HasOne(ci => ci.User)
+                  .WithMany()
+                  .HasForeignKey(ci => ci.UserId);
         });
     }
 }
