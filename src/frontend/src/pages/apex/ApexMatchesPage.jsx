@@ -214,7 +214,7 @@ export default function ApexMatchesPage() {
                     </div>
                     <div className="match-card__right">
                       {/* BUG-10 FIX: Add onClick to View Details */}
-                      <button className="btn-outline" style={{ fontSize: '0.8rem' }} onClick={() => navigate(`/matches/${m.id}`)}>View Details</button>
+                      <button className="btn-outline" style={{ fontSize: '0.8rem' }} onClick={() => navigate(`/matches/${m.id}`)}>Xem chi tiết</button>
                     </div>
                   </div>
                 ))}

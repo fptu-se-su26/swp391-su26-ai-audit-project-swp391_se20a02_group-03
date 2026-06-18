@@ -9,18 +9,18 @@ gsap.registerPlugin(ScrollTrigger)
 
 const values = [
   {
-    title: 'Relentless Innovation',
-    desc: 'We constantly challenge the status quo, utilizing AI and advanced data analytics to provide the most precise match-making and facility management systems in the industry.',
+    title: 'Đổi mới không ngừng',
+    desc: 'Chúng tôi liên tục thách thức hiện tại, ứng dụng AI và phân tích dữ liệu nâng cao để cung cấp hệ thống ghép kèo và quản lý cơ sở vật chất chính xác nhất trong ngành.',
     icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
   },
   {
-    title: 'Inclusivity in Sports',
-    desc: 'We believe sports are for everyone. Our platform breaks down barriers, making it easy for beginners and professionals alike to find courts, gear, and opponents.',
+    title: 'Thể thao cho mọi người',
+    desc: 'Chúng tôi tin rằng thể thao là dành cho tất cả. Nền tảng của chúng tôi phá vỡ mọi rào cản, giúp cả người mới lẫn dân chuyên dễ dàng tìm sân, thuê đồ và đối thủ.',
     icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
   },
   {
-    title: 'Peak Performance',
-    desc: 'We settle for nothing less than excellence. From the quality of our partner venues to the speed of our app, performance is at the heart of everything we do.',
+    title: 'Hiệu suất đỉnh cao',
+    desc: 'Chúng tôi không chấp nhận gì ngoài sự xuất sắc. Từ chất lượng của các cơ sở đối tác đến tốc độ của ứng dụng, hiệu suất là trọng tâm trong mọi việc chúng tôi làm.',
     icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
   }
 ]
@@ -66,12 +66,12 @@ export default function BrandMissionPage() {
         <div className="absolute inset-0 bg-gradient-to-b from-[#0a0e1a]/80 via-transparent to-[#0a0e1a]" />
         
         <div ref={heroRef} className="relative z-10 text-center max-w-[800px] mx-auto mt-16">
-          <span className="inline-block text-[0.8rem] font-bold tracking-[0.2em] uppercase text-[#00c8aa] mb-6 border border-[#00c8aa]/30 px-5 py-2 rounded-full bg-[#00c8aa]/10 backdrop-blur-sm">Our Brand Mission</span>
+          <span className="inline-block text-[0.8rem] font-bold tracking-[0.2em] uppercase text-[#00c8aa] mb-6 border border-[#00c8aa]/30 px-5 py-2 rounded-full bg-[#00c8aa]/10 backdrop-blur-sm">Sứ mệnh Thương hiệu</span>
           <h1 className="font-['Oswald'] text-[clamp(2.5rem,5vw,4.5rem)] font-bold text-white leading-[1.1] mb-6">
-            Empowering the World<br />to Play More.
+            Truyền cảm hứng để Thế giới<br />chơi thể thao nhiều hơn.
           </h1>
           <p className="text-[1.1rem] text-white/70 leading-[1.6] max-w-[600px] mx-auto">
-            We are building the digital infrastructure for the physical world of sports. Connecting athletes, venues, and communities globally.
+            Chúng tôi đang xây dựng hạ tầng kỹ thuật số cho thế giới thể thao thực tế. Kết nối vận động viên, cơ sở và cộng đồng trên toàn cầu.
           </p>
         </div>
       </section>
@@ -81,10 +81,10 @@ export default function BrandMissionPage() {
         <div className="container max-w-[900px] mx-auto text-center" ref={statementRef}>
           <svg className="w-12 h-12 text-[#00c8aa] mx-auto mb-8 opacity-40" viewBox="0 0 24 24" fill="currentColor"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/></svg>
           <h2 className="font-['Oswald'] text-[clamp(1.8rem,3vw,2.5rem)] font-bold text-[#0a0e1a] leading-[1.3] mb-8">
-            "We envision a world where finding a court, joining a game, or renting gear is as easy as ordering a coffee. PRO-SPORT is the bridge between human ambition and athletic realization."
+            "Chúng tôi hướng đến một thế giới nơi việc tìm sân, tham gia kèo đấu hay thuê đồ dễ dàng như việc gọi một ly cà phê. PRO-SPORT chính là nhịp cầu nối khát vọng con người với thành tích thể thao."
           </h2>
           <div className="w-[60px] h-[3px] bg-[#00c8aa] mx-auto mb-6" />
-          <p className="text-[0.95rem] font-bold text-slate-900 tracking-wide uppercase">The PRO-SPORT Founding Team</p>
+          <p className="text-[0.95rem] font-bold text-slate-900 tracking-wide uppercase">Đội ngũ sáng lập PRO-SPORT</p>
         </div>
       </section>
 
@@ -92,8 +92,8 @@ export default function BrandMissionPage() {
       <section className="py-[100px] bg-[#f8fafb] border-y border-slate-200">
         <div className="container">
           <div className="text-center mb-16">
-            <h2 className="font-['Oswald'] text-[2.2rem] font-bold text-[#0a0e1a] mb-4">What Drives Us</h2>
-            <p className="text-slate-500 max-w-[500px] mx-auto">The fundamental principles that guide every feature we build and every partnership we forge.</p>
+            <h2 className="font-['Oswald'] text-[2.2rem] font-bold text-[#0a0e1a] mb-4">Động lực của chúng tôi</h2>
+            <p className="text-slate-500 max-w-[500px] mx-auto">Những nguyên tắc cốt lõi dẫn dắt mọi tính năng chúng tôi xây dựng và mọi mối quan hệ hợp tác.</p>
           </div>
           
           <div ref={valuesRef} className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -122,10 +122,10 @@ export default function BrandMissionPage() {
               Building a Community of Champions
             </h2>
             <p className="text-slate-600 leading-[1.8] mb-6 text-[1.05rem]">
-              Our mission extends beyond software. We are actively fostering a global community of sports enthusiasts. Through our platform, we enable local tournaments, sponsor grassroots athletes, and provide tools for independent coaches to thrive.
+              Sứ mệnh của chúng tôi vượt xa khỏi ranh giới phần mềm. Chúng tôi tích cực bồi dưỡng một cộng đồng những người đam mê thể thao toàn cầu. Thông qua nền tảng này, chúng tôi tạo điều kiện cho các giải đấu địa phương, tài trợ các vận động viên phong trào, và cung cấp công cụ cho các huấn luyện viên độc lập phát triển.
             </p>
             <p className="text-slate-600 leading-[1.8] mb-8 text-[1.05rem]">
-              When you use PRO-SPORT, you're not just booking a court—you're joining a movement dedicated to health, competition, and shared passion.
+              Khi bạn sử dụng PRO-SPORT, bạn không chỉ đang đặt sân—bạn đang tham gia vào một phong trào cống hiến vì sức khỏe, sự cạnh tranh và đam mê chung.
             </p>
             <Link to="/register" className="inline-flex items-center justify-center bg-[#00c8aa] text-white px-8 py-4 rounded-full font-bold text-[0.95rem] hover:bg-[#00b095] hover:shadow-[0_8px_20px_rgba(0,200,170,0.3)] transition-all duration-300 hover:-translate-y-1">
               Join Our Mission →

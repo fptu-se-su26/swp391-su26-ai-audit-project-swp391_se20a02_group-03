@@ -5,6 +5,7 @@ namespace ProSport.Application.Interfaces;
 public interface IMatchRepository
 {
     Task<IEnumerable<Match>> GetMatchesByStatusAsync(string status);
+    Task<IEnumerable<Match>> GetMyMatchHistoryAsync(int userId);
     Task<Match?> GetMatchByIdAsync(int matchId);
     Task<Match> CreateMatchAsync(Match match);
     Task UpdateMatchAsync(Match match);

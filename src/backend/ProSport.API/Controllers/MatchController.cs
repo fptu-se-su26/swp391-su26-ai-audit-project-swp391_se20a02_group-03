@@ -24,6 +24,15 @@ public class MatchController : ControllerBase
         return StatusCode(response.StatusCode, response);
     }
 
+    [Authorize]
+    [HttpGet("my-history")]
+    public async Task<IActionResult> GetMyMatchHistory()
+    {
+        var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+        var response = await _matchService.GetMyMatchHistoryAsync(userId);
+        return StatusCode(response.StatusCode, response);
+    }
+
     [HttpGet("{id}")]
     public async Task<IActionResult> GetMatchById(int id)
     {

@@ -129,7 +129,7 @@ export default function ElitePosWalkInPage() {
               </div>
               <div className="flex items-center gap-2.5 bg-slate-50 border border-slate-200 rounded-lg px-4 py-3">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-slate-400"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                <input type="text" placeholder="Search member name or phone..." className="border-none bg-transparent w-full font-['Inter'] text-sm text-slate-800 outline-none" />
+                <input type="text" placeholder="Tìm kiếm member name or phone..." className="border-none bg-transparent w-full font-['Inter'] text-sm text-slate-800 outline-none" />
               </div>
             </div>
 
@@ -161,7 +161,7 @@ export default function ElitePosWalkInPage() {
                   <span>$4.50</span>
                 </div>
                 <div className="flex justify-between text-sm text-slate-500 font-medium mt-2 pt-4 border-t border-slate-200 items-center">
-                  <span className="text-[1.125rem] font-bold text-slate-800">Total</span>
+                  <span className="text-[1.125rem] font-bold text-slate-800">Tổng cộng</span>
                   <span className="font-['Oswald'] text-[1.75rem] font-bold text-[#006070]">$49.50</span>
                 </div>
               </div>

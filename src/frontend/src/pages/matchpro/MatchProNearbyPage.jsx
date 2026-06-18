@@ -53,11 +53,11 @@ export default function MatchProNearbyPage() {
           <div className="mp-map-hero">
             <div className="mp-map-overlay">
               <div className="mp-map-search">
-                <input type="text" placeholder="Search locations, venues..." className="mp-map-input" />
+                <input type="text" placeholder="Tìm kiếm locations, venues..." className="mp-map-input" />
                 <select className="mp-map-select" value={distanceFilter} onChange={e => setDistanceFilter(e.target.value)}>
                   {distances.map(d => <option key={d} value={d}>Within {d}</option>)}
                 </select>
-                <button className="btn-primary mp-map-btn">Search</button>
+                <button className="btn-primary mp-map-btn">Tìm kiếm</button>
               </div>
             </div>
             

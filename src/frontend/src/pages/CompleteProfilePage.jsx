@@ -26,8 +26,8 @@ export default function CompleteProfilePage() {
 
   const validateField = (value) => {
     let errMsg = ""
-    if (!value.trim()) errMsg = "Required field."
-    else if (!/(84|0[3|5|7|8|9])+([0-9]{8})\b/.test(value.trim())) errMsg = "Invalid VN phone number."
+    if (!value.trim()) errMsg = "Trường bắt buộc."
+    else if (!/(84|0[3|5|7|8|9])+([0-9]{8})\b/.test(value.trim())) errMsg = "Số điện thoại VN không hợp lệ."
     
     setFieldErrors({ phoneNumber: errMsg })
     return errMsg === ""
@@ -51,18 +51,18 @@ export default function CompleteProfilePage() {
       await authApi.completeProfile({
         phoneNumber
       })
-      toast('Profile updated successfully!', 'success')
+      toast('Cập nhật hồ sơ thành công!', 'success')
       navigate('/')
     } catch (err) {
       // BUG #14 FIX: Handle 401 specifically
       if (err === 'Unauthorized' || err?.includes?.('401')) {
         localStorage.removeItem('token')
         sessionStorage.removeItem('token')
-        toast('Session expired. Please login again.', 'error')
+        toast('Phiên làm việc đã hết hạn. Vui lòng đăng nhập lại.', 'error')
         navigate('/login')
         return
       }
-      setError(typeof err === 'string' ? err : 'Failed to update profile. Phone number might be in use.')
+      setError(typeof err === 'string' ? err : 'Cập nhật hồ sơ thất bại. Số điện thoại có thể đã được sử dụng.')
     } finally {
       setLoading(false)
     }
@@ -80,9 +80,9 @@ export default function CompleteProfilePage() {
             <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
           </div>
 
-          <h1 className="font-['Oswald'] text-[1.8rem] font-bold text-slate-900 mb-1.5 text-center">Complete Profile</h1>
+          <h1 className="font-['Oswald'] text-[1.8rem] font-bold text-slate-900 mb-1.5 text-center">Hoàn tất hồ sơ</h1>
           <p className="text-[0.875rem] text-slate-500 text-center mb-7">
-            Just one more step to finish setting up your account.
+            Chỉ còn một bước nữa để hoàn tất thiết lập tài khoản của bạn.
           </p>
 
           {error && (
@@ -94,7 +94,7 @@ export default function CompleteProfilePage() {
           <form className="w-full max-w-[340px] mx-auto flex flex-col gap-4" onSubmit={handleComplete} noValidate>
             
             <div className="flex flex-col gap-1.5 w-full relative mb-4">
-              <label htmlFor="reg-phone" className="text-[0.825rem] font-semibold text-slate-900">Phone Number</label>
+              <label htmlFor="reg-phone" className="text-[0.825rem] font-semibold text-slate-900">Số điện thoại</label>
               <div className="relative flex items-center group">
                 <svg className={`absolute left-3.5 pointer-events-none transition-colors ${fieldErrors.phoneNumber ? 'text-red-400' : 'text-slate-400 group-focus-within:text-[#00c8aa]'}`} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13.5 19.79 19.79 0 0 1 1.61 5 2 2 0 0 1 3.59 3h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 10.9a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 18z"/></svg>
                 <input id="reg-phone" name="phoneNumber" type="tel" value={phoneNumber} onBlur={handleBlur} onChange={e => { setPhoneNumber(e.target.value); if (fieldErrors.phoneNumber) validateField(e.target.value) }} placeholder="+84 0000 0000" className={`w-full py-2.5 pr-3.5 pl-10 border-[1.5px] rounded-md font-['Inter'] text-[0.9rem] text-slate-900 bg-white transition-all outline-none placeholder:text-slate-400 ${fieldErrors.phoneNumber ? 'border-red-400 focus:shadow-[0_0_0_3px_rgba(248,113,113,0.12)]' : 'border-slate-200 focus:border-[#00c8aa] focus:shadow-[0_0_0_3px_rgba(0,200,170,0.12)]'}`} />
@@ -108,7 +108,7 @@ export default function CompleteProfilePage() {
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-              ) : 'Complete Setup →'}
+              ) : 'Hoàn tất thiết lập →'}
             </button>
           </form>
 

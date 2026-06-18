@@ -18,7 +18,7 @@ export default function ResetPasswordPage() {
   const handleSendOtp = async (e) => {
     e.preventDefault()
     if (!email) {
-      setError('Please enter your email.')
+      setError('Vui lòng nhập email của bạn.')
       return
     }
     setError(null)
@@ -27,7 +27,7 @@ export default function ResetPasswordPage() {
       await authApi.forgotPassword({ email })
       setStep(1)
     } catch (err) {
-      setError(typeof err === 'string' ? err : 'Failed to send OTP. Email might not exist.')
+      setError(typeof err === 'string' ? err : 'Gửi OTP thất bại. Email có thể không tồn tại.')
     } finally {
       setLoading(false)
     }
@@ -80,7 +80,7 @@ export default function ResetPasswordPage() {
       await authApi.verifyOtp({ email, otpCode, type: 'ResetPassword' })
       setStep(2)
     } catch (err) {
-      setError(typeof err === 'string' ? err : 'Invalid or expired OTP.')
+      setError(typeof err === 'string' ? err : 'OTP không hợp lệ hoặc đã hết hạn.')
     } finally {
       setLoading(false)
     }
@@ -95,7 +95,7 @@ export default function ResetPasswordPage() {
     e.preventDefault()
     const otpCode = otp.join('')
     if (!newPassword || newPassword.length < 8) {
-      setError('Password must be at least 8 characters.')
+      setError('Mật khẩu phải có ít nhất 8 ký tự.')
       return
     }
 
@@ -103,10 +103,10 @@ export default function ResetPasswordPage() {
     setLoading(true)
     try {
       await authApi.resetPassword({ email, otpCode, newPassword })
-      toast('Password reset successfully! Please login.', 'success')
+      toast('Đổi mật khẩu thành công! Vui lòng đăng nhập.', 'success')
       navigate('/login')
     } catch (err) {
-      setError(typeof err === 'string' ? err : 'Failed to reset password.')
+      setError(typeof err === 'string' ? err : 'Đổi mật khẩu thất bại.')
     } finally {
       setLoading(false)
     }
@@ -118,22 +118,22 @@ export default function ResetPasswordPage() {
       icon: (
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
       ),
-      title: 'RECOVER\nYOUR\nACCESS.',
-      subtitle: 'Enter the email associated with your account and we\'ll send a verification code.'
+      title: 'KHÔI PHỤC\nQUYỀN\nTRUY CẬP.',
+      subtitle: 'Nhập email liên kết với tài khoản của bạn và chúng tôi sẽ gửi mã xác thực.'
     },
     {
       icon: (
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
       ),
-      title: 'CHECK\nYOUR\nINBOX.',
-      subtitle: `We sent a 6-digit code to your email. Enter it below to verify.`
+      title: 'KIỂM TRA\nHỘP THƯ.',
+      subtitle: `Chúng tôi đã gửi mã 6 số đến email của bạn. Nhập mã xuống bên dưới để xác thực.`
     },
     {
       icon: (
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
       ),
-      title: 'SET A\nNEW\nPASSWORD.',
-      subtitle: 'Choose a strong password to secure your Pro-Sport account.'
+      title: 'ĐẶT\nMẬT KHẨU\nMỚI.',
+      subtitle: 'Chọn một mật khẩu mạnh để bảo vệ tài khoản Pro-Sport của bạn.'
     },
   ]
 
@@ -193,7 +193,7 @@ export default function ResetPasswordPage() {
               </div>
             ))}
             <span className="ml-3 text-xs font-medium text-brand-500 tracking-wider uppercase">
-              Step {step + 1} of 3
+              Bước {step + 1} / 3
             </span>
           </div>
         </div>
@@ -217,18 +217,18 @@ export default function ResetPasswordPage() {
         <div className="auth-form-inner auth-animate-in-delayed">
           {/* Header */}
           <header className="mb-8">
-            <p className="text-xs font-semibold tracking-[0.15em] uppercase text-accent mb-3">Account recovery</p>
+            <p className="text-xs font-semibold tracking-[0.15em] uppercase text-accent mb-3">Khôi phục tài khoản</p>
             <h1 className="font-heading text-[2rem] font-bold text-brand-900 tracking-tight leading-tight">
-              {step === 0 && <>Reset your<br />password</>}
-              {step === 1 && <>Enter verification<br />code</>}
-              {step === 2 && <>Create new<br />password</>}
+              {step === 0 && <>Đặt lại<br />mật khẩu</>}
+              {step === 1 && <>Nhập mã<br />xác thực</>}
+              {step === 2 && <>Tạo mật khẩu<br />mới</>}
             </h1>
             <p className="text-sm text-brand-500 mt-3 leading-relaxed">
               {step === 0 
-                ? "Enter the email address associated with your account."
+                ? "Nhập địa chỉ email liên kết với tài khoản của bạn."
                 : step === 1
-                  ? `We sent a 6-digit OTP to ${email}`
-                  : "Choose a strong password for your account."}
+                  ? `Chúng tôi đã gửi mã OTP 6 số đến ${email}`
+                  : "Chọn một mật khẩu mạnh cho tài khoản của bạn."}
             </p>
           </header>
 
@@ -244,7 +244,7 @@ export default function ResetPasswordPage() {
             {/* Step 0: Email */}
             {step === 0 && (
               <div className="flex flex-col gap-2 auth-animate-slide">
-                <label htmlFor="reset-email" className="text-sm font-semibold text-brand-900">Email Address</label>
+                <label htmlFor="reset-email" className="text-sm font-semibold text-brand-900">Địa chỉ Email</label>
                 <div className="relative group">
                   <svg className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none text-brand-400 group-focus-within:text-accent transition-colors duration-300" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
                   <input id="reset-email" type="email" value={email} onChange={e => setEmail(e.target.value)} required placeholder="athlete@example.com" className="auth-input pl-11" />
@@ -258,7 +258,7 @@ export default function ResetPasswordPage() {
                 <div className="w-16 h-16 rounded-2xl bg-accent/10 flex items-center justify-center text-accent">
                   <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
                 </div>
-                <label className="text-sm font-semibold text-brand-900 text-center">Enter OTP Code</label>
+                <label className="text-sm font-semibold text-brand-900 text-center">Nhập mã OTP</label>
                 <div className="flex gap-2.5">
                   {[0,1,2,3,4,5].map(i => (
                     <input 
@@ -283,7 +283,7 @@ export default function ResetPasswordPage() {
             {/* Step 2: New Password */}
             {step === 2 && (
               <div className="flex flex-col gap-2 auth-animate-slide">
-                <label htmlFor="reset-new-password" className="text-sm font-semibold text-brand-900">New Password</label>
+                <label htmlFor="reset-new-password" className="text-sm font-semibold text-brand-900">Mật khẩu mới</label>
                 <div className="relative group">
                   <svg className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none text-brand-400 group-focus-within:text-accent transition-colors duration-300" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                   <input id="reset-new-password" type={showPass ? 'text' : 'password'} value={newPassword} onChange={e => setNewPassword(e.target.value)} required placeholder="••••••••" className="auth-input pl-11 pr-11" />
@@ -312,7 +312,7 @@ export default function ResetPasswordPage() {
           {/* Back to login */}
           <Link to="/login" className="mt-10 text-sm font-semibold text-brand-500 transition-colors duration-200 hover:text-accent self-center flex items-center gap-2">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-            Back to Login
+            Quay lại Đăng nhập
           </Link>
         </div>
       </section>

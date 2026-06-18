@@ -19,7 +19,7 @@ export default function ApexSettingsPage() {
     <ApexLayout title="Settings">
       <div className="apex-settings">
         <div className="settings-header">
-          <h1 className="settings-title">Settings</h1>
+          <h1 className="settings-title">Cài đặt</h1>
           <p className="settings-sub">Manage your account preferences.</p>
         </div>
 

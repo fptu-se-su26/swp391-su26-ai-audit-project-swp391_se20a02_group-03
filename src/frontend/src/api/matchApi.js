@@ -4,6 +4,9 @@ export const matchApi = {
   // Xem danh sách kèo đang mở
   getOpenMatches: () => axiosClient.get('/matches/open'),
 
+  // Lịch sử kèo cá nhân
+  getMyMatchHistory: () => axiosClient.get('/matches/my-history'),
+
   // Xem chi tiết kèo
   getMatchById: (id) => axiosClient.get(`/matches/${id}`),
 

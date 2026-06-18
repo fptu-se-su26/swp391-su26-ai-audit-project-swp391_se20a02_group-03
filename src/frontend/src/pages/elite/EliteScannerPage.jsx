@@ -93,7 +93,7 @@ export default function EliteScannerPage() {
                                 <p className="mb-2"><span className="text-gray-500">Total Paid:</span> <span className="font-semibold">{scanResult.data?.totalAmount?.toLocaleString()} VND</span></p>
                                 <p className="mb-2"><span className="text-gray-500">Status:</span> <span className="inline-block px-2 py-1 bg-green-100 text-green-800 rounded text-xs font-bold">CHECKED IN</span></p>
                                 <hr className="my-3"/>
-                                <h3 className="font-bold text-gray-700 mb-2">Courts</h3>
+                                <h3 className="font-bold text-gray-700 mb-2">Cơ sở/Sân</h3>
                                 <ul className="list-disc pl-5 text-sm text-gray-600">
                                     {scanResult.data?.details?.map((d, i) => (
                                         <li key={i}>{d.courtName} ({d.startTime.slice(0,5)} - {d.endTime.slice(0,5)})</li>
