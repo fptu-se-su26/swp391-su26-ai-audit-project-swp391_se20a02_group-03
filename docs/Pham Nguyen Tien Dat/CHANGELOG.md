@@ -235,3 +235,24 @@ Antigravity AI sinh toàn bộ cấu trúc JSX, CSS và hệ thống routing ban
 
 ### Hỗ trợ từ AI (AI-assisted)
 * Antigravity AI (Gemini) hỗ trợ viết các đoạn mã script NodeJS dịch thuật tự động, tìm và thay thế chuỗi trên quy mô lớn, đồng thời cung cấp kiến trúc giao dịch (Transaction) an toàn cho Backend. Người thực hiện đóng vai trò Product Owner & Reviewer: chủ động phanh lại và rollback các thiết kế rác do AI vẽ ra, can thiệp xử lý lỗi rò rỉ API Key chặn push code, và tự tay hợp nhất (resolve) các file bị conflict nhằm bảo vệ tính toàn vẹn của mã nguồn trên CodeGraph/GitHub.
+
+
+
+
+## [2026-06-18] - Giai đoạn: Đồng bộ mã nguồn, Phân giải xung đột & Tự động hoá Refactoring
+**Người thực hiện:** Phạm Nguyễn Tiến Đạt
+
+### Thêm mới (Added)
+* **Thư viện (Dependencies):** Tích hợp bổ sung các package cần thiết (`react-leaflet`, `leaflet` cho giao diện bản đồ và `dompurify` để tăng cường bảo mật XSS) vào môi trường Frontend.
+
+### Thay đổi (Changed)
+* **Tự động hóa Refactoring (Global):** Phát triển và thực thi PowerShell Script ngầm để quét qua hơn 35+ file `.jsx`. Dùng Regex chuyển đổi toàn bộ cú pháp Arrow Function (`const func = async () => {}`) sang Async Function (`async function func() {}`), giúp mã nguồn tuân thủ các tiêu chuẩn khai báo nghiêm ngặt của React ESLint.
+* **Bảo mật (Security):** Chạy lệnh kiểm tra bảo mật chuyên sâu (`npm audit` và `dotnet list package --vulnerable`), đưa ra quyết định giữ nguyên phiên bản thư viện `vite` hiện tại để tránh nguy cơ vỡ file cấu hình (Breaking Changes).
+
+### Sửa lỗi (Fixed)
+* **Xung đột Git (Merge Conflict):** Xử lý dứt điểm tình trạng mã nguồn Backend bị sập (Build Failed) sau khi kéo code từ nhánh `main` về. Đã trực tiếp hợp nhất xung đột trong file `ProSportDbContextModelSnapshot.cs` và đổi tên class Migration bị trùng lặp nhằm khôi phục trạng thái biên dịch cho dự án.
+* **Lỗi React Hooks (Hoisting):** Quét và tiêu diệt hơn 60 cảnh báo lỗi `Cannot access variable before it is declared` sinh ra do việc gọi hàm trước khi khai báo bên trong `useEffect`, qua đó triệt tiêu hoàn toàn rủi ro người dùng gặp màn hình trắng khi tải dữ liệu.
+* **Phục hồi Dev Server:** Khắc phục lỗi Vite Hot Module Replacement (HMR Error) do file `MatchProNearbyPage.jsx` gọi thiếu thư viện, giúp Frontend Server khởi động lại bình thường.
+
+### Hỗ trợ từ AI (AI-assisted)
+* Antigravity AI (Gemini) đóng vai trò một Kỹ sư Hệ thống: tự động phân tích logs lỗi phức tạp của trình biên dịch (.NET Core), cung cấp giải pháp hợp nhất (merge) snapshot an toàn và chủ động viết Regex Script để sửa lỗi React Hooks trên diện rộng. Người thực hiện đóng vai trò Giám đốc Kỹ thuật (Tech Lead): kiên quyết yêu cầu AI phải "Deep Scan" liên tục để rà soát triệt để các lỗ hổng ẩn, đồng thời kiểm soát trực tiếp quá trình đóng gói commit để đẩy code (push) an toàn lên nhánh `DE190147/audit-module`.
