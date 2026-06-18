@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -11,11 +11,10 @@ namespace ProSport.Infrastructure.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<DateTime>(
-                name: "PaymentDeadline",
-                table: "Bookings",
-                type: "datetime2",
-                nullable: true);
+            migrationBuilder.Sql("""
+                IF COL_LENGTH('dbo.Bookings', 'PaymentDeadline') IS NULL
+                    ALTER TABLE [Bookings] ADD [PaymentDeadline] datetime2 NULL;
+                """);
         }
 
         /// <inheritdoc />
