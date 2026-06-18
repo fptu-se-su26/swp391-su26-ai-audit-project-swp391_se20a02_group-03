@@ -58,7 +58,7 @@ export default function MatchProChatPage() {
           <h2 className="font-['Oswald'] text-[1.2rem] font-bold text-[#0d2d3a] px-4 mb-3">Messages</h2>
           <div className="flex items-center gap-2 bg-[#f0f7fa] border-[1.5px] border-[#e0ecf0] rounded-full px-3.5 py-2 mx-4 mb-3">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-slate-400 shrink-0"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input type="text" placeholder="Search chats..." id="chat-search" className="border-none bg-transparent font-['Inter'] text-[0.85rem] text-[#0d2d3a] w-full outline-none placeholder:text-slate-400" />
+            <input type="text" placeholder="Tìm kiếm chats..." id="chat-search" className="border-none bg-transparent font-['Inter'] text-[0.85rem] text-[#0d2d3a] w-full outline-none placeholder:text-slate-400" />
           </div>
           {conversations.map(c => (
             <button

@@ -16,18 +16,27 @@ public class CourtService : ICourtService
         _logger = logger;
     }
 
-    public async Task<ApiResponseDto<IEnumerable<CourtDto>>> GetAllCourtsAsync()
+    public async Task<ApiResponseDto<PagedResult<CourtDto>>> GetAllCourtsAsync(CourtQueryParameters parameters)
     {
         try
         {
-            var courts = await _courtRepository.GetAllAsync();
-            var dtos = courts.Select(MapToDto);
-            return new ApiResponseDto<IEnumerable<CourtDto>>(200, "Success", dtos);
+            var (courts, totalCount) = await _courtRepository.GetPagedCourtsAsync(parameters);
+            var dtos = courts.Select(MapToDto).ToList();
+            
+            var result = new PagedResult<CourtDto>
+            {
+                Items = dtos,
+                TotalCount = totalCount,
+                CurrentPage = parameters.PageNumber,
+                TotalPages = (int)Math.Ceiling(totalCount / (double)parameters.PageSize)
+            };
+            
+            return new ApiResponseDto<PagedResult<CourtDto>>(200, "Success", result);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error getting all courts");
-            return new ApiResponseDto<IEnumerable<CourtDto>>(500, "An unexpected error occurred.");
+            return new ApiResponseDto<PagedResult<CourtDto>>(500, "An unexpected error occurred.");
         }
     }
 
@@ -115,5 +124,116 @@ public class CourtService : ICourtService
             _logger.LogError(ex, "Error getting booked slots for court: {CourtId} on {Date}", courtId, date);
             return new ApiResponseDto<IEnumerable<string>>(500, "An unexpected error occurred.");
         }
+    }
+    // UPDATE - modify existing court (admin only)
+    public async Task<ApiResponseDto<CourtDto>> UpdateCourtAsync(int id, UpdateCourtDto dto)
+    {
+        var court = await _courtRepository.GetByIdAsync(id);
+        if (court == null || court.IsDeleted)
+            return new ApiResponseDto<CourtDto>(404, "Court not found");
+
+        // Apply updates if provided
+        if (dto.Name != null) court.Name = dto.Name;
+        if (dto.CourtTypeId.HasValue) court.CourtTypeId = dto.CourtTypeId.Value;
+        if (dto.ImageUrl != null) court.ImageUrl = dto.ImageUrl;
+        if (dto.Description != null) court.Description = dto.Description;
+        if (dto.Status != null) court.Status = dto.Status;
+
+        await _courtRepository.UpdateAsync(court);
+        var updatedDto = MapToDto(court);
+        return new ApiResponseDto<CourtDto>(200, "Court updated", updatedDto);
+    }
+
+    // DELETE - soft delete court (admin only)
+    public async Task<ApiResponseDto<object>> DeleteCourtAsync(int id)
+    {
+        var court = await _courtRepository.GetByIdAsync(id);
+        if (court == null || court.IsDeleted)
+            return new ApiResponseDto<object>(404, "Court not found");
+
+        var hasActiveBookings = await _courtRepository.HasActiveBookingsAsync(id);
+        if (hasActiveBookings)
+        {
+            return new ApiResponseDto<object>(400, "Không thể xóa sân đang có lịch đặt trong tương lai.");
+        }
+
+        court.IsDeleted = true;
+        await _courtRepository.UpdateAsync(court);
+        return new ApiResponseDto<object>(200, "Court deleted");
+    }
+
+    // ==========================================
+    // PRICING RULES
+    // ==========================================
+
+    public async Task<ApiResponseDto<IEnumerable<PricingRuleDto>>> GetPricingRulesAsync(int courtId)
+    {
+        var rules = await _courtRepository.GetPricingRulesByCourtIdAsync(courtId);
+        var dtos = rules.Select(MapToPricingRuleDto);
+        return new ApiResponseDto<IEnumerable<PricingRuleDto>>(200, "Success", dtos);
+    }
+
+    public async Task<ApiResponseDto<PricingRuleDto>> CreatePricingRuleAsync(int courtId, CreatePricingRuleDto dto)
+    {
+        var court = await _courtRepository.GetByIdAsync(courtId);
+        if (court == null || court.IsDeleted)
+        {
+            return new ApiResponseDto<PricingRuleDto>(404, "Court not found");
+        }
+
+        var existingRules = await _courtRepository.GetPricingRulesByCourtIdAsync(courtId);
+
+        // Check time overlap
+        foreach (var rule in existingRules)
+        {
+            bool isDayOverlap = dto.DayOfWeek == null || rule.DayOfWeek == null || dto.DayOfWeek == rule.DayOfWeek;
+            if (isDayOverlap)
+            {
+                bool isTimeOverlap = !(dto.EndTime <= rule.StartTime || dto.StartTime >= rule.EndTime);
+                if (isTimeOverlap)
+                {
+                    return new ApiResponseDto<PricingRuleDto>(400, "Khung giờ này đã bị trùng lặp với một mức giá khác.");
+                }
+            }
+        }
+
+        var newRule = new PricingRule
+        {
+            CourtId = courtId,
+            StartTime = dto.StartTime,
+            EndTime = dto.EndTime,
+            PricePerHour = dto.PricePerHour,
+            IsWeekend = dto.IsWeekend,
+            DayOfWeek = dto.DayOfWeek
+        };
+
+        var createdRule = await _courtRepository.AddPricingRuleAsync(newRule);
+        return new ApiResponseDto<PricingRuleDto>(201, "Pricing rule created", MapToPricingRuleDto(createdRule));
+    }
+
+    public async Task<ApiResponseDto<object>> DeletePricingRuleAsync(int courtId, int ruleId)
+    {
+        var rule = await _courtRepository.GetPricingRuleByIdAsync(ruleId);
+        if (rule == null || rule.CourtId != courtId)
+        {
+            return new ApiResponseDto<object>(404, "Pricing rule not found");
+        }
+
+        await _courtRepository.DeletePricingRuleAsync(rule);
+        return new ApiResponseDto<object>(200, "Pricing rule deleted");
+    }
+
+    private static PricingRuleDto MapToPricingRuleDto(PricingRule rule)
+    {
+        return new PricingRuleDto
+        {
+            PricingRuleId = rule.PricingRuleId,
+            CourtId = rule.CourtId,
+            StartTime = rule.StartTime,
+            EndTime = rule.EndTime,
+            PricePerHour = rule.PricePerHour,
+            IsWeekend = rule.IsWeekend,
+            DayOfWeek = rule.DayOfWeek
+        };
     }
 }

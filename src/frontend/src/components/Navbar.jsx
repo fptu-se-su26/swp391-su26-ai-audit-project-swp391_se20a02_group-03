@@ -22,12 +22,12 @@ export default function Navbar({ theme = 'light' }) {
   }
 
   const navLinks = [
-    { label: 'Home',      path: '/' },
-    { label: 'Courts',    path: '/courts' },
-    { label: 'Matches',   path: '/matches' },
-    { label: 'Gear',      path: '/gear' },
-    { label: 'About',     path: '/about' },
-    { label: 'Contact',   path: '/contact' },
+    { label: 'Trang chủ',      path: '/' },
+    { label: 'Cơ sở/Sân',    path: '/courts' },
+    { label: 'Kèo đấu',   path: '/matches' },
+    { label: 'Cửa hàng Gear',      path: '/gear' },
+    { label: 'Giới thiệu',     path: '/about' },
+    { label: 'Liên hệ',   path: '/contact' },
   ]
 
   const isActive = (path) => location.pathname === path
@@ -75,8 +75,8 @@ export default function Navbar({ theme = 'light' }) {
             </button>
           ) : (
             <>
-              <Link to="/login" className={`text-sm font-medium px-4 py-2 rounded-lg transition-colors ${isLight ? 'text-brand-600 hover:text-brand-900 hover:bg-brand-50' : 'text-brand-300 hover:text-white hover:bg-brand-800'}`}>Login</Link>
-              <Link to="/register" className="btn-primary">Join Pro</Link>
+              <Link to="/login" className={`text-sm font-medium px-4 py-2 rounded-lg transition-colors ${isLight ? 'text-brand-600 hover:text-brand-900 hover:bg-brand-50' : 'text-brand-300 hover:text-white hover:bg-brand-800'}`}>Đăng nhập</Link>
+              <Link to="/register" className="btn-primary">Tham gia Pro</Link>
             </>
           )}
         </div>

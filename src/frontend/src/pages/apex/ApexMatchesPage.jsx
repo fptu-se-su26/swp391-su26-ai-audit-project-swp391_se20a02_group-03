@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { gsap } from 'gsap'
 import ApexLayout from '../../layouts/ApexLayout'
 import { matchApi } from '../../api/matchApi'
@@ -16,12 +17,14 @@ const levels = ['All Levels', 'Beginner', 'Intermediate', 'Advanced', 'Pro']
 const sports = ['All Sports', 'Badminton', 'Pickleball']
 
 export default function ApexMatchesPage() {
+  const navigate = useNavigate()
   const [tab, setTab] = useState('find')
   const [levelFilter, setLevelFilter] = useState('All Levels')
   const [sportFilter, setSportFilter] = useState('All Sports')
   const [joined, setJoined] = useState([])
   const [openMatches, setOpenMatches] = useState([])
   const [userId, setUserId] = useState(null)
+  const [toastMsg, setToastMsg] = useState(null)
   const pageRef = useRef(null)
 
   useEffect(() => {
@@ -32,32 +35,36 @@ export default function ApexMatchesPage() {
           matchApi.getOpenMatches()
         ])
         
-        if (profileRes?.data?.data) {
-          setUserId(profileRes.data.data.userId)
+        // BUG-24 FIX: axiosClient returns response.data (the envelope), so profileRes IS the envelope
+        // envelope = { statusCode, data: { userId, ... }, message }
+        if (profileRes?.data) {
+          setUserId(profileRes.data.userId)
         }
         
-        if (matchesRes?.data?.data) {
-          const formatted = matchesRes.data.data.map(m => ({
+        // BUG-24 FIX: matchesRes IS the envelope, matchesRes.data is the payload
+        if (matchesRes?.data) {
+          const matchList = Array.isArray(matchesRes.data) ? matchesRes.data : []
+          const formatted = matchList.map(m => ({
             id: m.matchId,
             sport: m.sportType,
             type: m.isCompetitive ? 'Competitive' : 'Friendly',
-            level: m.skillLevel,
+            level: m.levelRequirement || m.skillLevel,
             host: m.hostName,
-            hostImg: m.hostAvatarUrl || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(m.hostName),
-            court: m.location,
-            date: dayjs(m.startTime).format('ddd, MMM D'),
-            time: dayjs(m.startTime).format('HH:mm'),
-            slots: m.maxParticipants - m.currentParticipants,
-            maxSlots: m.maxParticipants,
-            icon: m.sportType?.toLowerCase().includes('pickleball') ? '🏓' : '🏸',
+            hostImg: m.hostAvatarUrl || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(m.hostName || 'Host'),
+            court: m.location || m.notes,
+            date: dayjs(m.matchDate || m.startTime).format('ddd, MMM D'),
+            time: dayjs(m.matchDate || m.startTime).format('HH:mm'),
+            slots: (m.maxParticipants || 0) - (m.currentParticipants || 0),
+            maxSlots: m.maxParticipants || 0,
+            icon: (m.sportType || '').toLowerCase().includes('pickleball') ? '🏓' : '🏸',
             participants: m.participants || []
           }))
           setOpenMatches(formatted)
           
           // Find matches the user has already joined
-          if (profileRes?.data?.data?.userId) {
+          if (profileRes?.data?.userId) {
             const myJoined = formatted
-              .filter(m => m.participants.some(p => p.userId === profileRes.data.data.userId))
+              .filter(m => m.participants.some(p => p.userId === profileRes.data.userId))
               .map(m => m.id)
             setJoined(myJoined)
           }
@@ -86,14 +93,27 @@ export default function ApexMatchesPage() {
     try {
       await matchApi.joinMatch(id)
       setJoined(prev => [...prev, id])
+      // BUG-20 FIX: Update slot count in UI immediately after joining
+      setOpenMatches(prev => prev.map(m =>
+        m.id === id ? { ...m, slots: Math.max(0, m.slots - 1) } : m
+      ))
       gsap.from(`#match-join-${id}`, { scale: 0.8, duration: 0.3, ease: 'back.out(1.7)' })
     } catch (err) {
-      alert(err.response?.data?.message || 'Failed to join match')
+      // BUG-08 FIX: axiosClient rejects with string error message, not error object
+      const msg = typeof err === 'string' ? err : 'Failed to join match'
+      setToastMsg(msg)
+      setTimeout(() => setToastMsg(null), 3000)
     }
   }
 
   return (
     <ApexLayout title="Matches">
+      {/* Toast notification */}
+      {toastMsg && (
+        <div style={{ position: 'fixed', top: 20, right: 20, background: '#ef4444', color: '#fff', padding: '12px 20px', borderRadius: 10, zIndex: 9999, fontSize: 14, fontWeight: 600, boxShadow: '0 4px 20px rgba(0,0,0,0.15)' }}>
+          {toastMsg}
+        </div>
+      )}
       <div className="apex-matches" ref={pageRef}>
         {/* Hero */}
         <div className="match-hero">
@@ -101,7 +121,8 @@ export default function ApexMatchesPage() {
             <h1 className="match-hero__title">Match Center</h1>
             <p className="match-hero__sub">Find open matches, challenge friends, or host your own game.</p>
           </div>
-          <button className="btn-primary match-hero__create">+ Host a Match</button>
+          {/* BUG-09 FIX: Add onClick handler to Host a Match button */}
+          <button className="btn-primary match-hero__create" onClick={() => navigate('/matches/create')}>+ Host a Match</button>
         </div>
 
         {/* Tabs */}
@@ -192,7 +213,8 @@ export default function ApexMatchesPage() {
                       </div>
                     </div>
                     <div className="match-card__right">
-                      <button className="btn-outline" style={{ fontSize: '0.8rem' }}>View Details</button>
+                      {/* BUG-10 FIX: Add onClick to View Details */}
+                      <button className="btn-outline" style={{ fontSize: '0.8rem' }} onClick={() => navigate(`/matches/${m.id}`)}>Xem chi tiết</button>
                     </div>
                   </div>
                 ))}

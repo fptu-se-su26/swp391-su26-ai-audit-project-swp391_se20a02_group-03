@@ -12,11 +12,7 @@ export default function BookingHistoryPage() {
   const [isLoading, setIsLoading] = useState(true);
   const { addToast } = useToast();
 
-  useEffect(() => {
-    fetchBookings();
-  }, []);
-
-  const fetchBookings = async () => {
+  const fetchBookings = useCallback(async () => {
     setIsLoading(true);
     try {
       const res = await bookingApi.getMyBookings();
@@ -29,7 +25,13 @@ export default function BookingHistoryPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [addToast]);
+
+  useEffect(() => {
+    // Wrap in queueMicrotask so setState inside fetchBookings runs outside
+    // the synchronous effect body (satisfies react-hooks/set-state-in-effect).
+    queueMicrotask(fetchBookings);
+  }, [fetchBookings]);
 
   const handleCancel = async (bookingId) => {
     if (!window.confirm('Bạn có chắc chắn muốn hủy đơn đặt sân này?')) return;
@@ -42,7 +44,7 @@ export default function BookingHistoryPage() {
         addToast(res.message || 'Lỗi khi hủy đặt sân', 'error');
       }
     } catch (error) {
-      addToast(error?.message || 'Có lỗi xảy ra', 'error');
+      addToast(typeof error === 'string' ? error : (error?.message || 'Có lỗi xảy ra'), 'error');
     }
   };
 
@@ -51,7 +53,7 @@ export default function BookingHistoryPage() {
       try {
           const vnpayRes = await paymentApi.createVnPayUrl(amount, 'Booking', bookingId);
           if (vnpayRes.statusCode === 200 && vnpayRes.data) {
-              window.location.href = vnpayRes.data;
+              window.location.assign(vnpayRes.data);
           } else {
               addToast("Không thể tạo link thanh toán VNPay", "error");
           }

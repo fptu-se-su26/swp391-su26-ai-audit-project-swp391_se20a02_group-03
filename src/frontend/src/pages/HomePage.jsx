@@ -21,14 +21,14 @@ const facilities = [
   {
     id: 2,
     name: 'Summit Arena',
-    sub: 'Featured Pro',
+    sub: 'Sân Tiêu Chuẩn Pro',
     image: 'https://images.unsplash.com/photo-1567427017947-545c5f8d16ad?w=600&q=80',
     large: false,
   },
   {
     id: 3,
-    name: 'View All 42 Facilities',
-    sub: 'Explore the full network',
+    name: 'Xem toàn bộ 42 cơ sở',
+    sub: 'Khám phá toàn bộ hệ thống',
     isViewAll: true,
     image: 'https://images.unsplash.com/photo-1551958219-acbc595b39c6?w=600&q=80',
     large: false,
@@ -40,43 +40,43 @@ const features = [
     icon: (
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/></svg>
     ),
-    title: 'Real-Time Court Grid',
-    desc: 'Live availability matrix across all courts. No more phone calls or double bookings.',
+    title: 'Lưới sân thời gian thực',
+    desc: 'Ma trận trạng thái trống trên tất cả các sân. Không còn cần gọi điện hoặc đặt trùng.',
   },
   {
     icon: (
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
     ),
-    title: 'Smart Match-Making',
-    desc: 'AI-powered player matching by skill level, schedule, and location preference.',
+    title: 'Ghép đội thông minh',
+    desc: 'Tính năng ghép đội AI theo kỹ năng, lịch trình và vị trí ưa thích.',
   },
   {
     icon: (
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
     ),
-    title: 'Escrow Wallet',
-    desc: 'Secure deposit system eliminates no-shows. Funds held until match completion.',
+    title: 'Ví điện tử trung gian',
+    desc: 'Hệ thống cọc an toàn loại bỏ tình trạng không đến. Tiền được giữ cho đến khi hoàn thành.',
   },
   {
     icon: (
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 10h.01M12 10h.01M16 10h.01"/></svg>
     ),
-    title: 'AI Chatbot Assistant',
-    desc: 'Natural language search for courts and matches. Ask, and it finds the best fit.',
+    title: 'Trợ lý Chatbot AI',
+    desc: 'Tìm kiếm sân và trận đấu bằng ngôn ngữ tự nhiên. Hỏi là tìm thấy ngay.',
   },
 ]
 
 const steps = [
-  { num: '01', title: 'Create Account', desc: 'Sign up in seconds. Complete E-KYC for full access to all platform features.' },
-  { num: '02', title: 'Find & Book', desc: 'Browse real-time court availability or join open matches in your area.' },
-  { num: '03', title: 'Play & Connect', desc: 'Check in via QR, play your match, and build your reputation score.' },
+  { num: '01', title: 'Tạo tài khoản', desc: 'Đăng ký trong vài giây. Hoàn tất e-KYC để truy cập đầy đủ tính năng.' },
+  { num: '02', title: 'Tìm & Đặt sân', desc: 'Duyệt tìm sân trống hoặc tham gia các trận mở trong khu vực của bạn.' },
+  { num: '03', title: 'Chơi & Kết nối', desc: 'Check-in bằng QR, tham gia thi đấu và xây dựng điểm uy tín của bạn.' },
 ]
 
 const stats = [
-  { value: '42+', label: 'Premium Facilities' },
-  { value: '2.4K', label: 'Active Athletes' },
-  { value: '98%', label: 'Satisfaction Rate' },
-  { value: '15K+', label: 'Matches Completed' },
+  { value: '42+', label: 'Cơ sở vật chất cao cấp' },
+  { value: '2.4K', label: 'Vận động viên tích cực' },
+  { value: '98%', label: 'Tỷ lệ hài lòng' },
+  { value: '15K+', label: 'Kèo đấu hoàn thành' },
 ]
 
 export default function HomePage() {
@@ -201,11 +201,11 @@ export default function HomePage() {
 
         <div ref={heroRef} className="relative z-10 flex flex-col items-center text-center py-28 lg:py-40 max-w-[860px] mx-auto px-6 w-full">
             <p className="text-xs font-semibold tracking-[0.2em] uppercase text-accent mb-6">
-              Elevating Athletic Performance
+              Nâng tầm hiệu suất thể thao
             </p>
             <h1 className="font-heading text-[clamp(3rem,6vw,5.5rem)] font-bold leading-[1.0] text-white tracking-[-0.02em] mb-7">
-              FLUID PERFORMANCE.<br />
-              <span className="text-accent">ELITE CONTROL.</span>
+              HIỆU SUẤT MƯỢT MÀ.<br />
+              <span className="text-accent">KIỂM SOÁT ĐỈNH CAO.</span>
             </h1>
             <p className="text-brand-400 text-lg leading-[1.8] max-w-[560px] mb-12">
               The premier management platform for athletes and facilities.
@@ -214,12 +214,12 @@ export default function HomePage() {
             </p>
             <div className="flex gap-4 flex-wrap items-center justify-center">
               <Link to="/register" className="btn-primary px-8 py-4 text-base rounded-xl hover:-translate-y-0.5 hover:shadow-lg hover:shadow-accent/20">
-                Start Free Journey
+                Bắt đầu miễn phí
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
               </Link>
               <Link to="/courts" className="inline-flex items-center gap-2.5 px-7 py-4 text-base font-medium text-brand-300 border border-brand-700 rounded-xl transition-all duration-300 hover:border-accent hover:text-white hover:bg-accent/5">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                Watch Demo
+                Xem Demo
               </Link>
             </div>
         </div>
@@ -231,7 +231,7 @@ export default function HomePage() {
       <section className="py-12 border-b border-brand-200/60 bg-white">
         <div className="max-w-[1180px] mx-auto px-6">
           <p className="text-center text-[0.68rem] font-bold tracking-[0.2em] text-brand-300 uppercase mb-8">
-            Trusted by Elite Facilities & Brands
+            Được tin dùng bởi các Cơ sở & Thương hiệu hàng đầu
           </p>
           <div ref={brandsRef} className="flex justify-center items-center gap-12 md:gap-16 flex-wrap">
             {brands.map(b => (
@@ -248,10 +248,10 @@ export default function HomePage() {
         <div className="max-w-[1180px] mx-auto px-6">
           {/* Section header */}
           <div className="text-center mb-16">
-            <p className="text-xs font-semibold tracking-[0.18em] uppercase text-accent mb-3">Platform Features</p>
+            <p className="text-xs font-semibold tracking-[0.18em] uppercase text-accent mb-3">Tính năng hệ thống</p>
             <h2 className="font-heading text-[clamp(1.8rem,3vw,2.6rem)] font-bold text-brand-900 tracking-tight">
-              Everything You Need.<br />
-              <span className="text-brand-400">Nothing You Don't.</span>
+              Mọi thứ bạn cần.<br />
+              <span className="text-brand-400">Không có gì thừa thãi.</span>
             </h2>
           </div>
 
@@ -284,15 +284,15 @@ export default function HomePage() {
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.5fr] gap-16 items-start">
             {/* Left — Sticky header */}
             <div className="lg:sticky lg:top-32">
-              <p className="text-xs font-semibold tracking-[0.18em] uppercase text-accent mb-3">How It Works</p>
+              <p className="text-xs font-semibold tracking-[0.18em] uppercase text-accent mb-3">Cách hoạt động</p>
               <h2 className="font-heading text-[clamp(1.8rem,3vw,2.6rem)] font-bold text-brand-900 tracking-tight leading-tight mb-5">
-                From Sign-Up<br />to Game Day.
+                Từ lúc Đăng ký<br />đến ngày Ra sân.
               </h2>
               <p className="text-brand-500 text-sm leading-relaxed max-w-sm mb-8">
-                Three simple steps to transform how you book courts, find opponents, and manage your sports experience.
+                3 bước đơn giản để thay đổi cách bạn đặt sân, tìm đối thủ và quản lý thể thao.
               </p>
               <Link to="/register" className="btn-primary px-6 py-3">
-                Get Started
+                Bắt đầu ngay
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
               </Link>
             </div>
@@ -345,20 +345,20 @@ export default function HomePage() {
         <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[800px] h-[400px] rounded-full bg-accent/5 blur-[120px] pointer-events-none" />
 
         <div ref={ctaRef} className="max-w-[680px] mx-auto px-6 text-center relative z-10">
-          <p className="text-xs font-semibold tracking-[0.18em] uppercase text-accent mb-4">Ready to Play?</p>
+          <p className="text-xs font-semibold tracking-[0.18em] uppercase text-accent mb-4">Sẵn sàng ra sân?</p>
           <h2 className="font-heading text-[clamp(2rem,4vw,3rem)] font-bold text-brand-900 tracking-tight leading-tight mb-5">
-            Join the Pro-Sport<br />Network Today.
+            Tham gia mạng lưới<br />Pro-Sport ngay hôm nay.
           </h2>
           <p className="text-brand-500 text-base leading-relaxed max-w-md mx-auto mb-10">
-            Start booking courts, finding opponents, and elevating your game. Free to join, no commitment required.
+            Bắt đầu đặt sân, tìm đối thủ và nâng tầm trận đấu của bạn. Tham gia miễn phí, không ràng buộc.
           </p>
           <div className="flex gap-4 flex-wrap justify-center">
             <Link to="/register" className="btn-primary px-8 py-4 text-base rounded-xl hover:-translate-y-0.5 hover:shadow-lg hover:shadow-accent/20">
-              Create Free Account
+              Tạo tài khoản miễn phí
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
             </Link>
             <Link to="/courts" className="btn-outline px-8 py-4 text-base rounded-xl hover:-translate-y-0.5">
-              Browse Courts
+              Duyệt danh sách sân
             </Link>
           </div>
         </div>

@@ -145,34 +145,41 @@ Việc sử dụng AI để tự động "tối ưu giao diện" đã bộc lộ
 
 
 
-# Reflection - Tuần 5: Triển khai Trợ lý AI, Cấp phát Ngữ cảnh Động và Gỡ rối Database
+# Reflection - Tuần 5: Triển khai Trợ lý AI, Tái cấu trúc Hệ thống và Quản trị Rủi ro (RAG, Concurrency, Git Security)
 
 ## Tổng quan quá trình
-Trong tuần này, trọng tâm của chúng tôi là tích hợp năng lực Trí tuệ Nhân tạo thực sự (Generative AI) vào hệ thống thay vì chỉ dùng AI để sinh code. Bằng việc sử dụng Antigravity AI hỗ trợ lập trình, chúng tôi đã nhanh chóng xây dựng hoàn chỉnh cụm tính năng AI Chatbot từ Frontend (Giao diện React dạng Floating Widget với hiệu ứng trực quan) đến Backend (Tích hợp OpenAI SDK cho .NET).
+Trong tuần này, trọng tâm của chúng tôi là tiến tới việc tích hợp năng lực Trí tuệ Nhân tạo thực sự (Generative AI) vào hệ thống thay vì chỉ dùng AI như một công cụ sinh code. Chúng tôi đã nhanh chóng xây dựng hoàn chỉnh cụm tính năng AI Chatbot từ tầng Frontend (Giao diện React dạng Floating Widget với hiệu ứng trực quan) sâu xuống tầng Backend (Tích hợp OpenAI SDK cho .NET). Thay vì để Chatbot "trả lời mò", chúng tôi đã triển khai kỹ thuật **RAG sơ cấp (Retrieval-Augmented Generation)**: truy xuất dữ liệu từ cơ sở dữ liệu theo thời gian thực để bơm vào *System Prompt*, giúp AI bám sát dữ liệu thực tế của Pro-Sport.
 
-Thay vì để Chatbot "trả lời mò", chúng tôi đã triển khai kỹ thuật **RAG sơ cấp (Retrieval-Augmented Generation)**: truy xuất dữ liệu danh sách sân trống và các kèo thể thao đang mở từ cơ sở dữ liệu (`ICourtRepository`, `IMatchRepository`) theo thời gian thực để bơm trực tiếp vào *System Prompt* trước mỗi lần gọi API sang OpenAI. Điều này giúp Chatbot luôn trả lời dựa trên dữ liệu thực tế (Real-time Context) của hệ thống Pro-Sport.
+Song song đó, chúng tôi tiến hành **Đồng bộ hóa Ngữ cảnh & Ngôn ngữ (Domain Sanitization & Localization)** trên quy mô lớn. Hơn 40+ trang UI được Việt hoá toàn diện và loại bỏ triệt để các môn thể thao ngoài luồng (Bóng rổ, Tennis) để bám sát chuyên đề Pickleball/Cầu lông. Về mặt hệ thống, chúng tôi thực hiện tái cấu trúc (Refactoring) các luồng giao dịch nhạy cảm ở Backend để đảm bảo tính toàn vẹn dữ liệu khi có lượng lớn người dùng truy cập đồng thời.
 
 ---
 
 ## Hạn chế của AI và Khó khăn kỹ thuật
-Việc triển khai luồng giao tiếp giữa Backend, Database và bên thứ 3 (OpenAI) đã làm nảy sinh một số điểm nghẽn kỹ thuật mà AI lập trình không thể tự mình giải quyết:
+Việc triển khai luồng giao tiếp phức tạp giữa Backend, Database và can thiệp sâu vào luồng Version Control đã làm nảy sinh các điểm nghẽn mà AI không thể tự mình giải quyết:
 
-- **Lỗi xung đột tiến trình (File Lock / EBUsy) ở EF Core:** Khi thực hiện lệnh `dotnet ef database update` để ánh xạ bảng dữ liệu mới, hệ thống liên tục báo `Build failed`. Nguyên nhân do server Backend vẫn đang chạy ngầm, khóa cứng các file `.dll`. Dù là người sinh ra lệnh cập nhật, AI lại không nhận thức được bối cảnh môi trường hệ điều hành (OS Environment) đang giữ các luồng chạy nền, dẫn đến vòng lặp báo lỗi vô tận.
-- **Giới hạn Tư duy Đặc thù (Domain-specific Bias):** Khi được yêu cầu viết *System Prompt* cho Chatbot, AI lập trình có xu hướng "khóa chặt" (hardcode) vai trò của Chatbot chỉ xoay quanh việc đặt sân thể thao và từ chối các câu hỏi khác. Việc này tuy an toàn nhưng lại làm giảm đáng kể trải nghiệm đa dụng (UX) mà người dùng kỳ vọng ở một Trợ lý AI hiện đại.
-- **Xử lý Ngoại lệ Hệ sinh thái (API Quota):** Khi cấu hình bằng API Key thật, hệ thống bất ngờ sập với mã lỗi `HTTP 429 (insufficient_quota)`. Lỗi này không xuất phát từ mã nguồn C# hay React, mà nằm ở giới hạn thanh toán của tài khoản bên phía OpenAI. Tuy nhiên, nếu chỉ nhìn lướt qua màn hình Frontend báo lỗi mạng (Network Error), rất khó để bắt đúng bệnh.
+- **Lỗi xung đột tiến trình (File Lock / EBUsy) ở EF Core:** Khi thực hiện lệnh `dotnet ef database update` để ánh xạ bảng dữ liệu mới, hệ thống liên tục báo `Build failed`. Nguyên nhân là do server Backend vẫn đang chạy ngầm, khóa cứng các file `.dll`. Dù là người sinh lệnh, AI hoàn toàn không nhận thức được bối cảnh môi trường hệ điều hành (OS Environment) đang giữ các luồng chạy nền.
+- **Rủi ro tràn bộ nhớ ngữ cảnh (Token Limit / Context Bloat):** Khi áp dụng RAG, việc AI ngây thơ "bơm" toàn bộ dữ liệu từ Database vào *System Prompt* có nguy cơ làm phình to kích thước payload, dẫn đến việc vượt giới hạn từ vựng của mô hình `gpt-4o-mini`, làm đội chi phí API và giảm tốc độ phản hồi.
+- **Rủi ro rò rỉ bảo mật và Cổng chặn CI/CD (Secret Leakage & Push Protection):** Quá trình đẩy code (`git push`) bị GitHub chặn đứng (Error GH013). Nguyên nhân do AI tự sinh ra một kịch bản (script) tiện ích có chứa một GCP API Key bị lộ (hardcoded). AI hoàn toàn mù mờ trước các cơ chế bảo mật tự động của Git hooks.
+- **Ảo giác thiết kế và Thay đổi ngoài luồng (Design Hallucination & Over-engineering):** Trong quá trình tinh chỉnh UI, AI đã "tự ý sáng tạo" và ghi đè toàn bộ CSS sang một phong cách thiết kế "mang hơi hướng Nike". Điều này hoàn toàn phá vỡ tính đồng bộ và nhận diện cốt lõi của dự án ban đầu.
+- **Bất lực trước xung đột mã nguồn (Merge Conflicts):** AI sinh code xuất sắc trên môi trường sạch, nhưng khi phải hợp nhất (merge) code thực tế và đối diện với các cú pháp đánh dấu xung đột của Git (`<<<<<<<`, `=======`), AI thường tỏ ra lúng túng, bóc tách sai logic dẫn đến hỏng cấu trúc tệp tin.
 
 ---
 
 ## Giải pháp và Can thiệp của con người
-Đối diện với các rào cản trên, chúng tôi đã phải đứng ở vị trí Kỹ sư Hệ thống và Product Owner để can thiệp toàn diện:
+Đối diện với các rào cản kiến trúc trên, chúng tôi đã phải đứng ở vị trí Kỹ sư Hệ thống và Giám đốc Sản phẩm (Product Owner) để can thiệp toàn diện:
 
-- **Giám sát Môi trường Thực thi (Environment Orchestration):** Chúng tôi chủ động ra lệnh đình chỉ luồng chạy nền (Kill background task) của Backend, buộc hệ thống nhả khóa file `.dll`. Sau khi tiến trình được giải phóng, chúng tôi mới chạy migration để đồng bộ Database thành công và khởi động lại server.
-- **Tái định nghĩa Năng lực Sản phẩm (Product Realignment):** Chúng tôi đã trực tiếp can thiệp vào mã nguồn, chỉ đạo AI viết lại toàn bộ *System Prompt*. Yêu cầu "mở khóa" AI thành một trợ lý đa nhiệm (General-purpose AI), vừa am hiểu nghiệp vụ Pro-Sport, vừa sẵn sàng trả lời các câu hỏi kiến thức chung, code, hay dịch thuật.
-- **Đọc Log Hệ thống cấp thấp (Low-level Log Reading):** Thay vì mò mẫm ở tầng Frontend, chúng tôi trực tiếp đào sâu vào terminal log của Backend. Nắm bắt ngay dòng lỗi `System.ClientModel.ClientResultException` từ OpenAI trả về, chúng tôi xác định chính xác vấn đề nằm ở hạn mức tài khoản và nhanh chóng đưa ra giải pháp nạp credit thay vì tốn thời gian sửa code.
+- **Giám sát Môi trường Thực thi (Environment Orchestration):** Chúng tôi chủ động can thiệp terminal để đình chỉ luồng chạy nền (Kill background task) của Backend, ép hệ điều hành nhả khóa file `.dll` để chạy migration đồng bộ Database thành công.
+- **Tối ưu hóa Ngữ cảnh (Context Pruning):** Thay vì để AI đẩy toàn bộ DB vào Prompt, chúng tôi trực tiếp can thiệp logic: Yêu cầu AI chỉ trích xuất dữ liệu thực sự cần thiết (các sân trống trong 2 ngày tới, các kèo đang mở) và nén thành JSON. Giải pháp này giúp tiết kiệm Token tuyệt đối và tăng Inference Speed.
+- **Kiểm soát Toàn vẹn Dữ liệu (Enforcing ACID/Concurrency):** Đứng trước rủi ro Data Race khi nhiều người nạp/rút tiền ví cùng lúc, chúng tôi không dùng code "happy path" sơ sài của AI. Trực tiếp chỉ đạo AI áp dụng kiến trúc `IDbContextTransaction` với mức cô lập (Isolation Level) `Serializable` cho `EscrowService` ở Backend để đảm bảo giao dịch tuyệt đối an toàn.
+- **Quản trị Phiên bản & Rollback (Version Control Management):** Để chấn chỉnh sự "sáng tạo quá đà" của AI (phong cách Nike), chúng tôi lập tức sử dụng `git checkout` để Rollback giao diện về lại nguyên bản, bảo vệ định hướng sản phẩm. Đồng thời, tự tay giải quyết thủ công các dòng lỗi Merge Conflict tại tệp `GearRentalPage.jsx`.
+- **Vượt rào cản bảo mật (Bypassing Push Protection):** Trực tiếp truy cập vào phân hệ bảo mật của GitHub để thiết lập quyền ngoại lệ (Allow Secret) cho đoạn mã bị nhận diện nhầm, ép luồng push code vượt tường lửa thành công.
 
 ---
 
 ## Bài học rút ra
-- **AI không hiểu rõ Môi trường Hệ điều hành:** AI có thể viết mã C# hay React xuất sắc, nhưng lại rất yếu trong việc quản lý bộ nhớ, tiến trình (Process) và khóa tệp tin (File Lock) trên máy thật. Kỹ năng quản trị hệ thống và kiểm soát môi trường dev (DevOps cơ bản) của kỹ sư phần mềm là không thể thay thế.
-- **System Prompt là Trái tim của Tính năng:** Năng lực của một chatbot không chỉ nằm ở code kết nối API, mà phụ thuộc 90% vào cách chúng ta thiết kế Prompt. Việc tư duy như một Prompt Engineer — biết cách cân bằng giữa việc ép AI đi theo nghiệp vụ (Domain-specific) nhưng vẫn mở rộng tiện ích đa nhiệm — sẽ tạo ra giá trị khác biệt rất lớn cho sản phẩm.
-- **Kỹ năng Đọc Log quyết định Tốc độ gỡ rối:** Khi tích hợp hệ thống với các nhà cung cấp bên thứ 3 (như OpenAI, VNPay), lỗi thường không nằm ở code của mình. Thói quen đọc log hệ thống từ tầng dưới cùng (Backend/Terminal) giúp tiết kiệm hàng giờ đồng hồ so với việc chỉ nhìn vào thông báo lỗi chung chung trên trình duyệt web.
+- **AI không hiểu rõ Môi trường Hệ điều hành:** AI có thể viết mã C# hay React rất xuất sắc, nhưng lại cực kỳ yếu trong việc quản lý bộ nhớ, tiến trình (Process) và khóa tệp tin (File Lock) trên máy thật. Kỹ năng quản trị hệ thống và DevOps cơ bản của kỹ sư phần mềm là không thể thay thế.
+- **Xử lý Đồng thời (Concurrency) cần tư duy kỹ sư thực thụ:** Lập trình viên AI thường viết mã hoạt động hoàn hảo cho... 1 người dùng. Dưới tải trọng cao và truy cập đồng thời, hệ thống sẽ sụp đổ. Nhận diện và thiết kế kiến trúc khóa (Locks, ACID Transactions) là trách nhiệm không thể giao phó hoàn toàn cho máy móc.
+- **AI là một "nhân viên" quá hăng hái (The Overzealous AI):** Đôi khi AI có xu hướng làm quá mức cần thiết (over-engineer) hoặc ảo giác ra các thiết kế sai định hướng. Lập trình viên phải đóng vai trò là một Product Owner nghiêm khắc: biết khi nào nên chấp nhận, khi nào phải phanh lại và quyết đoán nhấn "Rollback".
+- **Kiểm soát An toàn Thông tin (Information Security):** Sự tiện lợi của AI đi kèm với rủi ro rò rỉ khóa bí mật (API Keys, Secrets) vào mã nguồn cực kỳ cao. Cần thiết lập tư duy phòng ngự nhiều lớp và tận dụng tối đa các công cụ quét bảo mật nền tảng (như GitHub Secret Scanning) làm lưới an toàn (safety net).
+- **RAG không chỉ là Tìm kiếm, mà là Chắt lọc (Pruning):** Đưa dữ liệu thực vào AI là sức mạnh, nhưng đưa quá nhiều dữ liệu rác sẽ giết chết hiệu năng. Lập trình viên đóng vai trò là "bộ lọc" để tối ưu hóa lượng dữ liệu cung cấp cho AI, vừa tiết kiệm chi phí, vừa giúp AI trả lời thông minh và tập trung hơn.
+- **Tư duy Kiến trúc Tổng thể (Architecture Thinking):** Việc tích hợp một tính năng mới (như Chatbot Widget) không chỉ nằm ở code của tính năng đó, mà nằm ở việc xác định kiến trúc mount ở đâu (Root level trong SPA) để không bị mất trạng thái. Công cụ AI giúp ta xây viên gạch nhanh hơn, nhưng bản thiết kế tổng thể của ngôi nhà vẫn phải do con người phác thảo.

@@ -18,8 +18,8 @@ export default function ApexBookingPage() {
   const [filter, setFilter] = useState('All')
   const [courts, setCourts] = useState([])
   const [selectedCourt, setSelectedCourt] = useState(null)
-  const [selectedDate, setSelectedDate] = useState('')
-  const [minDate, setMinDate] = useState('')
+  const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().slice(0, 10))
+  const [minDate] = useState(() => new Date().toISOString().slice(0, 10))
   const [selectedSlots, setSelectedSlots] = useState([])
   const [bookedSlots, setBookedSlots] = useState([])
   const [step, setStep] = useState(1) // 1=select court, 2=pick time, 3=confirm
@@ -50,22 +50,20 @@ export default function ApexBookingPage() {
           setCourts(mappedCourts)
         }
       })
-      .catch(err => addToast("Lỗi tải danh sách sân: " + err.message, "error"))
+      // BUG-11 FIX: axiosClient rejects with string — err.message is undefined on strings
+      .catch(err => addToast('Lỗi tải danh sách sân: ' + (typeof err === 'string' ? err : err.message || 'Unknown error'), 'error'))
       
     // Load Wallet
     paymentApi.getEscrowWallet()
       .then(res => {
-        if (res.data) setEscrowBalance(res.data.balance)
+        // BUG-12 FIX: axiosClient returns envelope, res IS envelope, res.data is the payload
+        if (res.data) setEscrowBalance(res.data.balance || 0)
       })
       .catch(err => console.error("Lỗi ví", err))
-  }, [])
+  }, [addToast])
 
-  // Init Date & GSAP
+  // GSAP entrance animation
   useEffect(() => {
-    const todayStr = new Date().toISOString().slice(0, 10)
-    if (!selectedDate) setSelectedDate(todayStr)
-    setMinDate(todayStr)
-
     const ctx = gsap.context(() => {
       gsap.from('.booking-hero', { opacity: 0, y: 30, duration: 0.6, ease: 'power3.out' })
       gsap.from('.court-card', { opacity: 0, y: 40, duration: 0.5, stagger: 0.08, ease: 'power2.out', delay: 0.2 })
@@ -79,12 +77,15 @@ export default function ApexBookingPage() {
       bookingApi.getBookedSlots(selectedCourt.id, selectedDate)
         .then(res => {
           if (res.data) {
-            setBookedSlots(res.data)
+            // BUG-22 FIX: Normalize time format to HH:mm for consistent comparison
+            const slots = Array.isArray(res.data) ? res.data : []
+            const normalized = slots.map(s => typeof s === 'string' ? s.substring(0, 5) : s)
+            setBookedSlots(normalized)
           } else {
             setBookedSlots([])
           }
         })
-        .catch(err => console.error("Lỗi tải giờ bận", err))
+        .catch(err => console.error('Lỗi tải giờ bận', err))
     }
   }, [selectedCourt, selectedDate])
 
@@ -162,7 +163,7 @@ export default function ApexBookingPage() {
           const vnpayRes = await paymentApi.createVnPayUrl(0, 'Booking', bookingId)
           if (vnpayRes.statusCode === 200 && vnpayRes.data) {
              addToast('Bạn có 15 phút để hoàn tất thanh toán. Quá hạn sẽ tự động hủy đơn.', 'warning')
-             window.location.href = vnpayRes.data
+             window.location.assign(vnpayRes.data)
              return
           } else {
              addToast("Không thể tạo link thanh toán VNPay", "error")
@@ -236,7 +237,17 @@ export default function ApexBookingPage() {
             </div>
 
             <div className="courts-grid">
-              {filtered.length === 0 && <p className="text-brand-500">Đang tải danh sách sân hoặc không có sân phù hợp...</p>}
+              {/* BUG-21 FIX: Separate loading and empty states */}
+              {courts.length === 0 && filtered.length === 0 && (
+                <p className="text-brand-500" style={{ gridColumn: '1/-1', textAlign: 'center', padding: '40px 20px' }}>
+                  Đang tải danh sách sân...
+                </p>
+              )}
+              {courts.length > 0 && filtered.length === 0 && (
+                <p className="text-brand-500" style={{ gridColumn: '1/-1', textAlign: 'center', padding: '40px 20px' }}>
+                  Không có sân phù hợp với bộ lọc hiện tại.
+                </p>
+              )}
               {filtered.map(court => (
                 <div
                   key={court.id}
@@ -284,7 +295,7 @@ export default function ApexBookingPage() {
                 <div className="timepicker__header">
                   <h2 className="timepicker__title">Select Time Slots</h2>
                   <div className="timepicker__date-row">
-                    <label>Date</label>
+                    <label>Ngày</label>
                     <input type="date" value={selectedDate} min={minDate}
                       onChange={e => { setSelectedDate(e.target.value); setSelectedSlots([]); }} className="timepicker__date-input" id="booking-date" />
                   </div>
@@ -328,14 +339,14 @@ export default function ApexBookingPage() {
                     <p className="booking-summary__type">{selectedCourt.type}</p>
                   </div>
                 </div>
-                <div className="booking-summary__row"><span>Date</span><strong>{selectedDate}</strong></div>
+                <div className="booking-summary__row"><span>Ngày</span><strong>{selectedDate}</strong></div>
                 <div className="booking-summary__row">
                   <span>Time Slots</span>
                   <strong>{selectedSlots.length > 0 ? selectedSlots.join(', ') : '—'}</strong>
                 </div>
                 <div className="booking-summary__row"><span>Duration</span><strong>{selectedSlots.length}h</strong></div>
                 <div className="booking-summary__divider" />
-                <div className="booking-summary__total"><span>Total</span><strong>{totalPrice.toLocaleString('vi-VN')} đ</strong></div>
+                <div className="booking-summary__total"><span>Tổng cộng</span><strong>{totalPrice.toLocaleString('vi-VN')} đ</strong></div>
                 <button className="btn-primary booking-summary__btn" disabled={selectedSlots.length === 0} onClick={() => setStep(3)}>
                   Continue →
                 </button>
@@ -351,9 +362,9 @@ export default function ApexBookingPage() {
             <div className="booking-confirm">
               <h2 className="booking-confirm__title">Confirm Your Booking</h2>
               <div className="booking-confirm__card">
-                <div className="booking-confirm__row"><span>Court</span><strong>{selectedCourt.icon} {selectedCourt.name}</strong></div>
-                <div className="booking-confirm__row"><span>Date</span><strong>{selectedDate}</strong></div>
-                <div className="booking-confirm__row"><span>Time</span><strong>{selectedSlots[0]} – {calculateEndTime(selectedSlots[selectedSlots.length - 1])}</strong></div>
+                <div className="booking-confirm__row"><span>Sân</span><strong>{selectedCourt.icon} {selectedCourt.name}</strong></div>
+                <div className="booking-confirm__row"><span>Ngày</span><strong>{selectedDate}</strong></div>
+                <div className="booking-confirm__row"><span>Thời gian</span><strong>{selectedSlots[0]} – {calculateEndTime(selectedSlots[selectedSlots.length - 1])}</strong></div>
                 <div className="booking-confirm__row"><span>Duration</span><strong>{selectedSlots.length} hour{selectedSlots.length > 1 ? 's' : ''}</strong></div>
                 <div className="booking-confirm__row"><span>Rate</span><strong>{selectedCourt.price.toLocaleString('vi-VN')} đ/hr</strong></div>
                 <div className="booking-confirm__divider" />

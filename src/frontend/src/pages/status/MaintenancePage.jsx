@@ -16,17 +16,17 @@ export default function MaintenancePage() {
             <div className="flex items-center justify-center gap-4">
               <div className="bg-white rounded-lg p-4 min-w-[80px] text-center shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
                 <span className="block font-oswald text-3xl font-bold text-[#008ba3] leading-none mb-1">02</span>
-                <span className="block text-[0.65rem] font-bold text-slate-500 tracking-wider">HOURS</span>
+                <span className="block text-[0.65rem] font-bold text-slate-500 tracking-wider">GIỜ</span>
               </div>
               <span className="font-oswald text-2xl font-bold text-slate-400">:</span>
               <div className="bg-white rounded-lg p-4 min-w-[80px] text-center shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
                 <span className="block font-oswald text-3xl font-bold text-[#008ba3] leading-none mb-1">45</span>
-                <span className="block text-[0.65rem] font-bold text-slate-500 tracking-wider">MINS</span>
+                <span className="block text-[0.65rem] font-bold text-slate-500 tracking-wider">PHÚT</span>
               </div>
               <span className="font-oswald text-2xl font-bold text-slate-400">:</span>
               <div className="bg-white rounded-lg p-4 min-w-[80px] text-center shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
                 <span className="block font-oswald text-3xl font-bold text-[#008ba3] leading-none mb-1">12</span>
-                <span className="block text-[0.65rem] font-bold text-slate-500 tracking-wider">SECS</span>
+                <span className="block text-[0.65rem] font-bold text-slate-500 tracking-wider">GIÂY</span>
               </div>
             </div>
           </div>
@@ -34,21 +34,21 @@ export default function MaintenancePage() {
           {/* Right Side */}
           <div className="flex-1 p-12 flex flex-col justify-center">
             <h1 className="font-oswald text-2xl font-bold text-[#006070] tracking-tight italic text-left mb-6">PRO-SPORT</h1>
-            <h2 className="text-[2.25rem] font-bold text-slate-900 leading-tight mb-4">We're upgrading our performance.</h2>
+            <h2 className="text-[2.25rem] font-bold text-slate-900 leading-tight mb-4">Chúng tôi đang nâng cấp hiệu suất.</h2>
             <p className="text-base text-slate-600 leading-relaxed mb-8">
-              PRO-SPORT is currently undergoing scheduled maintenance to bring you new elite features. Our team is actively fine-tuning the engine.
+              PRO-SPORT hiện đang trong quá trình bảo trì định kỳ để mang đến cho bạn những tính năng tinh hoa mới. Đội ngũ của chúng tôi đang tích cực tinh chỉnh hệ thống.
             </p>
 
             <div>
               <div className="flex items-center bg-white border border-slate-300 rounded-lg p-1 pl-4 gap-3 mb-10">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-slate-400"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-                <input type="email" placeholder="Enter your email to be notified" className="flex-1 border-none outline-none font-sans text-sm text-slate-800" />
-                <button className="bg-[#006070] text-white border-none py-2.5 px-5 rounded-md font-semibold cursor-pointer transition-colors hover:bg-[#004a57]">Notify Me</button>
+                <input type="email" placeholder="Nhập email để nhận thông báo" className="flex-1 border-none outline-none font-sans text-sm text-slate-800" />
+                <button className="bg-[#006070] text-white border-none py-2.5 px-5 rounded-md font-semibold cursor-pointer transition-colors hover:bg-[#004a57]">Thông báo cho tôi</button>
               </div>
             </div>
 
             <div className="flex justify-between items-center border-t border-slate-200 pt-6">
-              <span className="text-[0.8125rem] text-slate-500">Follow updates on our channels:</span>
+              <span className="text-[0.8125rem] text-slate-500">Theo dõi cập nhật trên các kênh của chúng tôi:</span>
               <div className="flex gap-2">
                 <a href="#" className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 transition-all duration-200 hover:bg-slate-200 hover:text-slate-900">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>

@@ -6,8 +6,8 @@ export default function AdminCourtsPage() {
       <div className="space-y-6">
         <div className="flex justify-between items-start mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 mb-1">Court Management</h1>
-            <p className="text-sm text-slate-500">Overview and scheduling of all facilities.</p>
+            <h1 className="text-2xl font-bold text-slate-900 mb-1">Quản lý Sân</h1>
+            <p className="text-sm text-slate-500">Tổng quan và lịch trình của tất cả các cơ sở.</p>
           </div>
           <div className="flex gap-3">
             <button className="bg-white border border-slate-200 text-slate-800 py-2 px-4 rounded-md text-sm font-medium cursor-pointer flex items-center gap-2 transition-all hover:bg-slate-50 hover:border-slate-300">
@@ -28,7 +28,7 @@ export default function AdminCourtsPage() {
           {/* Filters Sidebar */}
           <div>
             <div className="bg-white rounded-lg border border-slate-200 p-6 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
-              <h3 className="text-xs font-bold text-slate-500 tracking-[0.05em] mb-4">SPORT TYPE</h3>
+              <h3 className="text-xs font-bold text-slate-500 tracking-[0.05em] mb-4">LOẠI THỂ THAO</h3>
               <div className="flex flex-col gap-3">
                 <label className="flex items-center gap-[10px] text-sm text-slate-900 cursor-pointer">
                   <input type="checkbox" defaultChecked className="w-4 h-4 cursor-pointer accent-[#0d8a8a]" />
@@ -42,7 +42,7 @@ export default function AdminCourtsPage() {
             </div>
 
             <div className="bg-white rounded-lg border border-slate-200 p-6 shadow-[0_1px_2px_rgba(0,0,0,0.02)] mt-4">
-              <h3 className="text-xs font-bold text-slate-500 tracking-[0.05em] mb-4">STATUS</h3>
+              <h3 className="text-xs font-bold text-slate-500 tracking-[0.05em] mb-4">TRẠNG THÁI</h3>
               <div className="flex flex-col gap-3">
                 <label className="flex items-center gap-[10px] text-sm text-slate-900 cursor-pointer">
                   <input type="checkbox" defaultChecked className="w-4 h-4 cursor-pointer accent-[#0d8a8a]" />
@@ -76,22 +76,22 @@ export default function AdminCourtsPage() {
                 <img src="https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=600&q=80" alt="Badminton Court" className="w-full h-full object-cover" />
                 <div className="absolute top-3 left-3 right-3 flex justify-between">
                   <span className="flex items-center gap-1 py-1 px-[10px] rounded-full text-[0.65rem] font-bold tracking-[0.05em] bg-white text-slate-900"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M8.56 2.75c4.37 6.03 6.02 9.42 8.03 17.72"/></svg>CẦU LÔNG</span>
-                  <span className="flex items-center gap-1 py-1 px-[10px] rounded-full text-[0.65rem] font-bold tracking-[0.05em] bg-green-500 text-white">AVAILABLE</span>
+                  <span className="flex items-center gap-1 py-1 px-[10px] rounded-full text-[0.65rem] font-bold tracking-[0.05em] bg-green-500 text-white">TRỐNG</span>
                 </div>
               </div>
               <div className="p-5 flex-1 flex flex-col">
                 <h2 className="text-lg font-bold text-slate-900 mb-[6px]">Sân Cầu lông Trung tâm</h2>
-                <p className="flex items-center gap-[6px] text-[0.8125rem] text-slate-500 mb-6"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Main Pavilion, East Wing</p>
+                <p className="flex items-center gap-[6px] text-[0.8125rem] text-slate-500 mb-6"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Gian chính, Cánh Đông</p>
                 
                 <div className="mt-auto mb-5">
                   <div className="flex justify-between mb-2">
-                    <span className="text-xs text-slate-500">Next Booking</span>
+                    <span className="text-xs text-slate-500">Lượt đặt Tiếp theo</span>
                     <span className="text-sm font-semibold text-slate-900">14:00 - 15:30</span>
                   </div>
                   <div className="h-1 bg-slate-100 rounded overflow-hidden"><div className="h-full rounded" style={{ width: '30%', background: '#0ea5e9' }}></div></div>
                 </div>
 
-                <button className="w-full py-[10px] rounded-md text-sm font-semibold cursor-pointer flex items-center justify-center gap-2 transition-all bg-[#0ea5e9] text-white border-none hover:bg-[#0284c7]">Quick Book</button>
+                <button className="w-full py-[10px] rounded-md text-sm font-semibold cursor-pointer flex items-center justify-center gap-2 transition-all bg-[#0ea5e9] text-white border-none hover:bg-[#0284c7]">Đặt Nhanh</button>
               </div>
             </div>
 
@@ -101,16 +101,16 @@ export default function AdminCourtsPage() {
                 <img src="https://images.unsplash.com/photo-1622227432807-91eb590c31ab?w=600&q=80" alt="Pickleball Court" className="w-full h-full object-cover" />
                 <div className="absolute top-3 left-3 right-3 flex justify-between">
                   <span className="flex items-center gap-1 py-1 px-[10px] rounded-full text-[0.65rem] font-bold tracking-[0.05em] bg-white text-slate-900"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M8.56 2.75c4.37 6.03 6.02 9.42 8.03 17.72"/></svg>PICKLEBALL</span>
-                  <span className="flex items-center gap-1 py-1 px-[10px] rounded-full text-[0.65rem] font-bold tracking-[0.05em] bg-[#0f172a] text-white">BOOKED</span>
+                  <span className="flex items-center gap-1 py-1 px-[10px] rounded-full text-[0.65rem] font-bold tracking-[0.05em] bg-[#0f172a] text-white">ĐÃ ĐẶT</span>
                 </div>
               </div>
               <div className="p-5 flex-1 flex flex-col">
                 <h2 className="text-lg font-bold text-slate-900 mb-[6px]">Sân Pickleball A</h2>
-                <p className="flex items-center gap-[6px] text-[0.8125rem] text-slate-500 mb-6"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Indoor Complex, Sector 2</p>
+                <p className="flex items-center gap-[6px] text-[0.8125rem] text-slate-500 mb-6"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Khu phức hợp Trong nhà, Khu 2</p>
                 
                 <div className="mt-auto mb-5">
                   <div className="flex justify-between mb-2">
-                    <span className="text-xs text-slate-500">Current Session</span>
+                    <span className="text-xs text-slate-500">Phiên Hiện tại</span>
                     <span className="text-sm font-semibold text-slate-900">09:00 - 11:00</span>
                   </div>
                   <div className="h-1 bg-slate-100 rounded overflow-hidden"><div className="h-full rounded" style={{ width: '60%', background: '#0f172a' }}></div></div>
@@ -120,7 +120,7 @@ export default function AdminCourtsPage() {
                   <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80&q=80" alt="Sarah" className="w-8 h-8 rounded-full object-cover" />
                   <div>
                     <p className="text-sm font-semibold text-slate-900">Sarah Jenkins</p>
-                    <p className="text-xs text-slate-500">Pro Member</p>
+                    <p className="text-xs text-slate-500">Thành viên Pro</p>
                   </div>
                 </div>
               </div>
@@ -132,21 +132,21 @@ export default function AdminCourtsPage() {
                 <img src="https://images.unsplash.com/photo-1542144610-092591748259?w=600&q=80" alt="Clay Court" className="w-full h-full object-cover" />
                 <div className="absolute top-3 left-3 right-3 flex justify-between">
                   <span className="flex items-center gap-1 py-1 px-[10px] rounded-full text-[0.65rem] font-bold tracking-[0.05em] bg-white text-slate-900"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M8.56 2.75c4.37 6.03 6.02 9.42 8.03 17.72"/></svg>CẦU LÔNG</span>
-                  <span className="flex items-center gap-1 py-1 px-[10px] rounded-full text-[0.65rem] font-bold tracking-[0.05em] bg-amber-500 text-white">MAINTENANCE</span>
+                  <span className="flex items-center gap-1 py-1 px-[10px] rounded-full text-[0.65rem] font-bold tracking-[0.05em] bg-amber-500 text-white">BẢO TRÌ</span>
                 </div>
               </div>
               <div className="p-5 flex-1 flex flex-col">
                 <h2 className="text-lg font-bold text-slate-900 mb-[6px]">Sân Cầu lông VIP</h2>
-                <p className="flex items-center gap-[6px] text-[0.8125rem] text-slate-500 mb-6"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>South Gardens</p>
+                <p className="flex items-center gap-[6px] text-[0.8125rem] text-slate-500 mb-6"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Vườn Nam</p>
                 
                 <div className="mt-auto mb-5 flex flex-col gap-2">
                   <div className="flex justify-between">
-                    <span className="text-xs text-slate-500">Task</span>
-                    <span className="text-[0.8125rem] text-slate-900">Surface Reshaping</span>
+                    <span className="text-xs text-slate-500">Nhiệm vụ</span>
+                    <span className="text-[0.8125rem] text-slate-900">Làm lại Bề mặt</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-xs text-slate-500">Est. Completion</span>
-                    <span className="text-[0.8125rem] text-slate-900" style={{ color: '#d97706', fontWeight: 600 }}>Today, 17:00</span>
+                    <span className="text-xs text-slate-500">Dự kiến Hoàn thành</span>
+                    <span className="text-[0.8125rem] text-slate-900" style={{ color: '#d97706', fontWeight: 600 }}>Hôm nay, 17:00</span>
                   </div>
                 </div>
 

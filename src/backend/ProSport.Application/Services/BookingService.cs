@@ -95,9 +95,11 @@ public class BookingService : IBookingService
             decimal totalAmount = 0;
             var details = new List<BookingDetail>();
 
-            // Sử dụng UTC+7 (timezone Việt Nam) để so sánh ngày/giờ cho chính xác
-            var vnNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow,
-                TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"));
+            // Cross-platform timezone: try Windows ID first, fallback to IANA (Linux/Docker)
+            TimeZoneInfo vnTz;
+            try { vnTz = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"); }
+            catch { vnTz = TimeZoneInfo.FindSystemTimeZoneById("Asia/Ho_Chi_Minh"); }
+            var vnNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vnTz);
 
             foreach (var d in dto.Details)
             {
@@ -210,6 +212,9 @@ public class BookingService : IBookingService
                 segmentEnd = rule.EndTime;
             }
 
+            // BUG-18 FIX: Guard against zero-length segments (malformed pricing rules) to prevent infinite loop
+            if (segmentEnd <= current) break;
+
             var hours = (decimal)(segmentEnd - current).TotalHours;
             totalPrice += hours * ratePerHour;
             current = segmentEnd;
@@ -238,7 +243,8 @@ public class BookingService : IBookingService
             }
 
             // Bảo mật: Kiểm tra xem số tiền trả qua VNPay có đúng bằng số tiền hóa đơn không
-            if (booking.TotalAmount != paidAmount)
+            // Dùng tolerance thay vì == để tránh rounding issue khi VNPay parse amount
+            if (Math.Abs(booking.TotalAmount - paidAmount) > 1m) // tolerance 1 VND
             {
                 _logger.LogWarning(
                     "Payment amount mismatch for booking {BookingId}: expected {Expected}, got {Actual}",
@@ -363,27 +369,29 @@ public class BookingService : IBookingService
                 // Refund 80% vào ví Escrow
                 if (refundAmount > 0)
                 {
-                    var refundResult = await _escrowRepository.DepositToWalletAsync(
-                        booking.UserId, refundAmount);
+                    var refundResult = await _escrowRepository.ExecuteInTransactionAsync(async () =>
+                    {
+                        var wallet = await _escrowRepository.GetWalletByUserIdAsync(booking.UserId);
+                        if (wallet == null) return false;
+
+                        wallet.Balance += refundAmount;
+                        await _escrowRepository.UpdateWalletAsync(wallet);
+
+                        var transaction = new Transaction
+                        {
+                            EscrowWalletId = wallet.EscrowWalletId,
+                            BookingId = booking.BookingId,
+                            Amount = refundAmount,
+                            Type = TransactionType.Refund,
+                            Status = TransactionStatus.Completed,
+                            Description = $"Hoàn tiền hủy sân mã #{booking.BookingId} (trừ 20% phí phạt)"
+                        };
+                        await _escrowRepository.AddTransactionAsync(transaction);
+                        return true;
+                    });
 
                     if (refundResult)
                     {
-                        // Tạo transaction record cho refund
-                        var wallet = await _escrowRepository.GetWalletByUserIdAsync(booking.UserId);
-                        if (wallet != null)
-                        {
-                            var transaction = new Transaction
-                            {
-                                EscrowWalletId = wallet.EscrowWalletId,
-                                BookingId = booking.BookingId,
-                                Amount = refundAmount,
-                                Type = TransactionType.Refund,
-                                Status = TransactionStatus.Completed,
-                                Description = $"Hoàn tiền hủy sân mã #{booking.BookingId} (trừ 20% phí phạt)"
-                            };
-                            await _escrowRepository.AddTransactionAsync(transaction);
-                        }
-
                         booking.PaymentStatus = Domain.Constants.PaymentStatus.Refunded;
                     }
                     else
@@ -420,7 +428,8 @@ public class BookingService : IBookingService
             var booking = await _bookingRepository.GetByCheckInCodeAsync(checkInCode);
             if (booking == null) return new ApiResponseDto<BookingDto>(404, "Mã Check-in không hợp lệ hoặc không tồn tại.");
 
-            if (booking.Status != BookingStatus.Confirmed && booking.Status != BookingStatus.Completed)
+            // BUG-05 FIX: Only Confirmed bookings should be allowed for check-in (Completed = already done)
+            if (booking.Status != BookingStatus.Confirmed)
                 return new ApiResponseDto<BookingDto>(400, $"Booking đang ở trạng thái {booking.Status}, không thể check-in.");
 
             if (booking.CheckIn != null)
@@ -429,9 +438,11 @@ public class BookingService : IBookingService
             var firstDetail = booking.BookingDetails.FirstOrDefault();
             if (firstDetail != null)
             {
-                // Sử dụng UTC+7 (timezone Việt Nam) để so sánh chính xác
-                var vnNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow,
-                    TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"));
+                // Cross-platform timezone: try Windows ID first, fallback to IANA (Linux/Docker)
+                TimeZoneInfo vnTz2;
+                try { vnTz2 = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"); }
+                catch { vnTz2 = TimeZoneInfo.FindSystemTimeZoneById("Asia/Ho_Chi_Minh"); }
+                var vnNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vnTz2);
                 var startTime = firstDetail.BookingDate.Date.Add(firstDetail.StartTime);
                 var endTime = firstDetail.BookingDate.Date.Add(firstDetail.EndTime);
 

@@ -10,56 +10,56 @@ gsap.registerPlugin(ScrollTrigger)
 const principles = [
   {
     icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.77 5.82 21 7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>,
-    title: 'Innovation',
-    desc: 'Pioneering smart court technology and data-driven training to push the boundaries of athletic performance.',
+    title: 'Đổi mới',
+    desc: 'Tiên phong trong công nghệ sân thông minh và huấn luyện dựa trên dữ liệu để đẩy lùi giới hạn hiệu suất thể thao.',
     stat: '12+',
-    statLabel: 'Patents Filed',
+    statLabel: 'Bằng sáng chế',
   },
   {
     icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
-    title: 'Community',
-    desc: 'Building a thriving ecosystem where athletes, coaches and professionals connect, compete and grow together.',
+    title: 'Cộng đồng',
+    desc: 'Xây dựng một hệ sinh thái phát triển, nơi các vận động viên, huấn luyện viên và chuyên gia kết nối, cạnh tranh và cùng phát triển.',
     stat: '500K+',
-    statLabel: 'Active Athletes',
+    statLabel: 'Vận động viên',
   },
   {
     icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>,
-    title: 'Performance',
-    desc: 'Delivering measurable results through premium facilities, advanced analytics and personalized training plans.',
+    title: 'Hiệu suất',
+    desc: 'Mang lại kết quả đo lường được thông qua cơ sở vật chất cao cấp, phân tích chuyên sâu và kế hoạch huấn luyện cá nhân hóa.',
     stat: '2M+',
-    statLabel: 'Sessions Booked',
+    statLabel: 'Lượt đặt sân',
   },
 ]
 
 const milestones = [
-  { year: '2020', title: 'Founded in Ho Chi Minh City', desc: 'Started with a vision to digitize sports facility management across Southeast Asia.' },
-  { year: '2021', title: 'First 50 Facilities Onboarded', desc: 'Partnered with tennis clubs, badminton halls and multi-sport complexes in Vietnam.' },
-  { year: '2022', title: 'MatchPro Launch', desc: 'Launched our AI-powered matchmaking system, connecting athletes by skill level and location.' },
-  { year: '2023', title: 'Series A Funding', desc: 'Secured $5M in funding to expand our smart court technology and mobile platform.' },
-  { year: '2024', title: 'Regional Expansion', desc: 'Expanded operations to Thailand, Singapore and Philippines with 200+ partner venues.' },
-  { year: '2025', title: 'Pro-Sport 2.0', desc: 'Launched next-gen platform with real-time analytics, gear rental and tournament management.' },
+  { year: '2020', title: 'Thành lập tại TP.Hồ Chí Minh', desc: 'Bắt đầu với tầm nhìn số hóa quản lý cơ sở thể thao trên toàn Đông Nam Á.' },
+  { year: '2021', title: '50 Cơ sở đầu tiên', desc: 'Hợp tác với các câu lạc bộ tennis, sân cầu lông và khu liên hợp thể thao tại Việt Nam.' },
+  { year: '2022', title: 'Ra mắt MatchPro', desc: 'Ra mắt hệ thống ghép kèo tích hợp AI, kết nối vận động viên theo kỹ năng và khu vực.' },
+  { year: '2023', title: 'Gọi vốn Series A', desc: 'Gọi vốn 5 triệu USD để mở rộng công nghệ sân thông minh và nền tảng di động.' },
+  { year: '2024', title: 'Mở rộng khu vực', desc: 'Mở rộng hoạt động sang Thái Lan, Singapore và Philippines với hơn 200 cơ sở đối tác.' },
+  { year: '2025', title: 'Pro-Sport 2.0', desc: 'Ra mắt nền tảng thế hệ mới với phân tích theo thời gian thực, cho thuê thiết bị và quản lý giải đấu.' },
 ]
 
 const team = [
-  { name: 'David Nguyen', role: 'CEO & Co-Founder', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&q=80', quote: 'Technology should empower athletes, not complicate their game.' },
-  { name: 'Sarah Chen', role: 'CTO', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&q=80', quote: 'We build systems that think like coaches and perform like champions.' },
-  { name: 'Marcus Tran', role: 'Head of Product', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&q=80', quote: 'Every feature we ship is tested on the court, not just in the lab.' },
-  { name: 'Elena Park', role: 'VP of Operations', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&q=80', quote: 'Our venues set the standard for what modern sports facilities should be.' },
+  { name: 'David Nguyen', role: 'CEO & Đồng sáng lập', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&q=80', quote: 'Công nghệ nên tiếp sức cho vận động viên, chứ không làm phức tạp hóa cuộc chơi của họ.' },
+  { name: 'Sarah Chen', role: 'CTO', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&q=80', quote: 'Chúng tôi xây dựng hệ thống tư duy như huấn luyện viên và biểu diễn như nhà vô địch.' },
+  { name: 'Marcus Tran', role: 'Giám đốc Sản phẩm', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&q=80', quote: 'Mọi tính năng đều được kiểm thử trên sân thực tế, không chỉ trong phòng thí nghiệm.' },
+  { name: 'Elena Park', role: 'Phó giám đốc Vận hành', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&q=80', quote: 'Cơ sở của chúng tôi thiết lập tiêu chuẩn cho các khu thể thao hiện đại.' },
 ]
 
 const partners = ['APEXGEAR', 'NEXUSCOURTS', 'VELOCITYATHLETICS', 'PRIMEFIT', 'ELITEPRO', 'SPORTZONE']
 
 const journey = [
-  { label: 'World-Class Venues', tag: 'VENUES', image: 'https://images.unsplash.com/photo-1544919982-b61976f0ba43?w=800&q=80', large: true },
-  { label: 'Data-Driven Excellence', tag: 'TECH', image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&q=80', large: false },
-  { label: 'Global Tournaments', tag: 'EVENTS', image: 'https://images.unsplash.com/photo-1540747913346-19212a4f5db4?w=600&q=80', large: false },
+  { label: 'Cơ sở vật chất Đẳng cấp', tag: 'VENUES', image: 'https://images.unsplash.com/photo-1544919982-b61976f0ba43?w=800&q=80', large: true },
+  { label: 'Sự xuất sắc từ Dữ liệu', tag: 'TECH', image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&q=80', large: false },
+  { label: 'Giải đấu Toàn cầu', tag: 'EVENTS', image: 'https://images.unsplash.com/photo-1540747913346-19212a4f5db4?w=600&q=80', large: false },
 ]
 
 const stats = [
-  { value: '200+', label: 'Partner Venues' },
+  { value: '200+', label: 'Cơ sở đối tác' },
   { value: '500K', label: 'Active Athletes' },
-  { value: '2M+', label: 'Matches Played' },
-  { value: '14', label: 'Cities Covered' },
+  { value: '2M+', label: 'Trận đấu diễn ra' },
+  { value: '14', label: 'Thành phố phủ sóng' },
 ]
 
 export default function AboutPage() {
@@ -138,13 +138,13 @@ export default function AboutPage() {
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-[68px] px-6 pb-[60px] bg-[#0a0e1a] after:content-[''] after:absolute after:inset-0 after:bg-gradient-to-t after:from-[rgba(10,14,26,0.95)] after:via-[rgba(10,14,26,0.4)] after:to-transparent">
         <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1547347298-4074fc3086f0?w=1400&q=70')] bg-cover bg-center opacity-[0.22]" />
         <div ref={heroRef} className="relative z-[1] text-center max-w-[780px] container">
-          <span className="inline-block text-[0.72rem] font-bold tracking-[0.15em] uppercase text-[#00c8aa] mb-5 px-4 py-1.5 rounded-full border border-[#00c8aa]/30 bg-[#00c8aa]/10">About PRO-SPORT</span>
+          <span className="inline-block text-[0.72rem] font-bold tracking-[0.15em] uppercase text-[#00c8aa] mb-5 px-4 py-1.5 rounded-full border border-[#00c8aa]/30 bg-[#00c8aa]/10">Về PRO-SPORT</span>
           <h1 className="font-['Oswald'] text-[clamp(2rem,4.5vw,3.5rem)] font-bold text-white leading-[1.1] tracking-[-0.01em] mb-[22px]">
-            Redefining the Future of<br />Athletic Performance.
+            Định hình lại Tương lai<br />Hiệu suất Thể thao.
           </h1>
           <p className="text-[1.05rem] text-white/65 leading-[1.7] max-w-[540px] mx-auto mb-8">
-            We bridge the gap between human potential and technological precision,
-            engineering environments where elite athletes are forged.
+            Chúng tôi thu hẹp khoảng cách giữa tiềm năng con người và độ chính xác của công nghệ,
+            xây dựng môi trường nơi các vận động viên tinh hoa được rèn giũa.
           </p>
           <div className="flex gap-3 justify-center flex-wrap">
             <Link to="/courts" className="bg-[#00c8aa] hover:bg-[#009e87] hover:shadow-[0_0_24px_rgba(0,200,170,0.25)] hover:-translate-y-[1px] text-white rounded-full font-semibold tracking-[0.03em] transition-all inline-flex items-center gap-2 px-[26px] py-[13px] text-[0.95rem]">
@@ -157,38 +157,38 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* ── Brand Mission ── */}
+      {/* ── Brvà Mission ── */}
       <section className="py-20 bg-white">
         <div ref={missionRef} className="container grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           <div>
-            <span className="text-[0.72rem] font-bold tracking-[0.15em] uppercase text-[#00c8aa] mb-4 block">Our Mission</span>
+            <span className="text-[0.72rem] font-bold tracking-[0.15em] uppercase text-[#00c8aa] mb-4 block">Sứ mệnh</span>
             <h2 className="font-['Oswald'] text-[clamp(1.6rem,3vw,2.4rem)] font-bold text-slate-900 leading-[1.15] mb-6">
-              Empowering Athletes Through<br />Technology & Premium Facilities
+              Tiếp sức Vận động viên qua<br />Công nghệ & Cơ sở vật chất Cao cấp
             </h2>
             <p className="text-[0.95rem] text-slate-500 leading-[1.75] mb-6">
-              PRO-SPORT was born from a simple belief: every athlete deserves access to world-class facilities and intelligent tools that help them reach their peak performance. We combine cutting-edge technology with premium venues to create an ecosystem where athletes of all levels can train, compete and grow.
+              PRO-SPORT ra đời từ một niềm tin đơn giản: mọi vận động viên đều xứng đáng tiếp cận cơ sở vật chất đẳng cấp thế giới và các công cụ thông minh giúp họ đạt hiệu suất đỉnh cao. Chúng tôi kết hợp công nghệ tiên tiến với các địa điểm cao cấp để tạo ra một hệ sinh thái nơi vận động viên mọi cấp độ có thể rèn luyện, thi đấu và phát triển.: 
             </p>
             <p className="text-[0.95rem] text-slate-500 leading-[1.75] mb-8">
-              Our platform connects <strong className="text-slate-800">200+ venues</strong>, <strong className="text-slate-800">500,000+ athletes</strong>, and <strong className="text-slate-800">elite coaching programs</strong> into one seamless experience — from booking a court to finding your perfect match.
+              Nền tảng của chúng tôi kết nối <strong className="text-slate-800">200+ cơ sở</strong>, <strong className="text-slate-800">500,000+ vận động viên</strong>, và <strong className="text-slate-800">các chương trình huấn luyện chuyên nghiệp</strong> vào một trải nghiệm liền mạch — từ việc đặt sân đến tìm kèo đấu hoàn hảo.
             </p>
             <div className="flex gap-6 flex-wrap">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-[#00c8aa]/10 flex items-center justify-center text-[#00c8aa]">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
                 </div>
-                <span className="text-[0.88rem] font-medium text-slate-700">Smart Booking System</span>
+                <span className="text-[0.88rem] font-medium text-slate-700">Hệ thống Đặt sân Thông minh</span>
               </div>
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-[#00c8aa]/10 flex items-center justify-center text-[#00c8aa]">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
                 </div>
-                <span className="text-[0.88rem] font-medium text-slate-700">AI Match-Making</span>
+                <span className="text-[0.88rem] font-medium text-slate-700">Ghép kèo AI</span>
               </div>
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-[#00c8aa]/10 flex items-center justify-center text-[#00c8aa]">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
                 </div>
-                <span className="text-[0.88rem] font-medium text-slate-700">Real-Time Analytics</span>
+                <span className="text-[0.88rem] font-medium text-slate-700">Phân tích Thời gian thực</span>
               </div>
             </div>
           </div>
@@ -196,7 +196,7 @@ export default function AboutPage() {
             <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=700&q=80" alt="Athletic training" className="w-full h-[420px] object-cover rounded-[20px] shadow-[0_8px_32px_rgba(0,0,0,0.12)]" />
             <div className="absolute -bottom-5 -left-5 bg-[#0a0e1a] text-white rounded-xl px-6 py-4 shadow-lg max-w-[220px]">
               <p className="font-['Oswald'] text-[2rem] font-bold text-[#00c8aa] leading-none">5+</p>
-              <p className="text-[0.82rem] text-white/60 mt-1">Years of Excellence in Sports Technology</p>
+              <p className="text-[0.82rem] text-white/60 mt-1">Năm xuất sắc trong Công nghệ Thể thao</p>
             </div>
           </div>
         </div>
@@ -217,8 +217,8 @@ export default function AboutPage() {
       {/* ── Our Journey ── */}
       <section className="py-20 bg-white">
         <div className="container">
-          <span className="text-[0.72rem] font-bold tracking-[0.15em] uppercase text-[#00c8aa] mb-3 block">What We Do</span>
-          <h2 className="section-title mb-9 after:content-[''] after:block after:w-12 after:h-[3px] after:bg-[#00c8aa] after:mt-[10px]">Our Journey</h2>
+          <span className="text-[0.72rem] font-bold tracking-[0.15em] uppercase text-[#00c8aa] mb-3 block">Chúng tôi làm gì</span>
+          <h2 className="section-title mb-9 after:content-[''] after:block after:w-12 after:h-[3px] after:bg-[#00c8aa] after:mt-[10px]">Hành trình</h2>
           <div ref={journeyRef} className="grid grid-cols-[1.3fr_1fr] grid-rows-[220px_220px] gap-4 max-md:grid-cols-1 max-md:grid-rows-[240px_180px_180px]">
             {journey.map((item) => (
               <div key={item.label} className={`relative rounded-[16px] overflow-hidden cursor-pointer group ${item.large ? 'row-span-2 max-md:row-span-1' : ''}`}>
@@ -237,9 +237,9 @@ export default function AboutPage() {
       <section className="py-20 bg-[var(--color-bg)]">
         <div className="container">
           <div className="text-center mb-[52px]">
-            <span className="text-[0.72rem] font-bold tracking-[0.15em] uppercase text-[#00c8aa] mb-3 block">Why Choose Us</span>
-            <h2 className="section-title">Core Principles</h2>
-            <p className="section-subtitle">The foundations that drive our commitment to athletic excellence.</p>
+            <span className="text-[0.72rem] font-bold tracking-[0.15em] uppercase text-[#00c8aa] mb-3 block">Tại sao chọn chúng tôi</span>
+            <h2 className="section-title">Nguyên tắc Cốt lõi</h2>
+            <p className="section-subtitle">Nền tảng thúc đẩy cam kết của chúng tôi đối với sự xuất sắc trong thể thao.</p>
           </div>
           <div ref={principlesRef} className="grid grid-cols-3 gap-6 max-md:grid-cols-1">
             {principles.map((p) => (
@@ -261,9 +261,9 @@ export default function AboutPage() {
       <section className="py-20 bg-white">
         <div className="container">
           <div className="text-center mb-14">
-            <span className="text-[0.72rem] font-bold tracking-[0.15em] uppercase text-[#00c8aa] mb-3 block">Our Story</span>
-            <h2 className="section-title">From Vision to Reality</h2>
-            <p className="section-subtitle">Key milestones in our journey to transform sports management.</p>
+            <span className="text-[0.72rem] font-bold tracking-[0.15em] uppercase text-[#00c8aa] mb-3 block">Câu chuyện</span>
+            <h2 className="section-title">Từ Tầm nhìn đến Hiện thực</h2>
+            <p className="section-subtitle">Những cột mốc quan trọng trong hành trình thay đổi quản lý thể thao.</p>
           </div>
           <div ref={timelineRef} className="relative max-w-[700px] mx-auto">
             {/* Timeline line */}
@@ -287,9 +287,9 @@ export default function AboutPage() {
       <section className="py-20 bg-[var(--color-bg)]">
         <div className="container">
           <div className="text-center mb-14">
-            <span className="text-[0.72rem] font-bold tracking-[0.15em] uppercase text-[#00c8aa] mb-3 block">Our People</span>
-            <h2 className="section-title">Leadership Team</h2>
-            <p className="section-subtitle">The visionaries driving PRO-SPORT's mission forward.</p>
+            <span className="text-[0.72rem] font-bold tracking-[0.15em] uppercase text-[#00c8aa] mb-3 block">Con người</span>
+            <h2 className="section-title">Ban Lãnh đạo</h2>
+            <p className="section-subtitle">Những người có tầm nhìn thúc đẩy sứ mệnh của PRO-SPORT.</p>
           </div>
           <div ref={teamRef} className="grid grid-cols-4 gap-6 max-lg:grid-cols-2 max-md:grid-cols-1">
             {team.map(t => (
@@ -313,7 +313,7 @@ export default function AboutPage() {
       {/* ── Partners ── */}
       <section className="py-14 bg-white border-y border-slate-200">
         <div className="container">
-          <p className="text-center text-[0.72rem] font-bold tracking-[0.15em] text-slate-400 uppercase mb-8">Trusted Partners & Brands</p>
+          <p className="text-center text-[0.72rem] font-bold tracking-[0.15em] text-slate-400 uppercase mb-8">Trusted Partners & Brvàs</p>
           <div className="flex justify-center items-center gap-[52px] flex-wrap">
             {partners.map(b => (
               <span key={b} className="font-['Oswald'] text-[1.1rem] font-bold tracking-[0.08em] text-slate-400 transition-colors hover:text-[#00c8aa] cursor-default">{b}</span>
@@ -325,11 +325,11 @@ export default function AboutPage() {
       {/* ── Global Operations ── */}
       <section className="pt-20 pb-[100px] bg-[#0a0e1a] text-white text-center overflow-hidden">
         <div className="container">
-          <span className="text-[0.72rem] font-bold tracking-[0.15em] uppercase text-[#00c8aa] mb-4 block">Worldwide Presence</span>
-          <h2 className="font-['Oswald'] text-[2rem] font-bold mb-3">Global Operations</h2>
-          <p className="text-[0.9rem] text-white/55 max-w-[500px] mx-auto mb-[52px] leading-[1.65]">Operating across 14 cities, delivering consistent, elite-tier athletic infrastructure throughout Southeast Asia and beyond.</p>
+          <span className="text-[0.72rem] font-bold tracking-[0.15em] uppercase text-[#00c8aa] mb-4 block">Hiện diện Toàn cầu</span>
+          <h2 className="font-['Oswald'] text-[2rem] font-bold mb-3">Hoạt động Toàn cầu</h2>
+          <p className="text-[0.9rem] text-white/55 max-w-[500px] mx-auto mb-[52px] leading-[1.65]">Operating across 14 cities, delivering consistent, elite-tier athletic infrastructure throughout Southeast Asia và beyond.</p>
           <div className="relative flex items-center justify-center min-h-[160px]">
-            <div className="font-['Oswald'] text-[clamp(2rem,6vw,5rem)] font-bold tracking-[0.15em] text-[#00c8aa] opacity-25 select-none">NETWORK ACTIVE</div>
+            <div className="font-['Oswald'] text-[clamp(2rem,6vw,5rem)] font-bold tracking-[0.15em] text-[#00c8aa] opacity-25 select-none">MẠNG LƯỚI ĐANG HOẠT ĐỘNG</div>
             <div className="absolute inset-0 flex flex-wrap gap-[18px] justify-center items-center pointer-events-none">
               {[...Array(40)].map((_, i) => (
                 <div key={i} className="w-1 h-1 rounded-full bg-[#00c8aa] opacity-40 animate-[pulse-glow_2.5s_ease-in-out_infinite]" style={{ animationDelay: `${i * 0.08}s` }} />
@@ -346,7 +346,7 @@ export default function AboutPage() {
             Ready to Elevate Your Game?
           </h2>
           <p className="text-[0.95rem] text-slate-500 max-w-[480px] mx-auto leading-[1.7] mb-8">
-            Join 500,000+ athletes who trust PRO-SPORT for their training, matches and competitive journey.
+            Join 500,000+ vận động viên who trust PRO-SPORT for their training, matches và competitive journey.
           </p>
           <div className="flex gap-3 justify-center flex-wrap">
             <Link to="/register" className="bg-[#00c8aa] hover:bg-[#009e87] hover:shadow-[0_0_24px_rgba(0,200,170,0.25)] hover:-translate-y-[1px] text-white rounded-full font-semibold tracking-[0.03em] transition-all inline-flex items-center gap-2 px-[28px] py-[14px] text-[0.95rem]">

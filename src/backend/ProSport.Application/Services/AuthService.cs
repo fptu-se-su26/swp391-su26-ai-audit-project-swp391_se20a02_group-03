@@ -154,6 +154,10 @@ public class AuthService : IAuthService
             if (user == null || user.PasswordHash == null || !BC.Verify(request.Password, user.PasswordHash))
                 return new ApiResponseDto<AuthResponseDto>(401, "Invalid email or password.");
 
+            // BUG-13 FIX: Block unverified users from logging in (must verify OTP after registration)
+            if (!user.IsPhoneVerified && user.GoogleId == null)
+                return new ApiResponseDto<AuthResponseDto>(403, "Please verify your email before logging in.");
+
             var token = GenerateJwtToken(user);
 
             return new ApiResponseDto<AuthResponseDto>(200, "Login successful.", new AuthResponseDto
@@ -177,7 +181,13 @@ public class AuthService : IAuthService
     {
         try
         {
+            // BUG-09 FIX: Validate Google Client ID is configured before use
             var clientId = _configuration["GoogleAuth:ClientId"];
+            if (string.IsNullOrEmpty(clientId))
+            {
+                _logger.LogError("GoogleAuth:ClientId is not configured.");
+                return new ApiResponseDto<AuthResponseDto>(500, "Google authentication is not configured.");
+            }
             var settings = new GoogleJsonWebSignature.ValidationSettings()
             {
                 Audience = new List<string>() { clientId }

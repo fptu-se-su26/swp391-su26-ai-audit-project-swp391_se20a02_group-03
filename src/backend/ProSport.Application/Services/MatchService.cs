@@ -26,7 +26,14 @@ public class MatchService : IMatchService
 
     public async Task<ApiResponseDto<IEnumerable<MatchDto>>> GetAvailableMatchesAsync()
     {
-        var matches = await _matchRepository.GetMatchesByStatusAsync("Open");
+        var matches = await _matchRepository.GetMatchesByStatusAsync(ProSport.Domain.Constants.MatchStatus.Open);
+        var dtos = matches.Select(MapToDto);
+        return new ApiResponseDto<IEnumerable<MatchDto>>(200, "Success", dtos);
+    }
+
+    public async Task<ApiResponseDto<IEnumerable<MatchDto>>> GetMyMatchHistoryAsync(int userId)
+    {
+        var matches = await _matchRepository.GetMyMatchHistoryAsync(userId);
         var dtos = matches.Select(MapToDto);
         return new ApiResponseDto<IEnumerable<MatchDto>>(200, "Success", dtos);
     }
@@ -48,6 +55,18 @@ public class MatchService : IMatchService
                 return new ApiResponseDto<MatchDto>(403, "Bạn không có quyền tạo kèo cho sân chưa đặt hoặc của người khác.");
             }
 
+            // Đảm bảo Booking đã thanh toán thành công mới được tạo kèo
+            if (booking.PaymentStatus != Domain.Constants.PaymentStatus.Paid)
+            {
+                return new ApiResponseDto<MatchDto>(400, "Bạn chỉ được đăng kèo khi Booking đã được thanh toán thành công.");
+            }
+
+            if (dto.MaxParticipants <= 0)
+                return new ApiResponseDto<MatchDto>(400, "MaxParticipants must be greater than zero.");
+
+            // Tự động thiết lập số tiền chia đều (Escrow Amount) dựa trên tổng tiền Booking và số lượng người tham gia tối đa
+            var splitAmount = Math.Round(booking.TotalAmount / dto.MaxParticipants, 0);
+
             var match = new Match
             {
                 HostId = hostId,
@@ -58,8 +77,8 @@ public class MatchService : IMatchService
                 EndTime = dto.EndTime,
                 MaxParticipants = dto.MaxParticipants,
                 CurrentParticipants = 1, // Host
-                EscrowAmount = dto.EscrowAmount,
-                Status = "Open",
+                EscrowAmount = splitAmount,
+                Status = ProSport.Domain.Constants.MatchStatus.Open,
                 LevelRequirement = dto.LevelRequirement,
                 Notes = dto.Notes
             };
@@ -71,8 +90,8 @@ public class MatchService : IMatchService
             {
                 MatchId = createdMatch.MatchId,
                 UserId = hostId,
-                Role = "Host",
-                Status = "Approved",
+                Role = ProSport.Domain.Constants.MatchParticipantRole.Host,
+                Status = ProSport.Domain.Constants.MatchParticipantStatus.Approved,
                 HasPaidEscrow = false // Host không cần tự cọc cho chính mình
             });
 
@@ -89,8 +108,9 @@ public class MatchService : IMatchService
     {
         try
         {
+DE190147/audit-module
             var match = await _matchRepository.GetMatchByIdAsync(matchId);
-            if (match == null || match.Status != "Open")
+            if (match == null || match.Status != ProSport.Domain.Constants.MatchStatus.Open)
                 return new ApiResponseDto<bool>(400, "Kèo không tồn tại hoặc đã đóng", false);
 
             if (match.HostId == userId)
@@ -117,18 +137,87 @@ public class MatchService : IMatchService
             {
                 MatchId = matchId,
                 UserId = userId,
-                Role = "Joiner",
-                Status = "Pending", // Đợi Host duyệt
+                Role = ProSport.Domain.Constants.MatchParticipantRole.Joiner,
+                Status = ProSport.Domain.Constants.MatchParticipantStatus.Pending, // Đợi Host duyệt
                 HasPaidEscrow = match.EscrowAmount > 0
             };
 
-            await _matchRepository.AddParticipantAsync(participant);
+           await _matchRepository.AddParticipantAsync(participant);
+
+            // Delegate toàn bộ logic phức tạp (lock, validate, transaction) xuống Repository
+            await _matchRepository.ExecuteJoinMatchTransactionAsync(matchId, userId);
+            
+ main
             return new ApiResponseDto<bool>(200, "Đã gửi yêu cầu tham gia và khóa tiền ký quỹ thành công", true);
+        }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("Giao dịch đang được xử lý"))
+        {
+            // Bắt lỗi Concurrency
+            return new ApiResponseDto<bool>(409, ex.Message, false);
+        }
+        catch (InvalidOperationException ex)
+        {
+            // Bắt lỗi Validation nghiệp vụ khác (VD: Số dư không đủ)
+            return new ApiResponseDto<bool>(400, ex.Message, false);
         }
         catch (Exception ex)
         {
+            if (ex.Message == "Kèo không tồn tại." || ex.Message.Contains("không thể tham gia") || ex.Message.Contains("đủ người") || ex.Message.Contains("đã tham gia"))
+            {
+                return new ApiResponseDto<bool>(400, ex.Message, false);
+            }
+
             _logger.LogError(ex, "Error joining match {MatchId} for user {UserId}", matchId, userId);
             return new ApiResponseDto<bool>(500, "Lỗi hệ thống khi xin tham gia kèo", false);
+        }
+    }
+
+    public async Task<ApiResponseDto<IEnumerable<object>>> GetParticipantsByMatchAsync(int matchId, int hostId, string status)
+    {
+        try
+        {
+            var match = await _matchRepository.GetMatchByIdAsync(matchId);
+            if (match == null || match.HostId != hostId)
+ DE190147/audit-module
+                return new ApiResponseDto<bool>(403, "Bạn không có quyền duyệt kèo này", false);
+
+            var participant = await _matchRepository.GetParticipantAsync(matchId, joinerId);
+            if (participant == null || participant.Status != ProSport.Domain.Constants.MatchParticipantStatus.Pending)
+                return new ApiResponseDto<bool>(400, "Yêu cầu không hợp lệ", false);
+
+            if (match.CurrentParticipants >= match.MaxParticipants)
+                return new ApiResponseDto<bool>(400, "Kèo đã đủ người", false);
+
+            participant.Status = ProSport.Domain.Constants.MatchParticipantStatus.Approved;
+            await _matchRepository.UpdateParticipantAsync(participant);
+
+                return new ApiResponseDto<IEnumerable<object>>(403, "Bạn không có quyền xem danh sách này", null);
+ main
+
+            var participants = await _matchRepository.GetParticipantsByMatchAsync(matchId, status);
+            var result = participants.Select(p => new
+            {
+ DE190147/audit-module
+                match.Status = ProSport.Domain.Constants.MatchStatus.Closed;
+            }
+            await _matchRepository.UpdateMatchAsync(match);
+
+                p.MatchParticipantId,
+                p.MatchId,
+                p.UserId,
+                UserName = p.User?.FullName ?? "Unknown",
+                p.Role,
+                p.Status,
+                p.HasPaidEscrow
+            });
+ main
+
+            return new ApiResponseDto<IEnumerable<object>>(200, "Success", result);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting participants for match {MatchId}", matchId);
+            return new ApiResponseDto<IEnumerable<object>>(500, "Lỗi hệ thống", null);
         }
     }
 
@@ -136,32 +225,40 @@ public class MatchService : IMatchService
     {
         try
         {
-            var match = await _matchRepository.GetMatchByIdAsync(matchId);
-            if (match == null || match.HostId != hostId)
-                return new ApiResponseDto<bool>(403, "Bạn không có quyền duyệt kèo này", false);
-
-            var participant = await _matchRepository.GetParticipantAsync(matchId, joinerId);
-            if (participant == null || participant.Status != "Pending")
-                return new ApiResponseDto<bool>(400, "Yêu cầu không hợp lệ", false);
-
-            if (match.CurrentParticipants >= match.MaxParticipants)
-                return new ApiResponseDto<bool>(400, "Kèo đã đủ người", false);
-
-            participant.Status = "Approved";
-            await _matchRepository.UpdateParticipantAsync(participant);
-
-            match.CurrentParticipants += 1;
-            if (match.CurrentParticipants >= match.MaxParticipants)
-            {
-                match.Status = "Closed";
-            }
-            await _matchRepository.UpdateMatchAsync(match);
-
+            await _matchRepository.ExecuteApproveMatchTransactionAsync(matchId, joinerId, hostId);
             return new ApiResponseDto<bool>(200, "Đã duyệt tham gia", true);
+        }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("Giao dịch đang được xử lý"))
+        {
+            return new ApiResponseDto<bool>(409, ex.Message, false);
         }
         catch (Exception ex)
         {
+            if (ex.Message.Contains("không tồn tại") || ex.Message.Contains("quyền") || ex.Message.Contains("đủ người") || ex.Message.Contains("không hợp lệ"))
+                return new ApiResponseDto<bool>(400, ex.Message, false);
+
             _logger.LogError(ex, "Error approving joiner {JoinerId} in match {MatchId}", joinerId, matchId);
+            return new ApiResponseDto<bool>(500, "Lỗi hệ thống", false);
+        }
+    }
+
+    public async Task<ApiResponseDto<bool>> RejectJoinerAsync(int matchId, int hostId, int joinerId)
+    {
+        try
+        {
+            await _matchRepository.ExecuteRejectMatchTransactionAsync(matchId, joinerId, hostId);
+            return new ApiResponseDto<bool>(200, "Đã từ chối và hoàn tiền ký quỹ (nếu có)", true);
+        }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("Giao dịch đang được xử lý"))
+        {
+            return new ApiResponseDto<bool>(409, ex.Message, false);
+        }
+        catch (Exception ex)
+        {
+            if (ex.Message.Contains("không tồn tại") || ex.Message.Contains("quyền") || ex.Message.Contains("không hợp lệ") || ex.Message.Contains("không tìm thấy ví"))
+                return new ApiResponseDto<bool>(400, ex.Message, false);
+
+            _logger.LogError(ex, "Error rejecting joiner {JoinerId} in match {MatchId}", joinerId, matchId);
             return new ApiResponseDto<bool>(500, "Lỗi hệ thống", false);
         }
     }
@@ -171,7 +268,7 @@ public class MatchService : IMatchService
         try
         {
             var participant = await _matchRepository.GetParticipantAsync(matchId, userId);
-            if (participant == null || participant.Role == "Host")
+            if (participant == null || participant.Role == ProSport.Domain.Constants.MatchParticipantRole.Host)
                 return new ApiResponseDto<bool>(400, "Yêu cầu không hợp lệ", false);
 
             // TODO: Rule check giờ - nếu sát giờ đá mới hủy thì phạt cọc. 
@@ -184,13 +281,17 @@ public class MatchService : IMatchService
                 await _escrowService.ReleaseFundsAsync(userId, match.EscrowAmount, matchId, $"Hoàn cọc do rút khỏi kèo {matchId}");
             }
 
-            participant.Status = "Cancelled";
+            // BUG FIX: Capture status BEFORE mutating it — otherwise the check below always fails
+            var wasApproved = participant.Status == ProSport.Domain.Constants.MatchParticipantStatus.Approved;
+
+            participant.Status = ProSport.Domain.Constants.MatchParticipantStatus.Rejected; // Should probably be Cancelled/Rejected, keeping Rejected for now. We didn't define Cancelled for Participant. Wait, we defined Rejected.
             await _matchRepository.UpdateParticipantAsync(participant);
 
-            if (participant.Status == "Approved")
+            // Only decrement if the participant was actually Approved (not just Pending)
+            if (wasApproved)
             {
-                match!.CurrentParticipants -= 1;
-                match.Status = "Open";
+                match!.CurrentParticipants = Math.Max(0, match.CurrentParticipants - 1);
+                if (match.Status == ProSport.Domain.Constants.MatchStatus.Closed) match.Status = ProSport.Domain.Constants.MatchStatus.Open;
                 await _matchRepository.UpdateMatchAsync(match);
             }
 
@@ -205,8 +306,44 @@ public class MatchService : IMatchService
 
     public async Task<ApiResponseDto<bool>> CompleteMatchAsync(int matchId, int hostId)
     {
-         // Logic chia tiền phức tạp sẽ ở đây (đợi chốt với yêu cầu)
-         return new ApiResponseDto<bool>(200, "Tạm thời hardcode success", true);
+        try
+        {
+            await _matchRepository.ExecuteCompleteMatchTransactionAsync(matchId, hostId);
+            return new ApiResponseDto<bool>(200, "Đã hoàn thành trận đấu và giải ngân tiền cọc thành công", true);
+        }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("Giao dịch đang được xử lý"))
+        {
+            return new ApiResponseDto<bool>(409, ex.Message, false);
+        }
+        catch (Exception ex)
+        {
+            if (ex.Message.Contains("không tồn tại") || ex.Message.Contains("quyền") || ex.Message.Contains("hợp lệ"))
+                return new ApiResponseDto<bool>(400, ex.Message, false);
+
+            _logger.LogError(ex, "Error completing match {MatchId} by host {HostId}", matchId, hostId);
+            return new ApiResponseDto<bool>(500, "Lỗi hệ thống", false);
+        }
+    }
+
+    public async Task<ApiResponseDto<bool>> CancelMatchAsync(int matchId, int hostId)
+    {
+        try
+        {
+            await _matchRepository.ExecuteCancelMatchTransactionAsync(matchId, hostId);
+            return new ApiResponseDto<bool>(200, "Đã hủy trận đấu và hoàn tiền thành công", true);
+        }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("Giao dịch đang được xử lý"))
+        {
+            return new ApiResponseDto<bool>(409, ex.Message, false);
+        }
+        catch (Exception ex)
+        {
+            if (ex.Message.Contains("không tồn tại") || ex.Message.Contains("quyền") || ex.Message.Contains("hợp lệ"))
+                return new ApiResponseDto<bool>(400, ex.Message, false);
+
+            _logger.LogError(ex, "Error cancelling match {MatchId} by host {HostId}", matchId, hostId);
+            return new ApiResponseDto<bool>(500, "Lỗi hệ thống", false);
+        }
     }
 
     private static MatchDto MapToDto(Match m) => new MatchDto

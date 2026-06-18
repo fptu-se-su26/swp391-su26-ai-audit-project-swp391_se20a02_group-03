@@ -21,14 +21,18 @@ public class ProSportDbContext : DbContext
     public DbSet<MatchParticipant> MatchParticipants { get; set; } = null!;
     public DbSet<EscrowWallet> EscrowWallets { get; set; } = null!;
     public DbSet<Transaction> Transactions { get; set; } = null!;
+    public DbSet<EquipmentCategory> EquipmentCategories { get; set; } = null!;
     public DbSet<Equipment> Equipments { get; set; } = null!;
     public DbSet<EquipmentRental> EquipmentRentals { get; set; } = null!;
+    public DbSet<InventoryTransaction> InventoryTransactions { get; set; } = null!;
     // --- Bảng mới ---
     public DbSet<CheckIn> CheckIns { get; set; } = null!;
     public DbSet<Voucher> Vouchers { get; set; } = null!;
     public DbSet<PlayerRating> PlayerRatings { get; set; } = null!;
     public DbSet<Report> Reports { get; set; } = null!;
     public DbSet<ChatHistory> ChatHistories { get; set; } = null!;
+    public DbSet<EquipmentUnit> EquipmentUnits { get; set; } = null!;
+    public DbSet<CartItem> CartItems { get; set; } = null!;
 
     public override int SaveChanges()
     {
@@ -69,18 +73,23 @@ public class ProSportDbContext : DbContext
         // --- User ---
         modelBuilder.Entity<User>(entity =>
         {
+            entity.ToTable("Users");
             entity.HasKey(e => e.UserId);
             entity.HasIndex(e => e.Email).IsUnique();
             entity.HasIndex(e => e.GoogleId).IsUnique().HasFilter("[GoogleId] IS NOT NULL");
             
             entity.Property(e => e.FullName).IsRequired().HasMaxLength(100);
-            entity.Property(e => e.Email).IsRequired().HasMaxLength(255);
-            entity.Property(e => e.PasswordHash).HasMaxLength(500);
-            entity.Property(e => e.PhoneNumber).HasMaxLength(15);
-            entity.Property(e => e.Role).IsRequired().HasMaxLength(20);
-            entity.Property(e => e.EKycStatus).IsRequired().HasMaxLength(20).HasDefaultValue("Unverified");
-            entity.Property(e => e.AvatarUrl).HasMaxLength(500);
+            entity.Property(e => e.Email).IsRequired().HasMaxLength(255).HasColumnType("varchar(255)");
+            entity.Property(e => e.PasswordHash).HasMaxLength(500).HasColumnType("varchar(500)");
+            entity.Property(e => e.PhoneNumber).HasMaxLength(15).HasColumnType("varchar(15)");
+            entity.Property(e => e.Role).IsRequired().HasMaxLength(20).HasColumnType("varchar(20)");
+            entity.Property(e => e.EKycStatus).IsRequired().HasMaxLength(20).HasColumnType("varchar(20)").HasDefaultValue("Unverified");
+            entity.Property(e => e.AvatarUrl).HasMaxLength(500).HasColumnType("varchar(500)");
+            entity.Property(e => e.GoogleId).HasMaxLength(100).HasColumnType("varchar(100)");
             entity.Property(e => e.IsPhoneVerified).HasDefaultValue(false);
+            entity.Property(e => e.IsDeleted).HasColumnName("IsDeleted").HasDefaultValue(false);
+            entity.Property(e => e.CreatedAt).HasColumnName("CreatedAt").HasDefaultValueSql("SYSDATETIME()");
+            entity.Property(e => e.UpdatedAt).HasColumnName("UpdatedAt");
 
             entity.HasOne(e => e.EkycProfile)
                   .WithOne(e => e.User)
@@ -96,12 +105,16 @@ public class ProSportDbContext : DbContext
         // --- OtpCode ---
         modelBuilder.Entity<OtpCode>(entity =>
         {
+            entity.ToTable("OtpCodes");
             entity.HasKey(e => e.OtpId);
             entity.HasIndex(e => new { e.UserId, e.Type, e.IsUsed, e.ExpiryTime });
 
-            entity.Property(e => e.Code).IsRequired().HasMaxLength(6);
-            entity.Property(e => e.Type).IsRequired().HasMaxLength(20);
+            entity.Property(e => e.Code).IsRequired().HasMaxLength(6).HasColumnType("varchar(6)");
+            entity.Property(e => e.Type).IsRequired().HasMaxLength(20).HasColumnType("varchar(20)");
             entity.Property(e => e.IsUsed).HasDefaultValue(false);
+            entity.Property(e => e.CreatedAt).HasColumnName("CreatedAt").HasDefaultValueSql("SYSDATETIME()");
+            entity.Ignore(e => e.IsDeleted);
+            entity.Ignore(e => e.UpdatedAt);
 
             entity.HasOne(d => d.User)
                 .WithMany(p => p.OtpCodes)
@@ -220,6 +233,7 @@ public class ProSportDbContext : DbContext
         // --- MatchParticipant (FIX: thêm Unique (MatchId, UserId)) ---
         modelBuilder.Entity<MatchParticipant>(entity =>
         {
+            entity.ToTable("MatchMembers");
             entity.HasKey(e => e.MatchParticipantId);
             entity.Property(e => e.Role).HasDefaultValue("Joiner").HasMaxLength(20);
             entity.Property(e => e.Status).HasDefaultValue("Pending").HasMaxLength(20);
@@ -241,9 +255,11 @@ public class ProSportDbContext : DbContext
         // --- EscrowWallet (FIX: Unique UserId — 1 user = 1 ví) ---
         modelBuilder.Entity<EscrowWallet>(entity =>
         {
+            entity.ToTable("EscrowWallets");
             entity.HasKey(e => e.EscrowWalletId);
             entity.Property(e => e.Balance).HasColumnType("decimal(18,2)").HasDefaultValue(0m);
             entity.Property(e => e.LockedBalance).HasColumnType("decimal(18,2)").HasDefaultValue(0m);
+            entity.Property(e => e.RowVersion).IsRowVersion();
 
             // FIX: Unique — mỗi user chỉ có đúng 1 ví
             entity.HasIndex(e => e.UserId).IsUnique();
@@ -265,33 +281,82 @@ public class ProSportDbContext : DbContext
 
             entity.HasOne(e => e.Booking)
                   .WithMany(b => b.Transactions)
-                  .HasForeignKey(e => e.BookingId)
-                  .OnDelete(DeleteBehavior.ClientSetNull);
-
+                  .HasForeignKey(e => e.BookingId);
             entity.HasOne(e => e.Match)
                   .WithMany()
                   .HasForeignKey(e => e.MatchId)
+                  .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // --- EquipmentCategory ---
+        modelBuilder.Entity<EquipmentCategory>(entity =>
+        {
+            entity.HasKey(e => e.EquipmentCategoryId);
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.Description).HasMaxLength(500);
+        });
+
+        // --- Equipment (Merged) ---
+        modelBuilder.Entity<Equipment>(entity =>
+        {
+            entity.ToTable("Equipments");
+            entity.HasKey(e => e.EquipmentId);
+            entity.Property(e => e.Name).HasMaxLength(100);
+            entity.Property(e => e.Price).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.Status).HasDefaultValue("Available").HasMaxLength(20);
+            entity.Property(e => e.EquipmentName).HasMaxLength(100);
+            entity.Property(e => e.Category).HasMaxLength(30).HasDefaultValue("Racket");
+            entity.Property(e => e.SportType).HasMaxLength(20);
+            entity.Property(e => e.RetailPrice).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.RentalPrice)
+                  .HasColumnType("decimal(18,2)")
+                  .HasComputedColumnSql("CAST([RetailPrice] * 0.05 AS DECIMAL(18,2))", stored: true);
+            entity.Property(e => e.RentalStock).HasDefaultValue(0);
+            entity.Property(e => e.SalesStock).HasDefaultValue(0);
+            entity.Property(e => e.ImageUrl).HasMaxLength(500);
+
+            entity.HasOne(e => e.EquipmentCategory)
+                  .WithMany(c => c.Equipments)
+                  .HasForeignKey(e => e.EquipmentCategoryId)
                   .OnDelete(DeleteBehavior.ClientSetNull);
         });
 
-        // --- Equipment (FIX: thêm Condition, ImageUrl) ---
-        modelBuilder.Entity<Equipment>(entity =>
+        // --- InventoryTransaction ---
+        modelBuilder.Entity<InventoryTransaction>(entity =>
         {
-            entity.HasKey(e => e.EquipmentId);
-            entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
-            entity.Property(e => e.Type).IsRequired().HasMaxLength(50);
-            entity.Property(e => e.RentalPrice).HasColumnType("decimal(18,2)");
-            entity.Property(e => e.Condition).HasDefaultValue("Good").HasMaxLength(20);
-            entity.Property(e => e.ImageUrl).HasMaxLength(500);
+            entity.HasKey(e => e.InventoryTransactionId);
+            entity.Property(e => e.TransactionType).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.Notes).HasMaxLength(500);
+
+            entity.HasOne(e => e.Equipment)
+                  .WithMany(eq => eq.InventoryTransactions)
+                  .HasForeignKey(e => e.EquipmentId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.User)
+                  .WithMany()
+                  .HasForeignKey(e => e.UserId)
+                  .OnDelete(DeleteBehavior.ClientSetNull);
         });
 
-        // --- EquipmentRental ---
+        // --- BookingDetails_Equipments (Equipment rentals) ---
         modelBuilder.Entity<EquipmentRental>(entity =>
         {
-            entity.HasKey(e => e.EquipmentRentalId);
-            entity.Property(e => e.TotalPrice).HasColumnType("decimal(18,2)");
+            entity.ToTable("BookingDetails_Equipments");
+            entity.HasKey(e => e.DetailId);
+            entity.Property(e => e.UnitPrice).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.Subtotal)
+                  .HasColumnType("decimal(18,2)")
+                  .HasComputedColumnSql("[Quantity] * [UnitPrice]", stored: true);
+            entity.Property(e => e.DepositAmount).HasColumnType("decimal(18,2)").HasDefaultValue(0m);
+            entity.Property(e => e.DepositStatus).IsRequired().HasMaxLength(20).HasDefaultValue("Held");
+            entity.Property(e => e.RentalStatus).IsRequired().HasMaxLength(20).HasDefaultValue("Rented");
+            entity.Property(e => e.ReturnCondition).HasMaxLength(20);
+            entity.Property(e => e.DamageNote).HasMaxLength(500);
             entity.Property(e => e.DamageFee).HasColumnType("decimal(18,2)");
-            entity.Property(e => e.Status).HasDefaultValue("Rented").HasMaxLength(20);
+            entity.Property(e => e.DepositRefundAmount).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.AdditionalCharge).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.RentedAt).HasDefaultValueSql("SYSDATETIME()");
 
             entity.HasOne(e => e.Equipment)
                   .WithMany(eq => eq.Rentals)
@@ -301,6 +366,27 @@ public class ProSportDbContext : DbContext
             entity.HasOne(e => e.Booking)
                   .WithMany(b => b.EquipmentRentals)
                   .HasForeignKey(e => e.BookingId)
+                  .OnDelete(DeleteBehavior.ClientSetNull)
+                  .IsRequired(false);
+
+            entity.HasOne(er => er.EquipmentUnit)
+                  .WithMany()
+                  .HasForeignKey(er => er.EquipmentUnitId)
+                  .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        // --- EquipmentUnits ---
+        modelBuilder.Entity<EquipmentUnit>(entity =>
+        {
+            entity.ToTable("EquipmentUnits");
+            entity.HasKey(e => e.EquipmentUnitId);
+            entity.Property(e => e.SerialNumber).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.Status).IsRequired().HasMaxLength(20).HasDefaultValue("Available");
+            entity.Property(e => e.Condition).HasMaxLength(100);
+
+            entity.HasOne(e => e.Equipment)
+                  .WithMany(e => e.Units)
+                  .HasForeignKey(e => e.EquipmentId)
                   .OnDelete(DeleteBehavior.Cascade);
         });
 
@@ -407,6 +493,21 @@ public class ProSportDbContext : DbContext
                   .WithMany()
                   .HasForeignKey(e => e.UserId)
                   .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // --- CartItem ---
+        modelBuilder.Entity<CartItem>(entity =>
+        {
+            entity.ToTable("CartItems");
+            entity.HasKey(ci => ci.CartItemId);
+
+            entity.HasOne(ci => ci.Equipment)
+                  .WithMany()
+                  .HasForeignKey(ci => ci.EquipmentId);
+
+            entity.HasOne(ci => ci.User)
+                  .WithMany()
+                  .HasForeignKey(ci => ci.UserId);
         });
     }
 }

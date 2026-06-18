@@ -13,6 +13,7 @@ public interface IVnPayService
 
 public class VnPayResponseDto
 {
+    public bool IsValidSignature { get; set; }
     public bool Success { get; set; }
     public string OrderType { get; set; } = null!;
     public string ReferenceId { get; set; } = null!; // Có thể là BookingId hoặc EscrowDepositId

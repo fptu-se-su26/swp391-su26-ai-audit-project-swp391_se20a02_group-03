@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using ProSport.Application.Interfaces;
+using ProSport.Domain.Constants;
 using ProSport.Domain.Entities;
 using ProSport.Infrastructure.Data;
 
@@ -46,18 +47,7 @@ public class EscrowRepository : IEscrowRepository
         await _context.SaveChangesAsync();
     }
 
-    /// <summary>
-    /// Nạp tiền vào ví (dùng cho refund khi hủy sân).
-    /// </summary>
-    public async Task<bool> DepositToWalletAsync(int userId, decimal amount)
-    {
-        var wallet = await _context.EscrowWallets.FirstOrDefaultAsync(w => w.UserId == userId);
-        if (wallet == null) return false;
 
-        wallet.Balance += amount;
-        await _context.SaveChangesAsync();
-        return true;
-    }
 
     /// <summary>
     /// Trừ tiền ví atomic trong Serializable Transaction.
@@ -70,6 +60,20 @@ public class EscrowRepository : IEscrowRepository
         try
         {
             var wallet = await _context.EscrowWallets.FirstOrDefaultAsync(w => w.UserId == userId);
+            var booking = await _context.Bookings.FirstOrDefaultAsync(b =>
+                b.BookingId == bookingId &&
+                b.UserId == userId &&
+                !b.IsDeleted);
+
+            if (booking == null ||
+                booking.Status != BookingStatus.Pending ||
+                booking.PaymentStatus == PaymentStatus.Paid ||
+                (booking.PaymentDeadline.HasValue && DateTime.UtcNow > booking.PaymentDeadline.Value))
+            {
+                await dbTransaction.RollbackAsync();
+                return false;
+            }
+
             if (wallet == null || wallet.Balance < amount)
             {
                 await dbTransaction.RollbackAsync();
@@ -83,8 +87,8 @@ public class EscrowRepository : IEscrowRepository
                 EscrowWalletId = wallet.EscrowWalletId,
                 BookingId = bookingId,
                 Amount = amount,
-                Type = "Payment",
-                Status = "Completed",
+                Type = TransactionType.Payment,
+                Status = TransactionStatus.Completed,
                 ReferenceId = $"Booking_{bookingId}",
                 Description = $"Thanh toán đặt sân mã #{bookingId}"
             };
@@ -99,5 +103,44 @@ public class EscrowRepository : IEscrowRepository
             await dbTransaction.RollbackAsync();
             return false;
         }
+    }
+
+    public async Task ExecuteInTransactionAsync(Func<Task> action)
+    {
+        var strategy = _context.Database.CreateExecutionStrategy();
+        await strategy.ExecuteAsync(async () =>
+        {
+            await using var transaction = await _context.Database.BeginTransactionAsync(System.Data.IsolationLevel.Serializable);
+            try
+            {
+                await action();
+                await transaction.CommitAsync();
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+        });
+    }
+
+    public async Task<T> ExecuteInTransactionAsync<T>(Func<Task<T>> action)
+    {
+        var strategy = _context.Database.CreateExecutionStrategy();
+        return await strategy.ExecuteAsync(async () =>
+        {
+            await using var transaction = await _context.Database.BeginTransactionAsync(System.Data.IsolationLevel.Serializable);
+            try
+            {
+                var result = await action();
+                await transaction.CommitAsync();
+                return result;
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+        });
     }
 }

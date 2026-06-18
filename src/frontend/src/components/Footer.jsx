@@ -40,27 +40,27 @@ export default function Footer({ variant = 'light' }) {
 
         {/* Platform */}
         <div className="flex flex-col gap-4">
-          <h4 className={`font-heading text-xs font-bold tracking-widest uppercase ${isLight ? 'text-brand-400' : 'text-brand-600'}`}>PLATFORM</h4>
+          <h4 className={`font-heading text-xs font-bold tracking-widest uppercase ${isLight ? 'text-brand-400' : 'text-brand-600'}`}>NỀN TẢNG</h4>
           <ul className="flex flex-col gap-3 list-none">
-            <li><Link to="/#discover" className={`text-sm font-medium transition-colors hover:text-accent ${isLight ? 'text-brand-600' : 'text-brand-300'}`}>Discover</Link></li>
-            <li><Link to="/brand-mission" className={`text-sm font-medium transition-colors hover:text-accent ${isLight ? 'text-brand-600' : 'text-brand-300'}`}>Brand Mission</Link></li>
-            <li><Link to="/courts" className={`text-sm font-medium transition-colors hover:text-accent ${isLight ? 'text-brand-600' : 'text-brand-300'}`}>Facilities</Link></li>
+            <li><Link to="/#discover" className={`text-sm font-medium transition-colors hover:text-accent ${isLight ? 'text-brand-600' : 'text-brand-300'}`}>Khám phá</Link></li>
+            <li><Link to="/brand-mission" className={`text-sm font-medium transition-colors hover:text-accent ${isLight ? 'text-brand-600' : 'text-brand-300'}`}>Sứ mệnh thương hiệu</Link></li>
+            <li><Link to="/courts" className={`text-sm font-medium transition-colors hover:text-accent ${isLight ? 'text-brand-600' : 'text-brand-300'}`}>Cơ sở vật chất</Link></li>
           </ul>
         </div>
 
         {/* Legal */}
         <div className="flex flex-col gap-4">
-          <h4 className={`font-heading text-xs font-bold tracking-widest uppercase ${isLight ? 'text-brand-400' : 'text-brand-600'}`}>LEGAL</h4>
+          <h4 className={`font-heading text-xs font-bold tracking-widest uppercase ${isLight ? 'text-brand-400' : 'text-brand-600'}`}>PHÁP LÝ</h4>
           <ul className="flex flex-col gap-3 list-none">
-            <li><Link to="/privacy" className={`text-sm font-medium transition-colors hover:text-accent ${isLight ? 'text-brand-600' : 'text-brand-300'}`}>Privacy Policy</Link></li>
-            <li><Link to="/terms" className={`text-sm font-medium transition-colors hover:text-accent ${isLight ? 'text-brand-600' : 'text-brand-300'}`}>Terms of Service</Link></li>
-            <li><Link to="/sitemap" className={`text-sm font-medium transition-colors hover:text-accent ${isLight ? 'text-brand-600' : 'text-brand-300'}`}>Sitemap</Link></li>
+            <li><Link to="/privacy" className={`text-sm font-medium transition-colors hover:text-accent ${isLight ? 'text-brand-600' : 'text-brand-300'}`}>Chính sách bảo mật</Link></li>
+            <li><Link to="/terms" className={`text-sm font-medium transition-colors hover:text-accent ${isLight ? 'text-brand-600' : 'text-brand-300'}`}>Điều khoản dịch vụ</Link></li>
+            <li><Link to="/sitemap" className={`text-sm font-medium transition-colors hover:text-accent ${isLight ? 'text-brand-600' : 'text-brand-300'}`}>Sơ đồ trang</Link></li>
           </ul>
         </div>
 
         {/* Connect */}
         <div className="flex flex-col gap-4">
-          <h4 className={`font-heading text-xs font-bold tracking-widest uppercase ${isLight ? 'text-brand-400' : 'text-brand-600'}`}>CONNECT</h4>
+          <h4 className={`font-heading text-xs font-bold tracking-widest uppercase ${isLight ? 'text-brand-400' : 'text-brand-600'}`}>KẾT NỐI</h4>
           <ul className="flex flex-row gap-2.5 list-none">
             <li>
               <a href="#" aria-label="Twitter" className={`w-10 h-10 rounded-full flex items-center justify-center border transition-all hover:border-accent hover:text-accent hover:bg-accent/10 ${isLight ? 'border-brand-200 text-brand-500' : 'border-brand-800 text-brand-400'}`}>
@@ -80,7 +80,7 @@ export default function Footer({ variant = 'light' }) {
           </ul>
           {!isLight && (
             <div className="flex gap-2 mt-2">
-              <input type="email" placeholder="Email" id="newsletter-email" className="flex-1 px-4 py-2 border border-brand-800 rounded-xl bg-brand-900 text-white text-sm outline-none transition-colors focus:border-accent placeholder:text-brand-600" />
+              <input type="email" placeholder="Địa chỉ Email" id="newsletter-email" className="flex-1 px-4 py-2 border border-brand-800 rounded-xl bg-brand-900 text-white text-sm outline-none transition-colors focus:border-accent placeholder:text-brand-600" />
               <button className="bg-accent hover:bg-accent-hover text-white rounded-xl px-4 py-2 transition-all active:scale-[0.98]" aria-label="Subscribe">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
               </button>
@@ -90,13 +90,13 @@ export default function Footer({ variant = 'light' }) {
       </div>
 
       <div className={`flex flex-col sm:flex-row items-start sm:items-center justify-between py-6 px-6 max-w-7xl mx-auto border-t gap-4 ${isLight ? 'border-brand-200' : 'border-brand-800'}`}>
-        <p className={`text-sm ${isLight ? 'text-brand-500' : 'text-brand-500'}`}>© 2024 PRO-SPORT COMPLEX. Engineered for Elite Performance.</p>
+        <p className={`text-sm ${isLight ? 'text-brand-500' : 'text-brand-500'}`}>© 2024 PRO-SPORT COMPLEX. Được thiết kế cho Hiệu suất Tinh hoa.</p>
         {isLight && (
           <div className="flex gap-6 flex-wrap">
-            <Link to="#" className="text-sm font-medium text-brand-500 transition-colors hover:text-brand-900">About Us</Link>
-            <Link to="/terms" className="text-sm font-medium text-brand-500 transition-colors hover:text-brand-900">Terms</Link>
-            <Link to="/privacy" className="text-sm font-medium text-brand-500 transition-colors hover:text-brand-900">Privacy</Link>
-            <Link to="/contact" className="text-sm font-medium text-brand-500 transition-colors hover:text-brand-900">Support</Link>
+            <Link to="#" className="text-sm font-medium text-brand-500 transition-colors hover:text-brand-900">Về chúng tôi</Link>
+            <Link to="/terms" className="text-sm font-medium text-brand-500 transition-colors hover:text-brand-900">Điều khoản</Link>
+            <Link to="/privacy" className="text-sm font-medium text-brand-500 transition-colors hover:text-brand-900">Bảo mật</Link>
+            <Link to="/contact" className="text-sm font-medium text-brand-500 transition-colors hover:text-brand-900">Hỗ trợ</Link>
           </div>
         )}
       </div>

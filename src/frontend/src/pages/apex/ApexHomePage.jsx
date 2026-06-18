@@ -55,7 +55,7 @@ export default function ApexHomePage() {
             <p className="text-[0.9rem] text-slate-500 leading-relaxed mb-5 max-w-[500px]">You have {upcomingBookings.length} upcoming bookings and 1 pending match invitation. Ready to hit the court?</p>
             <div className="flex gap-3">
               <Link to="/apex/booking" className="btn-primary">Book a Court</Link>
-              <Link to="/apex/shop" className="btn-outline">Rent Equipment</Link>
+              <Link to="/gear/catalog" className="btn-outline">Rent Equipment</Link>
             </div>
           </div>
         </div>
@@ -65,7 +65,7 @@ export default function ApexHomePage() {
           <div className="bg-white rounded-[14px] p-5 border border-[#e0ecf0] shadow-[0_1px_4px_rgba(0,0,0,0.04)]">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-base font-bold text-[#0d2d3a] mb-4">Upcoming Bookings</h2>
-              <Link to="/apex/booking" className="text-[0.82rem] text-[#0fc8b5] font-semibold">View All</Link>
+              <Link to="/apex/booking" className="text-[0.82rem] text-[#0fc8b5] font-semibold">Xem tất cả</Link>
             </div>
             {upcomingBookings.length === 0 ? (
               <p className="text-sm text-slate-400 py-4 text-center">No upcoming bookings.</p>
@@ -96,7 +96,7 @@ export default function ApexHomePage() {
             <div className="h-1.5 bg-[#e0ecf0] rounded-full overflow-hidden">
               <div className="h-full bg-gradient-to-r from-[#0fc8b5] to-[#0d8a8a] rounded-full transition-all duration-400" style={{width: '65%'}} />
             </div>
-            <Link to="/apex/shop" className="btn-outline mt-4 w-full justify-center flex">Rent More Gear</Link>
+            <Link to="/gear/catalog" className="btn-outline mt-4 w-full justify-center flex">Rent More Gear</Link>
           </div>
         </div>
 
