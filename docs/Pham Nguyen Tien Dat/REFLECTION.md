@@ -74,24 +74,6 @@ Mặc dù công cụ này giúp tăng tốc đáng kể quá trình xây dựng 
 - **Tái cấu trúc ngay từ đầu tiết kiệm thời gian dài hạn:** Việc tách logic animation thành custom hooks và phân tách component ngay trong tuần này giúp toàn bộ codebase dễ bảo trì và mở rộng trong các tuần tiếp theo.
 
 
-# Reflection - Tuần 3: Hoàn thiện Phân hệ Phụ trợ và Chuẩn hóa Đa ngôn ngữ
-## Tổng quan quá trình
-Trong tuần này, chúng tôi tập trung vào việc hoàn thiện các mảng ghép cuối cùng của giao diện người dùng, cụ thể là phân hệ Gear (quản lý trang thiết bị thể thao) và tiến hành chuẩn hóa đa ngôn ngữ toàn bộ hệ thống sang Tiếng Anh.
-Chúng tôi tiếp tục sử dụng Antigravity AI để tự động thiết kế và sinh mã nguồn cho 4 trang thông tin phụ trợ quan trọng: Equipment Rental Terms, Maintenance Tracking, Support Hub, và Privacy Policy. Đồng thời, hoàn thiện luồng chuyển hướng (Routing) đầy đủ cho các trang này để gắn kết liền mạch vào hệ thống chung.
----
-## Hạn chế của AI và Khó khăn kỹ thuật
-Quá trình chuẩn hóa đa ngôn ngữ toàn dự án (quét và dịch thuật tự động trên 40+ file mã nguồn) đã bộc lộ rõ rệt giới hạn về khả năng quản lý tài nguyên của AI khi hoạt động ở quy mô lớn:
-- **Sự cố quá tải API (Rate Limit / Quota Exhausted):** Khi nhận được yêu cầu rà soát và dịch thuật trên diện rộng, AI đã tự động phân luồng (spawn) hàng loạt tiến trình phụ (sub-agents) để chạy song song cùng lúc. Điều này lập tức dẫn đến việc vượt quá hạn mức API cho phép của hệ thống (Error 429), khiến toàn bộ các tiến trình dịch thuật bị sập và thất bại.
-- **Định tuyến tĩnh phá vỡ kiến trúc SPA:** Khi thiết kế giao diện tĩnh (đặc biệt là ở khu vực Footer), AI thường sử dụng thẻ HTML cơ bản `<a>` với thuộc tính `href="#"`. Nếu đưa vào thực tế, điều này sẽ làm trang web bị tải lại (reload) toàn bộ khi người dùng click, phá vỡ hoàn toàn trải nghiệm mượt mà của kiến trúc Single Page Application (SPA).
----
-## Giải pháp và Can thiệp của con người
-Để khắc phục tình trạng quá tải hệ thống và đảm bảo dự án đi đúng tiến độ, chúng tôi đã đưa ra các quyết định can thiệp kỹ thuật kịp thời:
-- **Quản lý luồng thực thi (Resource Management):** Thay vì để AI tự do xử lý toàn dự án cùng lúc, chúng tôi đã can thiệp đình chỉ (kill) các tiến trình ngầm đang bị treo. Chúng tôi chủ động thu hẹp phạm vi công việc, yêu cầu AI ưu tiên dồn tài nguyên xử lý dứt điểm 4 trang chức năng cốt lõi của phân hệ Gear trước để tránh nghẽn hệ thống. Việc rà soát ngôn ngữ được chuyển sang hình thức kiểm tra cục bộ thay vì quét diện rộng.
-- **Chuẩn hóa Định tuyến (Routing SPA):** Trực tiếp cấu hình và chỉ định AI chuyển đổi toàn bộ các thẻ liên kết tĩnh `<a>` thành component `<Link>` của thư viện React Router trong các file Layout. Thao tác này giúp cơ chế chuyển hướng nội bộ hoạt động trơn tru, giữ vững hiệu năng của một ứng dụng SPA thực thụ.
----
-## Bài học rút ra
-- **Ràng buộc hạ tầng và Chiến lược chia nhỏ tác vụ:** Dù AI có khả năng xử lý song song vô cùng mạnh mẽ, chúng vẫn bị ràng buộc khắt khe bởi giới hạn API (Quota) từ nhà cung cấp. Lập trình viên không nên phó mặc các tác vụ "quét toàn dự án" cho AI thao tác tự do, mà cần có kỹ năng chia nhỏ (break down) công việc thành các luồng xử lý cục bộ để đảm bảo an toàn cho hệ thống.
-- **Vai trò điều phối của kỹ sư:** Khi hệ thống AI gặp lỗi sập luồng, con người phải đứng ở vị trí "người điều phối tài nguyên" (Orchestrator) — biết khi nào nên đóng băng tiến trình, đánh giá lại mức độ ưu tiên của công việc và chuyển hướng AI vào các tác vụ cốt lõi mang lại giá trị tức thời.
 
 
 
@@ -159,3 +141,31 @@ Việc sử dụng AI để tự động "tối ưu giao diện" đã bộc lộ
 - **Lập trình viên là "Người gác cổng" (Gatekeeper) thương hiệu:** AI rất linh hoạt và có xu hướng "làm quá" (over-do) nếu prompt không chứa các ràng buộc cực kỳ khắt khe về UI/UX Guidelines. Con người phải luôn tỉnh táo để từ chối các đề xuất thiết kế dù đẹp nhưng không nhất quán với định dạng thương hiệu tổng thể.
 - **Phân tách giữa Cấu trúc và Hiệu ứng (Separation of Concerns):** Nhờ việc yêu cầu AI tách rời các keyframe animation ra một file tập trung (`index.css`), việc chúng tôi yêu cầu revert màu sắc nền/chữ mà không làm hỏng hay mất đi các hiệu ứng chuyển động trở nên dễ dàng và an toàn hơn rất nhiều.
 - **Trải nghiệm vi mô (Micro-interactions) nâng tầm sản phẩm:** Đôi khi không cần thiết kế lại toàn bộ giao diện. Việc thêm các trạng thái phản hồi nhỏ (ví dụ: Success form state với animation scale-in) và hiệu ứng cuộn (ScrollTrigger) cũng đủ giúp trang web trông "sống động" và mang lại cảm giác cao cấp (Premium) hơn hẳn.
+
+
+
+
+# Reflection - Tuần 5: Triển khai Trợ lý AI, Cấp phát Ngữ cảnh Động và Gỡ rối Database
+## Tổng quan quá trình
+Trong tuần này, trọng tâm của chúng tôi là tiến tới việc tích hợp năng lực Trí tuệ Nhân tạo thực sự (Generative AI) vào hệ thống thay vì chỉ dùng AI như một công cụ sinh code. Bằng việc tiếp tục ứng dụng Antigravity AI hỗ trợ lập trình, chúng tôi đã nhanh chóng xây dựng hoàn chỉnh cụm tính năng AI Chatbot từ tầng Frontend (Giao diện React dạng Floating Widget với hiệu ứng trực quan) sâu xuống tầng Backend (Tích hợp OpenAI SDK cho .NET).
+Thay vì để Chatbot "trả lời mò" dựa trên kiến thức được huấn luyện sẵn, chúng tôi đã triển khai kỹ thuật **RAG sơ cấp (Retrieval-Augmented Generation)**: truy xuất dữ liệu danh sách sân khả dụng và các kèo thể thao đang mở từ cơ sở dữ liệu (`ICourtRepository`, `IMatchRepository`) theo thời gian thực, sau đó bơm trực tiếp vào *System Prompt* trước mỗi lần gọi API sang OpenAI. Điều này giúp Trợ lý AI luôn trả lời bám sát dữ liệu thực tế (Real-time Context) của hệ thống Pro-Sport.
+---
+## Hạn chế của AI và Khó khăn kỹ thuật
+Việc triển khai luồng giao tiếp phức tạp giữa Backend, Database và bên thứ 3 (OpenAI API) đã làm nảy sinh các điểm nghẽn hệ thống mà AI lập trình không thể tự mình giải quyết:
+- **Lỗi xung đột tiến trình (File Lock / EBUsy) ở EF Core:** Khi thực hiện lệnh `dotnet ef database update` để ánh xạ bảng dữ liệu mới, hệ thống liên tục báo `Build failed`. Nguyên nhân là do server Backend vẫn đang chạy ngầm, khóa cứng các file `.dll`. Dù là người sinh ra lệnh cập nhật, AI hoàn toàn không nhận thức được bối cảnh môi trường hệ điều hành (OS Environment) đang giữ các luồng chạy nền, dẫn đến vòng lặp báo lỗi vô tận.
+- **Rủi ro tràn bộ nhớ ngữ cảnh (Token Limit / Context Bloat):** Khi áp dụng RAG, việc AI ngây thơ "bơm" toàn bộ dữ liệu từ Database vào *System Prompt* có nguy cơ làm phình to kích thước payload, dẫn đến việc vượt quá giới hạn từ vựng (Token Limit) của mô hình `gpt-4o-mini`, làm đội chi phí API và giảm tốc độ phản hồi đáng kể.
+- **Mất trạng thái giao diện (State Loss trong SPA):** Vì ứng dụng tuân thủ kiến trúc Single Page Application, nếu thiết kế không khéo, khi người dùng đang chat dở mà chuyển trang (ví dụ từ Trang chủ sang Đặt sân), component Chatbot sẽ bị unmount (gỡ bỏ khỏi DOM) làm mất toàn bộ đoạn hội thoại hiện tại.
+- **Xử lý Ngoại lệ Hệ sinh thái (API Quota):** Khi cấu hình bằng API Key thật, hệ thống bất ngờ sập với mã lỗi `HTTP 429 (insufficient_quota)`. Lỗi này không xuất phát từ mã nguồn C#, mà nằm ở giới hạn thanh toán của tài khoản bên phía OpenAI. Tuy nhiên, ở góc nhìn Frontend, nó chỉ hiển thị một lỗi Network chung chung rất khó bắt đúng bệnh.
+---
+## Giải pháp và Can thiệp của con người
+Đối diện với các rào cản kiến trúc trên, chúng tôi đã phải đứng ở vị trí Kỹ sư Hệ thống và Giám đốc Sản phẩm (Product Owner) để can thiệp toàn diện:
+- **Giám sát Môi trường Thực thi (Environment Orchestration):** Chúng tôi chủ động ra lệnh qua terminal để đình chỉ luồng chạy nền (Kill background task) của Backend, ép hệ điều hành nhả khóa file `.dll`. Chỉ khi tiến trình được giải phóng, chúng tôi mới chạy migration để đồng bộ Database thành công và khởi động lại server.
+- **Tối ưu hóa Ngữ cảnh (Context Pruning):** Thay vì để AI đẩy toàn bộ DB vào Prompt, chúng tôi trực tiếp can thiệp logic: Yêu cầu AI chỉ trích xuất dữ liệu thực sự cần thiết (các sân còn trống trong 2 ngày tới, các kèo đang mở) và nén thành chuỗi JSON tối giản trước khi gửi đi. Giải pháp này giúp tiết kiệm Token tuyệt đối và tăng tốc độ suy luận (Inference Speed).
+- **Quyết định Kiến trúc Tầm toàn cục (Global Component Mounting):** Để giải quyết bài toán mất lịch sử chat, chúng tôi không đặt Chatbot vào từng trang lẻ, mà quyết định đẩy `<AIChatbot />` ra ngoài thẻ `<Routes>` trong tệp `App.jsx`. Cấu trúc này giúp Chatbot "sống" độc lập với hệ thống định tuyến (Routing), duy trì trạng thái đóng/mở liền mạch bất chấp người dùng điều hướng đi đâu.
+- **Tái định nghĩa Năng lực Sản phẩm (Product Realignment):** Chỉ đạo AI viết lại *System Prompt*, phá bỏ giới hạn "chỉ tư vấn đặt sân" ban đầu. Chúng tôi "mở khóa" AI thành một trợ lý đa nhiệm (General-purpose AI), vừa am hiểu nghiệp vụ Pro-Sport, vừa sẵn sàng trả lời kiến thức chung. Cuối cùng, trực tiếp đọc low-level log để bắt đúng lỗi API Quota và xử lý vấn đề thanh toán.
+---
+## Bài học rút ra
+- **AI không hiểu rõ Môi trường Hệ điều hành:** AI có thể viết mã C# hay React rất xuất sắc, nhưng lại cực kỳ yếu trong việc quản lý bộ nhớ, tiến trình (Process) và khóa tệp tin (File Lock) trên máy thật. Kỹ năng quản trị hệ thống và DevOps cơ bản của kỹ sư phần mềm là không thể thay thế.
+- **RAG không chỉ là Tìm kiếm, mà là Chắt lọc (Pruning):** Đưa dữ liệu thực vào AI là sức mạnh, nhưng đưa quá nhiều dữ liệu rác sẽ giết chết hiệu năng. Lập trình viên đóng vai trò là "bộ lọc" để tối ưu hóa lượng dữ liệu cung cấp cho AI, vừa tiết kiệm chi phí, vừa giúp AI trả lời thông minh và tập trung hơn.
+- **System Prompt là Trái tim của Tính năng:** Năng lực của một chatbot phụ thuộc 90% vào cách chúng ta thiết kế Prompt. Việc tư duy như một Prompt Engineer — biết cách cân bằng giữa việc ép AI đi theo nghiệp vụ (Domain-specific) nhưng vẫn mở rộng tiện ích đa nhiệm — sẽ tạo ra giá trị khác biệt rất lớn.
+- **Tư duy Kiến trúc Tổng thể (Architecture Thinking):** Việc tích hợp một tính năng mới không chỉ nằm ở code của tính năng đó, mà nằm ở việc đặt nó ở đâu trong kiến trúc tổng thể (như việc Mount Chatbot ở cấp cao nhất - Root level). Công cụ AI giúp ta xây viên gạch nhanh hơn, nhưng bản thiết kế ngôi nhà vẫn phải do con người phác thảo.

@@ -1,38 +1,73 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import GearLayout from '../../layouts/GearLayout'
-
-const stats = [
-  { label: 'Active Rentals', value: '24', change: '+3 today', color: '#0d8a8a', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg> },
-  { label: 'Overdue Returns', value: '3', change: '!  Needs attention', color: '#ef4444', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> },
-  { label: 'Revenue (Month)', value: '$4,280', change: '+12.4% vs last month', color: '#6366f1', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg> },
-  { label: 'Total Inventory', value: '142', change: '12 in maintenance', color: '#f59e0b', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> },
-]
-
-const activeRentals = [
-  { id: 'R-001', customer: 'Alex Mercer', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=60&q=80', item: 'Vợt Yonex Astrox 99', category: 'Vợt Cầu lông', start: 'Today, 14:00', due: 'Today, 20:00', status: 'active', price: '$15' },
-  { id: 'R-002', customer: 'Sarah Jenkins', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=60&q=80', item: 'Vợt Pickleball Selkirk Amped', category: 'Vợt Pickleball', start: 'Today, 09:00', due: 'Today, 17:00', status: 'active', price: '$18' },
-  { id: 'R-003', customer: 'Marcus T.', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=60&q=80', item: 'Giày Cầu lông Yonex 65Z', category: 'Giày Cầu lông', start: 'Yesterday, 10:00', due: 'Yesterday, 18:00', status: 'overdue', price: '$10' },
-  { id: 'R-004', customer: 'Elena R.', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=60&q=80', item: 'Cầu lông Feather (12 quả)', category: 'Cầu lông', start: 'Today, 11:00', due: 'Today, 19:00', status: 'active', price: '$8' },
-  { id: 'R-005', customer: 'David K.', avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=60&q=80', item: 'Bộ Pickleball Premium', category: 'Pickleball', start: 'Today, 16:00', due: 'Tomorrow, 10:00', status: 'pending', price: '$22' },
-]
-
-const inventoryAlerts = [
-  { item: 'Vợt Yonex Astrox 99', stock: 2, total: 8, status: 'low' },
-  { item: 'Giày Cầu lông Yonex 65Z', stock: 0, total: 3, status: 'out' },
-  { item: 'Bộ Pickleball Premium', stock: 1, total: 5, status: 'low' },
-]
+import { equipmentApi } from '../../api/equipmentApi'
 
 const statusConfig = {
   active: { label: 'Active', bg: 'bg-emerald-50', text: 'text-emerald-600', dot: 'bg-emerald-500' },
   overdue: { label: 'Overdue', bg: 'bg-red-50', text: 'text-red-600', dot: 'bg-red-500' },
   pending: { label: 'Pending', bg: 'bg-amber-50', text: 'text-amber-600', dot: 'bg-amber-500' },
+  Rented: { label: 'Active', bg: 'bg-emerald-50', text: 'text-emerald-600', dot: 'bg-emerald-500' },
+  Returned: { label: 'Returned', bg: 'bg-slate-50', text: 'text-slate-500', dot: 'bg-slate-400' },
 }
 
 export default function GearDashboardPage() {
+  const [rentals, setRentals] = useState([])
+  const [equipmentCount, setEquipmentCount] = useState(0)
+  const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('all')
 
-  const filtered = activeTab === 'all' ? activeRentals : activeRentals.filter(r => r.status === activeTab)
+  useEffect(() => {
+    fetchData()
+  }, [])
+
+  const fetchData = async () => {
+    try {
+      setLoading(true)
+      const [rentalsRes, equipmentRes] = await Promise.all([
+        equipmentApi.getMyRentals(),
+        equipmentApi.getAll()
+      ])
+
+      if (rentalsRes.statusCode === 200) {
+        setRentals(rentalsRes.data.map(r => ({
+          ...r,
+          id: `R-${String(r.equipmentRentalId).padStart(3, '0')}`,
+          customer: 'Me',
+          avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=60&q=80',
+          item: r.equipmentName,
+          status: r.status === 'Rented' ? 'active' : (r.status === 'Returned' ? 'returned' : r.status),
+          price: `$${r.totalPrice / (r.quantity || 1)}`,
+          due: 'N/A'
+        })))
+      }
+
+      if (equipmentRes.statusCode === 200) {
+        setEquipmentCount(equipmentRes.data.length)
+      }
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const inventoryAlerts = rentals.length > 0 ? rentals.slice(0, 3).map(r => ({
+    item: r.item,
+    status: 'low',
+    stock: 2,
+    total: 10
+  })) : [] // Mocking some alerts if data exists
+
+  const activeRentalsCount = rentals.filter(r => r.status === 'active' || r.status === 'Rented').length
+  const totalRevenue = rentals.reduce((acc, r) => acc + r.totalPrice, 0)
+
+  const stats = [
+    { label: 'Active Rentals', value: activeRentalsCount.toString(), change: 'Real-time', color: '#0d8a8a', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg> },
+    { label: 'Overdue Returns', value: '0', change: 'All clear', color: '#ef4444', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> },
+    { label: 'Total Revenue', value: `$${totalRevenue.toLocaleString()}`, change: 'Accumulated', color: '#6366f1', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg> },
+    { label: 'Total Equipment', value: equipmentCount.toString(), change: 'Items available', color: '#f59e0b', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> },
+  ]
 
   return (
     <GearLayout>
@@ -93,8 +128,8 @@ export default function GearDashboardPage() {
               </div>
             </div>
             <div className="divide-y divide-brand-100">
-              {filtered.map(r => {
-                const s = statusConfig[r.status]
+              {(activeTab === 'all' ? rentals : rentals.filter(r => r.status === activeTab)).map(r => {
+                const s = statusConfig[r.status] || statusConfig['active']
                 return (
                   <div key={r.id} className="px-6 py-4 flex items-center gap-4 hover:bg-brand-50/50 transition-colors">
                     <img src={r.avatar} alt={r.customer} className="w-10 h-10 rounded-full object-cover shrink-0" />

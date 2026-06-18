@@ -11,4 +11,17 @@ public class EquipmentDto
     public int StockQuantity { get; set; }
     public string Status { get; set; } = null!;
     public string? ImageUrl { get; set; }
+    
+    // Properties from Rent/Return branch
+    public string Category { get; set; } = null!;
+    public string Type { get; set; } = null!;
+    public decimal RetailPrice { get; set; }
+    public decimal RentalPrice { get; set; }
+    public int RentalStock { get; set; }
+    public int SalesStock { get; set; }
+    public decimal DepositAmountPerUnit => Math.Round(RetailPrice * 0.20m, 0);
+
+    // Compatibility properties for frontend
+    public int TotalQuantity => RentalStock;
+    public int AvailableQuantity => RentalStock;
 }

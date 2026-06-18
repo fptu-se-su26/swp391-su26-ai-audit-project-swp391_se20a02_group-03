@@ -63,9 +63,9 @@ export default function MobileLayout({ children, hideBottomNav = false, title = 
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
               <span>Matches</span>
             </Link>
-            <Link to="/mobile/wallet" className={`flex flex-col items-center justify-center gap-1 no-underline text-[0.65rem] font-medium w-[20%] [&_svg]:w-[22px] [&_svg]:h-[22px] ${location.pathname.includes('/mobile/wallet') ? 'text-[#008ba3] font-semibold [&_svg]:stroke-[2.5] bg-[#e0f2fe] rounded-xl py-1.5 -translate-y-0.5' : 'text-slate-500'}`}>
+            <Link to="/gear/catalog" className={`flex flex-col items-center justify-center gap-1 no-underline text-[0.65rem] font-medium w-[20%] [&_svg]:w-[22px] [&_svg]:h-[22px] ${location.pathname.includes('/gear') ? 'text-[#008ba3] font-semibold [&_svg]:stroke-[2.5] bg-[#e0f2fe] rounded-xl py-1.5 -translate-y-0.5' : 'text-slate-500'}`}>
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-              <span>Shop</span>
+              <span>Gear</span>
             </Link>
             <Link to="/mobile/profile" className={`flex flex-col items-center justify-center gap-1 no-underline text-[0.65rem] font-medium w-[20%] [&_svg]:w-[22px] [&_svg]:h-[22px] ${location.pathname.includes('/mobile/profile') ? 'text-[#008ba3] font-semibold [&_svg]:stroke-[2.5] bg-[#e0f2fe] rounded-xl py-1.5 -translate-y-0.5' : 'text-slate-500'}`}>
               <svg width="24" height="24" viewBox="0 0 24 24" fill={location.pathname.includes('/mobile/profile') ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
