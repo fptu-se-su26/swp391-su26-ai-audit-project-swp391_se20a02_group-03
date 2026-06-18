@@ -13,7 +13,11 @@ public interface IEquipmentRepository
     Task<Equipment> CreateAsync(Equipment equipment);
     Task UpdateAsync(Equipment equipment);
     Task DeleteAsync(Equipment equipment);
+ feat/API_Quan_Ly_Thietbi_Kho
+    
 
+
+ main
     // Rent/Return methods
     Task<IEnumerable<Equipment>> GetAllAsync();
     Task<IEnumerable<EquipmentRental>> GetUserRentalsAsync(int userId);

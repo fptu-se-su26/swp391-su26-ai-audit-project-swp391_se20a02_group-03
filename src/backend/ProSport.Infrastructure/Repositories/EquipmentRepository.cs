@@ -21,13 +21,21 @@ public class EquipmentRepository : IEquipmentRepository
     // CRUD Methods
     public async Task<(IEnumerable<Equipment> Items, int TotalCount)> GetPagedAsync(EquipmentQueryParameters parameters)
     {
+ feat/API_Quan_Ly_Thietbi_Kho
+ feat/API_Quan_Ly_Thietbi_Kho
+
  feat/DE190130_API_Tham_Gia_&_Vi_Escrow
+ main
         var query = _context.Equipments
             .Include(e => e.EquipmentCategory)
 
         return await _context.Equipments
             .Include(e => e.Units)
+ feat/API_Quan_Ly_Thietbi_Kho
+ main
+
             main
+ main
             .Where(e => !e.IsDeleted)
             .AsQueryable();
 
@@ -38,8 +46,13 @@ public class EquipmentRepository : IEquipmentRepository
 
         if (!string.IsNullOrEmpty(parameters.SearchQuery))
         {
+ feat/API_Quan_Ly_Thietbi_Kho
+            query = query.Where(e => e.Name != null && e.Name.Contains(parameters.SearchQuery) || 
+                                     e.EquipmentName != null && e.EquipmentName.Contains(parameters.SearchQuery));
+
             query = query.Where(e => (e.Name != null && e.Name.Contains(parameters.SearchQuery)) || 
                                      (e.EquipmentName != null && e.EquipmentName.Contains(parameters.SearchQuery)));
+ main
         }
 
         if (!string.IsNullOrEmpty(parameters.Status))
@@ -59,10 +72,18 @@ public class EquipmentRepository : IEquipmentRepository
     public async Task<Equipment?> GetByIdAsync(int id)
     {
         return await _context.Equipments
+ feat/API_Quan_Ly_Thietbi_Kho
+ feat/API_Quan_Ly_Thietbi_Kho
+            .Include(e => e.EquipmentCategory)
+
+            .Include(e => e.Units)
+main
+
  feat/DE190130_API_Tham_Gia_&_Vi_Escrow
             .Include(e => e.EquipmentCategory)
 
             .Include(e => e.Units)
+ main
  main
             .FirstOrDefaultAsync(e => e.EquipmentId == id && !e.IsDeleted);
     }

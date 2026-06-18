@@ -72,13 +72,19 @@ builder.Services.AddScoped<IEquipmentCategoryService, EquipmentCategoryService>(
 builder.Services.AddScoped<IEquipmentService, EquipmentService>();
 builder.Services.AddScoped<IInventoryService, InventoryService>();
 builder.Services.AddScoped<IVnPayService, VnPayService>();
+ feat/API_Quan_Ly_Thietbi_Kho
+ feat/API_Quan_Ly_Thietbi_Kho
+ feat/API_Quan_Ly_Thietbi_Kho
+
  DE190147/audit-module
  DE190147/audit-module
 builder.Services.AddScoped<IStorageService, LocalStorageService>();
 
+ main
 
  feat/DE190130_API_Tham_Gia_&_Vi_Escrow
 feat/DE190130_API_Tham_Gia_&_Vi_Escrow
+ main
 builder.Services.AddScoped<IStorageService, LocalStorageService>();
  main
 
@@ -91,9 +97,15 @@ main
 
 builder.Services.AddScoped<IStorageService, LocalStorageService>();
 
+ feat/API_Quan_Ly_Thietbi_Kho
+ feat/API_Quan_Ly_Thietbi_Kho
+
+
  DE190147/audit-module
+ main
 
 
+ main
  main
  main
 builder.Services.AddScoped<IChatbotService, ChatbotService>();
@@ -153,7 +165,11 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 app.UseSwagger();
 app.UseSwaggerUI();
+ feat/API_Quan_Ly_Thietbi_Kho
+ feat/API_Quan_Ly_Thietbi_Kho
+
 feat/DE190130_API_Tham_Gia_&_Vi_Escrow
+ main
 
 app.UseStaticFiles(); // Added for LocalStorageService
 
