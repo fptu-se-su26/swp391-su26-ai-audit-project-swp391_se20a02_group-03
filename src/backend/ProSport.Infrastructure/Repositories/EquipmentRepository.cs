@@ -1,5 +1,3 @@
-namespace ProSport.Infrastructure.Repositories;
-
 using Microsoft.EntityFrameworkCore;
 using ProSport.Application.DTOs;
 using ProSport.Application.Interfaces;
@@ -8,6 +6,8 @@ using ProSport.Infrastructure.Data;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+
+namespace ProSport.Infrastructure.Repositories;
 
 public class EquipmentRepository : IEquipmentRepository
 {
@@ -18,6 +18,7 @@ public class EquipmentRepository : IEquipmentRepository
         _context = context;
     }
 
+    // CRUD Methods
     public async Task<(IEnumerable<Equipment> Items, int TotalCount)> GetPagedAsync(EquipmentQueryParameters parameters)
     {
         var query = _context.Equipments
@@ -32,7 +33,8 @@ public class EquipmentRepository : IEquipmentRepository
 
         if (!string.IsNullOrEmpty(parameters.SearchQuery))
         {
-            query = query.Where(e => e.Name.Contains(parameters.SearchQuery));
+            query = query.Where(e => (e.Name != null && e.Name.Contains(parameters.SearchQuery)) || 
+                                     (e.EquipmentName != null && e.EquipmentName.Contains(parameters.SearchQuery)));
         }
 
         if (!string.IsNullOrEmpty(parameters.Status))
@@ -73,6 +75,60 @@ public class EquipmentRepository : IEquipmentRepository
     {
         equipment.IsDeleted = true;
         _context.Equipments.Update(equipment);
+        await _context.SaveChangesAsync();
+    }
+
+    // Rent/Return Methods
+    public async Task<IEnumerable<Equipment>> GetAllAsync()
+    {
+        return await _context.Equipments
+            .Where(e => !e.IsDeleted)
+            .ToListAsync();
+    }
+
+    public async Task<IEnumerable<EquipmentRental>> GetUserRentalsAsync(int userId)
+    {
+        return await _context.EquipmentRentals
+            .Include(r => r.Equipment)
+            .Include(r => r.Booking)
+            .Where(r => r.UserId == userId)
+            .OrderByDescending(r => r.RentedAt)
+            .ToListAsync();
+    }
+
+    public async Task<IEnumerable<EquipmentRental>> GetPendingInspectionsAsync()
+    {
+        return await _context.EquipmentRentals
+            .Include(r => r.Equipment)
+            .Include(r => r.Booking)
+            .Where(r => r.RentalStatus == "Returned" && r.DepositStatus == "Held")
+            .OrderByDescending(r => r.RentedAt)
+            .ToListAsync();
+    }
+
+    public async Task CreateRentalAsync(EquipmentRental rental)
+    {
+        _context.EquipmentRentals.Add(rental);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task UpdateEquipmentAsync(Equipment equipment)
+    {
+        _context.Equipments.Update(equipment);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task<EquipmentRental?> GetRentalByIdAsync(int rentalId)
+    {
+        return await _context.EquipmentRentals
+            .Include(r => r.Equipment)
+            .Include(r => r.Booking)
+            .FirstOrDefaultAsync(r => r.DetailId == rentalId);
+    }
+
+    public async Task UpdateRentalAsync(EquipmentRental rental)
+    {
+        _context.EquipmentRentals.Update(rental);
         await _context.SaveChangesAsync();
     }
 }
