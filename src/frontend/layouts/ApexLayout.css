@@ -1,0 +1,246 @@
+/* ApexLayout.css */
+:root {
+  --apex-sidebar-w: 220px;
+  --apex-topbar-h: 60px;
+  --apex-primary: #0fc8b5;
+  --apex-dark: #0d1f2d;
+  --apex-sidebar-bg: #ffffff;
+  --apex-sidebar-border: #e8eef3;
+  --apex-bg: #f0f5f9;
+}
+
+.apex-layout {
+  display: flex;
+  min-height: 100vh;
+  background: var(--apex-bg);
+}
+
+/* ── Sidebar ── */
+.apex-sidebar {
+  width: var(--apex-sidebar-w);
+  min-height: 100vh;
+  background: var(--apex-sidebar-bg);
+  border-right: 1px solid var(--apex-sidebar-border);
+  display: flex;
+  flex-direction: column;
+  padding: 20px 14px;
+  position: fixed;
+  left: 0; top: 0; bottom: 0;
+  z-index: 200;
+  transition: transform 0.28s cubic-bezier(0.4,0,0.2,1);
+  overflow-y: auto;
+}
+
+/* Logo */
+.apex-sidebar__logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 6px 20px;
+  border-bottom: 1px solid var(--apex-sidebar-border);
+  margin-bottom: 16px;
+}
+.apex-sidebar__logo-icon {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #0fc8b5, #0990a8);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.apex-sidebar__logo-name {
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--apex-dark);
+  letter-spacing: 0.02em;
+}
+
+/* User */
+.apex-sidebar__user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 8px;
+  border-radius: var(--radius-md);
+  margin-bottom: 16px;
+  background: rgba(15,200,181,0.06);
+}
+.apex-sidebar__avatar {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--apex-primary);
+  flex-shrink: 0;
+}
+.apex-sidebar__user-name { font-size: 0.82rem; font-weight: 700; color: var(--apex-dark); }
+.apex-sidebar__user-tier { font-size: 0.72rem; color: var(--apex-primary); font-weight: 500; }
+
+/* Nav */
+.apex-sidebar__nav {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+}
+
+.apex-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 9px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #64748b;
+  transition: background var(--transition), color var(--transition);
+  text-decoration: none;
+}
+.apex-nav-link:hover { background: rgba(15,200,181,0.07); color: var(--apex-primary); }
+.apex-nav-link--active {
+  background: rgba(15,200,181,0.12);
+  color: var(--apex-primary);
+  font-weight: 600;
+}
+.apex-nav-link svg { flex-shrink: 0; }
+
+/* Book btn */
+.apex-sidebar__book-btn {
+  margin: 16px 0;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  padding: 11px;
+  font-size: 0.875rem;
+}
+
+/* Bottom nav */
+.apex-sidebar__bottom {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  border-top: 1px solid var(--apex-sidebar-border);
+  padding-top: 12px;
+  margin-top: 8px;
+}
+
+/* ── Main ── */
+.apex-main {
+  margin-left: var(--apex-sidebar-w);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Topbar */
+.apex-topbar {
+  height: var(--apex-topbar-h);
+  background: var(--apex-sidebar-bg);
+  border-bottom: 1px solid var(--apex-sidebar-border);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 24px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.apex-topbar__hamburger {
+  display: none;
+  background: transparent;
+  color: #64748b;
+  padding: 6px;
+  border-radius: 8px;
+  transition: color var(--transition), background var(--transition);
+}
+.apex-topbar__hamburger:hover { color: var(--apex-primary); background: rgba(15,200,181,0.08); }
+
+.apex-topbar__search {
+  flex: 1;
+  max-width: 400px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--apex-bg);
+  border: 1.5px solid var(--apex-sidebar-border);
+  border-radius: 100px;
+  padding: 8px 16px;
+  transition: border-color var(--transition);
+}
+.apex-topbar__search:focus-within { border-color: var(--apex-primary); }
+.apex-topbar__search svg { color: #94a3b8; flex-shrink: 0; }
+.apex-topbar__search input {
+  border: none;
+  background: transparent;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  color: var(--color-text);
+  width: 100%;
+  outline: none;
+}
+.apex-topbar__search input::placeholder { color: #94a3b8; }
+
+.apex-topbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: auto;
+}
+
+.apex-topbar__icon-btn {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: transparent;
+  display: flex; align-items: center; justify-content: center;
+  color: #64748b;
+  position: relative;
+  transition: background var(--transition), color var(--transition);
+}
+.apex-topbar__icon-btn:hover { background: rgba(15,200,181,0.08); color: var(--apex-primary); }
+
+.apex-topbar__badge {
+  position: absolute;
+  top: 2px; right: 2px;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: #ef4444;
+  color: white;
+  font-size: 0.6rem;
+  font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.apex-topbar__avatar {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--apex-primary);
+  cursor: pointer;
+  transition: box-shadow var(--transition);
+}
+.apex-topbar__avatar:hover { box-shadow: 0 0 0 3px rgba(15,200,181,0.25); }
+
+/* Content */
+.apex-content {
+  flex: 1;
+  padding: 28px 28px;
+  overflow-y: auto;
+}
+
+/* Mobile */
+.apex-sidebar-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 199;
+}
+
+@media (max-width: 900px) {
+  .apex-sidebar { transform: translateX(-100%); }
+  .apex-sidebar.open { transform: translateX(0); }
+  .apex-main { margin-left: 0; }
+  .apex-topbar__hamburger { display: flex; }
+  .apex-sidebar-backdrop { display: block; }
+  .apex-content { padding: 20px 16px; }
+}

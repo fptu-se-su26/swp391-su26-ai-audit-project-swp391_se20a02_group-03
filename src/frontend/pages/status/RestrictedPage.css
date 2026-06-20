@@ -1,0 +1,66 @@
+.restricted-content {
+  text-align: center;
+  max-width: 500px;
+  width: 100%;
+}
+
+.res-graphic {
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: center;
+}
+.res-circle {
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.res-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(80%);
+}
+.res-overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(255,255,255,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Oswald', sans-serif;
+  font-size: 3.5rem;
+  font-weight: 700;
+  color: #ef4444;
+  letter-spacing: -1px;
+}
+
+.res-title {
+  font-family: 'Oswald', sans-serif;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 16px;
+}
+.res-desc {
+  font-size: 1rem;
+  color: #475569;
+  margin-bottom: 32px;
+}
+
+.res-actions {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+}
+
+@media (max-width: 600px) {
+  .res-actions {
+    flex-direction: column;
+  }
+}

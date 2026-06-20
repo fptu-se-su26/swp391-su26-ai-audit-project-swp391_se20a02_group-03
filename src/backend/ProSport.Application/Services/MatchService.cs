@@ -214,20 +214,52 @@ public class MatchService : IMatchService
             if (participant == null || participant.Role == ProSport.Domain.Constants.MatchParticipantRole.Host)
                 return new ApiResponseDto<bool>(400, "Yêu cầu không hợp lệ", false);
 
-            // TODO: Rule check giờ - nếu sát giờ đá mới hủy thì phạt cọc. 
-            // Giả sử hủy sớm thì trả cọc.
+            // C-02 FIX: Only apply penalty/refund logic if the match hasn't already started.
+            // If matchTime is in the past, the escrow should be settled by CompleteMatch/CancelMatch, not here.
             var match = await _matchRepository.GetMatchByIdAsync(matchId);
-            
-            if (participant.HasPaidEscrow && match!.EscrowAmount > 0)
+            // C3 FIX: Add explicit null check — data inconsistency could cause match to be null
+            if (match == null)
+                return new ApiResponseDto<bool>(404, "Kèo không tồn tại", false);
+
+            var vnTimeZone = TimeZoneInfo.FindSystemTimeZoneById(
+                OperatingSystem.IsWindows() ? "SE Asia Standard Time" : "Asia/Ho_Chi_Minh");
+            var localTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vnTimeZone);
+            var matchTime = match!.MatchDate.Date + match.StartTime;
+            var timeUntilMatch = matchTime - localTime;
+
+            string returnMessage;
+            if (participant.HasPaidEscrow && match.EscrowAmount > 0)
             {
-                // Trả lại tiền ký quỹ
-                await _escrowService.ReleaseFundsAsync(userId, match.EscrowAmount, matchId, $"Hoàn cọc do rút khỏi kèo {matchId}");
+                // Match has already started or passed — no penalty, no refund here (host should call CompleteMatch)
+                if (timeUntilMatch <= TimeSpan.Zero)
+                {
+                    // Do nothing with funds — match already happened
+                    returnMessage = "Đã rút khỏi kèo. Tiền cọc sẽ được xử lý khi Host kết thúc kèo.";
+                }
+                else if (timeUntilMatch < TimeSpan.FromHours(12))
+                {
+                    // C-02 FIX: Only penalise when match is in the future but < 12h away
+                    await _escrowService.DeductLockedFundsAsync(userId, match.EscrowAmount, matchId, $"Phạt hủy kèo sát giờ (dưới 12 tiếng) - Mã kèo {matchId}");
+                    returnMessage = "Đã rút khỏi kèo. Tiền cọc bị phạt do hủy trong vòng 12 tiếng trước giờ đá.";
+                }
+                else
+                {
+                    await _escrowService.ReleaseFundsAsync(userId, match.EscrowAmount, matchId, $"Hoàn cọc do rút khỏi kèo trước 12 tiếng - Mã kèo {matchId}");
+                    returnMessage = "Đã rút khỏi kèo và hoàn lại tiền cọc thành công.";
+                }
+            }
+            else
+            {
+                returnMessage = "Đã rút khỏi kèo thành công.";
             }
 
             // BUG FIX: Capture status BEFORE mutating it — otherwise the check below always fails
             var wasApproved = participant.Status == ProSport.Domain.Constants.MatchParticipantStatus.Approved;
 
-            participant.Status = ProSport.Domain.Constants.MatchParticipantStatus.Rejected; // Should probably be Cancelled/Rejected, keeping Rejected for now. We didn't define Cancelled for Participant. Wait, we defined Rejected.
+            // M-01 FIX: Participant who left is marked Rejected (system cancelled their participation)
+            participant.Status = ProSport.Domain.Constants.MatchParticipantStatus.Rejected;
+            // M6 FIX: Reset HasPaidEscrow flag to maintain audit consistency
+            participant.HasPaidEscrow = false;
             await _matchRepository.UpdateParticipantAsync(participant);
 
             // Only decrement if the participant was actually Approved (not just Pending)
@@ -238,7 +270,7 @@ public class MatchService : IMatchService
                 await _matchRepository.UpdateMatchAsync(match);
             }
 
-            return new ApiResponseDto<bool>(200, "Đã rút khỏi kèo và hoàn tiền", true);
+            return new ApiResponseDto<bool>(200, returnMessage, true);
         }
         catch (Exception ex)
         {

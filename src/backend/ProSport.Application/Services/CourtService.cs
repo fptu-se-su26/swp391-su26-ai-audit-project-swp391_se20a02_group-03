@@ -128,20 +128,29 @@ public class CourtService : ICourtService
     // UPDATE - modify existing court (admin only)
     public async Task<ApiResponseDto<CourtDto>> UpdateCourtAsync(int id, UpdateCourtDto dto)
     {
-        var court = await _courtRepository.GetByIdAsync(id);
-        if (court == null || court.IsDeleted)
-            return new ApiResponseDto<CourtDto>(404, "Court not found");
+        try
+        {
+            var court = await _courtRepository.GetByIdAsync(id);
+            if (court == null || court.IsDeleted)
+                return new ApiResponseDto<CourtDto>(404, "Court not found");
 
-        // Apply updates if provided
-        if (dto.Name != null) court.Name = dto.Name;
-        if (dto.CourtTypeId.HasValue) court.CourtTypeId = dto.CourtTypeId.Value;
-        if (dto.ImageUrl != null) court.ImageUrl = dto.ImageUrl;
-        if (dto.Description != null) court.Description = dto.Description;
-        if (dto.Status != null) court.Status = dto.Status;
+            // Apply updates if provided
+            if (dto.Name != null) court.Name = dto.Name;
+            if (dto.CourtTypeId.HasValue) court.CourtTypeId = dto.CourtTypeId.Value;
+            if (dto.ImageUrl != null) court.ImageUrl = dto.ImageUrl;
+            if (dto.Description != null) court.Description = dto.Description;
+            if (dto.Status != null) court.Status = dto.Status;
 
-        await _courtRepository.UpdateAsync(court);
-        var updatedDto = MapToDto(court);
-        return new ApiResponseDto<CourtDto>(200, "Court updated", updatedDto);
+            await _courtRepository.UpdateAsync(court);
+            var updatedDto = MapToDto(court);
+            return new ApiResponseDto<CourtDto>(200, "Court updated", updatedDto);
+        }
+        catch (Exception ex)
+        {
+            // M10 FIX: Add try/catch so DB errors return consistent ApiResponseDto instead of unhandled exception
+            _logger.LogError(ex, "Error updating court {CourtId}", id);
+            return new ApiResponseDto<CourtDto>(500, "Lỗi hệ thống khi cập nhật sân");
+        }
     }
 
     // DELETE - soft delete court (admin only)

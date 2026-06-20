@@ -1,0 +1,227 @@
+:root {
+  --elite-cyan: #00c2ff;
+  --elite-dark: #0f172a;
+  --elite-text: #1e293b;
+  --elite-text-light: #64748b;
+  --elite-bg: #f8fafc;
+  --elite-border: #e2e8f0;
+  --elite-sidebar-w: 240px;
+}
+
+.elite-layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--elite-bg);
+  font-family: 'Inter', sans-serif;
+}
+
+/* Sidebar */
+.elite-sidebar {
+  width: var(--elite-sidebar-w);
+  background: white;
+  border-right: 1px solid var(--elite-border);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 100;
+}
+
+.elite-sidebar__user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 32px 24px 24px;
+}
+.elite-avatar-wrap {
+  position: relative;
+}
+.elite-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.elite-status-dot {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #22c55e;
+  border: 2px solid white;
+}
+.elite-user-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--elite-text);
+  line-height: 1.2;
+}
+.elite-user-sub {
+  font-size: 0.75rem;
+  color: var(--elite-text-light);
+  margin-top: 2px;
+}
+
+.elite-sidebar__scan {
+  padding: 0 24px 24px;
+}
+.btn-elite-cyan {
+  width: 100%;
+  background: #008ba3; /* Changed from pure cyan to match the screenshot better, it's a darker teal */
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background 0.2s;
+}
+.btn-elite-cyan:hover {
+  background: #00768c;
+}
+
+.elite-sidebar__nav {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.elite-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 24px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--elite-text-light);
+  text-decoration: none;
+  transition: all 0.2s;
+}
+.elite-nav-link:hover {
+  background: #f8fafc;
+  color: var(--elite-text);
+}
+.elite-nav-link--active {
+  background: var(--elite-cyan);
+  color: white;
+  font-weight: 600;
+  border-radius: 0 100px 100px 0;
+  margin-right: 16px;
+}
+.elite-nav-link--active:hover {
+  background: #00ace6;
+  color: white;
+}
+
+.elite-sidebar__bottom {
+  padding: 24px 0;
+  border-top: 1px solid var(--elite-border);
+}
+
+/* Main Area */
+.elite-main {
+  margin-left: var(--elite-sidebar-w);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.elite-topbar {
+  height: 72px;
+  background: white;
+  border-bottom: 1px solid var(--elite-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.elite-topbar__brand {
+  font-family: 'Oswald', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #006070;
+  letter-spacing: -0.5px;
+}
+
+.elite-topbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.elite-icon-btn {
+  background: transparent;
+  border: none;
+  color: var(--elite-text-light);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+  position: relative;
+}
+.elite-icon-btn:hover {
+  color: var(--elite-text);
+}
+.elite-notif .elite-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  background: #ef4444;
+  color: white;
+  font-size: 0.6rem;
+  font-weight: 700;
+  width: 14px;
+  height: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1.5px solid white;
+}
+.elite-topbar__user {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-left: 8px;
+}
+
+.elite-content {
+  padding: 32px;
+  flex: 1;
+}
+
+/* Shared */
+.elite-page-header {
+  margin-bottom: 24px;
+}
+.elite-page-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--elite-text);
+  margin-bottom: 6px;
+}
+.elite-page-subtitle {
+  font-size: 0.875rem;
+  color: var(--elite-text-light);
+}
+
+.elite-card {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid var(--elite-border);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+  padding: 24px;
+}
