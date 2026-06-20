@@ -256,3 +256,27 @@ Antigravity AI sinh toàn bộ cấu trúc JSX, CSS và hệ thống routing ban
 
 ### Hỗ trợ từ AI (AI-assisted)
 * Antigravity AI (Gemini) đóng vai trò một Kỹ sư Hệ thống: tự động phân tích logs lỗi phức tạp của trình biên dịch (.NET Core), cung cấp giải pháp hợp nhất (merge) snapshot an toàn và chủ động viết Regex Script để sửa lỗi React Hooks trên diện rộng. Người thực hiện đóng vai trò Giám đốc Kỹ thuật (Tech Lead): kiên quyết yêu cầu AI phải "Deep Scan" liên tục để rà soát triệt để các lỗ hổng ẩn, đồng thời kiểm soát trực tiếp quá trình đóng gói commit để đẩy code (push) an toàn lên nhánh `DE190147/audit-module`.
+
+
+
+
+
+## [2026-06-20] - Giai đoạn: Tổng rà soát lỗi, Cấu hình Testing & Chuẩn hóa thiết kế UI
+**Người thực hiện:** Phạm Nguyễn Tiến Đạt
+
+### Thêm mới (Added)
+* **Kiểm thử (Testing):** Khởi tạo tệp kịch bản `scripts/blackbox_tests.js` phục vụ cấu trúc kiểm thử hộp đen (BlackBox E2E) cho hệ thống API.
+* **Tiêu chuẩn UI:** Tự động clone và tích hợp thành công kho lưu trữ `taste-skill` từ GitHub vào bộ nhớ của Agent.
+* **Quy tắc hệ thống (Agent Rules):** Xây dựng bộ quy tắc thiết kế nội bộ tại `.agents/AGENTS.md` để ép buộc AI tự động áp dụng các phong cách UI cao cấp (Minimalist, Brutalist, Cold Luxury, cấm sử dụng font Serif mặc định) cho các luồng công việc Frontend sau này.
+
+### Thay đổi (Changed)
+* **Cấu hình môi trường:** Tùy chỉnh hạ cấp (Downgrade) môi trường Test cục bộ từ .NET 10 xuống .NET 8 (cập nhật file `global.json` và `ProSport.Tests.csproj`) để vượt qua giới hạn bảo mật CET của hệ điều hành Windows.
+* **Version Control:** Tái cấu trúc luồng lưu trữ trên GitHub. Xóa bỏ nhánh làm việc thừa (`implement-ui-from-design`) và định tuyến hợp nhất mã nguồn vào nhánh chuẩn xác `DE190147/audit-module`.
+
+### Sửa lỗi (Fixed)
+* **Backend Logic:** Quét và khắc phục triệt để các rủi ro hệ thống bao gồm lỗi N+1 Queries, Race conditions và EF Core state tracking.
+* **Unit Tests (WhiteBox):** Sửa hàng loạt lỗi cú pháp trong các kịch bản kiểm thử (bổ sung Enum `Cancelled` bị thiếu, sửa bất đồng bộ tham số DTO), giúp 100% (7/7) bài kiểm thử WhiteBox vượt qua thành công (Passed).
+* **Frontend Build:** Khắc phục lỗi trình biên dịch (Vite Rollup Error) bằng cách cài đặt bổ sung các thư viện bị rò rỉ (`react-leaflet`, `leaflet`), giúp lệnh `npm run build` thực thi thành công không tì vết (0 errors).
+
+### Hỗ trợ từ AI (AI-assisted)
+* Antigravity AI (Gemini) đóng vai trò một Kỹ sư Kiểm thử & DevSecOps: tự động quét mã nguồn Backend để đưa ra các bản vá lỗi, khởi tạo hạ tầng chạy Unit Test và tự động thiết lập cấu hình tích hợp bộ quy tắc `taste-skill`. Người thực hiện đóng vai trò Quản trị viên Dự án (Project Manager): trực tiếp đưa ra quyết định hạ cấp phiên bản .NET để phá vỡ bế tắc của hệ điều hành, điều phối luồng đẩy code (Git Push) an toàn, và quyết liệt ép hệ thống phải "học" bộ quy tắc thiết kế mới từ bên ngoài để chặn đứng rủi ro AI sinh ra các giao diện rập khuôn rẻ tiền (AI-slop).
