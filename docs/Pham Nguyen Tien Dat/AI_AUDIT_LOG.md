@@ -334,3 +334,37 @@
 - Lệnh `npm run build` và `dotnet build` pass 100% sau khi merge code.
 - Màn hình Console của Vite Server hoàn toàn trong sạch, bản đồ Leaflet render thành công.
 - Các sửa đổi đã được push thành công lên Remote Repository với commit `bed70bd`.
+
+
+
+
+---
+
+## Log #13
+- **Ngày:** 2026-06-20
+- **Người thực hiện:** Phạm Nguyễn Tiến Đạt
+- **Công cụ AI:** Antigravity (Gemini)
+- **Mục đích:** Đóng vai trò Quản trị dự án (PM) để rà soát, vá lỗi toàn diện (Bug Fix) cho Backend & Frontend, thiết lập hạ tầng WhiteBox/BlackBox Testing và chuẩn hóa quy tắc thiết kế UI với `taste-skill`.
+- **Tham chiếu Prompt:** *"Đóng vai trò là Quản trị viên Dự án (Project Manager), tiến hành tổng rà soát (Code Review) và vá lỗi (Bug Fix) toàn diện cho hệ thống, tập trung vào việc tối ưu hóa logic nghiệp vụ và hiệu suất truy xuất dữ liệu. Sau đó, thiết lập và thực thi các kịch bản kiểm thử hộp trắng (WhiteBox) và hộp đen (BlackBox). Tích hợp kho lưu trữ mã nguồn `taste-skill` vào môi trường dự án để chuẩn hóa quy tắc UI. Cuối cùng, quản lý hệ thống Version Control bằng cách gỡ bỏ các nhánh Git tạo lỗi và đẩy mã nguồn vào đúng nhánh chỉ định."*
+
+### Tóm tắt kết quả AI
+- **Backend & Testing:** Quét và khắc phục triệt để các lỗi nghiêm trọng ở tầng dữ liệu (N+1 queries, Race conditions, EF Core state tracking). Khắc phục cú pháp trong các Unit Test (bổ sung Enum `Cancelled`, xử lý bất đồng bộ tham số DTO). Khởi tạo Script `scripts/blackbox_tests.js` phục vụ kiểm thử E2E.
+- **Frontend & UI Rules:** Tự động clone và cấu hình bộ kỹ năng `taste-skill`. Khởi tạo quy tắc kiểm soát tại `.agents/AGENTS.md` nhằm định hướng AI tự động áp dụng các tiêu chuẩn thiết kế UI cao cấp (Minimalist, Cold Luxury, vô hiệu hóa font Serif, v.v.). Phát hiện và bổ sung các thư viện frontend bị thiếu (`react-leaflet`, `leaflet`).
+- **Version Control:** Đẩy (push) thành công các bản vá lỗi lên nhánh `DE190147/audit-module` và dọn dẹp (delete) nhánh cấu hình sai (`implement-ui-from-design`) trên Remote Repository.
+
+### Quyết định & Can thiệp của con người
+- **Chấp nhận:** Phê duyệt toàn bộ các bản vá lỗi Backend, kiến trúc hạ tầng Test, cấu hình dependency Frontend và bộ quy tắc `taste-skill` do AI đề xuất.
+- **Can thiệp kỹ thuật 1 (Khắc phục sự cố tương thích OS):** AI gặp bế tắc khi lệnh `dotnet test` bị hệ điều hành chặn đứng do phần cứng không hỗ trợ tính năng bảo mật CET của .NET 10. Đã ra lệnh ép (downgrade) môi trường Test cục bộ về cấu hình .NET 8 (thông qua `global.json`), giúp tiến trình kiểm thử tiếp tục thực thi trơn tru.
+- **Can thiệp kỹ thuật 2 (Nâng cấp tiêu chuẩn thiết kế UI):** Chặn đứng nguy cơ hệ thống tự động sinh ra các đoạn code Frontend rập khuôn (AI-slop). Chủ động cung cấp Repo `taste-skill` ngoại vi và ra lệnh tích hợp sâu vào bộ nhớ (Memory/Customizations) của Agent để định hình lại phong cách UI trong tương lai.
+- **Can thiệp kỹ thuật 3 (Quản lý Version Control):** Can thiệp ngắt luồng khi AI thực hiện đẩy code nhầm nhánh. Tái điều hướng commit sang nhánh làm việc chính xác `DE190147/audit-module` và trực tiếp ra lệnh dọn dẹp các nhánh rác trên GitHub để bảo vệ Git flow.
+
+### Áp dụng cho
+- Cấu hình môi trường `.net8.0` (`global.json`, `ProSport.Tests.csproj`).
+- Cấu hình chuẩn mực Agent Rules (`.agents/skills.json`, `.agents/AGENTS.md`).
+- Mã nguồn Unit Tests và BlackBox Tests (`scripts/blackbox_tests.js`).
+- Các bản vá Backend (`AuthService`, `EscrowService`, `BookingConstants.cs`, `MatchRepository`).
+
+### Kiểm chứng
+- Lệnh `dotnet test` vượt qua rào cản môi trường, Unit Test (WhiteBox) đạt tỷ lệ Pass 100% (7/7 tests).
+- Lệnh biên dịch Frontend `npm run build` thành công tuyệt đối (0 errors) sau khi fix dependency.
+- Mã nguồn mới nhất đã được đồng bộ chuẩn xác lên nhánh `DE190147/audit-module` trên CodeGraph.
