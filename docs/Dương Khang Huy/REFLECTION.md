@@ -113,16 +113,22 @@ Chúng tôi đã đẩy toàn bộ đầu bài kỹ thuật (plugins cần dùng
 ## Bài học rút ra
 - **Cứu tinh trong các bản cập nhật "Breaking Changes":** Các framework và công cụ JavaScript liên tục thay đổi cấu trúc lõi. Việc tận dụng AI để viết lại các file cấu hình Boilerplate (như Webpack, Vite, ESLint) giúp lập trình viên không bị sa lầy vào những tài liệu config khó hiểu, từ đó dồn toàn bộ trí lực vào việc code tính năng nghiệp vụ lõi (Business Logic).
 
-## Suy ngẫm & Đánh giá (Reflection) - 18/06/2026
+---
 
-**1. Vấn đề về GSAP vs React State:**
-- **Quan sát:** Việc sử dụng GSAP useEffect kèm theo opacity: 0 mặc định cho các phần tử được render có điều kiện là một thiết kế rủi ro. Khi React re-render quá nhanh, hàm evert() của GSAP có thể hủy ngang quá trình hoạt ảnh, khiến DOM bị kẹt ở trạng thái vô hình.
-- **Giải pháp tối ưu:** Chuyển sang sử dụng CSS Animation @keyframes. Đảm bảo cứ khi nào Component được mount vào DOM thì hoạt ảnh sẽ chạy trơn tru 100% mà không bị kẹt.
+# Reflection - Tuần 5: Nâng cấp Giao diện Nâng cao và Xử lý Xung đột Mã nguồn
 
-**2. Vấn đề quản lý Dependency trong môi trường làm việc nhóm:**
-- **Quan sát:** Một thành viên khác đã code tính năng sử dụng dompurify nhưng quên push file package.json.
-- **Bài học:** Việc đọc Log Terminal (Vite/Node) là cực kỳ quan trọng. Lỗi báo "Internal Server Error" thoạt nhìn nghiêm trọng, nhưng việc truy ngược dòng log đã giúp định vị chính xác vấn đề ở file AIChatbot.jsx và khắc phục trong 1 nốt nhạc bằng 
-pm install.
+## Tổng quan quá trình
+Trong giai đoạn này, chúng tôi tiến hành đại tu giao diện cho phân hệ MatchPro (Tìm kèo/sân) sang ngôn ngữ thiết kế Light Luxury. Cùng với việc áp dụng các hiệu ứng hoạt ảnh phức tạp, hệ thống cũng bắt đầu được hợp nhất (merge) với nhánh `main` chứa mã nguồn từ các thành viên khác để đảm bảo tính đồng bộ. 
 
-**3. Quy trình Git Merging an toàn:**
-- Thay vì hoảng loạn khi thấy quá nhiều Conflict, việc phân lập rõ "mình đang bảo vệ phần code nào" (ở đây là các file giao diện MatchPro) đã giúp mình dùng lệnh git checkout --ours cực kỳ dứt khoát và hiệu quả.
+## Hạn chế của AI và Khó khăn kỹ thuật
+- **Kiến trúc hoạt ảnh không tương thích:** Việc AI lạm dụng GSAP Context kết hợp với vòng đời Rendering của React cho các component được render có điều kiện (như cấu trúc Tabs) đã gây ra hiện tượng phần tử bị kẹt ở trạng thái vô hình (`opacity: 0`).
+- **Khủng hoảng hợp nhất mã nguồn (Merge Conflicts):** Quá trình kéo code từ nhánh `main` sinh ra nhiều xung đột chéo trên file Snapshot của Entity Framework và lỗi thiếu hụt thư viện NPM (do thành viên khác quên push cập nhật `package.json`).
+
+## Giải pháp và Can thiệp của con người
+- **Thay đổi tư duy hoạt ảnh:** Từ bỏ GSAP cho các thành phần UI tĩnh, chuyển sang sử dụng CSS Keyframes thuần túy. Cách tiếp cận này giúp trình duyệt tự động xử lý hoạt ảnh ngay khi phần tử được mount vào DOM mà không bị đứt gãy bởi React Lifecycle.
+- **Xử lý xung đột dứt khoát:** Nhờ AI chẩn đoán ngay lỗi sập server Vite qua Terminal Logs và cài đặt bổ sung package `dompurify` bị thiếu. Áp dụng kỹ thuật Git phân tách (`git checkout --ours`) để bảo vệ thành quả UI vừa thiết kế khỏi bị ghi đè bởi mã cũ từ `main`.
+
+## Bài học rút ra
+- **Đơn giản hóa (KISS) trong thiết kế Frontend:** Không nên lạm dụng các công cụ nặng nề (như GSAP) cho những tác vụ đơn giản mà CSS thuần có thể xử lý hoàn hảo. Sự đơn giản luôn mang lại độ ổn định cao nhất.
+- **Tầm quan trọng của Log hệ thống:** Khả năng đọc và truy xuất nguồn gốc lỗi từ log Console là kỹ năng sinh tồn thiết yếu trong môi trường làm việc nhóm, giúp xử lý lỗi sập dự án trong vài giây.
+- **Quy trình Git hợp tác:** Cần thiết lập quy tắc rõ ràng cho team (như luôn phải cài package trước khi commit) và không hoảng loạn khi gặp xung đột. Khả năng cô lập vấn đề để giải quyết từng file conflict giúp tiết kiệm hàng giờ gỡ lỗi thủ công.

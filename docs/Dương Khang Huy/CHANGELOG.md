@@ -72,16 +72,20 @@ Nhóm cam kết rằng nội dung changelog phản ánh chính xác các phần 
 | :---: | :---: |
 | Dương Khang Huy | 24/05/2026 |
 
-## [Unreleased] - 2026-06-18
+## [2026-06-18] - Giai đoạn: Nâng cấp UI/UX MatchPro và Tối ưu hóa Hệ thống
+**Người thực hiện:** Dương Khang Huy
 
-### ✨ Added (Thêm mới)
-- **MatchPro Nearby:** Tích hợp bản đồ Leaflet Map tương tác thực với vị trí trung tâm là Đại học FPT Đà Nẵng.
-- Thêm hiệu ứng "Chấm xanh nhấp nháy" (Live Location Ping) chuyên nghiệp cho vị trí người dùng trên bản đồ.
+### Thêm mới (Added)
+* Tích hợp bản đồ Leaflet (`react-leaflet`) tương tác thực tế vào trang MatchPro Nearby với vị trí trung tâm mặc định là Đại học FPT Đà Nẵng.
+* Khởi tạo Custom Icon cho bản đồ và thêm hiệu ứng "Chấm xanh nhấp nháy" (Live Location Ping) sử dụng `animate-ping` định vị người dùng.
 
-### 🎨 Changed (Thay đổi)
-- **MatchPro Feed & Community:** Lột xác toàn bộ giao diện theo ngôn ngữ thiết kế "Light Luxury" (bo góc tròn 3xl, shadow đổ bóng mềm mại, màu chủ đạo Teal #00c8aa).
-- Cải thiện trải nghiệm chuyển tab mượt mà hơn, loại bỏ tình trạng hoạt ảnh bị giật hoặc lỗi hiển thị mờ chữ.
+### Thay đổi (Changed)
+* Lột xác toàn bộ giao diện phân hệ MatchPro (Feed, Nearby, Community) sang ngôn ngữ thiết kế "Light Luxury" (sử dụng lưới Grid hiện đại, bo góc 3xl, shadow mềm mại, màu chủ đạo Teal `#00c8aa`).
+* Chuyển đổi toàn bộ hiệu ứng chuyển động từ GSAP sang CSS Keyframes thuần túy (`@keyframes fadeUpAnim`), cải thiện trải nghiệm chuyển tab mượt mà và loại bỏ hoàn toàn lỗi hiển thị mờ chữ.
 
-### 🐛 Fixed (Sửa lỗi)
-- Cứu sập hệ thống (Vite Crash) do lỗi thiếu thư viện dompurify khi hợp nhất code từ nhánh main.
-- Xử lý xung đột Git (Merge Conflicts) tại file DbContextSnapshot và các file UI.
+### Sửa lỗi (Fixed)
+* Khắc phục lỗi sập hệ thống (Vite Crash) do thiếu thư viện `dompurify` khi hợp nhất code từ nhánh main.
+* Xử lý xung đột Git (Merge Conflicts) tại file DbContextSnapshot và các file UI để bảo vệ mã nguồn giao diện nội bộ.
+
+### Hỗ trợ từ AI (AI-assisted)
+* Antigravity AI đóng vai trò Kỹ sư Giao diện (Frontend/UI Developer) và Kỹ sư Hệ thống, tự động tái cấu trúc lại layout giao diện phức tạp, chuyển đổi logic hoạt ảnh để khắc phục lỗi Render của React, và tự động xử lý các tình huống xung đột thư viện/Git khi kéo code từ repository.
