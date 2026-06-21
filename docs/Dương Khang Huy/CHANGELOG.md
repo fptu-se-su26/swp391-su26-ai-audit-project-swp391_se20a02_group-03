@@ -65,12 +65,6 @@
 * Antigravity AI đóng vai trò Kỹ sư Hệ thống (DevOps/Tooling), tự động biên soạn cấu trúc Flat Config phức tạp và xử lý các lỗi xung đột (conflict dependencies) trong quá trình cài đặt NPM.
 
 ---
-## Cam kết cập nhật Changelog
-Nhóm cam kết rằng nội dung changelog phản ánh chính xác các phần việc thực tế đã hoàn thành.
-
-| Đại diện sinh viên/nhóm | Ngày xác nhận |
-| :---: | :---: |
-| Dương Khang Huy | 24/05/2026 |
 
 ## [2026-06-18] - Giai đoạn: Nâng cấp UI/UX MatchPro và Tối ưu hóa Hệ thống
 **Người thực hiện:** Dương Khang Huy
