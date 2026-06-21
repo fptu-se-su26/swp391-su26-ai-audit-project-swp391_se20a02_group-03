@@ -112,3 +112,17 @@ Chúng tôi đã đẩy toàn bộ đầu bài kỹ thuật (plugins cần dùng
 
 ## Bài học rút ra
 - **Cứu tinh trong các bản cập nhật "Breaking Changes":** Các framework và công cụ JavaScript liên tục thay đổi cấu trúc lõi. Việc tận dụng AI để viết lại các file cấu hình Boilerplate (như Webpack, Vite, ESLint) giúp lập trình viên không bị sa lầy vào những tài liệu config khó hiểu, từ đó dồn toàn bộ trí lực vào việc code tính năng nghiệp vụ lõi (Business Logic).
+
+## Suy ngẫm & Đánh giá (Reflection) - 18/06/2026
+
+**1. Vấn đề về GSAP vs React State:**
+- **Quan sát:** Việc sử dụng GSAP useEffect kèm theo opacity: 0 mặc định cho các phần tử được render có điều kiện là một thiết kế rủi ro. Khi React re-render quá nhanh, hàm evert() của GSAP có thể hủy ngang quá trình hoạt ảnh, khiến DOM bị kẹt ở trạng thái vô hình.
+- **Giải pháp tối ưu:** Chuyển sang sử dụng CSS Animation @keyframes. Đảm bảo cứ khi nào Component được mount vào DOM thì hoạt ảnh sẽ chạy trơn tru 100% mà không bị kẹt.
+
+**2. Vấn đề quản lý Dependency trong môi trường làm việc nhóm:**
+- **Quan sát:** Một thành viên khác đã code tính năng sử dụng dompurify nhưng quên push file package.json.
+- **Bài học:** Việc đọc Log Terminal (Vite/Node) là cực kỳ quan trọng. Lỗi báo "Internal Server Error" thoạt nhìn nghiêm trọng, nhưng việc truy ngược dòng log đã giúp định vị chính xác vấn đề ở file AIChatbot.jsx và khắc phục trong 1 nốt nhạc bằng 
+pm install.
+
+**3. Quy trình Git Merging an toàn:**
+- Thay vì hoảng loạn khi thấy quá nhiều Conflict, việc phân lập rõ "mình đang bảo vệ phần code nào" (ở đây là các file giao diện MatchPro) đã giúp mình dùng lệnh git checkout --ours cực kỳ dứt khoát và hiệu quả.

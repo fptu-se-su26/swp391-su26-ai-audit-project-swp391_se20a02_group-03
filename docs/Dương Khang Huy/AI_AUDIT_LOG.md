@@ -89,3 +89,24 @@
 
 ### Kiểm chứng
 - Chạy lại lệnh `npm run lint`. Hệ thống Linter đã nhận diện được file cấu hình, hoạt động trơn tru và quét ra thành công hơn 40 cảnh báo lặt vặt trong các file `.jsx` hiện hành.
+
+## Báo cáo kiểm toán AI (AI Audit Log) - 18/06/2026
+
+**1. Nâng cấp UI/UX phân hệ MatchPro (Light Luxury Theme):**
+- **File tác động:** MatchProNearbyPage.jsx, MatchProCommunityPage.jsx, MatchProFeedPage.jsx
+- **Hành động:** 
+  - Thay thế layout tĩnh bằng cấu trúc Grid hiện đại, thêm Hero Banner với gradient và Typography Oswald.
+  - Tích hợp eact-leaflet vào trang Nearby, thiết lập tọa độ mặc định về [15.968, 108.261] (ĐH FPT Đà Nẵng).
+  - Khởi tạo Custom DivIcon cho Leaflet, sử dụng nimate-ping của Tailwind để tạo hiệu ứng "Blue Dot" nhấp nháy định vị người dùng.
+
+**2. Sửa lỗi Rendering & Animation:**
+- **File tác động:** MatchProCommunityPage.jsx, MatchProFeedPage.jsx
+- **Hành động:** Phát hiện xung đột giữa GSAP context và React Rendering Lifecycle. Đã gỡ bỏ toàn bộ code gsap.from() và thay thế bằng CSS Keyframes thuần túy (@keyframes fadeUpAnim) gắn trực tiếp qua thẻ <style>.
+
+**3. Fix Bug Môi trường & Xử lý Git Conflict:**
+- **File tác động:** package.json, Git branch main
+- **Hành động:** 
+  - Chạy git pull origin main, xử lý Conflict bằng cách ghi đè (checkout --ours) để bảo vệ giao diện UI local mới nhất.
+  - Chẩn đoán lỗi sập server Vite: Phát hiện import dompurify trong AIChatbot.jsx (từ nhánh main) nhưng chưa được thêm vào dependencies. Đã chạy 
+pm install dompurify và khởi động lại Server thành công.
+  - Đẩy trực tiếp các commit liên quan đến UI Matches lên nhánh main.

@@ -71,3 +71,17 @@ Nhóm cam kết rằng nội dung changelog phản ánh chính xác các phần 
 | Đại diện sinh viên/nhóm | Ngày xác nhận |
 | :---: | :---: |
 | Dương Khang Huy | 24/05/2026 |
+
+## [Unreleased] - 2026-06-18
+
+### ✨ Added (Thêm mới)
+- **MatchPro Nearby:** Tích hợp bản đồ Leaflet Map tương tác thực với vị trí trung tâm là Đại học FPT Đà Nẵng.
+- Thêm hiệu ứng "Chấm xanh nhấp nháy" (Live Location Ping) chuyên nghiệp cho vị trí người dùng trên bản đồ.
+
+### 🎨 Changed (Thay đổi)
+- **MatchPro Feed & Community:** Lột xác toàn bộ giao diện theo ngôn ngữ thiết kế "Light Luxury" (bo góc tròn 3xl, shadow đổ bóng mềm mại, màu chủ đạo Teal #00c8aa).
+- Cải thiện trải nghiệm chuyển tab mượt mà hơn, loại bỏ tình trạng hoạt ảnh bị giật hoặc lỗi hiển thị mờ chữ.
+
+### 🐛 Fixed (Sửa lỗi)
+- Cứu sập hệ thống (Vite Crash) do lỗi thiếu thư viện dompurify khi hợp nhất code từ nhánh main.
+- Xử lý xung đột Git (Merge Conflicts) tại file DbContextSnapshot và các file UI.
