@@ -54,7 +54,6 @@ export default function GearCatalogPage() {
     try {
       setLoading(true)
       const response = await equipmentApi.getAll()
-      console.log('API Response:', response) // Debug log as requested
       
       if (response.statusCode === 200) {
         // Map backend fields to frontend expected fields

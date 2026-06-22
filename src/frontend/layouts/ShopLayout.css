@@ -1,0 +1,110 @@
+.shop-layout { min-height: 100vh; display: flex; flex-direction: column; background: #f5f9fc; }
+.shop-layout--dark { background: #0d1a24; }
+
+/* Flash Banner */
+.shop-flash-banner {
+  background: #0d2d3a;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 8px 24px;
+  font-size: 0.82rem;
+}
+.shop-flash-banner svg { color: #0fc8b5; flex-shrink: 0; }
+.shop-flash-banner strong { color: #0fc8b5; }
+.shop-flash-banner__link { color: #0fc8b5; font-weight: 700; margin-left: 8px; text-decoration: underline; }
+
+/* Header */
+.shop-header {
+  height: 58px;
+  background: white;
+  border-bottom: 1px solid #e0ecf0;
+  display: flex;
+  align-items: center;
+  padding: 0 28px;
+  gap: 24px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+.shop-header--dark {
+  background: #0d1a24;
+  border-bottom-color: rgba(255,255,255,0.08);
+}
+
+.shop-header__logo { font-family: 'Oswald', sans-serif; font-size: 1.3rem; font-weight: 700; letter-spacing: 0.04em; text-decoration: none; display: flex; flex-shrink: 0; }
+.shop-logo-pro { color: #0d2d3a; }
+.shop-logo-pro--dark { color: white; }
+.shop-logo-dash { color: #0d8a8a; }
+.shop-logo-sport { color: #0d2d3a; }
+.shop-logo-sport--dark { color: white; }
+
+.shop-header__nav { display: flex; gap: 4px; }
+.shop-nav-link { padding: 6px 12px; font-size: 0.875rem; font-weight: 500; color: #64748b; border-radius: 100px; text-decoration: none; transition: color 0.2s, background 0.2s; }
+.shop-nav-link--dark { color: rgba(255,255,255,0.65); }
+.shop-nav-link--dark:hover { color: white; background: rgba(255,255,255,0.08); }
+.shop-nav-link:hover { color: #0d8a8a; background: rgba(13,138,138,0.07); }
+.shop-nav-link--active { color: #0d8a8a; font-weight: 600; }
+
+.shop-header__search-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f5f9fc;
+  border: 1.5px solid #e0ecf0;
+  border-radius: 100px;
+  padding: 8px 16px;
+  flex: 1;
+  max-width: 320px;
+  transition: border-color 0.2s;
+}
+.shop-header--dark .shop-header__search-wrap { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.12); }
+.shop-header__search-wrap:focus-within { border-color: #0d8a8a; }
+.shop-header__search-wrap svg { color: #94a3b8; flex-shrink: 0; }
+.shop-header__search { border: none; background: transparent; font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #0d2d3a; width: 100%; outline: none; }
+.shop-header--dark .shop-header__search { color: white; }
+.shop-header__search::placeholder { color: #94a3b8; }
+
+.shop-header__actions { display: flex; align-items: center; gap: 6px; margin-left: auto; }
+.shop-icon-btn { width: 34px; height: 34px; border-radius: 50%; background: transparent; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #64748b; position: relative; transition: all 0.2s; }
+.shop-icon-btn--dark { color: rgba(255,255,255,0.7); }
+.shop-icon-btn:hover { background: rgba(13,138,138,0.08); color: #0d8a8a; }
+.shop-icon-btn--dark:hover { background: rgba(255,255,255,0.1); color: white; }
+.shop-cart-badge { position: absolute; top: 2px; right: 2px; width: 16px; height: 16px; border-radius: 50%; background: #0d8a8a; color: white; font-size: 0.6rem; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+
+.shop-cart-btn { display: flex; align-items: center; gap: 6px; background: #0d2d3a; color: white; padding: 8px 16px; border-radius: 100px; font-size: 0.82rem; font-weight: 600; text-decoration: none; transition: background 0.2s; }
+.shop-cart-btn--dark { background: white; color: #0d2d3a; }
+.shop-cart-btn:hover { background: #0d8a8a; }
+.shop-signin-btn { font-size: 0.82rem; font-weight: 600; color: #0d8a8a; text-decoration: none; padding: 6px 12px; border-radius: 100px; transition: background 0.2s; }
+.shop-signin-btn:hover { background: rgba(13,138,138,0.08); }
+
+.shop-main { flex: 1; }
+
+/* Footer */
+.shop-footer {
+  background: #0d1a24;
+  color: rgba(255,255,255,0.7);
+  padding: 40px 40px 24px;
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr 1fr;
+  gap: 32px;
+}
+.shop-footer--dark { background: #060e14; }
+.shop-footer__brand { }
+.shop-footer__logo { font-family: 'Oswald', sans-serif; font-size: 1.2rem; font-weight: 700; color: white; margin-bottom: 10px; }
+.shop-footer__tagline { font-size: 0.8rem; color: rgba(255,255,255,0.5); line-height: 1.6; }
+.shop-footer__col { display: flex; flex-direction: column; gap: 10px; }
+.shop-footer__col-title { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 4px; }
+.shop-footer__col a { font-size: 0.82rem; color: rgba(255,255,255,0.6); text-decoration: none; transition: color 0.2s; }
+.shop-footer__col a:hover { color: #0fc8b5; }
+.shop-footer__bottom { grid-column: 1 / -1; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 20px; display: flex; justify-content: space-between; align-items: center; }
+.shop-footer__bottom p { font-size: 0.78rem; color: rgba(255,255,255,0.35); }
+.shop-footer__social { display: flex; gap: 16px; }
+.shop-footer__social a { font-size: 0.8rem; color: rgba(255,255,255,0.5); text-decoration: none; transition: color 0.2s; }
+.shop-footer__social a:hover { color: #0fc8b5; }
+
+@media (max-width: 900px) { .shop-footer { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 600px) { .shop-footer { grid-template-columns: 1fr; } .shop-header__nav { display: none; } }

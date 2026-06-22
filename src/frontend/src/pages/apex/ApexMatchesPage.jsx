@@ -7,11 +7,7 @@ import authApi from '../../api/authApi'
 import dayjs from 'dayjs'
 import './ApexMatchesPage.css'
 
-const myMatches = [
-  { id: 1, sport: 'Badminton', opponent: 'David K.', result: 'WON', score: '21-15, 21-18', date: '2 days ago', icon: '🏸' },
-  { id: 2, sport: 'Pickleball', opponent: 'Team Alpha', result: 'LOST', score: '9-11, 11-8, 7-11', date: 'Last week', icon: '🏓' },
-  { id: 3, sport: 'Badminton', opponent: 'Linh N.', result: 'WON', score: '21-15, 21-18', date: 'Last week', icon: '🏸' },
-]
+// History data is now fetched from the server.
 
 const levels = ['All Levels', 'Beginner', 'Intermediate', 'Advanced', 'Pro']
 const sports = ['All Sports', 'Badminton', 'Pickleball']
@@ -23,6 +19,7 @@ export default function ApexMatchesPage() {
   const [sportFilter, setSportFilter] = useState('All Sports')
   const [joined, setJoined] = useState([])
   const [openMatches, setOpenMatches] = useState([])
+  const [historyMatches, setHistoryMatches] = useState([])
   const [userId, setUserId] = useState(null)
   const [toastMsg, setToastMsg] = useState(null)
   const pageRef = useRef(null)
@@ -30,9 +27,10 @@ export default function ApexMatchesPage() {
   useEffect(() => {
     async function initData() {
       try {
-        const [profileRes, matchesRes] = await Promise.all([
+        const [profileRes, matchesRes, historyRes] = await Promise.all([
           authApi.getProfile(),
-          matchApi.getOpenMatches()
+          matchApi.getOpenMatches(),
+          matchApi.getMyMatchHistory()
         ])
         
         // BUG-24 FIX: axiosClient returns response.data (the envelope), so profileRes IS the envelope
@@ -68,6 +66,38 @@ export default function ApexMatchesPage() {
               .map(m => m.id)
             setJoined(myJoined)
           }
+        }
+        
+        if (historyRes?.data) {
+          const historyList = Array.isArray(historyRes.data) ? historyRes.data : []
+          const formattedHistory = historyList.map(m => ({
+            id: m.matchId,
+            sport: m.sportType || 'Sport',
+            court: m.location || m.notes || 'No location',
+            date: dayjs(m.matchDate || m.startTime).format('ddd, MMM D'),
+            time: dayjs(m.matchDate || m.startTime).format('HH:mm'),
+            icon: (m.sportType || '').toLowerCase().includes('pickleball') ? '🏓' : '🏸',
+            status: m.status,
+            participants: m.participants || []
+          }))
+          
+          // Separate upcoming "My Matches" and past "History" matches
+          // History matches are those that are Completed, Cancelled, or their date has passed
+          const now = dayjs()
+          const myMatchesUpcoming = formattedHistory.filter(m => {
+            const mDate = dayjs(m.date + ' ' + m.time, 'ddd, MMM D HH:mm')
+            return m.status !== 'Cancelled' && m.status !== 'Completed' && (mDate.isValid() ? mDate.isAfter(now) : true)
+          })
+          
+          const myMatchesHistory = formattedHistory.filter(m => {
+            const mDate = dayjs(m.date + ' ' + m.time, 'ddd, MMM D HH:mm')
+            return m.status === 'Cancelled' || m.status === 'Completed' || (mDate.isValid() ? mDate.isBefore(now) : false)
+          })
+          
+          // Add myMatchesUpcoming to joined/open matches to show in "My Matches" tab
+          // To keep it simple, we use the original setJoined logic for upcoming matches,
+          // but we populate history tab with myMatchesHistory
+          setHistoryMatches(myMatchesHistory)
         }
       } catch (err) {
         console.error("Failed to load matches", err)
@@ -227,27 +257,32 @@ export default function ApexMatchesPage() {
         {tab === 'history' && (
           <div>
             <div className="match-history">
-              {myMatches.map(m => (
+              {historyMatches.map(m => (
                 <div key={m.id} className="history-card match-card">
                   <div className="match-card__sport">{m.icon}</div>
                   <div className="match-card__info">
                     <div className="match-card__top">
-                      <span className="match-card__name">{m.sport} vs {m.opponent}</span>
-                      <span className={`match-result ${m.result === 'WON' ? 'result--won' : 'result--lost'}`}>{m.result}</span>
+                      <span className="match-card__name">{m.sport} Match</span>
+                      <span className={`match-result ${m.status === 'Completed' ? 'result--won' : 'result--lost'}`}>{m.status || 'Finished'}</span>
                     </div>
                     <div className="match-card__meta">
-                      <span>🏆 {m.score}</span>
-                      <span>🕐 {m.date}</span>
+                      <span>📍 {m.court}</span>
+                      <span>🕐 {m.date} at {m.time}</span>
                     </div>
                   </div>
                 </div>
               ))}
+              {historyMatches.length === 0 && (
+                <div className="match-empty" style={{ gridColumn: '1 / -1' }}>
+                  <span>⏳</span>
+                  <p>You have no past match history yet.</p>
+                </div>
+              )}
             </div>
             <div className="match-stats">
-              <div className="stat-card"><span className="stat-card__num">12</span><span className="stat-card__label">Total Matches</span></div>
-              <div className="stat-card stat-card--won"><span className="stat-card__num">8</span><span className="stat-card__label">Won</span></div>
-              <div className="stat-card stat-card--lost"><span className="stat-card__num">4</span><span className="stat-card__label">Lost</span></div>
-              <div className="stat-card"><span className="stat-card__num">67%</span><span className="stat-card__label">Win Rate</span></div>
+              <div className="stat-card"><span className="stat-card__num">{historyMatches.length}</span><span className="stat-card__label">Total Matches</span></div>
+              <div className="stat-card stat-card--won"><span className="stat-card__num">{historyMatches.filter(m => m.status === 'Completed').length}</span><span className="stat-card__label">Completed</span></div>
+              <div className="stat-card stat-card--lost"><span className="stat-card__num">{historyMatches.filter(m => m.status === 'Cancelled').length}</span><span className="stat-card__label">Cancelled</span></div>
             </div>
           </div>
         )}

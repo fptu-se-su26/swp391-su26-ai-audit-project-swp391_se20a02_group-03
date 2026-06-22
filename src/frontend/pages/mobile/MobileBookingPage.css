@@ -1,0 +1,203 @@
+.mob-booking {
+  font-family: 'Inter', sans-serif;
+  background: #f8fafc;
+  min-height: 100%;
+}
+
+/* Progress */
+.mb-progress-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+.mb-progress-bars {
+  display: flex;
+  gap: 6px;
+}
+.mb-bar {
+  width: 24px;
+  height: 4px;
+  background: #e2e8f0;
+  border-radius: 2px;
+}
+.mb-bar.active {
+  background: #008ba3;
+}
+.mb-step-text {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #008ba3;
+}
+
+/* Header */
+.mb-header {
+  margin-bottom: 24px;
+}
+.mb-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 4px;
+}
+.mb-subtitle {
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+/* Court Card */
+.mb-court-card {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+  border: 1px solid #f1f5f9;
+  margin-bottom: 32px;
+}
+.mb-court-img-wrap {
+  position: relative;
+  height: 180px;
+}
+.mb-court-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.mb-tag-indoor {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: white;
+  color: #008ba3;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 100px;
+}
+
+.mb-court-info {
+  padding: 16px;
+}
+.mb-court-name {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 4px;
+}
+.mb-court-type {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  color: #64748b;
+}
+.mb-sport-tag {
+  background: #e0f2fe;
+  color: #0284c7;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.mb-court-bot {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px dashed #e2e8f0;
+}
+.mb-price-box {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+.mb-old-price {
+  font-size: 0.875rem;
+  color: #94a3b8;
+  text-decoration: line-through;
+  font-weight: 500;
+}
+.mb-new-price {
+  font-family: 'Oswald', sans-serif;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #008ba3;
+  line-height: 1;
+}
+.mb-per-hr {
+  font-size: 0.75rem;
+  color: #64748b;
+}
+.mb-check-circle {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #006070;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Slots */
+.mb-slots-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: 0.05em;
+  margin-bottom: 12px;
+}
+.mb-slots-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+.mb-slot-btn {
+  background: white;
+  border: 1px solid #e2e8f0;
+  color: #334155;
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.mb-slot-btn.active {
+  background: #006070;
+  color: white;
+  border-color: #006070;
+}
+.mb-slot-btn.disabled {
+  background: #f8fafc;
+  color: #cbd5e1;
+  cursor: not-allowed;
+}
+
+/* Sticky Button - uses sticky so it sticks at bottom within scroll */
+.mb-sticky-btn-wrap {
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 16px;
+  background: white;
+  border-top: 1px solid #e2e8f0;
+  margin: 24px -16px -20px;
+}
+.btn-mb-proceed {
+  width: 100%;
+  background: #00c2ff;
+  color: white;
+  border: none;
+  padding: 16px;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+}

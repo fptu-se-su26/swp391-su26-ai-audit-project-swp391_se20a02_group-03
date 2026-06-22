@@ -101,6 +101,9 @@ public class BookingService : IBookingService
             catch { vnTz = TimeZoneInfo.FindSystemTimeZoneById("Asia/Ho_Chi_Minh"); }
             var vnNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vnTz);
 
+            // C2 FIX: Cache courts to avoid repeated DB calls for the same court across multiple dates/slots
+            var courtCache = new Dictionary<int, Domain.Entities.Court>();
+
             foreach (var d in dto.Details)
             {
                 // Validate: Ngày đặt sân không được trong quá khứ
@@ -122,16 +125,18 @@ public class BookingService : IBookingService
                 if (d.BookingDate.Date == vnNow.Date && d.StartTime <= vnNow.TimeOfDay)
                     return new ApiResponseDto<BookingDto>(400, "Giờ đặt sân phải lớn hơn giờ hiện tại.");
 
-                var court = await _courtRepository.GetByIdAsync(d.CourtId);
+                if (!courtCache.TryGetValue(d.CourtId, out var court))
+                {
+                    court = await _courtRepository.GetByIdAsync(d.CourtId);
+                    if (court != null) courtCache[d.CourtId] = court;
+                }
+
                 if (court == null || court.Status != "Available")
                     return new ApiResponseDto<BookingDto>(400, $"Sân {d.CourtId} không khả dụng.");
 
-                // Kiểm tra trùng lịch (bao gồm bỏ qua booking Pending đã hết hạn thanh toán)
-                var availableCourts = await _courtRepository.GetAvailableCourtsAsync(d.BookingDate, d.StartTime, d.EndTime);
-                var isAvailable = availableCourts.Any(c => c.CourtId == d.CourtId);
-
-                if (!isAvailable)
-                    return new ApiResponseDto<BookingDto>(400, $"Sân {d.CourtId} đã được đặt trong khung giờ {d.StartTime:hh\\:mm} - {d.EndTime:hh\\:mm}.");
+                // C2 & H3 FIX: Removed N+1 and non-atomic GetAvailableCourtsAsync check.
+                // Overlap and availability checking is safely delegated to _bookingRepository.CreateWithTransactionAsync
+                // which uses a Serializable transaction to prevent TOCTOU race conditions.
 
                 // Tính giá dựa trên PricingRule (đã fix logic cross-slot)
                 var price = CalculatePrice(court, d.BookingDate, d.StartTime, d.EndTime);
@@ -236,8 +241,9 @@ public class BookingService : IBookingService
             // Kiểm tra booking đã hết hạn thanh toán chưa
             if (booking.PaymentDeadline.HasValue && DateTime.UtcNow > booking.PaymentDeadline.Value)
             {
+                // C-04 FIX: Set both Status AND PaymentStatus consistently when expired
                 booking.Status = BookingStatus.Cancelled;
-                booking.PaymentStatus = Domain.Constants.PaymentStatus.Pending;
+                booking.PaymentStatus = Domain.Constants.PaymentStatus.Cancelled;
                 await _bookingRepository.UpdateAsync(booking);
                 return new ApiResponseDto<BookingDto>(400, "Booking đã hết hạn thanh toán. Vui lòng đặt lại.");
             }
@@ -268,7 +274,7 @@ public class BookingService : IBookingService
                 var courtNames = string.Join(", ", booking.BookingDetails.Select(bd => bd.Court?.Name ?? $"Court {bd.CourtId}"));
                 var firstDetail = booking.BookingDetails.FirstOrDefault();
                 var bookingDate = firstDetail?.BookingDate.ToString("dd/MM/yyyy");
-                var timeRange = $"{firstDetail?.StartTime:hh\\:mm} - {firstDetail?.EndTime:hh\\:mm}";
+                var timeRange = $"{firstDetail?.StartTime:HH\\:mm} - {firstDetail?.EndTime:HH\\:mm}"; // M-03 FIX: HH = 24h format
 
                 var detailsHtml = $@"
                     <p><b>Booking ID:</b> #{booking.BookingId}</p>

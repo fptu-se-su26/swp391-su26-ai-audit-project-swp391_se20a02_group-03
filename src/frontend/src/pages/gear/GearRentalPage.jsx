@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import GearLayout from '../../layouts/GearLayout'
 import { equipmentApi } from '../../api/equipmentApi'
+import { useToast } from '../../components/Toast'
 
 const statusConfig = {
   active:   { label: 'Active',   bg: 'bg-emerald-50', text: 'text-emerald-700', dot: 'bg-emerald-500', border: 'border-emerald-200' },
@@ -26,6 +27,7 @@ export default function GearRentalPage() {
   const [activeTab, setActiveTab] = useState('all')
   const [search, setSearch] = useState('')
   const [selected, setSelected] = useState(null)
+  const { addToast } = useToast()
 
   useEffect(() => {
     fetchRentals()
@@ -63,11 +65,13 @@ export default function GearRentalPage() {
     try {
       const response = await equipmentApi.return({ equipmentRentalId: rentalId })
       if (response.statusCode === 200) {
-        alert('Equipment returned successfully!')
+        // HIGH FIX: Replace alert() with proper toast notification
+        addToast('Trả thiết bị thành công!', 'success')
         fetchRentals() // Refresh list
       }
     } catch (error) {
-      alert('Error returning equipment: ' + error)
+      // HIGH FIX: Replace alert() with proper toast notification
+      addToast(typeof error === 'string' ? error : (error?.message || 'Lỗi khi trả thiết bị'), 'error')
     }
   }
 
@@ -172,8 +176,9 @@ export default function GearRentalPage() {
                         </span>
                       </td>
                       <td className="px-4 py-3.5">
-                        <span className={`inline-flex items-center gap-1.5 text-[0.72rem] font-semibold px-2.5 py-1 rounded-full border ${s.bg} ${s.text} ${s.border}`}>
-                          <span className={`w-1.5 h-1.5 rounded-full ${s.dot}`}></span>
+                        {/* HIGH FIX: Guard against undefined statusConfig entry to prevent crash */}
+                        <span className={`inline-flex items-center gap-1.5 text-[0.72rem] font-semibold px-2.5 py-1 rounded-full border ${s?.bg || 'bg-slate-50'} ${s?.text || 'text-slate-500'} ${s?.border || 'border-slate-200'}`}>
+                          <span className={`w-1.5 h-1.5 rounded-full ${s?.dot || 'bg-slate-400'}`}></span>
                           {s.label}
                         </span>
                       </td>

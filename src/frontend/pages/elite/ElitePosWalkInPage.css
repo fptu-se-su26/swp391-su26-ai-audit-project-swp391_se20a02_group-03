@@ -1,0 +1,342 @@
+.ep-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+.ep-sports-toggle {
+  display: flex;
+  background: white;
+  border: 1px solid var(--elite-border);
+  border-radius: 8px;
+  padding: 4px;
+}
+.ep-sport-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--elite-text-light);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.ep-sport-btn.active {
+  background: #f8fafc;
+  color: var(--elite-cyan);
+  font-weight: 600;
+}
+
+/* Main Grid */
+.ep-grid {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 24px;
+  align-items: start;
+}
+
+/* Left - Courts */
+.ep-courts-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  background: white;
+  padding: 16px 20px;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+}
+.ep-section-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--elite-text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.ep-legend {
+  display: flex;
+  gap: 16px;
+  background: #f1f5f9;
+  padding: 6px 12px;
+  border-radius: 100px;
+}
+.ep-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--elite-text-light);
+}
+.ep-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+.ep-dot.available { background: #0ea5e9; }
+.ep-dot.booked { background: #94a3b8; }
+
+.ep-courts-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+.ep-court-card {
+  background: white;
+  border-radius: 12px;
+  border: 1.5px solid var(--elite-border);
+  padding: 16px;
+  transition: all 0.2s;
+}
+.ep-court-card.active {
+  border-color: #008ba3; /* Darker cyan/teal */
+  box-shadow: 0 4px 12px rgba(0,139,163,0.15);
+}
+.ep-court-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+.ep-court-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--elite-text);
+}
+.ep-court-type {
+  font-size: 0.75rem;
+  color: var(--elite-text-light);
+  margin-top: 2px;
+}
+.ep-badge-selected {
+  background: #008ba3;
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.ep-slots {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.ep-slot-btn {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--elite-border);
+  background: white;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.ep-slot-time { color: var(--elite-text); }
+.ep-slot-price { color: var(--elite-text-light); }
+.ep-slot-btn.available:hover {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+}
+.ep-slot-btn.selected {
+  background: #008ba3;
+  border-color: #008ba3;
+}
+.ep-slot-btn.selected .ep-slot-time,
+.ep-slot-btn.selected .ep-slot-price {
+  color: white;
+}
+.ep-slot-btn.booked {
+  background: #f1f5f9;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+.ep-slot-btn.booked .ep-slot-time { color: #94a3b8; text-decoration: line-through; }
+.ep-slot-btn.booked .ep-slot-price { color: #94a3b8; font-size: 0.75rem; }
+
+/* Right - Checkout */
+.ep-checkout-area {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.ep-checkout-card {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+}
+.ep-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.ep-link-text {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #008ba3;
+  cursor: pointer;
+}
+
+.ep-search-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #f8fafc;
+  border: 1px solid var(--elite-border);
+  border-radius: 8px;
+  padding: 12px 16px;
+}
+.ep-search-bar svg { color: #94a3b8; }
+.ep-search-bar input {
+  border: none;
+  background: transparent;
+  width: 100%;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.875rem;
+  color: var(--elite-text);
+  outline: none;
+}
+
+/* Order Card */
+.ep-order-item {
+  background: #f8fafc;
+  border: 1px solid var(--elite-border);
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 16px;
+  margin-bottom: 24px;
+}
+.ep-order-item-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+.ep-order-item-name {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--elite-text);
+}
+.ep-order-item-sub {
+  font-size: 0.75rem;
+  color: var(--elite-text-light);
+  margin-top: 2px;
+}
+.ep-remove-btn {
+  background: transparent;
+  border: none;
+  color: #ef4444;
+  font-size: 1.25rem;
+  cursor: pointer;
+  line-height: 1;
+}
+.ep-order-item-price-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--elite-text);
+  padding-top: 16px;
+  border-top: 1px dashed #cbd5e1;
+}
+
+.ep-order-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.ep-summary-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.875rem;
+  color: var(--elite-text-light);
+  font-weight: 500;
+}
+.ep-total-row {
+  margin-top: 8px;
+  padding-top: 16px;
+  border-top: 1px solid var(--elite-border);
+  align-items: center;
+}
+.ep-total-row span:first-child {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--elite-text);
+}
+.ep-total-price {
+  font-family: 'Oswald', sans-serif;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #006070;
+}
+
+/* Payment */
+.ep-label-small {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: var(--elite-text-light);
+  letter-spacing: 0.05em;
+  margin-bottom: 12px;
+}
+.ep-pay-methods {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.ep-pay-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px 0;
+  border: 1px solid var(--elite-border);
+  border-radius: 12px;
+  background: white;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--elite-text-light);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.ep-pay-btn svg { color: #94a3b8; transition: color 0.2s; }
+.ep-pay-btn.active {
+  border-color: #008ba3;
+  color: #008ba3;
+  box-shadow: 0 0 0 1px #008ba3;
+}
+.ep-pay-btn.active svg { color: #008ba3; }
+
+.ep-complete-btn {
+  width: 100%;
+  background: #00c2ff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 16px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background 0.2s;
+}
+.ep-complete-btn:hover { background: #00ace6; }
+
+@media (max-width: 1200px) {
+  .ep-grid { grid-template-columns: 1fr; }
+  .ep-courts-grid { grid-template-columns: repeat(2, 1fr); }
+}
