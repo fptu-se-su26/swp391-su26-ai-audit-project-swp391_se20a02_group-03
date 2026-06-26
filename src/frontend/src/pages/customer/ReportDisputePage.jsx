@@ -9,7 +9,7 @@ export default function ReportDisputePage() {
 
       <div className="max-w-[700px] mx-auto px-6 pt-[90px] pb-20 w-full flex-1">
         <div className="mb-8">
-          <Link to="/customer/bookings" className="text-slate-400 text-sm hover:text-[#00c8aa] mb-2 inline-block flex items-center gap-1">
+          <Link to="/customer/bookings" className="text-slate-400 text-sm hover:text-[#14B8A6] mb-2 inline-block flex items-center gap-1">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
             Quay lại
           </Link>
@@ -26,7 +26,7 @@ export default function ReportDisputePage() {
           <form className="space-y-6" onSubmit={e => e.preventDefault()}>
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-2">Mã giao dịch / Kèo liên quan</label>
-              <select className="w-full border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-[#00c8aa] bg-white">
+              <select className="w-full border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-[#14B8A6] bg-white">
                 <option>Kèo Giao lưu Cầu lông Khá - #BK-8842</option>
               </select>
             </div>
@@ -34,16 +34,16 @@ export default function ReportDisputePage() {
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-2">Lý do báo cáo</label>
               <div className="grid grid-cols-1 gap-3">
-                <label className="flex items-center gap-3 p-4 border border-slate-200 rounded-xl cursor-pointer hover:border-[#00c8aa]">
-                  <input type="radio" name="reason" className="accent-[#00c8aa]" defaultChecked />
+                <label className="flex items-center gap-3 p-4 border border-slate-200 rounded-xl cursor-pointer hover:border-[#14B8A6]">
+                  <input type="radio" name="reason" className="accent-[#14B8A6]" defaultChecked />
                   <span className="text-sm font-medium text-slate-700">Người chơi bùng kèo (Không đến)</span>
                 </label>
-                <label className="flex items-center gap-3 p-4 border border-slate-200 rounded-xl cursor-pointer hover:border-[#00c8aa]">
-                  <input type="radio" name="reason" className="accent-[#00c8aa]" />
+                <label className="flex items-center gap-3 p-4 border border-slate-200 rounded-xl cursor-pointer hover:border-[#14B8A6]">
+                  <input type="radio" name="reason" className="accent-[#14B8A6]" />
                   <span className="text-sm font-medium text-slate-700">Host hủy kèo không báo trước</span>
                 </label>
-                <label className="flex items-center gap-3 p-4 border border-slate-200 rounded-xl cursor-pointer hover:border-[#00c8aa]">
-                  <input type="radio" name="reason" className="accent-[#00c8aa]" />
+                <label className="flex items-center gap-3 p-4 border border-slate-200 rounded-xl cursor-pointer hover:border-[#14B8A6]">
+                  <input type="radio" name="reason" className="accent-[#14B8A6]" />
                   <span className="text-sm font-medium text-slate-700">Người chơi có hành vi thiếu văn hóa</span>
                 </label>
               </div>
@@ -51,7 +51,7 @@ export default function ReportDisputePage() {
 
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-2">Bằng chứng (Tùy chọn nhưng rất khuyến khích)</label>
-              <div className="border-2 border-dashed border-slate-300 rounded-2xl h-32 flex flex-col items-center justify-center text-slate-500 hover:border-[#00c8aa] hover:bg-[#00c8aa]/5 cursor-pointer transition-colors">
+              <div className="border-2 border-dashed border-slate-300 rounded-2xl h-32 flex flex-col items-center justify-center text-slate-500 hover:border-[#14B8A6] hover:bg-[#14B8A6]/5 cursor-pointer transition-colors">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="mb-2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                 <span className="text-sm font-medium">Tải lên ảnh chụp màn hình tin nhắn...</span>
               </div>
@@ -59,10 +59,10 @@ export default function ReportDisputePage() {
 
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-2">Mô tả chi tiết sự việc</label>
-              <textarea rows="4" className="w-full border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-[#00c8aa] resize-none" placeholder="Vui lòng cung cấp chi tiết thời gian và sự việc..."></textarea>
+              <textarea rows="4" className="w-full border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-[#14B8A6] resize-none" placeholder="Vui lòng cung cấp chi tiết thời gian và sự việc..."></textarea>
             </div>
 
-            <button className="w-full bg-slate-900 text-white font-bold py-3.5 rounded-xl hover:bg-slate-800 transition-colors">
+            <button className="w-full bg-slate-900 text-[var(--theme-primary)] font-bold py-3.5 rounded-xl hover:bg-slate-800 transition-colors">
               Gửi Báo Cáo Yêu Cầu Xử Lý
             </button>
           </form>

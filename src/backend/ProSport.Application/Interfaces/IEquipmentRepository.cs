@@ -14,21 +14,7 @@ public interface IEquipmentRepository
     Task UpdateAsync(Equipment equipment);
     Task DeleteAsync(Equipment equipment);
 
-    // Rent/Return methods
+    // Extra methods
     Task<IEnumerable<Equipment>> GetAllAsync();
-    Task<IEnumerable<EquipmentRental>> GetUserRentalsAsync(int userId);
-    Task CreateRentalAsync(EquipmentRental rental);
     Task UpdateEquipmentAsync(Equipment equipment);
-    Task<EquipmentRental?> GetRentalByIdAsync(int rentalId);
-    Task UpdateRentalAsync(EquipmentRental rental);
-    Task<IEnumerable<EquipmentRental>> GetPendingInspectionsAsync();
-    
-    // Unit tracking
-    Task<IEnumerable<EquipmentUnit>> GetAvailableUnitsForEquipmentAsync(int equipmentId);
-    Task UpdateEquipmentUnitStatusAsync(int unitId, string newStatus);
-    Task<EquipmentUnit?> GetEquipmentUnitBySerialAsync(string serial);
-    Task<EquipmentUnit?> GetEquipmentUnitByIdAsync(int unitId);
-    Task UpdateEquipmentUnitAsync(EquipmentUnit unit);
-    Task<IEnumerable<EquipmentUnit>> GetAllUnitsAsync();
-    Task<IEnumerable<EquipmentRental>> GetAllRentalsAsync();
 }

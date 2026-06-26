@@ -147,7 +147,7 @@ export default function AdminDashboardPage() {
                 ))}
               </div>
               <div className="mt-auto pt-5 border-t border-slate-200 text-center">
-                <a href="#" className="text-[#0d8a8a] hover:text-[#0b7373] text-sm font-semibold no-underline hover:underline">Xem Tất cả Nhật ký</a>
+                <a href="#" className="text-[#14B8A6] hover:text-[#0b7373] text-sm font-semibold no-underline hover:underline">Xem Tất cả Nhật ký</a>
               </div>
             </div>
           </div>

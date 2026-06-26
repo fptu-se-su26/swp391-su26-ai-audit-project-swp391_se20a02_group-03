@@ -33,10 +33,10 @@ export default function SitemapPage() {
           <div>
             <h3 className="font-['Oswald'] text-[1.1rem] font-bold text-[#0a0e1a] mb-4 border-b-[1.5px] border-slate-100 pb-2">Main Pages</h3>
             <ul className="flex flex-col gap-3">
-              <li><Link to="/" className="text-slate-600 hover:text-[#00c8aa] transition-colors">Home / Discover</Link></li>
-              <li><Link to="/about" className="text-slate-600 hover:text-[#00c8aa] transition-colors">About Us (Brand Mission)</Link></li>
-              <li><Link to="/contact" className="text-slate-600 hover:text-[#00c8aa] transition-colors">Contact Support</Link></li>
-              <li><Link to="/courts" className="text-slate-600 hover:text-[#00c8aa] transition-colors">Courts & Facilities</Link></li>
+              <li><Link to="/" className="text-slate-600 hover:text-[#14B8A6] transition-colors">Home / Discover</Link></li>
+              <li><Link to="/about" className="text-slate-600 hover:text-[#14B8A6] transition-colors">About Us (Brand Mission)</Link></li>
+              <li><Link to="/contact" className="text-slate-600 hover:text-[#14B8A6] transition-colors">Contact Support</Link></li>
+              <li><Link to="/courts" className="text-slate-600 hover:text-[#14B8A6] transition-colors">Courts & Facilities</Link></li>
             </ul>
           </div>
           
@@ -44,10 +44,10 @@ export default function SitemapPage() {
           <div>
             <h3 className="font-['Oswald'] text-[1.1rem] font-bold text-[#0a0e1a] mb-4 border-b-[1.5px] border-slate-100 pb-2">Account</h3>
             <ul className="flex flex-col gap-3">
-              <li><Link to="/login" className="text-slate-600 hover:text-[#00c8aa] transition-colors">Login</Link></li>
-              <li><Link to="/register" className="text-slate-600 hover:text-[#00c8aa] transition-colors">Register</Link></li>
-              <li><Link to="/customer/profile" className="text-slate-600 hover:text-[#00c8aa] transition-colors">My Profile</Link></li>
-              <li><Link to="/customer/bookings" className="text-slate-600 hover:text-[#00c8aa] transition-colors">Booking History</Link></li>
+              <li><Link to="/login" className="text-slate-600 hover:text-[#14B8A6] transition-colors">Login</Link></li>
+              <li><Link to="/register" className="text-slate-600 hover:text-[#14B8A6] transition-colors">Register</Link></li>
+              <li><Link to="/customer/profile" className="text-slate-600 hover:text-[#14B8A6] transition-colors">My Profile</Link></li>
+              <li><Link to="/customer/bookings" className="text-slate-600 hover:text-[#14B8A6] transition-colors">Booking History</Link></li>
             </ul>
           </div>
           
@@ -55,10 +55,10 @@ export default function SitemapPage() {
           <div>
             <h3 className="font-['Oswald'] text-[1.1rem] font-bold text-[#0a0e1a] mb-4 border-b-[1.5px] border-slate-100 pb-2">MatchPro Community</h3>
             <ul className="flex flex-col gap-3">
-              <li><Link to="/matches" className="text-slate-600 hover:text-[#00c8aa] transition-colors">Trending Matches</Link></li>
-              <li><Link to="/matches/nearby" className="text-slate-600 hover:text-[#00c8aa] transition-colors">Nearby Sports</Link></li>
-              <li><Link to="/matches/community" className="text-slate-600 hover:text-[#00c8aa] transition-colors">Community Hub</Link></li>
-              <li><Link to="/matches/leaderboard" className="text-slate-600 hover:text-[#00c8aa] transition-colors">Leaderboards</Link></li>
+              <li><Link to="/matches" className="text-slate-600 hover:text-[#14B8A6] transition-colors">Trending Matches</Link></li>
+              <li><Link to="/matches/nearby" className="text-slate-600 hover:text-[#14B8A6] transition-colors">Nearby Sports</Link></li>
+              <li><Link to="/matches/community" className="text-slate-600 hover:text-[#14B8A6] transition-colors">Community Hub</Link></li>
+              <li><Link to="/matches/leaderboard" className="text-slate-600 hover:text-[#14B8A6] transition-colors">Leaderboards</Link></li>
             </ul>
           </div>
         </div>
@@ -69,10 +69,10 @@ export default function SitemapPage() {
           <div>
             <h3 className="font-['Oswald'] text-[1.1rem] font-bold text-[#0a0e1a] mb-4 border-b-[1.5px] border-slate-100 pb-2">Gear Rental</h3>
             <ul className="flex flex-col gap-3">
-              <li><Link to="/gear/catalog" className="text-slate-600 hover:text-[#00c8aa] transition-colors">Gear Catalog</Link></li>
-              <li><Link to="/gear/rentals" className="text-slate-600 hover:text-[#00c8aa] transition-colors">My Rentals</Link></li>
-              <li><Link to="/gear/support" className="text-slate-600 hover:text-[#00c8aa] transition-colors">Gear Support</Link></li>
-              <li><Link to="/gear/rental-terms" className="text-slate-600 hover:text-[#00c8aa] transition-colors">Rental Terms</Link></li>
+              <li><Link to="/gear/catalog" className="text-slate-600 hover:text-[#14B8A6] transition-colors">Gear Catalog</Link></li>
+              <li><Link to="/gear/rentals" className="text-slate-600 hover:text-[#14B8A6] transition-colors">My Rentals</Link></li>
+              <li><Link to="/gear/support" className="text-slate-600 hover:text-[#14B8A6] transition-colors">Gear Support</Link></li>
+              <li><Link to="/gear/rental-terms" className="text-slate-600 hover:text-[#14B8A6] transition-colors">Rental Terms</Link></li>
             </ul>
           </div>
 
@@ -80,10 +80,10 @@ export default function SitemapPage() {
           <div>
             <h3 className="font-['Oswald'] text-[1.1rem] font-bold text-[#0a0e1a] mb-4 border-b-[1.5px] border-slate-100 pb-2">Platform Portals</h3>
             <ul className="flex flex-col gap-3">
-              <li><Link to="/apex" className="text-slate-600 hover:text-[#00c8aa] transition-colors">Apex Court System</Link></li>
-              <li><Link to="/admin" className="text-slate-600 hover:text-[#00c8aa] transition-colors">Admin Dashboard</Link></li>
-              <li><Link to="/elite" className="text-slate-600 hover:text-[#00c8aa] transition-colors">Elite Staff POS</Link></li>
-              <li><Link to="/mobile" className="text-slate-600 hover:text-[#00c8aa] transition-colors">Mobile App View</Link></li>
+              <li><Link to="/apex" className="text-slate-600 hover:text-[#14B8A6] transition-colors">Apex Court System</Link></li>
+              <li><Link to="/admin" className="text-slate-600 hover:text-[#14B8A6] transition-colors">Admin Dashboard</Link></li>
+              <li><Link to="/elite" className="text-slate-600 hover:text-[#14B8A6] transition-colors">Elite Staff POS</Link></li>
+              <li><Link to="/mobile" className="text-slate-600 hover:text-[#14B8A6] transition-colors">Mobile App View</Link></li>
             </ul>
           </div>
           
@@ -91,9 +91,9 @@ export default function SitemapPage() {
           <div>
             <h3 className="font-['Oswald'] text-[1.1rem] font-bold text-[#0a0e1a] mb-4 border-b-[1.5px] border-slate-100 pb-2">Legal</h3>
             <ul className="flex flex-col gap-3">
-              <li><Link to="/privacy" className="text-slate-600 hover:text-[#00c8aa] transition-colors">Privacy Policy</Link></li>
-              <li><Link to="/terms" className="text-slate-600 hover:text-[#00c8aa] transition-colors">Terms of Service</Link></li>
-              <li><span className="text-[#00c8aa] font-medium">Sitemap (Current Page)</span></li>
+              <li><Link to="/privacy" className="text-slate-600 hover:text-[#14B8A6] transition-colors">Privacy Policy</Link></li>
+              <li><Link to="/terms" className="text-slate-600 hover:text-[#14B8A6] transition-colors">Terms of Service</Link></li>
+              <li><span className="text-[#14B8A6] font-medium">Sitemap (Current Page)</span></li>
             </ul>
           </div>
         </div>

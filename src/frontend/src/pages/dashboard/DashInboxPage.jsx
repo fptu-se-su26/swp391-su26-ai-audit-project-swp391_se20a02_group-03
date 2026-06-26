@@ -24,7 +24,7 @@ const CheckIcon = () => (
 
 const tagStyles = {
   urgent: 'bg-red-500/[0.12] text-red-500',
-  pro: 'bg-[rgba(13,138,138,0.12)] text-[#0d8a8a]',
+  pro: 'bg-[rgba(13,138,138,0.12)] text-[#14B8A6]',
   new: 'bg-green-500/[0.12] text-green-500',
 }
 
@@ -61,7 +61,7 @@ const notifications = [
   {
     id: 4,
     iconEl: <CheckIcon />,
-    iconBg: '#0d8a8a',
+    iconBg: '#14B8A6',
     tags: [],
     title: 'Payment Successful',
     body: "Your recent purchase for 'Pro Gear Pack V2' was successful. A receipt has been sent to your email.",
@@ -71,9 +71,9 @@ const notifications = [
 ]
 
 const actionBtnStyles = {
-  primary: 'bg-[#0d8a8a] text-white border-none rounded-lg px-[18px] py-2 text-[0.82rem] font-bold cursor-pointer font-[\'Inter\'] transition-colors hover:bg-[#0d2d3a]',
-  dark: 'bg-[#0d2d3a] text-white border-none rounded-lg px-[18px] py-2 text-[0.82rem] font-bold cursor-pointer font-[\'Inter\'] transition-colors hover:bg-[#0d8a8a]',
-  outline: 'bg-white text-[#0d2d3a] border-[1.5px] border-[#e0ecf0] rounded-lg px-[18px] py-2 text-[0.82rem] font-semibold cursor-pointer font-[\'Inter\'] transition-all hover:border-[#0d8a8a] hover:text-[#0d8a8a]',
+  primary: 'bg-[#14B8A6] text-[var(--theme-primary)] border-none rounded-lg px-[18px] py-2 text-[0.82rem] font-bold cursor-pointer font-[\'Inter\'] transition-colors hover:bg-[var(--theme-primary)]',
+  dark: 'bg-[var(--theme-primary)] text-[var(--theme-primary)] border-none rounded-lg px-[18px] py-2 text-[0.82rem] font-bold cursor-pointer font-[\'Inter\'] transition-colors hover:bg-[#14B8A6]',
+  outline: 'bg-white text-foreground border-[1.5px] border-[#e0ecf0] rounded-lg px-[18px] py-2 text-[0.82rem] font-semibold cursor-pointer font-[\'Inter\'] transition-all hover:border-[#14B8A6] hover:text-[#14B8A6]',
 }
 
 export default function DashInboxPage() {
@@ -84,10 +84,10 @@ export default function DashInboxPage() {
       <div>
         <div className="flex items-start justify-between mb-5">
           <div>
-            <h1 className="font-['Oswald'] text-[1.6rem] font-bold text-[#0d2d3a]">Notifications</h1>
+            <h1 className="font-['Oswald'] text-[1.6rem] font-bold text-foreground">Notifications</h1>
             <p className="text-[0.85rem] text-slate-500 mt-1">Manage your alerts and stay ahead of the game.</p>
           </div>
-          <button className="flex items-center gap-1.5 bg-transparent border-[1.5px] border-[#e0ecf0] rounded-full px-3.5 py-[7px] text-[0.82rem] font-semibold text-[#0d8a8a] cursor-pointer font-['Inter'] transition-all whitespace-nowrap hover:bg-[rgba(13,138,138,0.07)] hover:border-[#0d8a8a]">
+          <button className="flex items-center gap-1.5 bg-transparent border-[1.5px] border-[#e0ecf0] rounded-full px-3.5 py-[7px] text-[0.82rem] font-semibold text-[#14B8A6] cursor-pointer font-['Inter'] transition-all whitespace-nowrap hover:bg-[rgba(13,138,138,0.07)] hover:border-[#14B8A6]">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <polyline points="20 6 9 17 4 12"/>
             </svg>
@@ -97,7 +97,7 @@ export default function DashInboxPage() {
 
         <div className="flex gap-2 mb-5 flex-wrap">
           {tabs.map(t => (
-            <button key={t} className={`py-[7px] px-4 rounded-full border-[1.5px] text-[0.82rem] font-medium cursor-pointer font-['Inter'] transition-all hover:border-[#0d8a8a] hover:text-[#0d8a8a] ${activeTab === t ? 'bg-[#0d2d3a] border-[#0d2d3a] text-white' : 'bg-white border-[#e0ecf0] text-slate-500'}`} onClick={() => setActiveTab(t)}>{t}</button>
+            <button key={t} className={`py-[7px] px-4 rounded-full border-[1.5px] text-[0.82rem] font-medium cursor-pointer font-['Inter'] transition-all hover:border-[#14B8A6] hover:text-[#14B8A6] ${activeTab === t ? 'bg-[var(--theme-primary)] border-[#0F172A] text-[var(--theme-primary)]' : 'bg-white border-[#e0ecf0] text-slate-500'}`} onClick={() => setActiveTab(t)}>{t}</button>
           ))}
         </div>
 
@@ -122,7 +122,7 @@ export default function DashInboxPage() {
                   </div>
                   <span className="text-[0.75rem] text-slate-400 ml-auto whitespace-nowrap">{n.time}</span>
                 </div>
-                <h3 className="text-[0.95rem] font-bold text-[#0d2d3a] mb-1.5">{n.title}</h3>
+                <h3 className="text-[0.95rem] font-bold text-foreground mb-1.5">{n.title}</h3>
                 <p className="text-sm text-slate-500 leading-[1.55]">{n.body}</p>
                 {n.actions.length > 0 && (
                   <div className="flex gap-2.5 mt-3">

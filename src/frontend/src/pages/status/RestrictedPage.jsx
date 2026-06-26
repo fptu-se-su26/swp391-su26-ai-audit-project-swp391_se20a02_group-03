@@ -18,7 +18,7 @@ export default function RestrictedPage() {
           </p>
 
           <div className="flex justify-center gap-4 flex-col sm:flex-row">
-            <Link to="/" className="flex items-center justify-center gap-2 bg-[#006070] hover:bg-[#004a57] text-white px-6 py-3 rounded-lg no-underline font-semibold text-sm transition-colors border-none cursor-pointer">
+            <Link to="/" className="flex items-center justify-center gap-2 bg-[#006070] hover:bg-[#004a57] text-[var(--theme-primary)] px-6 py-3 rounded-lg no-underline font-semibold text-sm transition-colors border-none cursor-pointer">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
               Return to Safety
             </Link>

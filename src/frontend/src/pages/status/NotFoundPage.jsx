@@ -22,7 +22,7 @@ export default function NotFoundPage() {
           </p>
  
           <div className="flex justify-center gap-4 flex-col sm:flex-row">
-            <Link to="/" className="flex items-center justify-center gap-2 bg-[#006070] hover:bg-[#004a57] text-white px-6 py-3 rounded-lg no-underline font-semibold text-sm transition-colors border-none cursor-pointer">
+            <Link to="/" className="flex items-center justify-center gap-2 bg-[#006070] hover:bg-[#004a57] text-[var(--theme-primary)] px-6 py-3 rounded-lg no-underline font-semibold text-sm transition-colors border-none cursor-pointer">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
               Back to Dashboard
             </Link>

@@ -49,7 +49,7 @@ export default function GearMaintenancePage() {
         {/* Header */}
         <div className="flex items-start justify-between mb-7">
           <div>
-            <h1 className="font-['Oswald'] text-2xl font-bold text-[#0d2d3a]">Maintenance Tracking</h1>
+            <h1 className="font-['Oswald'] text-2xl font-bold text-foreground">Maintenance Tracking</h1>
             <p className="text-sm text-slate-400 mt-1">Monitor all equipment servicing and maintenance schedules</p>
           </div>
           <button className="btn-primary text-sm py-2 px-4 flex items-center gap-2">
@@ -77,7 +77,7 @@ export default function GearMaintenancePage() {
             <div className="flex gap-1 flex-wrap mb-4">
               {tabs.map(tab => (
                 <button key={tab} onClick={() => setActiveTab(tab)}
-                  className={`px-3 py-1.5 rounded-full text-[0.78rem] font-medium capitalize cursor-pointer border transition-all ${activeTab === tab ? 'bg-[#0d8a8a] text-white border-[#0d8a8a]' : 'bg-white text-slate-500 border-[#e0ecf0] hover:border-[#0d8a8a] hover:text-[#0d8a8a]'}`}>
+                  className={`px-3 py-1.5 rounded-full text-[0.78rem] font-medium capitalize cursor-pointer border transition-all ${activeTab === tab ? 'bg-[#14B8A6] text-[var(--theme-primary)] border-[#14B8A6]' : 'bg-white text-slate-500 border-[#e0ecf0] hover:border-[#14B8A6] hover:text-[#14B8A6]'}`}>
                   {tab === 'all' ? `All (${maintenanceItems.length})` : `${tab.replace('-', ' ')} (${maintenanceItems.filter(i => i.status === tab).length})`}
                 </button>
               ))}
@@ -93,7 +93,7 @@ export default function GearMaintenancePage() {
                       <img src={item.img} alt="" className="w-12 h-12 rounded-xl object-cover shrink-0" />
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-0.5">
-                          <p className="text-[0.875rem] font-semibold text-[#0d2d3a] truncate">{item.name}</p>
+                          <p className="text-[0.875rem] font-semibold text-foreground truncate">{item.name}</p>
                           <span className={`text-[0.65rem] font-bold px-2 py-0.5 rounded-full shrink-0 ${p.bg} ${p.color}`}>{p.label}</span>
                         </div>
                         <p className="text-[0.75rem] text-slate-400 truncate">{item.issue}</p>
@@ -121,12 +121,12 @@ export default function GearMaintenancePage() {
           <div className="flex flex-col gap-4">
             <div className="bg-white rounded-2xl border border-[#e0ecf0] overflow-hidden">
               <div className="px-5 py-4 border-b border-[#f0f4f8] bg-[#f9fbfc]">
-                <h2 className="font-['Oswald'] text-base font-bold text-[#0d2d3a]">Maintenance Schedule</h2>
+                <h2 className="font-['Oswald'] text-base font-bold text-foreground">Maintenance Schedule</h2>
               </div>
               <div className="divide-y divide-[#f0f4f8]">
                 {schedule.map((s, i) => (
                   <div key={i} className="px-5 py-4">
-                    <p className="text-[0.72rem] font-bold tracking-wider uppercase text-[#0d8a8a] mb-2">{s.month}</p>
+                    <p className="text-[0.72rem] font-bold tracking-wider uppercase text-[#14B8A6] mb-2">{s.month}</p>
                     <ul className="flex flex-col gap-1.5">
                       {s.tasks.map((t, j) => (
                         <li key={j} className="text-[0.78rem] text-slate-500 flex items-start gap-2">
@@ -142,7 +142,7 @@ export default function GearMaintenancePage() {
 
             {/* Technicians */}
             <div className="bg-white rounded-2xl border border-[#e0ecf0] p-5">
-              <h2 className="font-['Oswald'] text-base font-bold text-[#0d2d3a] mb-3">On-Duty Technicians</h2>
+              <h2 className="font-['Oswald'] text-base font-bold text-foreground mb-3">On-Duty Technicians</h2>
               {[
                 { name: 'James T.', role: 'Racket Specialist', tasks: 2, avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&q=80' },
                 { name: 'Sarah K.', role: 'General Equipment', tasks: 2, avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=40&q=80' },
@@ -152,10 +152,10 @@ export default function GearMaintenancePage() {
                 <div key={i} className="flex items-center gap-3 py-2.5 border-b border-[#f0f4f8] last:border-0">
                   <img src={tech.avatar} alt="" className="w-8 h-8 rounded-full object-cover" />
                   <div className="flex-1">
-                    <p className="text-[0.82rem] font-semibold text-[#0d2d3a]">{tech.name}</p>
+                    <p className="text-[0.82rem] font-semibold text-foreground">{tech.name}</p>
                     <p className="text-[0.68rem] text-slate-400">{tech.role}</p>
                   </div>
-                  <span className="text-[0.72rem] bg-[#0d8a8a]/10 text-[#0d8a8a] font-bold px-2 py-0.5 rounded-full">{tech.tasks} tasks</span>
+                  <span className="text-[0.72rem] bg-[#14B8A6]/10 text-[#14B8A6] font-bold px-2 py-0.5 rounded-full">{tech.tasks} tasks</span>
                 </div>
               ))}
             </div>

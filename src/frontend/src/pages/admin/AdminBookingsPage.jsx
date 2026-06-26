@@ -8,14 +8,14 @@ const bookings = [
 ]
 
 const paymentStyles = {
-  PAID: 'bg-[#38bdf8] text-white',
-  PENDING: 'bg-amber-500 text-white',
-  REFUNDED: 'bg-red-300 text-white',
+  PAID: 'bg-[#38bdf8] text-[var(--theme-primary)]',
+  PENDING: 'bg-amber-500 text-[var(--theme-primary)]',
+  REFUNDED: 'bg-red-300 text-[var(--theme-primary)]',
 }
 
 const statusStyles = {
   CONFIRMED: 'bg-indigo-100 text-indigo-600',
-  'CHECKED-IN': 'bg-[#0d8a8a] text-white',
+  'CHECKED-IN': 'bg-[#14B8A6] text-[var(--theme-primary)]',
   CANCELLED: 'bg-slate-200 text-slate-500',
 }
 
@@ -39,7 +39,7 @@ export default function AdminBookingsPage() {
                 Timeline
               </button>
             </div>
-            <button className="bg-[#0d8a8a] hover:bg-[#0b7373] text-white border-none rounded-md py-2.5 px-4 text-sm font-semibold cursor-pointer flex items-center justify-center gap-2 transition-all">
+            <button className="bg-[#14B8A6] hover:bg-[#0b7373] text-[var(--theme-primary)] border-none rounded-md py-2.5 px-4 text-sm font-semibold cursor-pointer flex items-center justify-center gap-2 transition-all">
               + Manual Booking
             </button>
           </div>
@@ -89,7 +89,7 @@ export default function AdminBookingsPage() {
                 <input type="text" placeholder="mm/dd/yyyy" className="border-none outline-none font-['Inter'] text-sm text-slate-900 w-[100px]" />
               </div>
             </div>
-            <button className="flex items-center gap-2 bg-transparent border-none text-slate-500 text-sm font-semibold cursor-pointer hover:text-[#0d8a8a]">
+            <button className="flex items-center gap-2 bg-transparent border-none text-slate-500 text-sm font-semibold cursor-pointer hover:text-[#14B8A6]">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
               Export CSV
             </button>
@@ -113,7 +113,7 @@ export default function AdminBookingsPage() {
                   <td className="px-5 py-4 whitespace-nowrap text-sm font-semibold text-slate-500">{b.id}</td>
                   <td className="px-5 py-4 whitespace-nowrap">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold" style={{ background: b.customer.color }}>{b.customer.initials}</div>
+                      <div className="w-8 h-8 rounded-full flex items-center justify-center text-[var(--theme-primary)] text-xs font-bold" style={{ background: b.customer.color }}>{b.customer.initials}</div>
                       <div>
                         <p className="font-semibold text-slate-900 text-sm">{b.customer.name}</p>
                         <p className="text-xs text-slate-500">{b.customer.sub}</p>
@@ -146,7 +146,7 @@ export default function AdminBookingsPage() {
             <span className="text-sm text-slate-500">Showing 1 to 4 of 42 entries</span>
             <div className="flex gap-1">
               <button className="w-8 h-8 border-none bg-transparent rounded text-sm text-slate-500 cursor-pointer hover:bg-slate-100">&lt;</button>
-              <button className="w-8 h-8 border-none rounded text-sm cursor-pointer bg-[#0d8a8a] text-white font-semibold">1</button>
+              <button className="w-8 h-8 border-none rounded text-sm cursor-pointer bg-[#14B8A6] text-[var(--theme-primary)] font-semibold">1</button>
               <button className="w-8 h-8 border-none bg-transparent rounded text-sm text-slate-500 cursor-pointer hover:bg-slate-100">2</button>
               <button className="w-8 h-8 border-none bg-transparent rounded text-sm text-slate-500 cursor-pointer hover:bg-slate-100">3</button>
               <span className="flex items-center justify-center w-8 text-slate-400">...</span>

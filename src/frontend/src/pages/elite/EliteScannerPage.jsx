@@ -61,7 +61,7 @@ export default function EliteScannerPage() {
       <div className="p-6 max-w-4xl mx-auto">
         <div className="mb-6">
           <h1 className="text-3xl font-bold text-gray-900">QR Check-in</h1>
-          <p className="text-gray-500">Scan customer's booking QR code to process check-in instantly.</p>
+          <p className="text-foreground-muted">Scan customer's booking QR code to process check-in instantly.</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -75,7 +75,7 @@ export default function EliteScannerPage() {
             {/* Right: Result */}
             <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col justify-center items-center min-h-[300px]">
                 {!scanResult && !loading && !error && (
-                    <div className="text-center text-gray-400">
+                    <div className="text-center text-foreground-muted">
                         <svg className="w-16 h-16 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm14 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path></svg>
                         <p>Awaiting QR Code Scan...</p>
                     </div>
@@ -89,9 +89,9 @@ export default function EliteScannerPage() {
                             </div>
                             <h2 className="text-2xl font-bold text-green-700 mb-2">Check-in Successful!</h2>
                             <div className="text-left bg-white p-4 rounded-lg mt-4 shadow-sm">
-                                <p className="mb-2"><span className="text-gray-500">Booking ID:</span> <span className="font-semibold">#{scanResult.data?.bookingId}</span></p>
-                                <p className="mb-2"><span className="text-gray-500">Total Paid:</span> <span className="font-semibold">{scanResult.data?.totalAmount?.toLocaleString()} VND</span></p>
-                                <p className="mb-2"><span className="text-gray-500">Status:</span> <span className="inline-block px-2 py-1 bg-green-100 text-green-800 rounded text-xs font-bold">CHECKED IN</span></p>
+                                <p className="mb-2"><span className="text-foreground-muted">Booking ID:</span> <span className="font-semibold">#{scanResult.data?.bookingId}</span></p>
+                                <p className="mb-2"><span className="text-foreground-muted">Total Paid:</span> <span className="font-semibold">{scanResult.data?.totalAmount?.toLocaleString()} VND</span></p>
+                                <p className="mb-2"><span className="text-foreground-muted">Status:</span> <span className="inline-block px-2 py-1 bg-green-100 text-green-800 rounded text-xs font-bold">CHECKED IN</span></p>
                                 <hr className="my-3"/>
                                 <h3 className="font-bold text-gray-700 mb-2">Cơ sở/Sân</h3>
                                 <ul className="list-disc pl-5 text-sm text-gray-600">

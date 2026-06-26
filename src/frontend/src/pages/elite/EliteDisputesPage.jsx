@@ -43,7 +43,7 @@ export default function EliteDisputesPage() {
               <textarea rows="4" className="w-full border border-slate-300 rounded-md p-3 text-sm outline-none focus:border-[#00c2ff] resize-none" placeholder="Nhập ghi chú hoặc đính kèm link camera..."></textarea>
             </div>
 
-            <button className="bg-[#00c2ff] text-white font-bold px-6 py-2 rounded-md hover:bg-[#00ace6]">Gửi báo cáo lên Admin</button>
+            <button className="bg-[#00c2ff] text-[var(--theme-primary)] font-bold px-6 py-2 rounded-md hover:bg-[#00ace6]">Gửi báo cáo lên Admin</button>
           </form>
         </div>
       </div>

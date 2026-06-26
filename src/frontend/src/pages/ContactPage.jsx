@@ -177,10 +177,10 @@ export default function ContactPage() {
             {/* Live Support */}
             <div className="bg-brand-900 rounded-2xl p-6 flex items-center justify-between gap-4 mt-2 shadow-lg">
               <div>
-                <p className="font-bold text-white text-lg">Hỗ trợ trực tuyến</p>
+                <p className="font-bold text-[var(--theme-primary)] text-lg">Hỗ trợ trực tuyến</p>
                 <p className="text-sm text-brand-300 mt-1">Nhân viên hỗ trợ 24/7 cho các HLV cao cấp.</p>
               </div>
-              <button className="bg-white/10 hover:bg-white/20 text-white p-3 rounded-full shrink-0 transition-colors active:scale-95">
+              <button className="bg-[var(--theme-surface-hover)] hover:bg-white/20 text-[var(--theme-primary)] p-3 rounded-full shrink-0 transition-colors active:scale-95">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
               </button>
             </div>
@@ -192,7 +192,7 @@ export default function ContactPage() {
       <section className="relative h-[400px] overflow-hidden">
         <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1400&q=80" alt="Elite Facility" className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-brand-950/20 mix-blend-multiply" />
-        <div className="absolute bottom-10 left-10 bg-brand-950/80 backdrop-blur-md rounded-xl p-6 max-w-sm flex flex-col gap-3 shadow-2xl border border-white/10">
+        <div className="absolute bottom-10 left-10 bg-brand-950/80 backdrop-blur-md rounded-xl p-6 max-w-sm flex flex-col gap-3 shadow-2xl border border-border-default">
           <div className="text-xs font-bold tracking-widest uppercase text-accent">Cơ sở vật chất hiện đại</div>
           <p className="text-sm text-brand-100 leading-relaxed">Tọa lạc tại vị trí trung tâm thể thao dễ dàng di chuyển.</p>
           <a href="#" className="text-sm text-accent font-semibold hover:text-accent-hover transition-colors">Xem bản đồ →</a>

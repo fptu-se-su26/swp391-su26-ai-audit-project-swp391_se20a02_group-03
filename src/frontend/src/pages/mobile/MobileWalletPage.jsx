@@ -62,7 +62,7 @@ export default function MobileWalletPage() {
       {showDepositModal && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
           <div style={{ background: '#fff', borderRadius: 16, padding: 24, width: '100%', maxWidth: 340 }}>
-            <h3 style={{ margin: '0 0 16px', fontSize: 16, fontWeight: 700, color: '#0d2d3a' }}>Nạp tiền vào ví</h3>
+            <h3 style={{ margin: '0 0 16px', fontSize: 16, fontWeight: 700, color: '#0F172A' }}>Nạp tiền vào ví</h3>
             <label style={{ fontSize: 13, color: '#64748b', fontWeight: 600 }}>Số tiền (VNĐ)</label>
             <input
               type="number"
@@ -84,21 +84,21 @@ export default function MobileWalletPage() {
       <div className="font-sans -mx-4 -my-5 pb-24">
         
         {/* Balance */}
-        <div className="bg-[#006070] text-white p-6 rounded-b-[24px] flex justify-between items-center shadow-sm">
+        <div className="bg-[#006070] text-[var(--theme-primary)] p-6 rounded-b-[24px] flex justify-between items-center shadow-sm">
           <div>
             <p className="text-[0.62rem] font-bold tracking-wider opacity-60">AVAILABLE BALANCE (VNĐ)</p>
-            <h1 className="font-['Oswald'] text-3xl font-bold mt-1 text-white">
+            <h1 className="font-['Oswald'] text-3xl font-bold mt-1 text-[var(--theme-primary)]">
               {isLoading ? "..." : (wallet?.balance?.toLocaleString('vi-VN') || "0")} đ
             </h1>
           </div>
-          <button className="bg-white/10 border-none w-9 h-9 rounded-full text-white flex items-center justify-center cursor-pointer hover:bg-white/20">
+          <button className="bg-[var(--theme-surface-hover)] border-none w-9 h-9 rounded-full text-[var(--theme-primary)] flex items-center justify-center cursor-pointer hover:bg-white/20">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
           </button>
         </div>
 
         {/* Card Scroll */}
         <div className="flex gap-4 overflow-x-auto p-5 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-          <div className="w-full min-w-[280px] bg-slate-900 text-white rounded-2xl p-5 shadow-lg relative overflow-hidden flex flex-col gap-4 border border-white/5">
+          <div className="w-full min-w-[280px] bg-slate-900 text-[var(--theme-primary)] rounded-2xl p-5 shadow-lg relative overflow-hidden flex flex-col gap-4 border border-border-default">
             <div className="flex justify-between items-center">
               <h3 className="font-['Oswald'] text-base font-bold tracking-wide">PRO-SPORT</h3>
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M8.56 2.75c4.37 6.03 6.02 9.42 8.03 17.72"/></svg>
@@ -122,7 +122,7 @@ export default function MobileWalletPage() {
 
         {/* Add Funds Button */}
         <div className="px-5 mb-6">
-          <button onClick={handleAddFunds} className="w-full bg-[#00c2ff] hover:bg-[#00ace6] text-white py-3 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 border-none cursor-pointer shadow-md transition-all">
+          <button onClick={handleAddFunds} className="w-full bg-[#00c2ff] hover:bg-[#00ace6] text-[var(--theme-primary)] py-3 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 border-none cursor-pointer shadow-md transition-all">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
             Nạp tiền qua VNPay
           </button>

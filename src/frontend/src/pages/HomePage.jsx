@@ -203,7 +203,7 @@ export default function HomePage() {
             <p className="text-xs font-semibold tracking-[0.2em] uppercase text-accent mb-6">
               Nâng tầm hiệu suất thể thao
             </p>
-            <h1 className="font-heading text-[clamp(3rem,6vw,5.5rem)] font-bold leading-[1.0] text-white tracking-[-0.02em] mb-7">
+            <h1 className="font-heading text-[clamp(3rem,6vw,5.5rem)] font-bold leading-[1.0] text-[var(--theme-primary)] tracking-[-0.02em] mb-7">
               HIỆU SUẤT MƯỢT MÀ.<br />
               <span className="text-accent">KIỂM SOÁT ĐỈNH CAO.</span>
             </h1>
@@ -217,7 +217,7 @@ export default function HomePage() {
                 Bắt đầu miễn phí
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
               </Link>
-              <Link to="/courts" className="inline-flex items-center gap-2.5 px-7 py-4 text-base font-medium text-brand-300 border border-brand-700 rounded-xl transition-all duration-300 hover:border-accent hover:text-white hover:bg-accent/5">
+              <Link to="/courts" className="btn-outline px-7 py-4 text-base font-medium rounded-xl hover:-translate-y-0.5">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
                 Xem Demo
               </Link>
@@ -228,14 +228,14 @@ export default function HomePage() {
       {/* ═══════════════════════════════════════════
           TRUSTED BY — Minimal Brand Strip
           ═══════════════════════════════════════════ */}
-      <section className="py-12 border-b border-brand-200/60 bg-white">
+      <section className="py-12 border-b border-border-default bg-transparent">
         <div className="max-w-[1180px] mx-auto px-6">
-          <p className="text-center text-[0.68rem] font-bold tracking-[0.2em] text-brand-300 uppercase mb-8">
+          <p className="text-center text-[0.68rem] font-bold tracking-[0.2em] text-foreground-muted uppercase mb-8">
             Được tin dùng bởi các Cơ sở & Thương hiệu hàng đầu
           </p>
           <div ref={brandsRef} className="flex justify-center items-center gap-12 md:gap-16 flex-wrap">
             {brands.map(b => (
-              <span key={b} className="font-heading text-lg font-bold tracking-[0.08em] text-brand-300 transition-colors duration-300 hover:text-accent cursor-default select-none">{b}</span>
+              <span key={b} className="font-heading text-lg font-bold tracking-[0.08em] text-foreground-muted transition-colors duration-300 hover:text-accent cursor-default select-none">{b}</span>
             ))}
           </div>
         </div>
@@ -244,14 +244,14 @@ export default function HomePage() {
       {/* ═══════════════════════════════════════════
           FEATURES — Why Pro-Sport (Bento Grid)
           ═══════════════════════════════════════════ */}
-      <section id="discover" className="py-24 bg-brand-50">
+      <section id="discover" className="py-24 bg-transparent">
         <div className="max-w-[1180px] mx-auto px-6">
           {/* Section header */}
           <div className="text-center mb-16">
             <p className="text-xs font-semibold tracking-[0.18em] uppercase text-accent mb-3">Tính năng hệ thống</p>
-            <h2 className="font-heading text-[clamp(1.8rem,3vw,2.6rem)] font-bold text-brand-900 tracking-tight">
+            <h2 className="font-heading text-[clamp(1.8rem,3vw,2.6rem)] font-bold text-[var(--theme-primary)] tracking-tight">
               Mọi thứ bạn cần.<br />
-              <span className="text-brand-400">Không có gì thừa thãi.</span>
+              <span className="text-foreground-muted">Không có gì thừa thãi.</span>
             </h2>
           </div>
 
@@ -260,15 +260,15 @@ export default function HomePage() {
             {features.map((f, i) => (
               <article
                 key={i}
-                className={`group bg-white border border-brand-200/50 rounded-2xl p-7 flex flex-col gap-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-brand-900/5 hover:border-brand-300/60 ${i === 0 ? 'lg:col-span-2 lg:row-span-1' : ''}`}
+                className="group card-base flex flex-col gap-5 transition-all duration-300 hover:-translate-y-1"
               >
                 {/* Icon */}
-                <div className="w-12 h-12 rounded-xl bg-brand-50 border border-brand-200/50 flex items-center justify-center text-brand-500 group-hover:bg-accent/10 group-hover:text-accent group-hover:border-accent/20 transition-all duration-300">
+                <div className="w-12 h-12 rounded-xl bg-[var(--theme-surface)] border border-border-default flex items-center justify-center text-foreground-muted group-hover:bg-accent/10 group-hover:text-accent group-hover:border-accent/20 transition-all duration-300">
                   {f.icon}
                 </div>
                 <div>
-                  <h3 className="font-heading text-lg font-bold text-brand-900 tracking-tight mb-2">{f.title}</h3>
-                  <p className="text-sm text-brand-500 leading-relaxed">{f.desc}</p>
+                  <h3 className="font-heading text-lg font-bold text-[var(--theme-primary)] tracking-tight mb-2">{f.title}</h3>
+                  <p className="text-sm text-foreground-muted leading-relaxed">{f.desc}</p>
                 </div>
               </article>
             ))}
@@ -279,16 +279,16 @@ export default function HomePage() {
       {/* ═══════════════════════════════════════════
           HOW IT WORKS — 3 Steps
           ═══════════════════════════════════════════ */}
-      <section className="py-24 bg-white">
+      <section className="py-24 bg-transparent border-t border-border-default">
         <div className="max-w-[1180px] mx-auto px-6">
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.5fr] gap-16 items-start">
             {/* Left — Sticky header */}
             <div className="lg:sticky lg:top-32">
               <p className="text-xs font-semibold tracking-[0.18em] uppercase text-accent mb-3">Cách hoạt động</p>
-              <h2 className="font-heading text-[clamp(1.8rem,3vw,2.6rem)] font-bold text-brand-900 tracking-tight leading-tight mb-5">
+              <h2 className="font-heading text-[clamp(1.8rem,3vw,2.6rem)] font-bold text-[var(--theme-primary)] tracking-tight leading-tight mb-5">
                 Từ lúc Đăng ký<br />đến ngày Ra sân.
               </h2>
-              <p className="text-brand-500 text-sm leading-relaxed max-w-sm mb-8">
+              <p className="text-foreground-muted text-sm leading-relaxed max-w-sm mb-8">
                 3 bước đơn giản để thay đổi cách bạn đặt sân, tìm đối thủ và quản lý thể thao.
               </p>
               <Link to="/register" className="btn-primary px-6 py-3">
@@ -300,14 +300,14 @@ export default function HomePage() {
             {/* Right — Steps */}
             <div ref={stepsRef} className="flex flex-col gap-6">
               {steps.map((s, i) => (
-                <article key={i} className="group flex gap-6 items-start p-7 rounded-2xl border border-brand-200/50 bg-brand-50/50 transition-all duration-300 hover:bg-white hover:shadow-lg hover:shadow-brand-900/5 hover:border-brand-300/50 hover:-translate-y-0.5">
+                <article key={i} className="group flex gap-6 items-start p-7 rounded-2xl border border-border-default bg-white/[0.02] transition-all duration-300 hover:bg-[var(--theme-surface)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.5)] hover:border-border-hover hover:-translate-y-0.5">
                   {/* Step number */}
-                  <span className="font-heading text-4xl font-bold text-brand-200 group-hover:text-accent transition-colors duration-300 shrink-0 leading-none mt-1">
+                  <span className="font-heading text-4xl font-bold text-[var(--theme-primary)]/20 group-hover:text-accent transition-colors duration-300 shrink-0 leading-none mt-1">
                     {s.num}
                   </span>
                   <div>
-                    <h3 className="font-heading text-xl font-bold text-brand-900 tracking-tight mb-2">{s.title}</h3>
-                    <p className="text-sm text-brand-500 leading-relaxed">{s.desc}</p>
+                    <h3 className="font-heading text-xl font-bold text-[var(--theme-primary)] tracking-tight mb-2">{s.title}</h3>
+                    <p className="text-sm text-foreground-muted leading-relaxed">{s.desc}</p>
                   </div>
                 </article>
               ))}
@@ -319,7 +319,7 @@ export default function HomePage() {
       {/* ═══════════════════════════════════════════
           STATS — Dark Counter Strip
           ═══════════════════════════════════════════ */}
-      <section className="py-20 bg-brand-900 relative overflow-hidden">
+      <section className="py-20 bg-transparent border-t border-b border-border-default relative overflow-hidden">
         {/* Grid overlay */}
         <div className="absolute inset-0 opacity-[0.03]" style={{
           backgroundImage: 'linear-gradient(rgba(255,255,255,.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.1) 1px, transparent 1px)',
@@ -330,8 +330,8 @@ export default function HomePage() {
         <div ref={statsRef} className="max-w-[1180px] mx-auto px-6 grid grid-cols-2 lg:grid-cols-4 gap-8 relative z-10">
           {stats.map((s, i) => (
             <div key={i} className="text-center">
-              <p className="font-heading text-[clamp(2rem,4vw,3.2rem)] font-bold text-white tracking-tight mb-2">{s.value}</p>
-              <p className="text-xs font-medium text-brand-500 tracking-wider uppercase">{s.label}</p>
+              <p className="font-heading text-[clamp(2rem,4vw,3.2rem)] font-bold text-[var(--theme-primary)] tracking-tight mb-2">{s.value}</p>
+              <p className="text-xs font-medium text-foreground-muted tracking-wider uppercase">{s.label}</p>
             </div>
           ))}
         </div>
@@ -341,15 +341,15 @@ export default function HomePage() {
       {/* ═══════════════════════════════════════════
           CTA — Final Conversion Section
           ═══════════════════════════════════════════ */}
-      <section className="py-24 bg-brand-50 relative overflow-hidden">
-        <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[800px] h-[400px] rounded-full bg-accent/5 blur-[120px] pointer-events-none" />
+      <section className="py-24 bg-transparent relative overflow-hidden">
+        <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[800px] h-[400px] rounded-full bg-accent/10 blur-[120px] pointer-events-none" />
 
         <div ref={ctaRef} className="max-w-[680px] mx-auto px-6 text-center relative z-10">
           <p className="text-xs font-semibold tracking-[0.18em] uppercase text-accent mb-4">Sẵn sàng ra sân?</p>
-          <h2 className="font-heading text-[clamp(2rem,4vw,3rem)] font-bold text-brand-900 tracking-tight leading-tight mb-5">
+          <h2 className="font-heading text-[clamp(2rem,4vw,3rem)] font-bold text-[var(--theme-primary)] tracking-tight leading-tight mb-5">
             Tham gia mạng lưới<br />Pro-Sport ngay hôm nay.
           </h2>
-          <p className="text-brand-500 text-base leading-relaxed max-w-md mx-auto mb-10">
+          <p className="text-foreground-muted text-base leading-relaxed max-w-md mx-auto mb-10">
             Bắt đầu đặt sân, tìm đối thủ và nâng tầm trận đấu của bạn. Tham gia miễn phí, không ràng buộc.
           </p>
           <div className="flex gap-4 flex-wrap justify-center">

@@ -23,7 +23,6 @@ public class ProSportDbContext : DbContext
     public DbSet<Transaction> Transactions { get; set; } = null!;
     public DbSet<EquipmentCategory> EquipmentCategories { get; set; } = null!;
     public DbSet<Equipment> Equipments { get; set; } = null!;
-    public DbSet<EquipmentRental> EquipmentRentals { get; set; } = null!;
     public DbSet<InventoryTransaction> InventoryTransactions { get; set; } = null!;
     // --- Bảng mới ---
     public DbSet<CheckIn> CheckIns { get; set; } = null!;
@@ -31,7 +30,6 @@ public class ProSportDbContext : DbContext
     public DbSet<PlayerRating> PlayerRatings { get; set; } = null!;
     public DbSet<Report> Reports { get; set; } = null!;
     public DbSet<ChatHistory> ChatHistories { get; set; } = null!;
-    public DbSet<EquipmentUnit> EquipmentUnits { get; set; } = null!;
     public DbSet<CartItem> CartItems { get; set; } = null!;
 
     public override int SaveChanges()
@@ -308,11 +306,6 @@ public class ProSportDbContext : DbContext
             entity.Property(e => e.Category).HasMaxLength(30).HasDefaultValue("Racket");
             entity.Property(e => e.SportType).HasMaxLength(20);
             entity.Property(e => e.RetailPrice).HasColumnType("decimal(18,2)");
-            entity.Property(e => e.RentalPrice)
-                  .HasColumnType("decimal(18,2)")
-                  .HasComputedColumnSql("CAST([RetailPrice] * 0.05 AS DECIMAL(18,2))", stored: true);
-            entity.Property(e => e.RentalStock).HasDefaultValue(0);
-            entity.Property(e => e.SalesStock).HasDefaultValue(0);
             entity.Property(e => e.ImageUrl).HasMaxLength(500);
 
             entity.HasOne(e => e.EquipmentCategory)
@@ -339,56 +332,6 @@ public class ProSportDbContext : DbContext
                   .OnDelete(DeleteBehavior.ClientSetNull);
         });
 
-        // --- BookingDetails_Equipments (Equipment rentals) ---
-        modelBuilder.Entity<EquipmentRental>(entity =>
-        {
-            entity.ToTable("BookingDetails_Equipments");
-            entity.HasKey(e => e.DetailId);
-            entity.Property(e => e.UnitPrice).HasColumnType("decimal(18,2)");
-            entity.Property(e => e.Subtotal)
-                  .HasColumnType("decimal(18,2)")
-                  .HasComputedColumnSql("[Quantity] * [UnitPrice]", stored: true);
-            entity.Property(e => e.DepositAmount).HasColumnType("decimal(18,2)").HasDefaultValue(0m);
-            entity.Property(e => e.DepositStatus).IsRequired().HasMaxLength(20).HasDefaultValue("Held");
-            entity.Property(e => e.RentalStatus).IsRequired().HasMaxLength(20).HasDefaultValue("Rented");
-            entity.Property(e => e.ReturnCondition).HasMaxLength(20);
-            entity.Property(e => e.DamageNote).HasMaxLength(500);
-            entity.Property(e => e.DamageFee).HasColumnType("decimal(18,2)");
-            entity.Property(e => e.DepositRefundAmount).HasColumnType("decimal(18,2)");
-            entity.Property(e => e.AdditionalCharge).HasColumnType("decimal(18,2)");
-            entity.Property(e => e.RentedAt).HasDefaultValueSql("SYSDATETIME()");
-
-            entity.HasOne(e => e.Equipment)
-                  .WithMany(eq => eq.Rentals)
-                  .HasForeignKey(e => e.EquipmentId)
-                  .OnDelete(DeleteBehavior.ClientSetNull);
-
-            entity.HasOne(e => e.Booking)
-                  .WithMany(b => b.EquipmentRentals)
-                  .HasForeignKey(e => e.BookingId)
-                  .OnDelete(DeleteBehavior.ClientSetNull)
-                  .IsRequired(false);
-
-            entity.HasOne(er => er.EquipmentUnit)
-                  .WithMany()
-                  .HasForeignKey(er => er.EquipmentUnitId)
-                  .OnDelete(DeleteBehavior.SetNull);
-        });
-
-        // --- EquipmentUnits ---
-        modelBuilder.Entity<EquipmentUnit>(entity =>
-        {
-            entity.ToTable("EquipmentUnits");
-            entity.HasKey(e => e.EquipmentUnitId);
-            entity.Property(e => e.SerialNumber).IsRequired().HasMaxLength(50);
-            entity.Property(e => e.Status).IsRequired().HasMaxLength(20).HasDefaultValue("Available");
-            entity.Property(e => e.Condition).HasMaxLength(100);
-
-            entity.HasOne(e => e.Equipment)
-                  .WithMany(e => e.Units)
-                  .HasForeignKey(e => e.EquipmentId)
-                  .OnDelete(DeleteBehavior.Cascade);
-        });
 
         // ====================
         // === NEW ENTITIES ===

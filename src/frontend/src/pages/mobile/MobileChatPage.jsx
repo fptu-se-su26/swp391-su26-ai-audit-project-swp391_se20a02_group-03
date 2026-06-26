@@ -1,4 +1,5 @@
 import MobileLayout from '../../layouts/MobileLayout'
+import { Swords } from 'lucide-react'
 
 export default function MobileChatPage() {
   return (
@@ -20,7 +21,7 @@ export default function MobileChatPage() {
           <div className="max-w-[75%] flex flex-col">
             <span className="text-[0.65rem] text-slate-500 mb-1 ml-1">Sarah Jenkins</span>
             <div className="bg-slate-100 text-slate-900 p-3 rounded-[16px_16px_16px_4px] text-sm leading-relaxed mb-1">
-              Hey team! Are we still on for 7 PM at Court 2? 🎾
+            <p className="text-foreground text-[0.95rem] leading-[1.4] mt-[5px]">Hey team! Are we still on for 7 PM at Court 2? <Swords size={16} className="inline" /></p>
             </div>
             <span className="text-[0.65rem] text-slate-400 flex items-center gap-1">10:12 AM</span>
           </div>
@@ -41,7 +42,7 @@ export default function MobileChatPage() {
         {/* My Message */}
         <div className="flex items-end gap-2 self-end justify-end">
           <div className="max-w-[75%] flex flex-col items-end">
-            <div className="bg-[#006070] text-white p-3 rounded-[16px_16px_4px_16px] text-sm leading-relaxed mb-1">
+            <div className="bg-[#006070] text-[var(--theme-primary)] p-3 rounded-[16px_16px_4px_16px] text-sm leading-relaxed mb-1">
               Awesome. I brought extra badminton shuttlecocks just in case.
             </div>
             <span className="text-[0.65rem] text-slate-400 flex items-center gap-1">10:50 AM <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#00c2ff" strokeWidth="2"><polyline points="20 6 9 17 4 12"/></svg></span>
@@ -74,7 +75,7 @@ export default function MobileChatPage() {
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
           </button>
         </div>
-        <button className="w-10 h-10 rounded-full bg-[#006070] text-white border-none flex items-center justify-center cursor-pointer hover:bg-[#004e5c] shrink-0">
+        <button className="w-10 h-10 rounded-full bg-[#006070] text-[var(--theme-primary)] border-none flex items-center justify-center cursor-pointer hover:bg-[#004e5c] shrink-0">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
         </button>
       </div>

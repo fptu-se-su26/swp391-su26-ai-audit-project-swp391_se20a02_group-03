@@ -59,7 +59,7 @@ export default function PrivacyPolicyPage() {
 
           <h2 className="font-['Oswald'] text-[1.4rem] font-bold text-[#0a0e1a] mt-10 mb-4">4. Contact Us</h2>
           <p className="text-slate-600 mb-8 leading-[1.7]">
-            If you have questions or comments about this Privacy Policy, please contact us at: <a href="mailto:privacy@pro-sport.com" className="text-[#00c8aa] hover:underline">privacy@pro-sport.com</a>
+            If you have questions or comments about this Privacy Policy, please contact us at: <a href="mailto:privacy@pro-sport.com" className="text-[#14B8A6] hover:underline">privacy@pro-sport.com</a>
           </p>
         </div>
       </div>

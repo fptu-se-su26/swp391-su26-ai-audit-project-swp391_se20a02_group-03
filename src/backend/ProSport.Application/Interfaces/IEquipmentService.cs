@@ -15,10 +15,6 @@ public interface IEquipmentService
 
     // Rent/Return methods
     Task<ApiResponseDto<IEnumerable<EquipmentDto>>> GetAllAsync();
-    Task<ApiResponseDto<bool>> RentAsync(int userId, RentEquipmentRequest request);
-    Task<ApiResponseDto<bool>> ReturnAsync(int userId, ReturnEquipmentRequest request);
-    Task<ApiResponseDto<EquipmentRentalDto>> InspectReturnAsync(int rentalId, InspectEquipmentRentalRequest request);
-    Task<ApiResponseDto<IEnumerable<EquipmentRentalDto>>> GetUserRentalsAsync(int userId);
-    Task<ApiResponseDto<IEnumerable<EquipmentRentalDto>>> GetPendingInspectionsAsync();
+    Task<ApiResponseDto<bool>> BuyAsync(int userId, BuyEquipmentRequest request);
     Task<EquipmentDashboardDto> GetDashboardStatsAsync();
 }

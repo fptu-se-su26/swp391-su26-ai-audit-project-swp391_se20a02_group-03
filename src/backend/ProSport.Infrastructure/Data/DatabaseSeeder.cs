@@ -95,33 +95,8 @@ public static class DatabaseSeeder
         var equipments = BuildEquipmentCatalog(defaultCategoryId);
         context.Equipments.AddRange(equipments);
         await context.SaveChangesAsync();
-
-        await SeedUnitsAsync(context, equipments);
     }
 
-    private static async Task SeedUnitsAsync(ProSportDbContext context, List<Equipment> equipments)
-    {
-        if (await context.EquipmentUnits.AnyAsync()) return;
-
-        var units = new List<EquipmentUnit>();
-        foreach (var equipment in equipments)
-        {
-            // Seed 5 units for each equipment
-            for (int i = 1; i <= 5; i++)
-            {
-                units.Add(new EquipmentUnit
-                {
-                    EquipmentId = equipment.EquipmentId,
-                    SerialNumber = $"{equipment.SportType.Substring(0, 3).ToUpper()}-{equipment.EquipmentId:D3}-{i:D2}",
-                    Status = "Available",
-                    RentalCount = 0,
-                    Condition = "New"
-                });
-            }
-        }
-        context.EquipmentUnits.AddRange(units);
-        await context.SaveChangesAsync();
-    }
 
     private static async Task EnsureCategoryColumnAsync(ProSportDbContext context)
     {
@@ -186,8 +161,8 @@ public static class DatabaseSeeder
             Category = "Racket",
             SportType = "Badminton",
             RetailPrice = 6_000_000m,
-            RentalStock = 10,
-            SalesStock = 5,
+            
+            StockQuantity = 5,
             ImageUrl = "https://images.unsplash.com/photo-1617083934551-1af7da84de49?w=400&q=80",
             Description = "Vợt tấn công nặng đầu, cân bằng 4U, phù hợp người chơi trung bình đến nâng cao."
         },
@@ -196,8 +171,8 @@ public static class DatabaseSeeder
             Category = "Racket",
             SportType = "Badminton",
             RetailPrice = 4_000_000m,
-            RentalStock = 8,
-            SalesStock = 8,
+            
+            StockQuantity = 8,
             ImageUrl = "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&q=80",
             Description = "Vợt siêu nhẹ, tốc độ cao, lý tưởng cho người mới bắt đầu và đánh đôi."
         },
@@ -206,8 +181,8 @@ public static class DatabaseSeeder
             Category = "Racket",
             SportType = "Badminton",
             RetailPrice = 5_500_000m,
-            RentalStock = 6,
-            SalesStock = 4,
+            
+            StockQuantity = 4,
             ImageUrl = "https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=400&q=80",
             Description = "Vợt công thủ toàn diện, độ cứng vừa phải, kiểm soát tốt ở lưới và phía sau sân."
         },
@@ -216,8 +191,8 @@ public static class DatabaseSeeder
             Category = "Racket",
             SportType = "Pickleball",
             RetailPrice = 7_000_000m,
-            RentalStock = 6,
-            SalesStock = 4,
+            
+            StockQuantity = 4,
             ImageUrl = "https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=400&q=80",
             Description = "Vợt polymer core FiberFlex, cân bằng giữa sức mạnh và kiểm soát bóng."
         },
@@ -226,8 +201,8 @@ public static class DatabaseSeeder
             Category = "Racket",
             SportType = "Pickleball",
             RetailPrice = 5_000_000m,
-            RentalStock = 10,
-            SalesStock = 6,
+            
+            StockQuantity = 6,
             ImageUrl = "https://images.unsplash.com/photo-1612452040814-e42b8f2da8ea?w=400&q=80",
             Description = "Vợt composite nhẹ, grip êm tay, phù hợp người mới chơi pickleball."
         },
@@ -238,8 +213,8 @@ public static class DatabaseSeeder
             Category = "Footwear",
             SportType = "Badminton",
             RetailPrice = 3_200_000m,
-            RentalStock = 12,
-            SalesStock = 6,
+            
+            StockQuantity = 6,
             ImageUrl = "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&q=80",
             Description = "Giày cầu lông Power Cushion, đệm gót êm, bám sân tốt khi di chuyển nhanh."
         },
@@ -248,8 +223,8 @@ public static class DatabaseSeeder
             Category = "Footwear",
             SportType = "Badminton",
             RetailPrice = 2_400_000m,
-            RentalStock = 10,
-            SalesStock = 8,
+            
+            StockQuantity = 8,
             ImageUrl = "https://images.unsplash.com/photo-1606107557195-0a394bbe4a5d?w=400&q=80",
             Description = "Giày cầu lông nhẹ, thoáng khí, phù hợp tập luyện và thi đấu phong trào."
         },
@@ -258,8 +233,8 @@ public static class DatabaseSeeder
             Category = "Footwear",
             SportType = "Pickleball",
             RetailPrice = 2_800_000m,
-            RentalStock = 8,
-            SalesStock = 5,
+            
+            StockQuantity = 5,
             ImageUrl = "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=400&q=80",
             Description = "Giày đa năng cho sân trong nhà, đế cao su bám tốt, hỗ trợ cổ chân ổn định."
         },
@@ -268,8 +243,8 @@ public static class DatabaseSeeder
             Category = "Footwear",
             SportType = "Badminton",
             RetailPrice = 3_500_000m,
-            RentalStock = 6,
-            SalesStock = 3,
+            
+            StockQuantity = 3,
             ImageUrl = "https://images.unsplash.com/photo-1460353581641-37baddab0fa0?w=400&q=80",
             Description = "Giày cầu lông cao cấp, công nghệ Wave giảm chấn, phù hợp vận động viên."
         },
@@ -280,8 +255,8 @@ public static class DatabaseSeeder
             Category = "Apparel",
             SportType = "Badminton",
             RetailPrice = 650_000m,
-            RentalStock = 20,
-            SalesStock = 15,
+            
+            StockQuantity = 15,
             ImageUrl = "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&q=80",
             Description = "Áo thun thi đấu thoáng mát, thấm hút mồ hôi, form regular fit."
         },
@@ -290,8 +265,8 @@ public static class DatabaseSeeder
             Category = "Apparel",
             SportType = "Badminton",
             RetailPrice = 450_000m,
-            RentalStock = 18,
-            SalesStock = 12,
+            
+            StockQuantity = 12,
             ImageUrl = "https://images.unsplash.com/photo-1591195853828-11db59a44f6b?w=400&q=80",
             Description = "Quần short co giãn 4 chiều, khô nhanh, phù hợp tập luyện và thi đấu."
         },
@@ -300,8 +275,8 @@ public static class DatabaseSeeder
             Category = "Apparel",
             SportType = "Pickleball",
             RetailPrice = 890_000m,
-            RentalStock = 14,
-            SalesStock = 10,
+            
+            StockQuantity = 10,
             ImageUrl = "https://images.unsplash.com/photo-1544966503-7cc5ac882d5f?w=400&q=80",
             Description = "Áo khoác chống gió nhẹ, có mũ trùm đầu, dễ gấp gọn mang theo."
         },
@@ -310,8 +285,8 @@ public static class DatabaseSeeder
             Category = "Apparel",
             SportType = "Badminton",
             RetailPrice = 720_000m,
-            RentalStock = 10,
-            SalesStock = 6,
+            
+            StockQuantity = 6,
             ImageUrl = "https://images.unsplash.com/photo-1518310383802-640c2b31135a?w=400&q=80",
             Description = "Váy thi đấu nữ co giãn, thiết kế năng động, thoải mái khi vận động."
         },
@@ -322,8 +297,8 @@ public static class DatabaseSeeder
             Category = "Ball / Birdie",
             SportType = "Badminton",
             RetailPrice = 280_000m,
-            RentalStock = 30,
-            SalesStock = 25,
+            
+            StockQuantity = 25,
             ImageUrl = "https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=400&q=80",
             Description = "Cầu nhựa tập luyện bền, quỹ đạo ổn định, phù hợp sân trong nhà."
         },
@@ -332,8 +307,8 @@ public static class DatabaseSeeder
             Category = "Ball / Birdie",
             SportType = "Badminton",
             RetailPrice = 1_200_000m,
-            RentalStock = 15,
-            SalesStock = 10,
+            
+            StockQuantity = 10,
             ImageUrl = "https://images.unsplash.com/photo-1530549387789-4c1017266635?w=400&q=80",
             Description = "Cầu lông thi đấu cao cấp, lông ngỗng tự nhiên, độ bền và cảm giác đánh tốt."
         },
@@ -342,8 +317,8 @@ public static class DatabaseSeeder
             Category = "Ball / Birdie",
             SportType = "Pickleball",
             RetailPrice = 350_000m,
-            RentalStock = 25,
-            SalesStock = 20,
+            
+            StockQuantity = 20,
             ImageUrl = "https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?w=400&q=80",
             Description = "Bóng pickleball trong nhà, lỗ 40, độ nảy đồng đều, chuẩn thi đấu."
         },
@@ -352,8 +327,8 @@ public static class DatabaseSeeder
             Category = "Ball / Birdie",
             SportType = "Pickleball",
             RetailPrice = 420_000m,
-            RentalStock = 20,
-            SalesStock = 15,
+            
+            StockQuantity = 15,
             ImageUrl = "https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=400&q=80",
             Description = "Bóng pickleball ngoài trời, bền, ít vỡ, phù hợp sân cứng."
         },
@@ -364,8 +339,8 @@ public static class DatabaseSeeder
             Category = "Accessories",
             SportType = "Badminton",
             RetailPrice = 180_000m,
-            RentalStock = 40,
-            SalesStock = 30,
+            
+            StockQuantity = 30,
             ImageUrl = "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400&q=80",
             Description = "Quấn cán thấm mồ hôi, mềm, tăng độ bám khi cầm vợt lâu."
         },
@@ -374,8 +349,8 @@ public static class DatabaseSeeder
             Category = "Accessories",
             SportType = "Badminton",
             RetailPrice = 2_100_000m,
-            RentalStock = 8,
-            SalesStock = 5,
+            
+            StockQuantity = 5,
             ImageUrl = "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400&q=80",
             Description = "Túi vợt 6 ngăn có ngăn giày riêng, chống nước nhẹ, đeo vai hoặc xách tay."
         },
@@ -384,8 +359,8 @@ public static class DatabaseSeeder
             Category = "Accessories",
             SportType = "Badminton",
             RetailPrice = 120_000m,
-            RentalStock = 35,
-            SalesStock = 25,
+            
+            StockQuantity = 25,
             ImageUrl = "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400&q=80",
             Description = "Băng tay co giãn, thấm mồ hôi, giữ khô tay khi thi đấu."
         },
@@ -394,8 +369,8 @@ public static class DatabaseSeeder
             Category = "Accessories",
             SportType = "Pickleball",
             RetailPrice = 95_000m,
-            RentalStock = 50,
-            SalesStock = 40,
+            
+            StockQuantity = 40,
             ImageUrl = "https://images.unsplash.com/photo-1584308972272-9e4e7685e80f?w=400&q=80",
             Description = "Khăn lau mồ hôi siêu thấm, khô nhanh, kích thước 40x80cm."
         },
@@ -404,8 +379,8 @@ public static class DatabaseSeeder
             Category = "Accessories",
             SportType = "Badminton",
             RetailPrice = 150_000m,
-            RentalStock = 20,
-            SalesStock = 15,
+            
+            StockQuantity = 15,
             ImageUrl = "https://images.unsplash.com/photo-1517649763962-0c62306601b7?w=400&q=80",
             Description = "Hộp đựng cầu tiện lợi, có khóa, phù hợp mang theo khi tập."
         },
@@ -416,8 +391,8 @@ public static class DatabaseSeeder
             Category = "Protection",
             SportType = "Badminton",
             RetailPrice = 320_000m,
-            RentalStock = 15,
-            SalesStock = 10,
+            
+            StockQuantity = 10,
             ImageUrl = "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&q=80",
             Description = "Băng gối hỗ trợ khớp, co giãn, giảm chấn khi di chuyển đột ngột."
         },
@@ -426,8 +401,8 @@ public static class DatabaseSeeder
             Category = "Protection",
             SportType = "Badminton",
             RetailPrice = 250_000m,
-            RentalStock = 18,
-            SalesStock = 12,
+            
+            StockQuantity = 12,
             ImageUrl = "https://images.unsplash.com/photo-1518310383802-640c2b31135a?w=400&q=80",
             Description = "Băng cổ chân cố định khớp, phòng tránh trẹo cổ chân khi thi đấu."
         },
@@ -436,8 +411,8 @@ public static class DatabaseSeeder
             Category = "Protection",
             SportType = "Pickleball",
             RetailPrice = 480_000m,
-            RentalStock = 12,
-            SalesStock = 8,
+            
+            StockQuantity = 8,
             ImageUrl = "https://images.unsplash.com/photo-1574258495973-f010dfbb5371?w=400&q=80",
             Description = "Kính chống va đập, chống sương mù, bảo vệ mắt khi đánh gần lưới."
         },
@@ -446,8 +421,8 @@ public static class DatabaseSeeder
             Category = "Protection",
             SportType = "Pickleball",
             RetailPrice = 210_000m,
-            RentalStock = 14,
-            SalesStock = 10,
+            
+            StockQuantity = 10,
             ImageUrl = "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400&q=80",
             Description = "Băng khuỷu tay co giãn, giảm mỏi cơ tay khi đánh liên tục."
         },

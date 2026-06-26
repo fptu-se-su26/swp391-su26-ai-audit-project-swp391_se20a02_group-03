@@ -35,15 +35,15 @@ export default function ProSportDashLayout({ children }) {
     <div className="flex min-h-screen bg-[#f5f9fc]">
       <aside className="w-[160px] bg-white border-r border-[#e0ecf0] flex flex-col p-[20px_12px] fixed left-0 top-0 bottom-0 z-[100] overflow-y-auto">
         <div className="flex items-center gap-2.5 mb-7 pb-5 border-b border-[#e0ecf0]">
-          <div className="w-[38px] h-[38px] rounded-full bg-gradient-to-br from-[#0d8a8a] to-[#0d2d3a] flex items-center justify-center shrink-0">
+          <div className="w-[38px] h-[38px] rounded-full bg-gradient-to-br from-[#14B8A6] to-[#0F172A] flex items-center justify-center shrink-0">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
               <circle cx="12" cy="12" r="10"/>
               <path d="M8.56 2.75c4.37 6.03 6.02 9.42 8.03 17.72"/>
             </svg>
           </div>
           <div>
-            <p className="font-['Oswald',sans-serif] text-[0.85rem] font-bold text-[#0d2d3a] leading-[1.2]">PRO-<br/>SPORT</p>
-            <p className="text-[0.65rem] text-[#0d8a8a] font-medium mt-0.5">Elite Performance</p>
+            <p className="font-['Oswald',sans-serif] text-[0.85rem] font-bold text-foreground leading-[1.2]">PRO-<br/>SPORT</p>
+            <p className="text-[0.65rem] text-[#14B8A6] font-medium mt-0.5">Elite Performance</p>
           </div>
         </div>
 
@@ -54,8 +54,8 @@ export default function ProSportDashLayout({ children }) {
               to={link.path}
               className={`flex items-center gap-2.5 py-[9px] px-3 rounded-[10px] text-[0.85rem] font-medium no-underline transition-all [&_svg]:shrink-0 ${
                 isActive(link.path)
-                  ? 'bg-[rgba(13,138,138,0.12)] text-[#0d8a8a] font-semibold'
-                  : 'text-slate-500 hover:bg-[rgba(13,138,138,0.07)] hover:text-[#0d8a8a]'
+                  ? 'bg-[rgba(13,138,138,0.12)] text-[#14B8A6] font-semibold'
+                  : 'text-slate-500 hover:bg-[rgba(13,138,138,0.07)] hover:text-[#14B8A6]'
               }`}
             >
               {link.icon}
@@ -65,27 +65,27 @@ export default function ProSportDashLayout({ children }) {
         </nav>
 
         <div className="pt-4 border-t border-[#e0ecf0] mt-4">
-          <button className="w-full bg-[#0d2d3a] hover:bg-[#0d8a8a] text-white border-none rounded-[10px] py-[11px] px-2 font-['Inter',sans-serif] text-[0.78rem] font-bold cursor-pointer transition-all">Upgrade to PRO</button>
+          <button className="w-full bg-[var(--theme-primary)] hover:bg-[#14B8A6] text-[var(--theme-primary)] border-none rounded-[10px] py-[11px] px-2 font-['Inter',sans-serif] text-[0.78rem] font-bold cursor-pointer transition-all">Upgrade to PRO</button>
         </div>
       </aside>
 
       <div className="ml-[160px] flex-1 flex flex-col min-h-screen">
         <header className="h-14 bg-white border-b border-[#e0ecf0] flex items-center px-6 gap-4 sticky top-0 z-50 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
-          <div className="flex-1 max-w-[360px] flex items-center gap-2 bg-[#f5f9fc] border-[1.5px] border-[#e0ecf0] rounded-full py-[7px] px-4 transition-all focus-within:border-[#0d8a8a]">
+          <div className="flex-1 max-w-[360px] flex items-center gap-2 bg-[#f5f9fc] border-[1.5px] border-[#e0ecf0] rounded-full py-[7px] px-4 transition-all focus-within:border-[#14B8A6]">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-slate-400 shrink-0">
               <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
             </svg>
-            <input type="text" placeholder="Search..." id="psd-search" className="border-none bg-transparent font-['Inter',sans-serif] text-[0.85rem] text-[#0d2d3a] w-full outline-none placeholder:text-slate-400" />
+            <input type="text" placeholder="Search..." id="psd-search" className="border-none bg-transparent font-['Inter',sans-serif] text-[0.85rem] text-foreground w-full outline-none placeholder:text-slate-400" />
           </div>
           <div className="flex items-center gap-2 ml-auto">
-            <button className="w-9 h-9 rounded-full bg-transparent border-none cursor-pointer flex items-center justify-center text-slate-500 relative transition-all hover:bg-[rgba(13,138,138,0.08)] hover:text-[#0d8a8a]" aria-label="Notifications">
+            <button className="w-9 h-9 rounded-full bg-transparent border-none cursor-pointer flex items-center justify-center text-slate-500 relative transition-all hover:bg-[rgba(13,138,138,0.08)] hover:text-[#14B8A6]" aria-label="Notifications">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
                 <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
               </svg>
               <span className="absolute top-0.5 right-0.5 w-[15px] h-[15px] rounded-full bg-red-500 text-white text-[0.58rem] font-bold flex items-center justify-center">3</span>
             </button>
-            <button className="w-9 h-9 rounded-full bg-transparent border-none cursor-pointer flex items-center justify-center text-slate-500 relative transition-all hover:bg-[rgba(13,138,138,0.08)] hover:text-[#0d8a8a]" aria-label="Account">
+            <button className="w-9 h-9 rounded-full bg-transparent border-none cursor-pointer flex items-center justify-center text-slate-500 relative transition-all hover:bg-[rgba(13,138,138,0.08)] hover:text-[#14B8A6]" aria-label="Account">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
                 <circle cx="12" cy="7" r="4"/>

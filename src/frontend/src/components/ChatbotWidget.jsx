@@ -88,7 +88,7 @@ export default function ChatbotWidget() {
         }}>
           {/* Header */}
           <div style={{
-            background: 'linear-gradient(135deg, #0d8a8a 0%, #0d2d3a 100%)',
+            background: 'linear-gradient(135deg, #14B8A6 0%, #0F172A 100%)',
             padding: '14px 18px',
             display: 'flex', alignItems: 'center', gap: 10,
           }}>
@@ -123,7 +123,7 @@ export default function ChatbotWidget() {
                 {msg.role === 'assistant' && (
                   <div style={{
                     width: 28, height: 28, borderRadius: '50%',
-                    background: 'linear-gradient(135deg, #0d8a8a, #0d2d3a)',
+                    background: 'linear-gradient(135deg, #14B8A6, #0F172A)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     fontSize: 13, flexShrink: 0,
                   }}>🤖</div>
@@ -131,9 +131,9 @@ export default function ChatbotWidget() {
                 <div style={{
                   maxWidth: '75%',
                   background: msg.role === 'user'
-                    ? 'linear-gradient(135deg, #0d8a8a, #00b4a0)'
+                    ? 'linear-gradient(135deg, #14B8A6, #00b4a0)'
                     : '#f0f7fa',
-                  color: msg.role === 'user' ? '#fff' : '#0d2d3a',
+                  color: msg.role === 'user' ? '#fff' : '#0F172A',
                   padding: '9px 13px',
                   borderRadius: msg.role === 'user' ? '14px 14px 4px 14px' : '14px 14px 14px 4px',
                   fontSize: 13, lineHeight: 1.55,
@@ -146,7 +146,7 @@ export default function ChatbotWidget() {
               <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8 }}>
                 <div style={{
                   width: 28, height: 28, borderRadius: '50%',
-                  background: 'linear-gradient(135deg, #0d8a8a, #0d2d3a)',
+                  background: 'linear-gradient(135deg, #14B8A6, #0F172A)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13,
                 }}>🤖</div>
                 <div style={{
@@ -156,7 +156,7 @@ export default function ChatbotWidget() {
                   {[0, 0.2, 0.4].map((d, i) => (
                     <div key={i} style={{
                       width: 7, height: 7, borderRadius: '50%',
-                      background: '#0d8a8a', opacity: 0.6,
+                      background: '#14B8A6', opacity: 0.6,
                       animation: `bounce 1s ${d}s infinite`,
                     }} />
                   ))}
@@ -172,8 +172,8 @@ export default function ChatbotWidget() {
               {QUICK_PROMPTS.map(q => (
                 <button key={q} onClick={() => sendMessage(q)} style={{
                   fontSize: 11, padding: '5px 10px', borderRadius: 20,
-                  border: '1.5px solid #0d8a8a', background: 'rgba(13,138,138,0.06)',
-                  color: '#0d8a8a', cursor: 'pointer', fontWeight: 600,
+                  border: '1.5px solid #14B8A6', background: 'rgba(13,138,138,0.06)',
+                  color: '#14B8A6', cursor: 'pointer', fontWeight: 600,
                   transition: 'all 0.2s',
                 }}>{q}</button>
               ))}
@@ -200,7 +200,7 @@ export default function ChatbotWidget() {
                 transition: 'border-color 0.2s', lineHeight: 1.5,
                 maxHeight: 100, overflowY: 'auto',
               }}
-              onFocus={e => e.target.style.borderColor = '#0d8a8a'}
+              onFocus={e => e.target.style.borderColor = '#14B8A6'}
               onBlur={e => e.target.style.borderColor = '#e0ecf0'}
             />
             <button
@@ -209,7 +209,7 @@ export default function ChatbotWidget() {
               disabled={loading || !input.trim()}
               style={{
                 width: 38, height: 38, borderRadius: '50%', border: 'none',
-                background: loading || !input.trim() ? '#ccc' : 'linear-gradient(135deg, #0d8a8a, #00b4a0)',
+                background: loading || !input.trim() ? '#ccc' : 'linear-gradient(135deg, #14B8A6, #00b4a0)',
                 color: '#fff', cursor: loading || !input.trim() ? 'not-allowed' : 'pointer',
                 display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
                 transition: 'all 0.2s', boxShadow: '0 2px 8px rgba(13,138,138,0.3)',
@@ -231,8 +231,8 @@ export default function ChatbotWidget() {
         style={{
           width: 56, height: 56, borderRadius: '50%', border: 'none',
           background: open
-            ? '#0d2d3a'
-            : 'linear-gradient(135deg, #0d8a8a 0%, #0d2d3a 100%)',
+            ? '#0F172A'
+            : 'linear-gradient(135deg, #14B8A6 0%, #0F172A 100%)',
           color: '#fff', cursor: 'pointer',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           boxShadow: '0 4px 20px rgba(13,138,138,0.45)',

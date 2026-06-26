@@ -1,0 +1,68 @@
+import { useState, useRef, useEffect } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+
+export default function ProfileDropdown({ user }) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef(null)
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    function handleClick(e) {
+      if (ref.current && !ref.current.contains(e.target)) setOpen(false)
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [])
+
+  function handleLogout() {
+    localStorage.removeItem('token')
+    sessionStorage.removeItem('token')
+    navigate('/login')
+  }
+
+  const defaultAvatar = "https://ui-avatars.com/api/?name=" + (user?.fullName || 'User') + "&background=14B8A6&color=fff&size=80"
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        onClick={() => setOpen(!open)}
+        className="flex items-center gap-2 rounded-full transition-all duration-200 hover:ring-2 hover:ring-[#14B8A6]/20"
+        aria-label="Profile menu"
+      >
+        <img
+          src={user?.avatarUrl || defaultAvatar}
+          alt={user?.fullName || 'User'}
+          className="w-8 h-8 rounded-full object-cover"
+        />
+      </button>
+
+      {open && (
+        <div className="absolute right-0 top-full mt-2 w-56 bg-white border border-[#E2E8F0] rounded-xl shadow-lg py-1.5 z-50 animate-scale-in">
+          <div className="px-4 py-3 border-b border-[#E2E8F0]">
+            <p className="text-sm font-semibold text-foreground truncate">{user?.fullName || 'User'}</p>
+            <p className="text-xs text-foreground-muted truncate">{user?.email || ''}</p>
+          </div>
+          <div className="py-1">
+            <Link to="/apex/profile" onClick={() => setOpen(false)}
+              className="flex items-center gap-3 px-4 py-2 text-sm text-[#334155] hover:bg-[#F1F5F9] transition-colors duration-150">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              Hồ sơ
+            </Link>
+            <Link to="/apex/settings" onClick={() => setOpen(false)}
+              className="flex items-center gap-3 px-4 py-2 text-sm text-[#334155] hover:bg-[#F1F5F9] transition-colors duration-150">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+              Cài đặt
+            </Link>
+          </div>
+          <div className="border-t border-[#E2E8F0] py-1">
+            <button onClick={handleLogout}
+              className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-500 hover:bg-red-50 transition-colors duration-150 text-left">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+              Đăng xuất
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}

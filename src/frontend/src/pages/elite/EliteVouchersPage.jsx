@@ -43,7 +43,7 @@ export default function EliteVouchersPage() {
                   <option>Quà tặng sinh nhật</option>
                 </select>
               </div>
-              <button className="w-full bg-[#00c2ff] text-white font-bold py-2.5 rounded-md hover:bg-[#00ace6] mt-4">Phát hành Voucher</button>
+              <button className="w-full bg-[#00c2ff] text-[var(--theme-primary)] font-bold py-2.5 rounded-md hover:bg-[#00ace6] mt-4">Phát hành Voucher</button>
             </form>
           </div>
 

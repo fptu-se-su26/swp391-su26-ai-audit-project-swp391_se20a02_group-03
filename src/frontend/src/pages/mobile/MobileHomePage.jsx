@@ -9,7 +9,7 @@ export default function MobileHomePage() {
         <div className="px-4 pt-4">
           <div className="relative rounded-3xl overflow-hidden h-[200px] border border-slate-200/50">
             <img src="https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=600&q=80" alt="Badminton Court" className="w-full h-full object-cover" />
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/40 to-transparent flex flex-col justify-end p-6 text-white">
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/40 to-transparent flex flex-col justify-end p-6 text-[var(--theme-primary)]">
               <span className="bg-red-500 text-white text-[10px] uppercase tracking-widest font-bold px-2 py-1 rounded-md self-start mb-3 shadow-sm">
                 Live Now
               </span>
@@ -30,7 +30,7 @@ export default function MobileHomePage() {
             </div>
 
             <div className="flex gap-2 overflow-x-auto pb-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-              <button className="whitespace-nowrap py-2 px-4 rounded-xl bg-slate-900 text-white text-sm font-semibold cursor-pointer active:scale-95 transition-transform">
+              <button className="whitespace-nowrap py-2 px-4 rounded-xl bg-slate-900 text-[var(--theme-primary)] text-sm font-semibold cursor-pointer active:scale-95 transition-transform">
                 Cầu lông
               </button>
               <button className="whitespace-nowrap py-2 px-4 rounded-xl bg-white border border-slate-200 text-sm font-semibold text-slate-600 cursor-pointer hover:bg-slate-50 active:scale-95 transition-transform">
@@ -104,7 +104,7 @@ export default function MobileHomePage() {
                 </div>
                 <p className="text-xs font-medium text-slate-500 leading-relaxed mb-5 flex-1">Looking for a match this weekend. Usually plays at Northside.</p>
                 <div className="flex gap-2 w-full">
-                  <button className="flex-1 bg-slate-900 text-white rounded-xl py-2.5 text-sm font-bold hover:bg-slate-800 transition-colors active:scale-[0.98]">
+                  <button className="flex-1 bg-slate-900 text-[var(--theme-primary)] rounded-xl py-2.5 text-sm font-bold hover:bg-slate-800 transition-colors active:scale-[0.98]">
                     Connect
                   </button>
                   <button className="w-11 h-11 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-700 hover:bg-slate-50 transition-colors active:scale-[0.98]">
@@ -124,7 +124,7 @@ export default function MobileHomePage() {
                 </div>
                 <p className="text-xs font-medium text-slate-500 leading-relaxed mb-5 flex-1">Casual hitter. Free on weekday evenings.</p>
                 <div className="flex gap-2 w-full mt-auto">
-                  <button className="w-full bg-slate-900 text-white rounded-xl py-2.5 text-sm font-bold hover:bg-slate-800 transition-colors active:scale-[0.98]">
+                  <button className="w-full bg-slate-900 text-[var(--theme-primary)] rounded-xl py-2.5 text-sm font-bold hover:bg-slate-800 transition-colors active:scale-[0.98]">
                     Connect
                   </button>
                 </div>

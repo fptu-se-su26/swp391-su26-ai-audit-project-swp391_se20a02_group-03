@@ -1,32 +1,26 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import GearLayout from '../../layouts/GearLayout'
+import ApexLayout from '../../layouts/ApexLayout'
 import { equipmentApi } from '../../api/equipmentApi'
 import { useCart } from '../../context/CartContext'
 import { useToast } from '../../components/Toast'
+import { Plus, CheckSquare, Square, Frown, Swords, Footprints, Shirt, Circle, Briefcase, Shield } from 'lucide-react'
 
 const itemTypeIcons = {
-  'Racket':       '🏸',
-  'Footwear':     '👟',
-  'Apparel':      '👕',
-  'Ball / Birdie':'🎾',
-  'Accessories':  '🎒',
-  'Protection':   '🦺',
+  'Racket':       <Swords size={16} />,
+  'Footwear':     <Footprints size={16} />,
+  'Apparel':      <Shirt size={16} />,
+  'Ball / Birdie':<Circle size={16} />,
+  'Accessories':  <Briefcase size={16} />,
+  'Protection':   <Shield size={16} />,
 }
 
 const sports    = ['Badminton', 'Pickleball']
 const itemTypes = ['Racket', 'Footwear', 'Apparel', 'Ball / Birdie', 'Accessories', 'Protection']
 const conditions = ['Premium', 'New', 'Demo']
 
-
-const badgeStyles = {
-  new:     'bg-emerald-500 text-white',
-  premium: 'bg-amber-500 text-white',
-  demo:    'bg-indigo-500 text-white',
-}
-
-const DEFAULT_SPORTS    = sports
-const DEFAULT_ITEMS     = itemTypes
+const DEFAULT_SPORTS    = []
+const DEFAULT_ITEMS     = []
 const DEFAULT_CONDS     = []
 const DEFAULT_PRICE_MIN = ''
 const DEFAULT_PRICE_MAX = ''
@@ -36,15 +30,12 @@ export default function GearCatalogPage() {
   const { addToast } = useToast()
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
-  const [quantities, setQuantities] = useState({}) // Store quantities per product
   const [selectedSports,  setSelectedSports]  = useState(DEFAULT_SPORTS)
   const [selectedItems,   setSelectedItems]   = useState(DEFAULT_ITEMS)
   const [selectedConds,   setSelectedConds]   = useState(DEFAULT_CONDS)
   const [priceMin,        setPriceMin]        = useState(DEFAULT_PRICE_MIN)
   const [priceMax,        setPriceMax]        = useState(DEFAULT_PRICE_MAX)
-  const [viewMode,        setViewMode]        = useState('grid') // 'grid' | 'list'
   const [sort,            setSort]            = useState('recommended')
-  const [applied,         setApplied]         = useState({ sports: DEFAULT_SPORTS, items: DEFAULT_ITEMS, conds: DEFAULT_CONDS, min: '', max: '' })
 
   useEffect(() => {
     fetchProducts()
@@ -54,25 +45,18 @@ export default function GearCatalogPage() {
     try {
       setLoading(true)
       const response = await equipmentApi.getAll()
-      console.log('API Response:', response) // Debug log as requested
       
       if (response.statusCode === 200) {
-        // Map backend fields to frontend expected fields
         const mappedData = response.data.map(p => ({
           id: p.equipmentId,
           name: p.name,
           sport: p.type,
           itemType: p.category || 'Accessories',
-          badge: p.rentalPrice > 40000 ? 'PREMIUM' : 'NEW',
-          price: p.rentalPrice,
-          surchargePrice: p.rentalPrice * 1.3,
-          priceLabel: `${p.rentalPrice.toLocaleString()} VND`,
-          surchargePriceLabel: `${(p.rentalPrice * 1.3).toLocaleString()} VND`,
-          deposit: '500,000 VND',
+          badge: p.retailPrice > 4000000 ? 'Premium' : 'New Arrival',
+          price: p.retailPrice,
+          priceLabel: `${p.retailPrice.toLocaleString()} VND`,
           img: p.imageUrl || 'https://images.unsplash.com/photo-1617083934551-1af7da84de49?w=400&q=80',
-          type: 'rental',
           availableQuantity: p.availableQuantity,
-          stock: `In Stock: ${p.availableQuantity}`
         }))
         setProducts(mappedData)
       }
@@ -92,47 +76,30 @@ export default function GearCatalogPage() {
     setSelectedConds(DEFAULT_CONDS)
     setPriceMin(DEFAULT_PRICE_MIN)
     setPriceMax(DEFAULT_PRICE_MAX)
-    setApplied({ sports: DEFAULT_SPORTS, items: DEFAULT_ITEMS, conds: DEFAULT_CONDS, min: '', max: '' })
   }
-
-  function handleApply() {
-    setApplied({ sports: selectedSports, items: selectedItems, conds: selectedConds, min: priceMin, max: priceMax })
-  }
-
-  // Count active filters
-  const activeFilterCount =
-    (applied.sports.length < sports.length ? 1 : 0) +
-    (applied.items.length  < itemTypes.length ? 1 : 0) +
-    (applied.conds.length  > 0 ? 1 : 0) +
-    (applied.min || applied.max ? 1 : 0)
 
   // Filter + sort
   let filtered = products.filter(p => {
-    const matchSport = applied.sports.includes(p.sport)
-    const matchItem  = applied.items.includes(p.itemType)
-    const matchCond  = applied.conds.length === 0 || (p.badge && applied.conds.map(c => c.toUpperCase()).includes(p.badge))
-    const matchMin   = applied.min === '' || p.price >= Number(applied.min)
-    const matchMax   = applied.max === '' || p.price <= Number(applied.max)
+    const matchSport = selectedSports.length === 0 || selectedSports.includes(p.sport)
+    const matchItem  = selectedItems.length === 0 || selectedItems.includes(p.itemType)
+    const matchCond  = selectedConds.length === 0 || (p.badge && selectedConds.includes(p.badge === 'New Arrival' ? 'New' : p.badge))
+    const matchMin   = priceMin === '' || p.price >= Number(priceMin)
+    const matchMax   = priceMax === '' || p.price <= Number(priceMax)
     return matchSport && matchItem && matchCond && matchMin && matchMax
   })
 
   async function handleQuickAddToCart(e, product) {
     e.preventDefault(); e.stopPropagation();
-    const qty = quantities[product.id] || 1;
     try {
-      const res = await addToCart(product.id, qty);
+      const res = await addToCart(product.id, 1);
       if (res.success) {
-        addToast(`Đã thêm ${qty} x ${product.name} vào giỏ hàng`, 'success');
+        addToast(`Added ${product.name} to cart`, 'success');
       } else {
         addToast(res.message, 'error');
       }
     } catch (error) {
-      addToast('Lỗi khi thêm vào giỏ hàng', 'error');
+      addToast('System error adding item', 'error');
     }
-  };
-
-  function updateProductQty(id, val) {
-    setQuantities(prev => ({ ...prev, [id]: Math.max(1, val) }));
   };
 
   if (sort === 'price-asc')  filtered = [...filtered].sort((a,b) => a.price - b.price)
@@ -140,267 +107,166 @@ export default function GearCatalogPage() {
   if (sort === 'newest')     filtered = [...filtered].sort((a,b) => b.id - a.id)
 
   return (
-    <GearLayout>
-      <div className="flex gap-0 min-h-[calc(100vh-56px-80px)] flex-col md:flex-row">
-
-        {/* ── Sidebar ─────────────────────────────────────────────── */}
-        <aside className="w-full md:w-64 shrink-0 px-6 py-8 bg-brand-50/50 border-r border-brand-200 md:border-b-0 border-b">
-
-          {/* Header */}
-          <div className="flex items-center justify-between mb-8">
-            <div className="flex items-center gap-2">
-              <h3 className="text-base font-bold tracking-tight text-brand-900">Bộ lọc</h3>
-              {activeFilterCount > 0 && (
-                <span className="bg-brand-900 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">{activeFilterCount}</span>
-              )}
-            </div>
-            <button onClick={handleReset} className="text-xs font-semibold text-brand-500 hover:text-brand-900 transition-colors">Reset</button>
+    <ApexLayout>
+      <div className="font-sans relative z-10 animate-fade-up">
+        
+        {/* HEADER / SIGNBOARD */}
+        <div className="mb-12 max-w-3xl mx-auto text-center">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#5E6AD2]/10 border border-[#5E6AD2]/20 rounded-full text-[#5E6AD2] text-xs font-mono tracking-widest uppercase mb-4 shadow-[0_0_15px_rgba(94,106,210,0.3)]">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#5E6AD2] animate-pulse" />
+            Official Store
           </div>
+          <h1 className="text-4xl md:text-5xl font-semibold tracking-tight gradient-text mb-4">Equipment Catalog</h1>
+          <p className="text-lg text-foreground-muted">Discover premium gear and accessories to elevate your game.</p>
+        </div>
 
-          {/* ── ITEM TYPE ──────────────────────────────── */}
-          <div className="mb-8">
-            <p className="text-xs font-bold tracking-widest uppercase text-brand-400 mb-4">Item Type</p>
-            <div className="flex flex-col gap-3">
-              {itemTypes.map(it => (
-                <label key={it} className="flex items-center gap-3 cursor-pointer group" htmlFor={`item-${it}`}>
-                  <input type="checkbox" id={`item-${it}`} checked={selectedItems.includes(it)} onChange={() => toggle(selectedItems, setSelectedItems, it)} className="hidden" />
-                  <span className={`w-5 h-5 border rounded shrink-0 transition-all flex items-center justify-center ${selectedItems.includes(it) ? 'bg-brand-900 border-brand-900 text-white' : 'border-brand-300 bg-white group-hover:border-brand-400'}`}>
-                    {selectedItems.includes(it) && <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>}
-                  </span>
-                  <span className={`text-sm flex-1 transition-colors ${selectedItems.includes(it) ? 'text-brand-900 font-semibold' : 'text-brand-600'}`}>{itemTypeIcons[it]} {it}</span>
-                  <span className="text-xs text-brand-400 font-medium">
-                    {products.filter(p => p.itemType === it).length}
-                  </span>
-                </label>
-              ))}
-            </div>
-          </div>
-
-          {/* ── SPORT ─────────────────────────────────── */}
-          <div className="mb-8">
-            <p className="text-xs font-bold tracking-widest uppercase text-brand-400 mb-4">Sport</p>
-            <div className="flex flex-col gap-3">
-              {sports.map(s => (
-                <label key={s} className="flex items-center gap-3 cursor-pointer group" htmlFor={`sport-${s}`}>
-                  <input type="checkbox" id={`sport-${s}`} checked={selectedSports.includes(s)} onChange={() => toggle(selectedSports, setSelectedSports, s)} className="hidden" />
-                  <span className={`w-5 h-5 border rounded shrink-0 transition-all flex items-center justify-center ${selectedSports.includes(s) ? 'bg-brand-900 border-brand-900 text-white' : 'border-brand-300 bg-white group-hover:border-brand-400'}`}>
-                    {selectedSports.includes(s) && <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>}
-                  </span>
-                  <span className={`text-sm flex-1 transition-colors ${selectedSports.includes(s) ? 'text-brand-900 font-semibold' : 'text-brand-600'}`}>{s}</span>
-                  <span className="text-xs text-brand-400 font-medium">
-                    {products.filter(p => p.sport === s).length}
-                  </span>
-                </label>
-              ))}
-            </div>
-          </div>
-
-          {/* ── CONDITION ─────────────────────────────── */}
-          <div className="mb-8">
-            <p className="text-xs font-bold tracking-widest uppercase text-brand-400 mb-4">Condition</p>
-            <div className="flex flex-wrap gap-2">
-              {conditions.map(c => (
-                <button key={c}
-                  className={`px-3 py-1.5 rounded-lg border text-xs font-bold cursor-pointer transition-all ${selectedConds.includes(c) ? 'bg-brand-900 border-brand-900 text-white shadow-sm' : 'bg-white border-brand-200 text-brand-600 hover:border-brand-300 hover:bg-brand-50'}`}
-                  onClick={() => toggle(selectedConds, setSelectedConds, c)}>
-                  {c}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* ── PRICE ─────────────────────────────────── */}
-          <div className="mb-8">
-            <p className="text-xs font-bold tracking-widest uppercase text-brand-400 mb-4">Price Range</p>
-            <div className="flex items-center gap-3">
-              <div className="flex items-center border border-brand-200 bg-white rounded-lg px-3 py-2.5 text-sm text-brand-500 flex-1 focus-within:border-accent focus-within:ring-1 focus-within:ring-accent transition-all shadow-sm">
-                <span className="mr-1 font-semibold">$</span>
-                <input type="number" placeholder="Min" id="price-min" value={priceMin} onChange={e => setPriceMin(e.target.value)}
-                  className="w-full border-none outline-none font-semibold bg-transparent text-brand-900 placeholder:text-brand-300 placeholder:font-normal" />
-              </div>
-              <span className="text-brand-300 font-medium">-</span>
-              <div className="flex items-center border border-brand-200 bg-white rounded-lg px-3 py-2.5 text-sm text-brand-500 flex-1 focus-within:border-accent focus-within:ring-1 focus-within:ring-accent transition-all shadow-sm">
-                <span className="mr-1 font-semibold">$</span>
-                <input type="number" placeholder="Max" id="price-max" value={priceMax} onChange={e => setPriceMax(e.target.value)}
-                  className="w-full border-none outline-none font-semibold bg-transparent text-brand-900 placeholder:text-brand-300 placeholder:font-normal" />
-              </div>
-            </div>
-          </div>
-
-          <button onClick={handleApply} className="btn-primary w-full py-3.5 text-sm">
-            Apply Filters {activeFilterCount > 0 && `(${activeFilterCount})`}
+        {/* CATEGORY CHIPS */}
+        <div className="mb-10 flex flex-wrap justify-center gap-3">
+          <button 
+            onClick={() => setSelectedItems([])} 
+            className={`px-4 py-2 text-sm font-medium transition-all duration-200 rounded-xl border ${selectedItems.length === 0 ? 'bg-[#5E6AD2] text-[var(--theme-primary)] border-[#5E6AD2] shadow-[0_4px_15px_rgba(94,106,210,0.4)]' : 'bg-white/[0.02] text-foreground-muted border-border-default hover:bg-white/[0.06] hover:text-[var(--theme-primary)]'}`}
+          >
+            All Items
           </button>
-        </aside>
+          {itemTypes.map(it => (
+            <button 
+              key={it}
+              onClick={() => toggle(selectedItems, setSelectedItems, it)}
+              className={`px-4 py-2 text-sm font-medium transition-all duration-200 flex items-center gap-2 rounded-xl border ${selectedItems.includes(it) ? 'bg-[#5E6AD2] text-[var(--theme-primary)] border-[#5E6AD2] shadow-[0_4px_15px_rgba(94,106,210,0.4)]' : 'bg-white/[0.02] text-foreground-muted border-border-default hover:bg-white/[0.06] hover:text-[var(--theme-primary)]'}`}
+            >
+              <span>{itemTypeIcons[it]}</span>
+              {it}
+            </button>
+          ))}
+        </div>
 
-        {/* ── Main Content ──────────────────────────────────────────── */}
-        <div className="flex-1 px-8 py-8 bg-brand-50/20">
-
-          {/* Title + Controls */}
-          <div className="flex flex-wrap items-end justify-between gap-4 mb-8">
-            <div>
-              <h1 className="font-heading text-3xl font-bold text-brand-900 mb-1">Catalog</h1>
-              <p className="text-sm font-medium text-brand-500">
-                Showing {filtered.length} high-performance gear
-              </p>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="flex p-1 bg-brand-100 rounded-lg border border-brand-200">
-                <button onClick={() => setViewMode('grid')}
-                  className={`w-9 h-9 rounded-md flex items-center justify-center transition-all ${viewMode === 'grid' ? 'bg-white shadow-sm text-brand-900 border border-brand-200' : 'text-brand-500 hover:text-brand-900'}`}
-                  aria-label="Grid view">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/></svg>
-                </button>
-                <button onClick={() => setViewMode('list')}
-                  className={`w-9 h-9 rounded-md flex items-center justify-center transition-all ${viewMode === 'list' ? 'bg-white shadow-sm text-brand-900 border border-brand-200' : 'text-brand-500 hover:text-brand-900'}`}
-                  aria-label="List view">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-                </button>
+        <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-10">
+          
+          {/* SIDEBAR FILTERS */}
+          <aside className="card-base p-6 h-fit sticky top-28">
+            <h3 className="text-xs font-mono tracking-widest text-foreground-muted uppercase mb-6 flex items-center gap-2">
+              <span className="w-1 h-3 bg-[#5E6AD2] rounded-full" />
+              Filters
+            </h3>
+            
+            <div className="mb-8">
+              <h4 className="text-sm font-semibold text-foreground mb-3">Sport Type</h4>
+              <div className="flex flex-col gap-2">
+                {sports.map(s => (
+                  <button 
+                    key={s}
+                    onClick={() => toggle(selectedSports, setSelectedSports, s)}
+                    className="flex items-center gap-3 text-left font-medium text-sm text-foreground-muted hover:text-[var(--theme-primary)] transition-colors py-1 group"
+                  >
+                    <div className="text-foreground-muted group-hover:text-[#5E6AD2] transition-colors">
+                      {selectedSports.includes(s) ? <CheckSquare className="w-4 h-4 text-[#5E6AD2]" /> : <Square className="w-4 h-4" />}
+                    </div>
+                    {s}
+                  </button>
+                ))}
               </div>
-              <select value={sort} onChange={e => setSort(e.target.value)}
-                className="h-11 px-4 bg-white border border-brand-200 rounded-lg text-sm font-semibold text-brand-700 outline-none cursor-pointer hover:bg-brand-50 transition-colors shadow-sm focus:ring-2 focus:ring-accent/20">
-                <option value="recommended">Recommended</option>
-                <option value="price-asc">Price: Low to High</option>
-                <option value="price-desc">Price: High to Low</option>
-                <option value="newest">New Arrivals</option>
-              </select>
             </div>
-          </div>
 
-          {/* Active filter tags */}
-          {(applied.sports.length < sports.length || applied.items.length < itemTypes.length || applied.conds.length > 0 || applied.min || applied.max) && (
-            <div className="flex flex-wrap gap-2 mb-8">
-              {applied.items.length < itemTypes.length && applied.items.map(it => (
-                <span key={it} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-brand-900 text-white rounded-md text-[11px] font-bold uppercase tracking-wider shadow-sm">
-                  {itemTypeIcons[it]} {it}
-                  <button onClick={() => { const n = applied.items.filter(x => x !== it); setSelectedItems(n); setApplied(a => ({...a, items: n})) }} className="text-brand-400 hover:text-white transition-colors ml-1">✕</button>
-                </span>
-              ))}
-              {applied.conds.map(c => (
-                <span key={c} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 text-amber-700 border border-amber-200 rounded-md text-[11px] font-bold uppercase tracking-wider shadow-sm">
-                  {c}
-                  <button onClick={() => { const n = applied.conds.filter(x => x !== c); setSelectedConds(n); setApplied(a => ({...a, conds: n})) }} className="text-amber-500 hover:text-amber-900 transition-colors ml-1">✕</button>
-                </span>
-              ))}
-              {(applied.min || applied.max) && (
-                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-brand-100 text-brand-700 border border-brand-200 rounded-md text-[11px] font-bold uppercase tracking-wider shadow-sm">
-                  ${applied.min || '0'} – ${applied.max || '∞'}
-                  <button onClick={() => { setPriceMin(''); setPriceMax(''); setApplied(a => ({...a, min: '', max: ''})) }} className="text-brand-400 hover:text-brand-900 transition-colors ml-1">✕</button>
-                </span>
-              )}
-            </div>
-          )}
-
-          {/* Empty state */}
-          {filtered.length === 0 && (
-            <div className="py-24 text-center bg-white rounded-2xl border border-brand-200 border-dashed">
-              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" className="mx-auto mb-4 text-brand-300"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-              <h3 className="font-heading text-xl font-bold text-brand-900 mb-2">No gear found</h3>
-              <p className="text-sm text-brand-500">We couldn't find anything matching your filters.</p>
-              <button onClick={handleReset} className="mt-6 btn-primary px-6 py-2.5 text-sm">Clear all filters</button>
-            </div>
-          )}
-
-          {/* Grid view */}
-          {viewMode === 'grid' && filtered.length > 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
-              {filtered.map(p => (
-                <Link to={`/gear/catalog/${p.id}`} key={p.id} className="group bg-white rounded-2xl border border-brand-200 overflow-hidden no-underline text-inherit flex flex-col hover:border-brand-300 hover:shadow-lg transition-all duration-300">
-                  <div className="relative h-56 overflow-hidden bg-brand-50">
-                    <img src={p.img} alt={p.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                    {p.badge && <span className={`absolute top-4 right-4 text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-md shadow-sm ${badgeStyles[p.badge.toLowerCase()] || ''}`}>{p.badge}</span>}
-                    <button className="absolute top-4 left-4 w-9 h-9 rounded-full bg-white/90 backdrop-blur border border-brand-200 flex items-center justify-center text-brand-400 hover:text-red-500 hover:bg-white transition-colors" aria-label="Wishlist">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-                    </button>
-                  </div>
-                  <div className="p-5 flex-1 flex flex-col">
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-[10px] font-bold tracking-widest uppercase text-brand-400">{p.sport}</span>
-                      <span className="text-xs font-semibold bg-brand-50 text-brand-600 rounded-md px-2 py-1">{itemTypeIcons[p.itemType]} {p.itemType}</span>
+            <div className="mb-8">
+              <h4 className="text-sm font-semibold text-foreground mb-3">Condition</h4>
+              <div className="flex flex-col gap-2">
+                {conditions.map(c => (
+                  <button 
+                    key={c}
+                    onClick={() => toggle(selectedConds, setSelectedConds, c)}
+                    className="flex items-center gap-3 text-left font-medium text-sm text-foreground-muted hover:text-[var(--theme-primary)] transition-colors py-1 group"
+                  >
+                    <div className="text-foreground-muted group-hover:text-[#5E6AD2] transition-colors">
+                      {selectedConds.includes(c) ? <CheckSquare className="w-4 h-4 text-[#5E6AD2]" /> : <Square className="w-4 h-4" />}
                     </div>
-                    <h3 className="font-heading text-lg font-bold text-brand-900 leading-tight mb-4 group-hover:text-accent transition-colors">{p.name}</h3>
-                    <div className="mt-auto flex flex-col gap-4 border-t border-brand-100 pt-4">
-                      <div className="flex justify-between items-center text-sm font-bold text-brand-900">
-                        <span>{p.priceLabel}</span>
-                        <div className="flex items-center border border-brand-200 rounded-lg overflow-hidden h-8">
-                          <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); updateProductQty(p.id, (quantities[p.id] || 1) - 1); }} className="px-2 hover:bg-brand-50 text-brand-900 font-bold border-r border-brand-200">-</button>
-                          <span className="px-3 min-w-[32px] text-center text-xs font-bold">{quantities[p.id] || 1}</span>
-                          <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); updateProductQty(p.id, (quantities[p.id] || 1) + 1); }} className="px-2 hover:bg-brand-50 text-brand-900 font-bold border-l border-brand-200">+</button>
-                        </div>
-                      </div>
-                      <button 
-                        onClick={(e) => handleQuickAddToCart(e, p)}
-                        className="w-full py-2.5 bg-brand-900 text-white text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-accent transition-all duration-300 transform active:scale-[0.98]"
-                      >
-                        Thêm vào giỏ
-                      </button>
-                    </div>
-                  </div>
-                </Link>
-              ))}
+                    {c}
+                  </button>
+                ))}
+              </div>
             </div>
-          )}
 
-          {/* List view */}
-          {viewMode === 'list' && filtered.length > 0 && (
-            <div className="flex flex-col gap-4 mb-10">
-              {filtered.map(p => (
-                <Link to={`/gear/catalog/${p.id}`} key={p.id} className="group bg-white rounded-2xl border border-brand-200 overflow-hidden no-underline text-inherit flex hover:border-brand-300 hover:shadow-lg transition-all duration-300">
-                  <img src={p.img} alt={p.name} className="w-48 h-full min-h-[160px] object-cover shrink-0" />
-                  <div className="p-6 flex-1 flex items-center justify-between gap-6">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-3">
-                        <span className="text-[10px] font-bold tracking-widest uppercase text-brand-400">{p.sport}</span>
-                        <span className="text-xs font-semibold bg-brand-50 text-brand-600 rounded-md px-2 py-1">{itemTypeIcons[p.itemType]} {p.itemType}</span>
-                        {p.badge && <span className={`text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-md shadow-sm ${badgeStyles[p.badge.toLowerCase()]}`}>{p.badge}</span>}
-                      </div>
-                      <h3 className="font-heading text-xl font-bold text-brand-900 mb-3 group-hover:text-accent transition-colors">{p.name}</h3>
-                      {p.stock && <span className="text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-md px-2 py-0.5">{p.stock}</span>}
+            <button onClick={handleReset} className="w-full py-2.5 text-sm font-medium bg-[var(--theme-surface)] text-foreground-muted border border-border-default hover:bg-white/[0.06] hover:text-[var(--theme-primary)] transition-colors rounded-lg">
+              Reset Filters
+            </button>
+          </aside>
+
+          {/* MAIN PRODUCT GRID */}
+          <div className="flex flex-col gap-6">
+            
+            {/* Top Toolbar */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 card-base !py-3 !px-5">
+              <div className="text-sm font-medium text-foreground-muted">
+                Showing <span className="text-[var(--theme-primary)]">{filtered.length}</span> results
+              </div>
+              
+              <div className="flex items-center gap-3">
+                <span className="text-sm text-foreground-muted font-medium">Sort by</span>
+                <select 
+                  value={sort} 
+                  onChange={e => setSort(e.target.value)}
+                  className="bg-transparent border-none text-sm font-medium text-[var(--theme-primary)] outline-none cursor-pointer hover:text-[#5E6AD2] transition-colors focus:ring-0 appearance-none"
+                >
+                  <option value="recommended" className="bg-background-base">Recommended</option>
+                  <option value="price-asc" className="bg-background-base">Price: Low to High</option>
+                  <option value="price-desc" className="bg-background-base">Price: High to Low</option>
+                  <option value="newest" className="bg-background-base">Newest Arrivals</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Grid */}
+            {filtered.length === 0 ? (
+              <div className="card-base p-16 text-center flex flex-col items-center justify-center">
+                <div className="w-16 h-16 bg-[var(--theme-surface)] border border-border-default rounded-2xl flex items-center justify-center mb-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]">
+                  <Frown className="w-8 h-8 text-foreground-muted" />
+                </div>
+                <h2 className="text-xl font-semibold text-foreground mb-2 tracking-tight">No items found</h2>
+                <p className="text-foreground-muted text-sm">Try adjusting your filters to find what you're looking for.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                {filtered.map(p => (
+                  <Link to={`/gear/catalog/${p.id}`} key={p.id} className="card-base group flex flex-col !p-0 overflow-hidden hover:-translate-y-1 transition-transform duration-300">
+                    {/* Badge */}
+                    <div className="absolute top-3 left-3 bg-black/40 backdrop-blur-md text-[var(--theme-primary)] font-mono text-[10px] tracking-widest uppercase px-2.5 py-1 border border-border-default rounded-full shadow-[0_4px_12px_rgba(0,0,0,0.5)] z-10">
+                      {p.badge}
                     </div>
-                    <div className="text-right shrink-0 border-l border-brand-100 pl-8 flex flex-col items-end gap-3">
-                      <div>
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-brand-400 mb-1.5">{p.type === 'rental' ? 'Rental Rate' : 'Purchase'}</p>
-                        <p className="text-3xl font-bold text-brand-900">{p.priceLabel}</p>
+                    
+                    {/* Image Area */}
+                    <div className="h-[240px] bg-white/[0.02] border-b border-border-default p-8 flex items-center justify-center relative overflow-hidden">
+                      <div className="absolute inset-0 bg-gradient-to-b from-transparent to-white/[0.02]" />
+                      <img src={p.img} alt={p.name} className="w-full h-full object-contain filter drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)] group-hover:scale-110 transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] relative z-10" />
+                    </div>
+                    
+                    {/* Info Area */}
+                    <div className="p-5 flex-1 flex flex-col relative bg-gradient-to-b from-transparent to-white/[0.01]">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-[10px] bg-white/[0.06] text-foreground-muted font-mono uppercase tracking-widest px-2 py-0.5 rounded border border-border-default">{p.sport}</span>
                       </div>
+                      <h3 className="text-lg font-semibold text-foreground mb-1 leading-snug flex-1 group-hover:text-[#5E6AD2] transition-colors">{p.name}</h3>
                       
-                      <div className="flex items-center gap-4">
-                        <div className="flex items-center border border-brand-200 rounded-lg overflow-hidden h-9 bg-white">
-                          <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); updateProductQty(p.id, (quantities[p.id] || 1) - 1); }} className="px-3 hover:bg-brand-50 text-brand-900 font-bold border-r border-brand-200">-</button>
-                          <span className="px-4 min-w-[40px] text-center font-bold text-sm">{quantities[p.id] || 1}</span>
-                          <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); updateProductQty(p.id, (quantities[p.id] || 1) + 1); }} className="px-3 hover:bg-brand-50 text-brand-900 font-bold border-l border-brand-200">+</button>
+                      <div className="flex items-end justify-between mt-4">
+                        <div>
+                          <p className="text-xs text-foreground-muted font-medium mb-0.5">Rental Price</p>
+                          <p className="text-lg text-[var(--theme-primary)] font-semibold tracking-tight">{p.priceLabel}</p>
                         </div>
                         <button 
                           onClick={(e) => handleQuickAddToCart(e, p)}
-                          className="px-6 py-2.5 bg-brand-900 text-white text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-accent transition-all whitespace-nowrap"
+                          className="w-10 h-10 flex items-center justify-center bg-[#5E6AD2] text-[var(--theme-primary)] hover:bg-[#6872D9] shadow-[0_4px_14px_rgba(94,106,210,0.4)] active:scale-95 transition-all rounded-xl"
+                          title="Add to Cart"
                         >
-                          Thêm vào giỏ
+                          <Plus className="w-5 h-5" />
                         </button>
                       </div>
-                      
-                      {p.deposit && <p className="text-xs font-medium text-brand-500">Deposit: {p.deposit}</p>}
                     </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          )}
-
-          {/* Pagination */}
-          {filtered.length > 0 && (
-            <div className="flex items-center justify-center gap-2">
-              <button className="w-10 h-10 rounded-xl border border-brand-200 bg-white text-brand-500 hover:bg-brand-50 hover:text-brand-900 transition-colors flex items-center justify-center">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="15 18 9 12 15 6"/></svg>
-              </button>
-              <button className="w-10 h-10 rounded-xl bg-brand-900 text-white font-bold text-sm shadow-sm">1</button>
-              <button className="w-10 h-10 rounded-xl border border-brand-200 bg-white text-brand-700 font-bold text-sm hover:bg-brand-50 transition-colors">2</button>
-              <button className="w-10 h-10 rounded-xl border border-brand-200 bg-white text-brand-700 font-bold text-sm hover:bg-brand-50 transition-colors">3</button>
-              <span className="text-brand-400 font-bold px-2">...</span>
-              <button className="w-10 h-10 rounded-xl border border-brand-200 bg-white text-brand-500 hover:bg-brand-50 hover:text-brand-900 transition-colors flex items-center justify-center">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
-              </button>
-            </div>
-          )}
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
+
       </div>
-    </GearLayout>
+    </ApexLayout>
   )
 }
