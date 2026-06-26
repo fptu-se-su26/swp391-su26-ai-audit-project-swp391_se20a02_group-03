@@ -87,7 +87,7 @@ export default function AIChatbot() {
         }}>
           {/* Header */}
           <div style={{
-            background: 'linear-gradient(135deg, #0d8a8a 0%, #0d2d3a 100%)',
+            background: 'linear-gradient(135deg, #14B8A6 0%, #0F172A 100%)',
             padding: '14px 18px',
             display: 'flex', alignItems: 'center', gap: 10,
           }}>
@@ -127,7 +127,7 @@ export default function AIChatbot() {
                 {msg.role === 'assistant' && (
                   <div style={{
                     width: 28, height: 28, borderRadius: '50%',
-                    background: 'linear-gradient(135deg, #0d8a8a, #0d2d3a)',
+                    background: 'linear-gradient(135deg, #14B8A6, #0F172A)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     fontSize: 13, flexShrink: 0, boxShadow: '0 2px 6px rgba(13,138,138,0.3)',
                   }}>🤖</div>
@@ -135,9 +135,9 @@ export default function AIChatbot() {
                 <div style={{
                   maxWidth: '78%',
                   background: msg.role === 'user'
-                    ? 'linear-gradient(135deg, #0d8a8a, #00b4a0)'
+                    ? 'linear-gradient(135deg, #14B8A6, #00b4a0)'
                     : '#fff',
-                  color: msg.role === 'user' ? '#fff' : '#0d2d3a',
+                  color: msg.role === 'user' ? '#fff' : '#0F172A',
                   padding: '9px 13px',
                   borderRadius: msg.role === 'user'
                     ? '14px 14px 4px 14px'
@@ -156,7 +156,7 @@ export default function AIChatbot() {
               <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8 }}>
                 <div style={{
                   width: 28, height: 28, borderRadius: '50%',
-                  background: 'linear-gradient(135deg, #0d8a8a, #0d2d3a)',
+                  background: 'linear-gradient(135deg, #14B8A6, #0F172A)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13,
                 }}>🤖</div>
                 <div style={{
@@ -169,7 +169,7 @@ export default function AIChatbot() {
                   {[0, 0.2, 0.4].map((delay, i) => (
                     <div key={i} style={{
                       width: 7, height: 7, borderRadius: '50%',
-                      background: '#0d8a8a',
+                      background: '#14B8A6',
                       animation: `aiBounce 1s ${delay}s infinite`,
                     }} />
                   ))}
@@ -190,8 +190,8 @@ export default function AIChatbot() {
               {QUICK_PROMPTS.map(q => (
                 <button key={q} onClick={() => sendMessage(q)} style={{
                   fontSize: 11, padding: '5px 10px', borderRadius: 20,
-                  border: '1.5px solid #0d8a8a20', background: 'rgba(13,138,138,0.07)',
-                  color: '#0d8a8a', cursor: 'pointer', fontWeight: 600,
+                  border: '1.5px solid #14B8A620', background: 'rgba(13,138,138,0.07)',
+                  color: '#14B8A6', cursor: 'pointer', fontWeight: 600,
                   fontFamily: 'Inter, sans-serif',
                   transition: 'all 0.2s',
                 }}>{q}</button>
@@ -219,9 +219,9 @@ export default function AIChatbot() {
                 fontFamily: 'Inter, sans-serif', fontSize: 13,
                 outline: 'none', transition: 'border-color 0.2s',
                 lineHeight: 1.5, maxHeight: 100, overflowY: 'auto',
-                background: '#f8fbfd', color: '#0d2d3a',
+                background: '#f8fbfd', color: '#0F172A',
               }}
-              onFocus={e => e.target.style.borderColor = '#0d8a8a'}
+              onFocus={e => e.target.style.borderColor = '#14B8A6'}
               onBlur={e => e.target.style.borderColor = '#e0ecf0'}
             />
             <button
@@ -232,7 +232,7 @@ export default function AIChatbot() {
                 width: 38, height: 38, borderRadius: '50%', border: 'none',
                 background: loading || !input.trim()
                   ? '#d1d5db'
-                  : 'linear-gradient(135deg, #0d8a8a, #00b4a0)',
+                  : 'linear-gradient(135deg, #14B8A6, #00b4a0)',
                 color: '#fff',
                 cursor: loading || !input.trim() ? 'not-allowed' : 'pointer',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -257,8 +257,8 @@ export default function AIChatbot() {
           position: 'fixed', bottom: 24, right: 24, zIndex: 9999,
           width: 56, height: 56, borderRadius: '50%', border: 'none',
           background: isOpen
-            ? '#0d2d3a'
-            : 'linear-gradient(135deg, #0d8a8a 0%, #0d2d3a 100%)',
+            ? '#0F172A'
+            : 'linear-gradient(135deg, #14B8A6 0%, #0F172A 100%)',
           color: '#fff', cursor: 'pointer',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           boxShadow: '0 4px 20px rgba(13,138,138,0.5)',

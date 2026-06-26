@@ -55,7 +55,7 @@ export default function TermsOfServicePage() {
 
           <h2 className="font-['Oswald'] text-[1.4rem] font-bold text-[#0a0e1a] mt-10 mb-4">5. Contact Information</h2>
           <p className="text-slate-600 mb-8 leading-[1.7]">
-            If you have any questions regarding these Terms, please contact us at: <a href="mailto:legal@pro-sport.com" className="text-[#00c8aa] hover:underline">legal@pro-sport.com</a>
+            If you have any questions regarding these Terms, please contact us at: <a href="mailto:legal@pro-sport.com" className="text-[#14B8A6] hover:underline">legal@pro-sport.com</a>
           </p>
         </div>
       </div>

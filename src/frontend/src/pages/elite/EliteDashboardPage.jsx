@@ -60,7 +60,7 @@ export default function EliteDashboardPage() {
             <h3 className="text-[1.125rem] font-bold text-slate-900 mb-5">Quick Actions</h3>
             <div className="grid grid-cols-2 grid-rows-2 gap-4 h-[calc(100%-44px)]">
               <button className="bg-slate-50 border border-slate-200 rounded-xl flex flex-col items-center justify-center gap-3 cursor-pointer transition-all p-4 text-sm font-semibold text-slate-800 hover:bg-white hover:border-[#00c2ff] hover:shadow-[0_4px_12px_rgba(0,194,255,0.1)]">
-                <div className="w-12 h-12 rounded-full flex items-center justify-center bg-[#00c2ff] text-white">
+                <div className="w-12 h-12 rounded-full flex items-center justify-center bg-[#00c2ff] text-[var(--theme-primary)]">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
                 </div>
                 New Booking
@@ -72,7 +72,7 @@ export default function EliteDashboardPage() {
                 Scan QR
               </button>
               <button className="bg-slate-50 border border-slate-200 rounded-xl flex flex-col items-center justify-center gap-3 cursor-pointer transition-all p-4 text-sm font-semibold text-slate-800 hover:bg-white hover:border-[#00c2ff] hover:shadow-[0_4px_12px_rgba(0,194,255,0.1)]">
-                <div className="w-12 h-12 rounded-full flex items-center justify-center bg-amber-500 text-white">
+                <div className="w-12 h-12 rounded-full flex items-center justify-center bg-amber-500 text-[var(--theme-primary)]">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
                 </div>
                 New Rental

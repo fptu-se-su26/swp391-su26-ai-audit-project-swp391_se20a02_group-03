@@ -1,10 +1,9 @@
-import { useState, useEffect, useRef } from 'react'
-import { gsap } from 'gsap'
+import { useState, useEffect } from 'react'
+import { Swords, Circle, CheckCircle, CreditCard, Wallet, Check } from 'lucide-react'
 import ApexLayout from '../../layouts/ApexLayout'
 import { bookingApi } from '../../api/bookingApi'
 import { paymentApi } from '../../api/paymentApi'
 import { useToast } from '../../components/Toast'
-import './ApexBookingPage.css'
 
 const timeSlots = [
   '06:00', '07:00', '08:00', '09:00', '10:00', '11:00',
@@ -28,7 +27,6 @@ export default function ApexBookingPage() {
   const [paymentMethod, setPaymentMethod] = useState('vnpay')
   const [escrowBalance, setEscrowBalance] = useState(0)
   
-  const pageRef = useRef(null)
   const { addToast } = useToast()
 
   // Load Courts
@@ -36,13 +34,14 @@ export default function ApexBookingPage() {
     bookingApi.getCourts()
       .then(res => {
         if (res.data) {
-          const mappedCourts = res.data.map(c => ({
+          const courtsArray = Array.isArray(res.data) ? res.data : (res.data.items || []);
+          const mappedCourts = courtsArray.map(c => ({
             id: c.courtId,
             name: c.name,
             type: c.courtTypeName || 'Badminton',
             price: c.pricePerHour > 0 ? c.pricePerHour : 100000,
             status: c.status?.toLowerCase() === 'available' ? 'available' : 'booked',
-            icon: c.courtTypeName?.toLowerCase().includes('pickleball') ? '🏓' : '🏸',
+            icon: c.courtTypeName?.toLowerCase().includes('pickleball') ? <Circle size={20} className="text-[var(--theme-primary)]" /> : <Swords size={20} className="text-[var(--theme-primary)]" />,
             capacity: 4,
             features: c.description ? c.description.split(',').map(s => s.trim()) : ['Tiêu chuẩn'],
             imageUrl: c.imageUrl
@@ -50,26 +49,15 @@ export default function ApexBookingPage() {
           setCourts(mappedCourts)
         }
       })
-      // BUG-11 FIX: axiosClient rejects with string — err.message is undefined on strings
       .catch(err => addToast('Lỗi tải danh sách sân: ' + (typeof err === 'string' ? err : err.message || 'Unknown error'), 'error'))
       
     // Load Wallet
     paymentApi.getEscrowWallet()
       .then(res => {
-        // BUG-12 FIX: axiosClient returns envelope, res IS envelope, res.data is the payload
         if (res.data) setEscrowBalance(res.data.balance || 0)
       })
       .catch(err => console.error("Lỗi ví", err))
   }, [addToast])
-
-  // GSAP entrance animation
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      gsap.from('.booking-hero', { opacity: 0, y: 30, duration: 0.6, ease: 'power3.out' })
-      gsap.from('.court-card', { opacity: 0, y: 40, duration: 0.5, stagger: 0.08, ease: 'power2.out', delay: 0.2 })
-    }, pageRef)
-    return () => ctx.revert()
-  }, [])
 
   // Load booked slots when court or date changes
   useEffect(() => {
@@ -77,7 +65,6 @@ export default function ApexBookingPage() {
       bookingApi.getBookedSlots(selectedCourt.id, selectedDate)
         .then(res => {
           if (res.data) {
-            // BUG-22 FIX: Normalize time format to HH:mm for consistent comparison
             const slots = Array.isArray(res.data) ? res.data : []
             const normalized = slots.map(s => typeof s === 'string' ? s.substring(0, 5) : s)
             setBookedSlots(normalized)
@@ -98,7 +85,6 @@ export default function ApexBookingPage() {
     setSelectedSlots(prev => {
         if (prev.includes(slot)) return prev.filter(s => s !== slot)
         
-        // Nếu đã có slot, kiểm tra xem slot mới có liền kề không
         if (prev.length > 0) {
             const slotHour = parseInt(slot.split(':')[0])
             const prevHours = prev.map(s => parseInt(s.split(':')[0]))
@@ -131,7 +117,6 @@ export default function ApexBookingPage() {
 
     setIsLoading(true)
     try {
-      // Vì các slot là 1 giờ liên tiếp, ta lấy start của slot đầu và end của slot cuối
       const startTime = selectedSlots[0].length === 5 ? selectedSlots[0] + ':00' : selectedSlots[0]
       const lastSlot = selectedSlots[selectedSlots.length - 1]
       const endTimeStr = calculateEndTime(lastSlot)
@@ -171,7 +156,6 @@ export default function ApexBookingPage() {
         } else if (paymentMethod === 'escrow') {
           const escrowRes = await paymentApi.payBookingByEscrow(bookingId)
           if (escrowRes.statusCode === 200) {
-            gsap.to('.booking-summary', { scale: 0.97, duration: 0.1, yoyo: true, repeat: 1 })
             setBooked(true)
           } else {
             addToast("Lỗi thanh toán ví: " + escrowRes.message, "error")
@@ -190,37 +174,58 @@ export default function ApexBookingPage() {
 
   if (booked) {
     return (
-      <ApexLayout title="Booking">
-        <div className="booking-success" ref={pageRef}>
-          <div className="booking-success__card">
-            <div className="booking-success__icon">✅</div>
-            <h2>Booking Confirmed!</h2>
-            <p>{selectedCourt?.name}</p>
-            <p className="booking-success__detail">{selectedDate} · {selectedSlots.join(', ')}</p>
-            <p className="booking-success__price">{totalPrice.toLocaleString('vi-VN')} VNĐ paid via {paymentMethod === 'vnpay' ? 'VNPay' : 'Wallet'}</p>
-            <button className="btn-primary" onClick={() => { setBooked(false); setStep(1); setSelectedCourt(null); setSelectedSlots([]) }}>Book Another Court</button>
+      <ApexLayout>
+        <div className="max-w-[600px] mx-auto mt-12 card-base rounded-2xl p-8 md:p-12 text-center shadow-sm animate-scale-in">
+          <div className="w-20 h-20 bg-accent/10 border border-accent/20 rounded-full flex items-center justify-center text-4xl mx-auto mb-6"><CheckCircle size={40} className="text-accent" /></div>
+          <h2 className="text-2xl font-bold text-[var(--theme-primary)] tracking-tight mb-2">Đặt sân thành công!</h2>
+          <p className="text-lg font-semibold text-[var(--theme-primary)] mb-1">{selectedCourt?.name}</p>
+          <p className="text-foreground-muted mb-6">{selectedDate} · {selectedSlots[0]} – {calculateEndTime(selectedSlots[selectedSlots.length - 1])}</p>
+          
+          <div className="bg-[var(--theme-surface)] border border-border-default rounded-xl p-4 mb-8">
+            <p className="text-sm text-foreground-muted mb-1">Đã thanh toán</p>
+            <p className="text-xl font-bold text-accent">{totalPrice.toLocaleString('vi-VN')} VNĐ</p>
+            <p className="text-xs text-foreground-muted mt-1 uppercase tracking-wider font-semibold">qua {paymentMethod === 'vnpay' ? 'VNPay' : 'Ví'}</p>
           </div>
+          
+          <button 
+            className="w-full h-11 btn-primary" 
+            onClick={() => { setBooked(false); setStep(1); setSelectedCourt(null); setSelectedSlots([]) }}
+          >
+            Đặt sân khác
+          </button>
         </div>
       </ApexLayout>
     )
   }
 
   return (
-    <ApexLayout title="Booking">
-      <div className="apex-booking" ref={pageRef}>
-        {/* Hero */}
-        <div className="booking-hero">
+    <ApexLayout>
+      <div className="max-w-[1200px] mx-auto animate-fade-up">
+        {/* Header & Stepper */}
+        <div className="flex max-md:flex-col md:items-end justify-between gap-6 mb-8">
           <div>
-            <h1 className="booking-hero__title">Book a Court</h1>
-            <p className="booking-hero__sub">Choose your sport, pick your time, play your game.</p>
+            <h1 className="text-2xl font-bold text-[var(--theme-primary)] tracking-tight">Đặt sân</h1>
+            <p className="text-sm text-foreground-muted mt-1">Chọn môn thể thao, thời gian và bắt đầu trận đấu.</p>
           </div>
-          {/* Steps indicator */}
-          <div className="booking-steps">
-            {['Select Court', 'Pick Time', 'Confirm'].map((s, i) => (
-              <div key={s} className={`booking-step ${step > i + 1 ? 'done' : ''} ${step === i + 1 ? 'active' : ''}`}>
-                <span className="booking-step__num">{step > i + 1 ? '✓' : i + 1}</span>
-                <span className="booking-step__label">{s}</span>
-                {i < 2 && <div className="booking-step__line" />}
+          
+          <div className="flex items-center gap-2">
+            {['Chọn sân', 'Chọn giờ', 'Xác nhận'].map((s, i) => (
+              <div key={s} className="flex items-center">
+                <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-200 ${
+                  step > i + 1 ? 'text-accent bg-accent/10 border border-accent/20' : 
+                  step === i + 1 ? 'text-white bg-[var(--theme-surface)] border border-border-hover shadow-[0_0_15px_rgba(255,255,255,0.05)]' : 
+                  'text-foreground-muted'
+                }`}>
+                  <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${
+                    step > i + 1 ? 'bg-accent text-white' : 
+                    step === i + 1 ? 'bg-white text-black' : 
+                    'bg-[var(--theme-surface)] text-foreground-muted'
+                  }`}>
+                    {step > i + 1 ? <Check size={12} /> : i + 1}
+                  </span>
+                  <span className="hidden sm:inline">{s}</span>
+                </div>
+                {i < 2 && <div className={`w-8 h-[2px] mx-2 rounded-full ${step > i + 1 ? 'bg-accent' : 'bg-[var(--theme-surface-hover)]'}`} />}
               </div>
             ))}
           </div>
@@ -228,49 +233,71 @@ export default function ApexBookingPage() {
 
         {/* Step 1: Select Court */}
         {step === 1 && (
-          <div className="booking-step1">
+          <div className="animate-fade-in pb-20">
             {/* Filters */}
-            <div className="booking-filters">
+            <div className="flex flex-wrap gap-2 mb-6">
               {sportTypes.map(t => (
-                <button key={t} className={`booking-filter-btn ${filter === t ? 'active' : ''}`} onClick={() => setFilter(t)}>{t}</button>
+                <button 
+                  key={t} 
+                  className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ${
+                    filter === t 
+                      ? 'bg-accent text-white shadow-[0_0_15px_rgba(94,106,210,0.4)]' 
+                      : 'bg-[var(--theme-surface)] border border-border-default text-foreground-muted hover:border-border-hover hover:text-foreground'
+                  }`} 
+                  onClick={() => setFilter(t)}
+                >
+                  {t === 'All' ? 'Tất cả' : t === 'Badminton' ? 'Cầu lông' : t}
+                </button>
               ))}
             </div>
 
-            <div className="courts-grid">
-              {/* BUG-21 FIX: Separate loading and empty states */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {courts.length === 0 && filtered.length === 0 && (
-                <p className="text-brand-500" style={{ gridColumn: '1/-1', textAlign: 'center', padding: '40px 20px' }}>
-                  Đang tải danh sách sân...
-                </p>
+                <div className="col-span-full py-12 text-center text-foreground-muted">Đang tải danh sách sân...</div>
               )}
               {courts.length > 0 && filtered.length === 0 && (
-                <p className="text-brand-500" style={{ gridColumn: '1/-1', textAlign: 'center', padding: '40px 20px' }}>
-                  Không có sân phù hợp với bộ lọc hiện tại.
-                </p>
+                <div className="col-span-full py-12 text-center text-foreground-muted">Không có sân phù hợp với bộ lọc hiện tại.</div>
               )}
               {filtered.map(court => (
                 <div
                   key={court.id}
-                  className={`court-card ${court.status === 'booked' ? 'court-card--booked' : ''} ${selectedCourt?.id === court.id ? 'court-card--selected' : ''}`}
+                  className={`card-base flex flex-col justify-between transition-all duration-300 ${
+                    court.status === 'booked' ? 'opacity-50 cursor-not-allowed grayscale' : 
+                    selectedCourt?.id === court.id ? 'border-accent ring-1 ring-accent shadow-[0_0_20px_rgba(94,106,210,0.15)] cursor-pointer' : 
+                    'hover:-translate-y-1 cursor-pointer'
+                  }`}
                   onClick={() => court.status !== 'booked' && setSelectedCourt(court)}
                 >
-                  <div className="court-card__top">
-                    <span className="court-card__icon">{court.icon}</span>
-                    <span className={`court-card__badge ${court.status === 'booked' ? 'badge--booked' : 'badge--available'}`}>
-                      {court.status === 'booked' ? 'Tạm ngưng' : 'Khả dụng'}
-                    </span>
+                  <div>
+                    <div className="flex justify-between items-start mb-4">
+                      <span className="w-10 h-10 rounded-xl bg-[var(--theme-surface)] border border-border-default flex items-center justify-center text-xl shrink-0">{court.icon}</span>
+                      <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider border ${
+                        court.status === 'booked' ? 'bg-red-500/10 text-red-400 border-red-500/20' : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                      }`}>
+                        {court.status === 'booked' ? 'Tạm ngưng' : 'Khả dụng'}
+                      </span>
+                    </div>
+                    <h3 className="text-[15px] font-bold text-[var(--theme-primary)] mb-1">{court.name}</h3>
+                    <p className="text-xs text-foreground-muted mb-4">{court.type === 'Badminton' ? 'Cầu lông' : court.type} · Tối đa {court.capacity} người</p>
+                    <div className="flex flex-wrap gap-1.5 mb-6">
+                      {court.features.slice(0, 3).map(f => (
+                        <span key={f} className="px-2 py-1 bg-[var(--theme-surface)] border border-border-default rounded text-[10px] font-medium text-foreground-muted">{f}</span>
+                      ))}
+                    </div>
                   </div>
-                  <h3 className="court-card__name">{court.name}</h3>
-                  <p className="court-card__type">{court.type} · Up to {court.capacity} players</p>
-                  <div className="court-card__features">
-                    {court.features.slice(0, 3).map(f => <span key={f} className="court-feature">{f}</span>)}
-                  </div>
-                  <div className="court-card__footer">
-                    <span className="court-card__price"><strong>Giá từ {court.price.toLocaleString('vi-VN')} đ</strong>/hr</span>
+                  
+                  <div className="flex items-center justify-between pt-4 border-t border-border-default">
+                    <span className="text-[13px] text-foreground-muted"><strong className="text-[var(--theme-primary)] font-bold">{court.price.toLocaleString('vi-VN')} đ</strong> /hr</span>
                     {court.status !== 'booked' && (
-                      <button className={`btn-primary court-card__btn ${selectedCourt?.id === court.id ? 'selected' : ''}`}
-                        onClick={(e) => { e.stopPropagation(); setSelectedCourt(court); setStep(2) }}>
-                        {selectedCourt?.id === court.id ? '✓ Selected' : 'Select'}
+                      <button 
+                        className={`h-8 px-4 rounded-lg text-xs font-semibold transition-all duration-200 ${
+                          selectedCourt?.id === court.id 
+                            ? 'bg-accent text-white shadow-[0_0_10px_rgba(94,106,210,0.3)]' 
+                            : 'bg-[var(--theme-surface)] text-foreground hover:bg-[var(--theme-surface-hover)]'
+                        }`}
+                        onClick={(e) => { e.stopPropagation(); setSelectedCourt(court); setStep(2) }}
+                      >
+                        {selectedCourt?.id === court.id ? '✓ Đã chọn' : 'Chọn'}
                       </button>
                     )}
                   </div>
@@ -278,10 +305,19 @@ export default function ApexBookingPage() {
               ))}
             </div>
 
+            {/* Bottom Bar */}
             {selectedCourt && (
-              <div className="booking-bottom-bar">
-                <span>Selected: <strong>{selectedCourt.name}</strong> — {selectedCourt.price.toLocaleString('vi-VN')} đ/hr</span>
-                <button className="btn-primary" onClick={() => setStep(2)}>Pick a Time →</button>
+              <div className="fixed bottom-0 left-0 right-0 lg:left-[260px] bg-white/90 backdrop-blur-md border-t border-[#E2E8F0] p-4 z-50 flex items-center justify-between shadow-[0_-4px_20px_rgba(0,0,0,0.05)] animate-fade-up">
+                <div className="flex max-sm:flex-col sm:items-center sm:gap-4 ml-6 lg:ml-8">
+                  <span className="text-sm text-foreground-muted">Đã chọn: <strong className="text-foreground ml-1">{selectedCourt.name}</strong></span>
+                  <span className="text-sm font-semibold text-[#14B8A6]">{selectedCourt.price.toLocaleString('vi-VN')} đ/giờ</span>
+                </div>
+                <button 
+                  className="h-11 px-6 bg-[var(--theme-primary)] text-[var(--theme-primary)] rounded-xl text-sm font-semibold shadow-sm hover:bg-[#1E293B] active:scale-[0.98] transition-all mr-6 lg:mr-8 flex items-center gap-2" 
+                  onClick={() => setStep(2)}
+                >
+                  Chọn giờ <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                </button>
               </div>
             )}
           </div>
@@ -289,68 +325,108 @@ export default function ApexBookingPage() {
 
         {/* Step 2: Pick Time */}
         {step === 2 && (
-          <div className="booking-step2">
-            <div className="booking-step2__inner">
-              <div className="timepicker">
-                <div className="timepicker__header">
-                  <h2 className="timepicker__title">Select Time Slots</h2>
-                  <div className="timepicker__date-row">
-                    <label>Ngày</label>
-                    <input type="date" value={selectedDate} min={minDate}
-                      onChange={e => { setSelectedDate(e.target.value); setSelectedSlots([]); }} className="timepicker__date-input" id="booking-date" />
-                  </div>
-                </div>
-
-                <div className="timepicker__legend">
-                  <span className="legend-dot legend-dot--avail" /> Available
-                  <span className="legend-dot legend-dot--sel" /> Selected
-                  <span className="legend-dot legend-dot--book" /> Booked
-                </div>
-
-                <div className="timepicker__slots">
-                  {timeSlots.map(slot => {
-                    const isBooked = bookedSlots.includes(slot)
-                    const isSelected = selectedSlots.includes(slot)
-                    // Không cho chọn giờ trong quá khứ nếu chọn ngày hôm nay
-                    const isPast = selectedDate === minDate && slot < new Date().toTimeString().slice(0, 5)
-                    const isDisabled = isBooked || isPast
-
-                    return (
-                      <button
-                        key={slot}
-                        className={`time-slot ${isDisabled ? 'time-slot--booked' : ''} ${isSelected ? 'time-slot--selected' : ''}`}
-                        onClick={() => toggleSlot(slot)}
-                        disabled={isDisabled}
-                      >
-                        {slot}
-                      </button>
-                    )
-                  })}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fade-in">
+            {/* Left: Time Picker */}
+            <div className="lg:col-span-2 card-base p-6 shadow-sm">
+              <div className="flex max-sm:flex-col sm:items-center justify-between gap-4 mb-6 pb-6 border-b border-border-default">
+                <h2 className="text-[15px] font-bold text-[var(--theme-primary)]">Chọn khung giờ</h2>
+                <div className="flex items-center gap-3">
+                  <label className="text-xs font-bold text-foreground-muted uppercase tracking-wider">Ngày</label>
+                  <input 
+                    type="date" 
+                    value={selectedDate} 
+                    min={minDate}
+                    onChange={e => { setSelectedDate(e.target.value); setSelectedSlots([]); }} 
+                    className="h-10 px-3 bg-[var(--theme-surface)] border border-border-default rounded-lg text-sm text-[var(--theme-primary)] font-medium focus:border-accent focus:ring-1 focus:ring-accent/20 outline-none transition-all cursor-pointer shadow-sm" 
+                  />
                 </div>
               </div>
 
-              {/* Summary panel */}
-              <div className="booking-summary">
-                <h3 className="booking-summary__title">Booking Summary</h3>
-                <div className="booking-summary__court">
-                  <span className="booking-summary__icon">{selectedCourt.icon}</span>
-                  <div>
-                    <p className="booking-summary__name">{selectedCourt.name}</p>
-                    <p className="booking-summary__type">{selectedCourt.type}</p>
-                  </div>
+              <div className="flex items-center gap-4 mb-6 text-[11px] font-bold uppercase tracking-wider text-foreground-muted">
+                <div className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-[var(--theme-surface)] border border-border-hover" /> Trống</div>
+                <div className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-accent" /> Đã chọn</div>
+                <div className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-[var(--theme-surface-hover)] border border-border-default opacity-50" /> Đã đặt</div>
+              </div>
+
+              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
+                {timeSlots.map(slot => {
+                  const isBooked = bookedSlots.includes(slot)
+                  const isSelected = selectedSlots.includes(slot)
+                  const isPast = selectedDate === minDate && slot < new Date().toTimeString().slice(0, 5)
+                  const isDisabled = isBooked || isPast
+
+                  return (
+                    <button
+                      key={slot}
+                      className={`h-12 rounded-xl text-sm font-semibold transition-all duration-200 border ${
+                        isDisabled 
+                          ? 'bg-[var(--theme-surface)] border-border-default text-foreground-muted cursor-not-allowed opacity-70' 
+                          : isSelected 
+                          ? 'bg-accent border-accent text-white shadow-[0_0_15px_rgba(94,106,210,0.4)] ring-2 ring-accent ring-offset-1 ring-offset-[#050506]' 
+                          : 'bg-transparent border-border-hover text-foreground-muted hover:border-accent hover:text-accent hover:bg-accent/5'
+                      }`}
+                      onClick={() => toggleSlot(slot)}
+                      disabled={isDisabled}
+                    >
+                      {slot}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+
+            {/* Right: Summary Panel */}
+            <div className="card-base p-6 shadow-sm h-fit sticky top-24">
+              <h3 className="text-[15px] font-bold text-[var(--theme-primary)] mb-5 pb-4 border-b border-border-default">Tóm tắt đặt sân</h3>
+              
+              <div className="flex items-center gap-3 mb-6 bg-[var(--theme-surface)] p-3 rounded-xl border border-border-default">
+                <span className="w-10 h-10 rounded-lg bg-transparent flex items-center justify-center text-xl shadow-sm border border-border-default shrink-0">{selectedCourt.icon}</span>
+                <div>
+                  <p className="text-sm font-bold text-[var(--theme-primary)] leading-tight">{selectedCourt.name}</p>
+                  <p className="text-xs text-foreground-muted mt-0.5">{selectedCourt.type === 'Badminton' ? 'Cầu lông' : selectedCourt.type}</p>
                 </div>
-                <div className="booking-summary__row"><span>Ngày</span><strong>{selectedDate}</strong></div>
-                <div className="booking-summary__row">
-                  <span>Time Slots</span>
-                  <strong>{selectedSlots.length > 0 ? selectedSlots.join(', ') : '—'}</strong>
+              </div>
+              
+              <div className="space-y-3 mb-6">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-foreground-muted font-medium">Ngày</span>
+                  <strong className="text-[var(--theme-primary)]">{selectedDate}</strong>
                 </div>
-                <div className="booking-summary__row"><span>Duration</span><strong>{selectedSlots.length}h</strong></div>
-                <div className="booking-summary__divider" />
-                <div className="booking-summary__total"><span>Tổng cộng</span><strong>{totalPrice.toLocaleString('vi-VN')} đ</strong></div>
-                <button className="btn-primary booking-summary__btn" disabled={selectedSlots.length === 0} onClick={() => setStep(3)}>
-                  Continue →
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-foreground-muted font-medium">Khung giờ</span>
+                  <strong className="text-[var(--theme-primary)] text-right max-w-[140px] truncate">{selectedSlots.length > 0 ? selectedSlots.join(', ') : '—'}</strong>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-foreground-muted font-medium">Thời lượng</span>
+                  <strong className="text-[var(--theme-primary)]">{selectedSlots.length} giờ</strong>
+                </div>
+              </div>
+              
+              <div className="pt-4 border-t border-dashed border-border-hover mb-6">
+                <div className="flex items-center justify-between">
+                  <span className="text-[15px] font-bold text-[var(--theme-primary)]">Tổng thanh toán</span>
+                  <strong className="text-lg font-bold text-accent">{totalPrice.toLocaleString('vi-VN')} đ</strong>
+                </div>
+              </div>
+              
+              <div className="flex flex-col gap-3">
+                <button 
+                  className={`h-11 rounded-xl text-sm font-semibold transition-all shadow-sm ${
+                    selectedSlots.length === 0 
+                      ? 'bg-[var(--theme-surface)] text-foreground-muted cursor-not-allowed' 
+                      : 'btn-primary'
+                  }`} 
+                  disabled={selectedSlots.length === 0} 
+                  onClick={() => setStep(3)}
+                >
+                  Tiếp tục thanh toán →
                 </button>
-                <button className="btn-outline booking-summary__back" onClick={() => { setStep(1); setSelectedSlots([]) }}>← Back</button>
+                <button 
+                  className="btn-outline h-11" 
+                  onClick={() => { setStep(1); setSelectedSlots([]) }}
+                >
+                  ← Quay lại chọn sân
+                </button>
               </div>
             </div>
           </div>
@@ -358,35 +434,80 @@ export default function ApexBookingPage() {
 
         {/* Step 3: Confirm */}
         {step === 3 && (
-          <div className="booking-step3">
-            <div className="booking-confirm">
-              <h2 className="booking-confirm__title">Confirm Your Booking</h2>
-              <div className="booking-confirm__card">
-                <div className="booking-confirm__row"><span>Sân</span><strong>{selectedCourt.icon} {selectedCourt.name}</strong></div>
-                <div className="booking-confirm__row"><span>Ngày</span><strong>{selectedDate}</strong></div>
-                <div className="booking-confirm__row"><span>Thời gian</span><strong>{selectedSlots[0]} – {calculateEndTime(selectedSlots[selectedSlots.length - 1])}</strong></div>
-                <div className="booking-confirm__row"><span>Duration</span><strong>{selectedSlots.length} hour{selectedSlots.length > 1 ? 's' : ''}</strong></div>
-                <div className="booking-confirm__row"><span>Rate</span><strong>{selectedCourt.price.toLocaleString('vi-VN')} đ/hr</strong></div>
-                <div className="booking-confirm__divider" />
-                <div className="booking-confirm__total"><span>Total Due</span><strong>{totalPrice.toLocaleString('vi-VN')} đ</strong></div>
+          <div className="max-w-[700px] mx-auto animate-fade-in">
+            <h2 className="text-[15px] font-bold text-[var(--theme-primary)] mb-5">Xác nhận & Thanh toán</h2>
+            
+            <div className="card-base p-6 md:p-8 shadow-sm mb-6">
+              <div className="space-y-4 mb-8">
+                <div className="flex max-sm:flex-col sm:items-center justify-between py-3 border-b border-border-default">
+                  <span className="text-sm font-medium text-foreground-muted mb-1 sm:mb-0">Sân</span>
+                  <strong className="text-sm text-[var(--theme-primary)]">{selectedCourt.icon} {selectedCourt.name}</strong>
+                </div>
+                <div className="flex max-sm:flex-col sm:items-center justify-between py-3 border-b border-border-default">
+                  <span className="text-sm font-medium text-foreground-muted mb-1 sm:mb-0">Ngày</span>
+                  <strong className="text-sm text-[var(--theme-primary)]">{selectedDate}</strong>
+                </div>
+                <div className="flex max-sm:flex-col sm:items-center justify-between py-3 border-b border-border-default">
+                  <span className="text-sm font-medium text-foreground-muted mb-1 sm:mb-0">Giờ</span>
+                  <strong className="text-sm text-[var(--theme-primary)]">{selectedSlots[0]} – {calculateEndTime(selectedSlots[selectedSlots.length - 1])}</strong>
+                </div>
+                <div className="flex max-sm:flex-col sm:items-center justify-between py-3 border-b border-border-default">
+                  <span className="text-sm font-medium text-foreground-muted mb-1 sm:mb-0">Thời lượng</span>
+                  <strong className="text-sm text-[var(--theme-primary)]">{selectedSlots.length} giờ</strong>
+                </div>
+                <div className="flex max-sm:flex-col sm:items-center justify-between py-3">
+                  <span className="text-sm font-medium text-foreground-muted mb-1 sm:mb-0">Giá thuê</span>
+                  <strong className="text-sm text-[var(--theme-primary)]">{selectedCourt.price.toLocaleString('vi-VN')} đ/giờ</strong>
+                </div>
+              </div>
+              
+              <div className="p-4 bg-[var(--theme-surface)] border border-border-default rounded-xl flex items-center justify-between mb-8">
+                <span className="text-[15px] font-bold text-[var(--theme-primary)] uppercase tracking-wider">Tổng thanh toán</span>
+                <strong className="text-2xl font-bold text-accent">{totalPrice.toLocaleString('vi-VN')} đ</strong>
               </div>
 
-              <div className="booking-payment">
-                <h3>Payment Method</h3>
-                <div className="booking-payment__options">
-                  <label className={`payment-option ${paymentMethod === 'vnpay' ? 'payment-option--active' : ''}`}>
-                    <input type="radio" name="payment" checked={paymentMethod === 'vnpay'} onChange={() => setPaymentMethod('vnpay')} /> 💳 Thanh toán VNPay
+              <div className="mb-8">
+                <h3 className="text-xs font-bold text-foreground-muted uppercase tracking-wider mb-3">Phương thức thanh toán</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <label className={`flex items-center gap-3 p-4 rounded-xl border cursor-pointer transition-all duration-200 ${
+                    paymentMethod === 'vnpay' ? 'border-accent bg-accent/10 ring-1 ring-accent' : 'border-border-default bg-transparent hover:border-border-hover'
+                  }`}>
+                    <input type="radio" name="payment" checked={paymentMethod === 'vnpay'} onChange={() => setPaymentMethod('vnpay')} className="w-4 h-4 text-accent focus:ring-accent" /> 
+                    <span className="text-sm font-semibold text-[var(--theme-primary)] flex items-center gap-2"><CreditCard size={16} /> VNPay</span>
                   </label>
-                  <label className={`payment-option ${paymentMethod === 'escrow' ? 'payment-option--active' : ''}`}>
-                    <input type="radio" name="payment" checked={paymentMethod === 'escrow'} onChange={() => setPaymentMethod('escrow')} /> 🏦 Ví Escrow PRO-SPORT ({escrowBalance.toLocaleString('vi-VN')} đ)
+                  <label className={`flex flex-col justify-center p-4 rounded-xl border cursor-pointer transition-all duration-200 ${
+                    paymentMethod === 'escrow' ? 'border-accent bg-accent/10 ring-1 ring-accent' : 'border-border-default bg-transparent hover:border-border-hover'
+                  }`}>
+                    <div className="flex items-center gap-3 mb-1">
+                      <input type="radio" name="payment" checked={paymentMethod === 'escrow'} onChange={() => setPaymentMethod('escrow')} className="w-4 h-4 text-accent focus:ring-accent" /> 
+                      <span className="text-sm font-semibold text-[var(--theme-primary)] flex items-center gap-2"><Wallet size={16} /> Ví cá nhân</span>
+                    </div>
+                    <span className="text-[11px] text-foreground-muted ml-7">Số dư: {escrowBalance.toLocaleString('vi-VN')} đ</span>
                   </label>
                 </div>
               </div>
 
-              <div className="booking-confirm__actions">
-                <button className="btn-outline" disabled={isLoading} onClick={() => setStep(2)}>← Edit</button>
-                <button className="btn-primary booking-confirm__pay" disabled={isLoading} onClick={handleConfirm}>
-                  {isLoading ? 'Đang xử lý...' : `Pay ${totalPrice.toLocaleString('vi-VN')} đ & Confirm`}
+              <div className="flex gap-3">
+                <button 
+                  className="btn-outline w-1/3 h-12" 
+                  disabled={isLoading} 
+                  onClick={() => setStep(2)}
+                >
+                  ← Chỉnh sửa
+                </button>
+                <button 
+                  className="btn-primary flex-1 h-12 flex items-center justify-center gap-2" 
+                  disabled={isLoading} 
+                  onClick={handleConfirm}
+                >
+                  {isLoading ? (
+                    <span className="flex items-center gap-2">
+                      <svg className="animate-spin h-4 w-4 text-[var(--theme-primary)]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                      Đang xử lý...
+                    </span>
+                  ) : (
+                    `Thanh toán ${totalPrice.toLocaleString('vi-VN')} đ & Xác nhận`
+                  )}
                 </button>
               </div>
             </div>

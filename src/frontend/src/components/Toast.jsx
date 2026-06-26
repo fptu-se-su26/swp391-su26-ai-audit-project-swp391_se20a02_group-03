@@ -23,7 +23,7 @@ export function ToastProvider({ children }) {
   return (
     <ToastContext.Provider value={addToast}>
       {children}
-      <div className="fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none max-w-sm">
+      <div className="fixed top-20 right-6 z-[9999] flex flex-col gap-4 pointer-events-none max-w-sm">
         {toasts.map(toast => (
           <Toast key={toast.id} {...toast} onDismiss={() => removeToast(toast.id)} />
         ))}
@@ -45,55 +45,29 @@ function Toast({ id, message, type, duration, onDismiss }) {
     return () => clearTimeout(timer)
   }, [duration, onDismiss])
 
-  const icons = {
-    success: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-500">
-        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" />
-      </svg>
-    ),
-    error: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-red-500">
-        <circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" />
-      </svg>
-    ),
-    info: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-blue-500">
-        <circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" />
-      </svg>
-    ),
-    warning: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-amber-500">
-        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
-      </svg>
-    )
+  const typeConfig = {
+    success: { icon: '★', color: 'text-neo-accent', bg: 'bg-neo-secondary' },
+    error:   { icon: '×', color: 'text-[var(--theme-primary)]', bg: 'bg-neo-danger' },
+    warning: { icon: '!', color: 'text-neo-accent', bg: 'bg-neo-secondary' },
+    info:    { icon: 'i', color: 'text-[var(--theme-primary)]', bg: 'bg-neo-secondary' }
   }
 
-  const styles = {
-    success: 'bg-emerald-50 border-emerald-200 text-emerald-800',
-    error: 'bg-red-50 border-red-200 text-red-800',
-    info: 'bg-blue-50 border-blue-200 text-blue-800',
-    warning: 'bg-amber-50 border-amber-200 text-amber-800'
-  }
-
-  const s = styles[type] || styles.info
+  const conf = typeConfig[type] || typeConfig.info
 
   return (
     <div
-      className={`pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-xl border shadow-sm font-medium text-sm transition-all duration-300 ${s}`}
+      className={`pointer-events-auto flex items-start gap-4 px-5 py-4 ${conf.bg} border-4 border-neo-muted font-sans text-xl transition-all duration-300 shadow-[inset_2px_2px_0_rgba(255,255,255,0.4),inset_-2px_-2px_0_rgba(0,0,0,0.1),4px_4px_0_var(--color-neo-danger)]`}
       style={{
-        transform: visible && !exiting ? 'translateX(0)' : 'translateX(120%)',
+        transform: visible && !exiting ? 'translateY(0) scale(1)' : 'translateY(-20px) scale(0.95)',
         opacity: visible && !exiting ? 1 : 0,
       }}
     >
-      <span className="shrink-0">{icons[type] || icons.info}</span>
-      <span className="flex-1">{message}</span>
-      <button
-        onClick={() => { setExiting(true); setTimeout(onDismiss, 300) }}
-        className="shrink-0 p-1 opacity-50 hover:opacity-100 transition-opacity"
-        aria-label="Dismiss"
-      >
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
-      </button>
+      <div className={`w-8 h-8 shrink-0 flex items-center justify-center border-2 border-neo-muted bg-neo-bg font-heading text-sm ${conf.color} shadow-[inset_1px_1px_0_rgba(255,255,255,0.4)]`} style={{ textShadow: '1px 1px 0px rgba(0,0,0,0.2)' }}>
+        {conf.icon}
+      </div>
+      <div className="flex-1 pt-1 text-neo-ink leading-tight font-bold" style={{ textShadow: '1px 1px 0px rgba(0,0,0,0.1)' }}>
+        {message}
+      </div>
     </div>
   )
 }

@@ -16,6 +16,5 @@ public class Booking : BaseEntity
     public User User { get; set; } = null!;
     public ICollection<BookingDetail> BookingDetails { get; set; } = new List<BookingDetail>();
     public ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
-    public ICollection<EquipmentRental> EquipmentRentals { get; set; } = new List<EquipmentRental>();
     public CheckIn? CheckIn { get; set; }
 }

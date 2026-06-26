@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import { Trash2, ShoppingBag, ArrowLeft, Plus, Minus, CreditCard } from 'lucide-react';
-import GearLayout from '../../layouts/GearLayout';
+import ApexLayout from '../../layouts/ApexLayout';
 
 function formatVND(amount) {
     return new Intl.NumberFormat('vi-VN', {
@@ -17,17 +17,17 @@ export default function CartPage() {
 
     if (loading && cartItems.length === 0) {
         return (
-            <GearLayout>
+            <ApexLayout>
                 <div className="flex items-center justify-center min-h-[60vh]">
                     <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-accent"></div>
                 </div>
-            </GearLayout>
+            </ApexLayout>
         );
     }
 
     if (cartItems.length === 0) {
         return (
-            <GearLayout>
+            <ApexLayout>
                 <div className="container py-20 text-center">
                     <div className="max-w-md mx-auto card-base p-10 animate-fade-up">
                         <div className="w-20 h-20 bg-brand-50 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -43,16 +43,14 @@ export default function CartPage() {
                         </button>
                     </div>
                 </div>
-            </GearLayout>
+            </ApexLayout>
         );
     }
 
-    const totalRental = cartData?.totalRentalPrice || 0;
-    const totalDeposit = cartData?.totalDepositAmount || 0;
-    const grandTotal = totalRental + totalDeposit;
+    const grandTotal = cartData?.totalAmount || 0;
 
     return (
-        <GearLayout>
+        <ApexLayout>
             <div className="bg-brand-50/50 min-h-screen pb-20">
                 <div className="container pt-8">
                     {/* Header & Breadcrumb */}
@@ -88,10 +86,10 @@ export default function CartPage() {
 
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-center gap-2 mb-1">
-                                            <span className="text-[10px] font-bold uppercase tracking-widest text-accent bg-accent/5 px-2 py-0.5 rounded">Rental</span>
+                                            <span className="text-[10px] font-bold uppercase tracking-widest text-accent bg-accent/5 px-2 py-0.5 rounded">Sale</span>
                                         </div>
                                         <h3 className="text-lg font-bold text-brand-900 truncate mb-1 group-hover:text-accent transition-colors">{item.equipmentName}</h3>
-                                        <p className="text-brand-400 text-sm font-medium">{formatVND(item.unitPrice)} / ngày</p>
+                                        <p className="text-brand-400 text-sm font-medium">{formatVND(item.unitPrice)}</p>
                                     </div>
 
                                     <div className="flex items-center gap-8 justify-between w-full sm:w-auto">
@@ -139,20 +137,6 @@ export default function CartPage() {
                             <div className="card-base p-8 shadow-xl shadow-brand-900/5 animate-fade-up" style={{ animationDelay: '0.3s' }}>
                                 <h3 className="section-title text-xl mb-6">Tóm tắt đơn hàng</h3>
                                 
-                                <div className="flex flex-col gap-4 mb-6 border-b border-brand-100 pb-6">
-                                    <div className="flex justify-between items-center text-sm">
-                                        <span className="text-brand-500 font-medium">Tổng tiền thuê</span>
-                                        <span className="text-brand-900 font-bold">{formatVND(totalRental)}</span>
-                                    </div>
-                                    <div className="flex justify-between items-center text-sm">
-                                        <div className="flex items-center gap-1.5">
-                                            <span className="text-brand-500 font-medium">Tiền cọc</span>
-                                            <span className="text-[10px] font-bold bg-brand-50 px-1.5 py-0.5 rounded text-brand-400">20%</span>
-                                        </div>
-                                        <span className="text-brand-900 font-bold">{formatVND(totalDeposit)}</span>
-                                    </div>
-                                </div>
-
                                 <div className="flex justify-between items-center mb-8">
                                     <span className="text-lg font-bold text-brand-900">Tổng thanh toán</span>
                                     <span className="text-2xl font-black text-accent tracking-tighter">{formatVND(grandTotal)}</span>
@@ -168,10 +152,7 @@ export default function CartPage() {
                                 
                                 <div className="mt-6 flex flex-col gap-3">
                                     <div className="flex items-center gap-3 text-[10px] text-brand-400 font-bold uppercase tracking-widest pl-2 border-l-2 border-emerald-500">
-                                        Đảm bảo chất lượng thiết bị
-                                    </div>
-                                    <div className="flex items-center gap-3 text-[10px] text-brand-400 font-bold uppercase tracking-widest pl-2 border-l-2 border-brand-200">
-                                        Hoàn cọc ngay khi trả đồ
+                                        Đảm bảo chất lượng thiết bị chính hãng
                                     </div>
                                 </div>
                             </div>
@@ -179,6 +160,6 @@ export default function CartPage() {
                     </div>
                 </div>
             </div>
-        </GearLayout>
+        </ApexLayout>
     );
 }

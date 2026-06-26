@@ -44,7 +44,7 @@ export default function AdminComplaintsPage() {
                 <h2 className="text-lg font-bold text-slate-900">#TK-1042: Báo cáo bùng kèo - Giao lưu cầu lông</h2>
                 <span className="text-xs font-bold text-red-600 bg-red-100 px-3 py-1 rounded-full">URGENT</span>
               </div>
-              <p className="text-sm text-slate-500">Mã giao dịch liên quan: <span className="font-bold text-[#0d8a8a]">BK-8842</span></p>
+              <p className="text-sm text-slate-500">Mã giao dịch liên quan: <span className="font-bold text-[#14B8A6]">BK-8842</span></p>
             </div>
             
             <div className="flex-1 p-5 overflow-y-auto space-y-4">

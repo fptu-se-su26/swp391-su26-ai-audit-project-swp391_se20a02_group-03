@@ -60,7 +60,7 @@ export default function GearPrivacyPage() {
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
             Privacy & Data
           </div>
-          <h1 className="font-['Oswald'] text-3xl font-bold text-[#0d2d3a] mb-3">Privacy Policy</h1>
+          <h1 className="font-['Oswald'] text-3xl font-bold text-foreground mb-3">Privacy Policy</h1>
           <p className="text-slate-500 text-sm leading-relaxed max-w-lg">
             PRO-SPORT is committed to protecting your personal information. This policy explains what data we collect, how we use it, and your rights.
           </p>
@@ -72,7 +72,7 @@ export default function GearPrivacyPage() {
           <p className="text-[0.75rem] font-bold text-slate-400 uppercase tracking-wider mb-3">Table of Contents</p>
           <div className="grid grid-cols-2 max-[500px]:grid-cols-1 gap-1.5">
             {sections.map((s, i) => (
-              <a key={i} href={`#privacy-${i}`} className="text-[0.82rem] text-[#0d8a8a] no-underline hover:underline flex items-center gap-1.5">
+              <a key={i} href={`#privacy-${i}`} className="text-[0.82rem] text-[#14B8A6] no-underline hover:underline flex items-center gap-1.5">
                 <span className="text-slate-300">{i + 1}.</span> {s.title}
               </a>
             ))}
@@ -83,8 +83,8 @@ export default function GearPrivacyPage() {
         <div className="flex flex-col gap-5">
           {sections.map((s, i) => (
             <div key={i} id={`privacy-${i}`} className="bg-white rounded-2xl border border-[#e0ecf0] p-6">
-              <h2 className="font-['Oswald'] text-base font-bold text-[#0d2d3a] mb-4 flex items-center gap-2">
-                <span className="w-6 h-6 bg-[#0d8a8a]/10 text-[#0d8a8a] rounded-lg flex items-center justify-center text-[0.7rem] font-bold shrink-0">{i + 1}</span>
+              <h2 className="font-['Oswald'] text-base font-bold text-foreground mb-4 flex items-center gap-2">
+                <span className="w-6 h-6 bg-[#14B8A6]/10 text-[#14B8A6] rounded-lg flex items-center justify-center text-[0.7rem] font-bold shrink-0">{i + 1}</span>
                 {s.title}
               </h2>
               <div className="text-sm text-slate-500 leading-relaxed whitespace-pre-line">{s.body}</div>
@@ -93,8 +93,8 @@ export default function GearPrivacyPage() {
         </div>
 
         <div className="mt-8 flex items-start gap-3 p-5 bg-[#f5f9fc] border border-[#e0ecf0] rounded-2xl text-sm text-slate-500">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0d8a8a" strokeWidth="2" className="shrink-0 mt-0.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-          <p>Questions about this policy? Email <a href="mailto:privacy@prosport.vn" className="text-[#0d8a8a] font-medium hover:underline">privacy@prosport.vn</a> and we'll respond within 48 hours.</p>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#14B8A6" strokeWidth="2" className="shrink-0 mt-0.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <p>Questions about this policy? Email <a href="mailto:privacy@prosport.vn" className="text-[#14B8A6] font-medium hover:underline">privacy@prosport.vn</a> and we'll respond within 48 hours.</p>
         </div>
       </div>
     </GearLayout>

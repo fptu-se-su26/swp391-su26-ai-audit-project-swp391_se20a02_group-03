@@ -26,13 +26,10 @@ public class CartService : ICartService
         if (equipment == null)
             throw new Exception("Equipment not found");
 
-        // Kiểm tra số lượng available
-        var availableUnits = await _equipmentRepository.GetAvailableUnitsForEquipmentAsync(equipmentId);
-        if (availableUnits.Count() < quantity)
-            throw new Exception($"Chỉ có {availableUnits.Count()} {equipment.EquipmentName} sẵn sàng");
+        if (equipment.StockQuantity < quantity)
+            throw new Exception($"Chỉ có {equipment.StockQuantity} {equipment.EquipmentName} sẵn sàng");
 
-        // Tính giá: có booking thì giá thường, không có thì surcharge 30%
-        var unitPrice = bookingId.HasValue ? equipment.RentalPrice : (equipment.RentalPrice * 1.3m);
+        var unitPrice = equipment.Price > 0 ? equipment.Price : equipment.RetailPrice;
 
         var cartItem = await _cartRepository.AddItemAsync(userId, equipmentId, quantity, unitPrice, null, bookingId);
         
@@ -43,7 +40,6 @@ public class CartService : ICartService
             EquipmentName = equipment.EquipmentName,
             Quantity = cartItem.Quantity,
             UnitPrice = cartItem.UnitPrice,
-            PreferredSerialNumber = cartItem.PreferredSerialNumber,
             BookingId = cartItem.BookingId,
             ImageUrl = equipment.ImageUrl
         };
@@ -60,20 +56,17 @@ public class CartService : ICartService
             EquipmentName = ci.Equipment.EquipmentName,
             Quantity = ci.Quantity,
             UnitPrice = ci.UnitPrice,
-            PreferredSerialNumber = ci.PreferredSerialNumber,
             BookingId = ci.BookingId,
             ImageUrl = ci.Equipment.ImageUrl
         }).ToList();
 
-        var totalRentalPrice = cartDtos.Sum(ci => ci.TotalPrice);
-        var totalDepositAmount = items.Sum(ci => ci.Equipment.RetailPrice * ci.Quantity * 0.2m); // 20% per item
+        var totalPrice = cartDtos.Sum(ci => ci.TotalPrice);
 
         return new CartSummaryDto
         {
             TotalItems = items.Count,
             Items = cartDtos,
-            TotalRentalPrice = totalRentalPrice,
-            TotalDepositAmount = totalDepositAmount
+            TotalPrice = totalPrice
         };
     }
 
@@ -86,9 +79,8 @@ public class CartService : ICartService
         if (cartItem == null || cartItem.UserId != userId)
             throw new Exception("Cart item not found");
 
-        var availableUnits = await _equipmentRepository.GetAvailableUnitsForEquipmentAsync(cartItem.EquipmentId);
-        if (availableUnits.Count() < newQuantity)
-            throw new Exception($"Chỉ còn {availableUnits.Count()} {cartItem.Equipment.EquipmentName} sẵn sàng");
+        if (cartItem.Equipment.StockQuantity < newQuantity)
+            throw new Exception($"Chỉ còn {cartItem.Equipment.StockQuantity} {cartItem.Equipment.EquipmentName} sẵn sàng");
 
         await _cartRepository.UpdateItemQuantityAsync(cartItemId, newQuantity);
     }
@@ -115,21 +107,17 @@ public class CartService : ICartService
 
         foreach (var item in items)
         {
-            // Duyệt số lượng để tạo từng bản ghi thuê (do unit-level tracking)
-            for (int i = 0; i < item.Quantity; i++)
+            var buyRequest = new BuyEquipmentRequest
             {
-                var rentRequest = new RentEquipmentRequest
-                {
-                    EquipmentId = item.EquipmentId,
-                    Quantity = 1,
-                    BookingId = bookingId ?? item.BookingId
-                };
+                EquipmentId = item.EquipmentId,
+                Quantity = item.Quantity,
+                BookingId = bookingId ?? item.BookingId
+            };
 
-                var result = await _equipmentService.RentAsync(userId, rentRequest);
-                if (result.StatusCode != 200)
-                {
-                    throw new Exception($"Lỗi khi thuê {item.Equipment.EquipmentName}: {result.Message}");
-                }
+            var result = await _equipmentService.BuyAsync(userId, buyRequest);
+            if (result.StatusCode != 200)
+            {
+                throw new Exception($"Lỗi khi mua {item.Equipment.EquipmentName}: {result.Message}");
             }
         }
 

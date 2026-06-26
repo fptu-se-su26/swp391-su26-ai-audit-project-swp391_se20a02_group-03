@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import { MapPin, Clock, Star } from 'lucide-react'
 import Navbar from '../../components/Navbar'
 import Footer from '../../components/Footer'
 import { matchApi } from '../../api/matchApi'
@@ -49,7 +50,7 @@ export default function MatchDetailPage() {
       <Navbar theme="light" />
 
       <div className="max-w-[1000px] mx-auto px-6 pt-[90px] pb-20 w-full flex-1">
-        <Link to="/matches" className="text-slate-400 text-sm hover:text-[#00c8aa] mb-6 inline-block flex items-center gap-1">
+        <Link to="/matches" className="text-slate-400 text-sm hover:text-[#14B8A6] mb-6 inline-block flex items-center gap-1">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
           Danh sách kèo
         </Link>
@@ -58,21 +59,21 @@ export default function MatchDetailPage() {
           <div className="space-y-6">
             <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
               <div className="flex gap-2 mb-4">
-                <span className="bg-[#00c8aa]/10 text-[#00c8aa] text-xs font-bold px-2.5 py-1 rounded-full uppercase">Cầu Lông</span>
+                <span className="bg-[#14B8A6]/10 text-[#14B8A6] text-xs font-bold px-2.5 py-1 rounded-full uppercase">Cầu Lông</span>
                 <span className="bg-blue-50 text-blue-600 text-xs font-bold px-2.5 py-1 rounded-full uppercase">{match.skillLevel}</span>
               </div>
               <h1 className="font-['Oswald'] text-2xl font-bold text-slate-900 mb-6">{match.title}</h1>
               
               <div className="grid grid-cols-2 gap-4 mb-6">
                 <div className="flex gap-3">
-                  <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center shrink-0">📍</div>
+                  <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center shrink-0"><MapPin size={20} className="text-[#14B8A6]" /></div>
                   <div>
                     <p className="text-xs text-slate-400 mb-0.5">Địa điểm</p>
                     <p className="text-sm font-semibold text-slate-800">{match.location}</p>
                   </div>
                 </div>
                 <div className="flex gap-3">
-                  <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center shrink-0">🕒</div>
+                  <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center shrink-0"><Clock size={20} className="text-[#14B8A6]" /></div>
                   <div>
                     <p className="text-xs text-slate-400 mb-0.5">Thời gian</p>
                     <p className="text-sm font-semibold text-slate-800">{new Date(match.matchDate).toLocaleDateString()} • {match.startTime}</p>
@@ -93,12 +94,12 @@ export default function MatchDetailPage() {
               <div className="space-y-4">
                 {match.participants && match.participants.map(p => (
                   <div key={p.id} className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center font-bold text-[#00c8aa]">
+                    <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center font-bold text-[#14B8A6]">
                       {p.userId}
                     </div>
                     <div>
                       <p className="font-bold text-slate-900 text-sm">User ID: {p.userId}</p>
-                      <p className={`text-xs ${p.isHost ? 'text-[#00c8aa] font-semibold' : 'text-slate-400'}`}>{p.isHost ? 'Host' : 'Member'}</p>
+                      <p className={`text-xs ${p.isHost ? 'text-[#14B8A6] font-semibold' : 'text-slate-400'}`}>{p.isHost ? 'Host' : 'Member'}</p>
                     </div>
                   </div>
                 ))}
@@ -118,20 +119,20 @@ export default function MatchDetailPage() {
           <div className="sticky top-24 h-fit">
             <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-[0_4px_24px_rgba(0,0,0,0.08)]">
               <div className="flex items-center gap-4 mb-6 pb-6 border-b border-slate-100">
-                <div className="w-14 h-14 rounded-full bg-slate-100 flex items-center justify-center font-bold text-[#00c8aa] text-xl">
+                <div className="w-14 h-14 rounded-full bg-slate-100 flex items-center justify-center font-bold text-[#14B8A6] text-xl">
                   {match.hostId}
                 </div>
                 <div>
                   <p className="text-xs text-slate-400 mb-0.5">Host kèo</p>
                   <p className="font-bold text-slate-900">User ID: {match.hostId}</p>
-                  <p className="text-xs font-semibold text-amber-500 mt-0.5">★ 4.9 (42 kèo)</p>
+                  <p className="text-xs font-semibold text-amber-500 mt-0.5 flex items-center gap-1"><Star size={12} fill="currentColor" /> 4.9 (42 kèo)</p>
                 </div>
               </div>
 
               <div className="flex justify-between items-center mb-6">
                 <div>
                   <p className="text-slate-400 text-sm mb-1">Chi phí / Slot</p>
-                  <p className="font-['Oswald'] text-2xl font-bold text-[#00c8aa]">
+                  <p className="font-['Oswald'] text-2xl font-bold text-[#14B8A6]">
                     {match.escrowAmount.toLocaleString('vi-VN')} <span className="text-sm font-normal text-slate-400">VNĐ</span>
                   </p>
                 </div>
@@ -143,7 +144,7 @@ export default function MatchDetailPage() {
 
               {!joined ? (
                 <>
-                  <button onClick={handleJoin} disabled={isLoading} className="w-full bg-[#00c8aa] text-white font-bold py-3.5 rounded-xl hover:bg-[#009e87] transition-colors shadow-md shadow-[#00c8aa]/20 flex items-center justify-center gap-2 mb-3 disabled:opacity-70">
+                  <button onClick={handleJoin} disabled={isLoading} className="w-full bg-[#14B8A6] text-[var(--theme-primary)] font-bold py-3.5 rounded-xl hover:bg-[#0D9488] transition-colors shadow-md shadow-[#14B8A6]/20 flex items-center justify-center gap-2 mb-3 disabled:opacity-70">
                     {isLoading ? 'Đang xử lý...' : 'Tham gia & Ký quỹ'}
                   </button>
                   <p className="text-xs text-slate-400 text-center leading-relaxed">

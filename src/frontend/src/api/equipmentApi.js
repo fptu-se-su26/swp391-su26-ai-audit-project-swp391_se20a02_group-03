@@ -7,20 +7,8 @@ export const equipmentApi = {
   // Lấy chi tiết thiết bị
   getById: (id) => axiosClient.get(`/equipment/${id}`),
 
-  // Thuê thiết bị
-  rent: (data) => axiosClient.post('/equipment/rent', data),
-
-  // Trả thiết bị
-  return: (data) => axiosClient.post('/equipment/return', data),
-
-  // Lấy lịch sử thuê của user
-  getMyRentals: () => axiosClient.get('/equipment/my-rentals'),
-
-  // Staff: danh sách đơn chờ kiểm định trả đồ
-  getPendingReturns: () => axiosClient.get('/equipment/returns/pending'),
-
-  // Staff: kiểm định tình trạng & xử lý cọc
-  inspectReturn: (rentalId, data) => axiosClient.put(`/equipment/return/${rentalId}/inspect`, data),
+  // Mua thiết bị
+  buy: (data) => axiosClient.post('/equipment/buy', data),
 
   // Dashboard stats
   getDashboard: () => axiosClient.get('/equipment/dashboard'),

@@ -18,7 +18,7 @@ export default function AdminCourtsPage() {
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
               Edit Pricing
             </button>
-            <button className="bg-[#0ea5e9] hover:bg-[#0284c7] text-white border-none rounded-md py-2.5 px-4 text-sm font-semibold cursor-pointer flex items-center justify-center gap-2 transition-all">
+            <button className="bg-[#0ea5e9] hover:bg-[#0284c7] text-[var(--theme-primary)] border-none rounded-md py-2.5 px-4 text-sm font-semibold cursor-pointer flex items-center justify-center gap-2 transition-all">
               + Add New Court
             </button>
           </div>
@@ -31,11 +31,11 @@ export default function AdminCourtsPage() {
               <h3 className="text-xs font-bold text-slate-500 tracking-[0.05em] mb-4">LOẠI THỂ THAO</h3>
               <div className="flex flex-col gap-3">
                 <label className="flex items-center gap-[10px] text-sm text-slate-900 cursor-pointer">
-                  <input type="checkbox" defaultChecked className="w-4 h-4 cursor-pointer accent-[#0d8a8a]" />
+                  <input type="checkbox" defaultChecked className="w-4 h-4 cursor-pointer accent-[#14B8A6]" />
                   Cầu lông
                 </label>
                 <label className="flex items-center gap-[10px] text-sm text-slate-900 cursor-pointer">
-                  <input type="checkbox" className="w-4 h-4 cursor-pointer accent-[#0d8a8a]" />
+                  <input type="checkbox" className="w-4 h-4 cursor-pointer accent-[#14B8A6]" />
                   Pickleball
                 </label>
               </div>
@@ -45,22 +45,22 @@ export default function AdminCourtsPage() {
               <h3 className="text-xs font-bold text-slate-500 tracking-[0.05em] mb-4">TRẠNG THÁI</h3>
               <div className="flex flex-col gap-3">
                 <label className="flex items-center gap-[10px] text-sm text-slate-900 cursor-pointer">
-                  <input type="checkbox" defaultChecked className="w-4 h-4 cursor-pointer accent-[#0d8a8a]" />
+                  <input type="checkbox" defaultChecked className="w-4 h-4 cursor-pointer accent-[#14B8A6]" />
                   <span className="w-2 h-2 rounded-full" style={{ background: '#22c55e' }}></span>
                   Available
                 </label>
                 <label className="flex items-center gap-[10px] text-sm text-slate-900 cursor-pointer">
-                  <input type="checkbox" defaultChecked className="w-4 h-4 cursor-pointer accent-[#0d8a8a]" />
+                  <input type="checkbox" defaultChecked className="w-4 h-4 cursor-pointer accent-[#14B8A6]" />
                   <span className="w-2 h-2 rounded-full" style={{ background: '#0f172a' }}></span>
                   Booked
                 </label>
                 <label className="flex items-center gap-[10px] text-sm text-slate-900 cursor-pointer">
-                  <input type="checkbox" defaultChecked className="w-4 h-4 cursor-pointer accent-[#0d8a8a]" />
+                  <input type="checkbox" defaultChecked className="w-4 h-4 cursor-pointer accent-[#14B8A6]" />
                   <span className="w-2 h-2 rounded-full" style={{ background: '#f59e0b' }}></span>
                   Maintenance
                 </label>
                 <label className="flex items-center gap-[10px] text-sm text-slate-900 cursor-pointer">
-                  <input type="checkbox" defaultChecked className="w-4 h-4 cursor-pointer accent-[#0d8a8a]" />
+                  <input type="checkbox" defaultChecked className="w-4 h-4 cursor-pointer accent-[#14B8A6]" />
                   <span className="w-2 h-2 rounded-full" style={{ background: '#ef4444' }}></span>
                   Closed
                 </label>
@@ -91,7 +91,7 @@ export default function AdminCourtsPage() {
                   <div className="h-1 bg-slate-100 rounded overflow-hidden"><div className="h-full rounded" style={{ width: '30%', background: '#0ea5e9' }}></div></div>
                 </div>
 
-                <button className="w-full py-[10px] rounded-md text-sm font-semibold cursor-pointer flex items-center justify-center gap-2 transition-all bg-[#0ea5e9] text-white border-none hover:bg-[#0284c7]">Đặt Nhanh</button>
+                <button className="w-full py-[10px] rounded-md text-sm font-semibold cursor-pointer flex items-center justify-center gap-2 transition-all bg-[#0ea5e9] text-[var(--theme-primary)] border-none hover:bg-[#0284c7]">Đặt Nhanh</button>
               </div>
             </div>
 
@@ -101,7 +101,7 @@ export default function AdminCourtsPage() {
                 <img src="https://images.unsplash.com/photo-1622227432807-91eb590c31ab?w=600&q=80" alt="Pickleball Court" className="w-full h-full object-cover" />
                 <div className="absolute top-3 left-3 right-3 flex justify-between">
                   <span className="flex items-center gap-1 py-1 px-[10px] rounded-full text-[0.65rem] font-bold tracking-[0.05em] bg-white text-slate-900"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M8.56 2.75c4.37 6.03 6.02 9.42 8.03 17.72"/></svg>PICKLEBALL</span>
-                  <span className="flex items-center gap-1 py-1 px-[10px] rounded-full text-[0.65rem] font-bold tracking-[0.05em] bg-[#0f172a] text-white">ĐÃ ĐẶT</span>
+                  <span className="flex items-center gap-1 py-1 px-[10px] rounded-full text-[0.65rem] font-bold tracking-[0.05em] bg-[#0f172a] text-[var(--theme-primary)]">ĐÃ ĐẶT</span>
                 </div>
               </div>
               <div className="p-5 flex-1 flex flex-col">
@@ -132,7 +132,7 @@ export default function AdminCourtsPage() {
                 <img src="https://images.unsplash.com/photo-1542144610-092591748259?w=600&q=80" alt="Clay Court" className="w-full h-full object-cover" />
                 <div className="absolute top-3 left-3 right-3 flex justify-between">
                   <span className="flex items-center gap-1 py-1 px-[10px] rounded-full text-[0.65rem] font-bold tracking-[0.05em] bg-white text-slate-900"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M8.56 2.75c4.37 6.03 6.02 9.42 8.03 17.72"/></svg>CẦU LÔNG</span>
-                  <span className="flex items-center gap-1 py-1 px-[10px] rounded-full text-[0.65rem] font-bold tracking-[0.05em] bg-amber-500 text-white">BẢO TRÌ</span>
+                  <span className="flex items-center gap-1 py-1 px-[10px] rounded-full text-[0.65rem] font-bold tracking-[0.05em] bg-amber-500 text-[var(--theme-primary)]">BẢO TRÌ</span>
                 </div>
               </div>
               <div className="p-5 flex-1 flex flex-col">

@@ -19,7 +19,7 @@ const players = [
   { rank: 10, name: 'Tom B.', pts: 1190, wins: 13, matches: 21, sport: 'Pickleball', level: 'Beginner', img: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=80&q=80', change: -1 },
 ]
 
-const sportColors = { Badminton: '#22c55e', Pickleball: '#6366f1', All: '#0d8a8a' }
+const sportColors = { Badminton: '#22c55e', Pickleball: '#6366f1', All: '#5E6AD2' }
 
 export default function MatchProLeaderboardPage() {
   const [period, setPeriod] = useState('This Week')
@@ -45,7 +45,7 @@ export default function MatchProLeaderboardPage() {
         {/* Hero */}
         <div className="lb-hero">
           <div>
-            <h1 className="lb-hero__title">🏆 Leaderboard</h1>
+            <h1 className="lb-hero__title"> Leaderboard</h1>
             <p className="lb-hero__sub">Top-ranked players across all sports this week.</p>
           </div>
           <div className="lb-filters">
@@ -59,7 +59,7 @@ export default function MatchProLeaderboardPage() {
         <div className="lb-sport-filters">
           {sports.map(s => (
             <button key={s} className={`lb-sport-btn ${sport === s ? 'active' : ''}`}
-              style={sport === s ? { background: sportColors[s.replace(' Sports','').trim()] || '#0d8a8a' } : {}}
+              style={sport === s ? { background: sportColors[s.replace(' Sports','').trim()] || '#5E6AD2' } : {}}
               onClick={() => setSport(s)}>
               {s}
             </button>
@@ -72,16 +72,16 @@ export default function MatchProLeaderboardPage() {
             {/* 2nd */}
             <div className="lb-podium__place lb-podium__place--2">
               <img src={top3[1].img} alt={top3[1].name} className="lb-podium__avatar" />
-              <div className="lb-podium__medal lb-podium__medal--silver">🥈</div>
+              <div className="lb-podium__medal lb-podium__medal--silver"></div>
               <p className="lb-podium__name">{top3[1].name}</p>
               <p className="lb-podium__pts">{top3[1].pts.toLocaleString()}</p>
               <div className="lb-podium__bar lb-podium__bar--2" />
             </div>
             {/* 1st */}
             <div className="lb-podium__place lb-podium__place--1">
-              <div className="lb-podium__crown">👑</div>
+              <div className="lb-podium__crown"></div>
               <img src={top3[0].img} alt={top3[0].name} className="lb-podium__avatar lb-podium__avatar--1" />
-              <div className="lb-podium__medal lb-podium__medal--gold">🥇</div>
+              <div className="lb-podium__medal lb-podium__medal--gold"></div>
               <p className="lb-podium__name">{top3[0].name}</p>
               <p className="lb-podium__pts">{top3[0].pts.toLocaleString()}</p>
               <div className="lb-podium__bar lb-podium__bar--1" />
@@ -89,7 +89,7 @@ export default function MatchProLeaderboardPage() {
             {/* 3rd */}
             <div className="lb-podium__place lb-podium__place--3">
               <img src={top3[2].img} alt={top3[2].name} className="lb-podium__avatar" />
-              <div className="lb-podium__medal lb-podium__medal--bronze">🥉</div>
+              <div className="lb-podium__medal lb-podium__medal--bronze"></div>
               <p className="lb-podium__name">{top3[2].name}</p>
               <p className="lb-podium__pts">{top3[2].pts.toLocaleString()}</p>
               <div className="lb-podium__bar lb-podium__bar--3" />

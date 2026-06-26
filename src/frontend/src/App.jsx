@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { GoogleOAuthProvider } from '@react-oauth/google'
 import { ToastProvider } from './components/Toast'
+import { ThemeProvider } from './context/ThemeContext'
 import { useAuth } from './context/AuthContext'
 
 // PRO-SPORT Public Pages
@@ -22,14 +23,11 @@ import MatchDetailPage from './pages/matches/MatchDetailPage'
 import CreateMatchPage from './pages/matches/CreateMatchPage'
 import GearCatalogPage from './pages/gear/GearCatalogPage'
 import GearDetailPage from './pages/gear/GearDetailPage'
-import GearDashboardPage from './pages/gear/GearDashboardPage'
-import GearRentalPage from './pages/gear/GearRentalPage'
-import GearRentalTermsPage from './pages/gear/GearRentalTermsPage'
+
 import GearMaintenancePage from './pages/gear/GearMaintenancePage'
 import GearSupportPage from './pages/gear/GearSupportPage'
 import GearPrivacyPage from './pages/gear/GearPrivacyPage'
 import BookingHistoryPage from './pages/customer/BookingHistoryPage'
-import CustomerProfilePage from './pages/customer/CustomerProfilePage'
 import ReportDisputePage from './pages/customer/ReportDisputePage'
 
 import AIChatbot from './components/AIChatbot'
@@ -45,6 +43,7 @@ import ApexProfilePage from './pages/apex/ApexProfilePage'
 import ApexActivityPage from './pages/apex/ApexActivityPage'
 import ApexSettingsPage from './pages/apex/ApexSettingsPage'
 import ApexSupportPage from './pages/apex/ApexSupportPage'
+import ApexBookingsPage from './pages/apex/ApexBookingsPage'
 
 // PRO-SPORT MatchPro
 import MatchProFeedPage from './pages/matchpro/MatchProFeedPage'
@@ -65,7 +64,6 @@ const AdminComplaintsPage   = lazy(() => import('./pages/admin/AdminComplaintsPa
 // PRO-SPORT Elite Staff — lazy loaded
 const ElitePosWalkInPage  = lazy(() => import('./pages/elite/ElitePosWalkInPage'))
 const EliteSchedulePage   = lazy(() => import('./pages/elite/EliteSchedulePage'))
-const EliteEquipmentPage  = lazy(() => import('./pages/elite/EliteEquipmentPage'))
 const EliteVouchersPage   = lazy(() => import('./pages/elite/EliteVouchersPage'))
 const EliteDisputesPage   = lazy(() => import('./pages/elite/EliteDisputesPage'))
 const EliteScannerPage    = lazy(() => import('./pages/elite/EliteScannerPage'))
@@ -90,7 +88,7 @@ import PaymentReturnPage from './pages/status/PaymentReturnPage'
 const PageLoader = () => (
   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', background: '#f8fafc' }}>
     <div style={{ textAlign: 'center' }}>
-      <div style={{ width: 40, height: 40, border: '3px solid #e2e8f0', borderTopColor: '#0d8a8a', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 12px' }} />
+      <div style={{ width: 40, height: 40, border: '3px solid #e2e8f0', borderTopColor: '#14B8A6', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 12px' }} />
       <p style={{ color: '#64748b', fontSize: 14, fontFamily: 'Inter, sans-serif' }}>Loading...</p>
     </div>
     <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
@@ -138,6 +136,7 @@ function App() {
     }
     return (
         <GoogleOAuthProvider clientId={googleClientId || ''}>
+        <ThemeProvider>
         <ToastProvider>
         <CartProvider>
             <Router basename="/swp391-su26-ai-audit-project-swp391_se20a02_group-03">
@@ -158,7 +157,7 @@ function App() {
                     <Route path="/sitemap" element={<SitemapPage />} />
 
                     {/* Courts */}
-                    <Route path="/courts" element={<ApexHomePage />} />
+                    <Route path="/courts" element={<Navigate to="/apex/booking" replace />} />
                     <Route path="/courts/:id" element={<CourtDetailPage />} />
                     <Route path="/courts/:id/book" element={<BookingPage />} />
 
@@ -170,19 +169,18 @@ function App() {
                     <Route path="/matches/leaderboard" element={<MatchProLeaderboardPage />} />
                     <Route path="/matches/:id" element={<MatchDetailPage />} />
 
-                    {/* Customer */}
-                    <Route path="/customer/profile" element={<ProtectedRoute><CustomerProfilePage /></ProtectedRoute>} />
-                    <Route path="/customer/bookings" element={<ProtectedRoute><BookingHistoryPage /></ProtectedRoute>} />
+                    {/* Customer — redirects to Apex */}
+                    <Route path="/customer/profile" element={<Navigate to="/apex/profile" replace />} />
+                    <Route path="/customer/bookings" element={<Navigate to="/apex/bookings" replace />} />
                     <Route path="/customer/report" element={<ProtectedRoute><ReportDisputePage /></ProtectedRoute>} />
 
                     <Route path="/gear" element={<Navigate to="/gear/catalog" replace />} />
-                    <Route path="/gear/dashboard" element={<GearDashboardPage />} />
-                    <Route path="/gear/rentals" element={<GearRentalPage />} />
+
                     <Route path="/gear/catalog" element={<GearCatalogPage />} />
                     <Route path="/gear/catalog/:id" element={<GearDetailPage />} />
                     <Route path="/gear/cart" element={<ProtectedRoute><CartPage /></ProtectedRoute>} />
                     <Route path="/gear/cart/checkout" element={<ProtectedRoute><CartCheckoutPage /></ProtectedRoute>} />
-                    <Route path="/gear/rental-terms" element={<GearRentalTermsPage />} />
+
                     <Route path="/gear/maintenance" element={<GearMaintenancePage />} />
                     <Route path="/gear/support" element={<GearSupportPage />} />
                     <Route path="/gear/privacy" element={<GearPrivacyPage />} />
@@ -194,6 +192,7 @@ function App() {
                     <Route path="/apex/shop" element={<Navigate to="/gear/catalog" replace />} />
                     <Route path="/apex/profile" element={<ProtectedRoute><ApexProfilePage /></ProtectedRoute>} />
                     <Route path="/apex/activity" element={<ProtectedRoute><ApexActivityPage /></ProtectedRoute>} />
+                    <Route path="/apex/bookings" element={<ProtectedRoute><ApexBookingsPage /></ProtectedRoute>} />
                     <Route path="/apex/settings" element={<ProtectedRoute><ApexSettingsPage /></ProtectedRoute>} />
                     <Route path="/apex/support" element={<ProtectedRoute><ApexSupportPage /></ProtectedRoute>} />
 
@@ -211,7 +210,6 @@ function App() {
                     <Route path="/elite" element={<Navigate to="/elite/pos" replace />} />
                     <Route path="/elite/pos" element={<EliteRoute><ElitePosWalkInPage /></EliteRoute>} />
                     <Route path="/elite/schedule" element={<EliteRoute><EliteSchedulePage /></EliteRoute>} />
-                    <Route path="/elite/equipment" element={<EliteRoute><EliteEquipmentPage /></EliteRoute>} />
                     <Route path="/elite/vouchers" element={<EliteRoute><EliteVouchersPage /></EliteRoute>} />
                     <Route path="/elite/disputes" element={<EliteRoute><EliteDisputesPage /></EliteRoute>} />
                     <Route path="/elite/scanner" element={<EliteRoute><EliteScannerPage /></EliteRoute>} />
@@ -239,6 +237,7 @@ function App() {
             </Router>
         </CartProvider>
         </ToastProvider>
+        </ThemeProvider>
         </GoogleOAuthProvider>
     )
 }

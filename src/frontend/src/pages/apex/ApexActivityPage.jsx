@@ -1,102 +1,147 @@
 import { useState } from 'react'
+import { Swords, Clock, CreditCard, Bell } from 'lucide-react'
 import ApexLayout from '../../layouts/ApexLayout'
 
-const tabs = ['All', 'Booking Reminders', 'Match Invitations', 'Payments', 'System']
+const tabs = ['Tất cả', 'Nhắc nhở đặt sân', 'Lời mời thi đấu', 'Thanh toán', 'Hệ thống']
 
 const notifications = [
   {
     id: 1,
     type: 'match',
-    icon: '🏸',
-    iconBg: '#0d8a8a',
-    title: 'Match Invitation',
-    body: 'Sarah J. invited you to a Pickleball doubles match at Grand Slam Center.',
-    time: '2m ago',
+    icon: <Swords size={20} />,
+    iconBg: '#14B8A6',
+    title: 'Lời mời thi đấu',
+    body: 'Sarah J. đã mời bạn tham gia trận đánh đôi Pickleball tại Grand Slam Center.',
+    time: '2 phút trước',
     unread: true,
-    extra: { date: 'Tomorrow, 18:00 PM - Court 3' },
-    actions: ['Accept', 'Decline'],
+    extra: { date: 'Ngày mai, 18:00 - Sân 3' },
+    actions: ['Chấp nhận', 'Từ chối'],
   },
   {
     id: 2,
     type: 'booking',
-    icon: '⏰',
-    iconBg: '#f59e0b',
-    title: 'Upcoming Booking',
-    body: 'Your indoor badminton session starts in 2 hours.',
-    time: '1h ago',
+    icon: <Clock size={20} />,
+    iconBg: '#F59E0B',
+    title: 'Sắp diễn ra',
+    body: 'Trận cầu lông trong nhà của bạn sẽ bắt đầu sau 2 giờ.',
+    time: '1 giờ trước',
     unread: false,
-    link: 'View Details →',
+    link: 'Xem chi tiết →',
   },
   {
     id: 3,
     type: 'payment',
-    icon: '💳',
-    iconBg: '#94a3b8',
-    title: 'Payment Successful',
-    body: 'Receipt for Court 6 booking ($45.00) has been generated.',
-    time: 'Yesterday',
+    icon: <CreditCard size={20} />,
+    iconBg: '#64748B',
+    title: 'Thanh toán thành công',
+    body: 'Hóa đơn cho lượt đặt Sân 6 (45.000 đ) đã được tạo.',
+    time: 'Hôm qua',
     unread: false,
-    link: 'Download Receipt',
+    link: 'Tải biên lai',
   },
   {
     id: 4,
     type: 'system',
-    icon: '🔔',
+    icon: <Bell size={20} />,
     iconBg: '#6366f1',
-    title: 'System Update',
-    body: 'New court surfaces added! Check out the newly renovated outdoor hard courts available for booking next week.',
-    time: '2 days ago',
+    title: 'Cập nhật hệ thống',
+    body: 'Đã thêm sân mới! Hãy xem các sân ngoài trời vừa được cải tạo có thể đặt từ tuần tới.',
+    time: '2 ngày trước',
     unread: false,
-    actions: ['Explore Courts'],
+    actions: ['Khám phá sân'],
   },
 ]
 
 export default function ApexActivityPage() {
-  const [activeTab, setActiveTab] = useState('All')
+  const [activeTab, setActiveTab] = useState('Tất cả')
 
   return (
-    <ApexLayout title="Activity">
-      <div>
-        <div className="flex items-center justify-between mb-5">
-          <h1 className="font-['Oswald'] text-[1.6rem] font-bold text-[#0d2d3a]">Notifications</h1>
-          <button className="text-[0.82rem] text-[#0fc8b5] font-semibold bg-transparent border-none cursor-pointer hover:underline">Mark all as read</button>
+    <ApexLayout>
+      <div className="max-w-[800px] mx-auto animate-fade-up">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8">
+          <h1 className="text-2xl font-bold text-[var(--theme-primary)] tracking-tight">Thông báo</h1>
+          <button className="text-sm text-accent font-semibold hover:text-accent-bright">Đánh dấu tất cả là đã đọc</button>
         </div>
 
-        <div className="flex gap-2 flex-wrap mb-5">
+        {/* Tabs */}
+        <div className="flex flex-wrap gap-2 mb-8">
           {tabs.map(t => (
             <button
               key={t}
-              className={`px-3.5 py-1.5 rounded-full border-[1.5px] text-[0.82rem] font-medium cursor-pointer font-['Inter'] transition-all hover:border-[#0fc8b5] hover:text-[#0fc8b5] ${activeTab === t ? 'bg-[#0d8a8a] border-[#0d8a8a] text-white' : 'bg-white border-[#e0ecf0] text-slate-500'}`}
+              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ${
+                activeTab === t 
+                  ? 'bg-accent text-white shadow-[0_0_15px_rgba(94,106,210,0.4)]' 
+                  : 'bg-[var(--theme-surface)] border border-border-default text-foreground-muted hover:border-border-hover hover:text-foreground'
+              }`}
               onClick={() => setActiveTab(t)}
-            >{t}</button>
+            >
+              {t}
+            </button>
           ))}
         </div>
 
-        <div className="flex flex-col gap-3">
+        {/* Timeline List */}
+        <div className="space-y-4">
           {notifications.map(n => (
-            <div key={n.id} className={`flex gap-3.5 bg-white rounded-[14px] p-[18px] border-[1.5px] border-[#e0ecf0] transition-shadow hover:shadow-[0_2px_12px_rgba(0,0,0,0.07)] ${n.unread ? 'border-l-[3px] border-l-[#0fc8b5] bg-[rgba(15,200,181,0.03)]' : ''}`}>
-              <div className="w-[42px] h-[42px] rounded-full flex items-center justify-center text-[1.1rem] shrink-0" style={{background: n.iconBg}}>{n.icon}</div>
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-1.5">
-                  <p className="text-[0.9rem] font-bold text-[#0d2d3a] flex-1">{n.title}</p>
-                  <span className="text-[0.75rem] text-slate-400 shrink-0">{n.time}</span>
-                  {n.unread && <span className="w-2 h-2 rounded-full bg-[#0fc8b5] shrink-0" />}
+            <div 
+              key={n.id} 
+              className={`flex gap-4 p-5 card-base transition-all duration-300 hover:shadow-[0_8px_30px_rgba(0,0,0,0.5)] hover:-translate-y-1 relative overflow-hidden ${
+                n.unread ? 'border-l-4 border-l-accent bg-[var(--theme-surface)]' : ''
+              }`}
+            >
+              {/* Icon */}
+              <div 
+                className="w-11 h-11 rounded-xl flex items-center justify-center text-xl shrink-0 shadow-sm border border-border-default" 
+                style={{ background: `${n.iconBg}15`, color: n.iconBg }}
+              >
+                {n.icon}
+              </div>
+              
+              {/* Content */}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-start justify-between gap-4 mb-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h3 className="text-[15px] font-bold text-[var(--theme-primary)]">{n.title}</h3>
+                    {n.unread && <span className="w-2 h-2 rounded-full bg-accent" />}
+                  </div>
+                  <span className="text-xs text-foreground-muted shrink-0 font-medium">{n.time}</span>
                 </div>
-                <p className="text-sm text-slate-500 leading-[1.55]">{n.body}</p>
+                
+                <p className="text-sm text-foreground-muted leading-relaxed mb-3 max-w-[600px]">{n.body}</p>
+                
+                {/* Extra info box */}
                 {n.extra && (
-                  <div className="flex items-center gap-1.5 mt-2 bg-[#f0f7fa] rounded-lg px-3 py-[7px] text-[0.82rem] text-slate-500">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                    <span>{n.extra.date}</span>
+                  <div className="flex items-center gap-2 mb-3 bg-[var(--theme-surface)] border border-border-default rounded-lg px-3.5 py-2 w-fit">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-[var(--theme-primary)]/20"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    <span className="text-xs font-semibold text-foreground-muted">{n.extra.date}</span>
                   </div>
                 )}
+                
+                {/* Actions */}
                 {n.actions && (
-                  <div className="flex gap-2 mt-3">
+                  <div className="flex gap-2">
                     {n.actions.map((a, i) => (
-                      <button key={a} className={`py-[7px] px-4 text-[0.82rem] rounded-lg ${i === 0 ? 'btn-primary' : 'btn-outline'}`}>{a}</button>
+                      <button 
+                        key={a} 
+                        className={`h-9 px-4 text-xs font-semibold rounded-lg transition-all duration-200 ${
+                          i === 0 
+                            ? 'btn-primary' 
+                            : 'btn-outline'
+                        }`}
+                      >
+                        {a}
+                      </button>
                     ))}
                   </div>
                 )}
-                {n.link && <a href="#" className="block mt-2 text-[0.82rem] text-[#0fc8b5] font-semibold hover:underline">{n.link}</a>}
+                
+                {/* Link */}
+                {n.link && (
+                  <button className="text-xs font-semibold text-accent hover:text-accent-bright transition-colors group flex items-center gap-1">
+                    {n.link}
+                  </button>
+                )}
               </div>
             </div>
           ))}

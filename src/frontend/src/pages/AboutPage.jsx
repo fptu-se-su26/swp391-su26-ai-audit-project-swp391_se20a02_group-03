@@ -138,19 +138,19 @@ export default function AboutPage() {
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-[68px] px-6 pb-[60px] bg-[#0a0e1a] after:content-[''] after:absolute after:inset-0 after:bg-gradient-to-t after:from-[rgba(10,14,26,0.95)] after:via-[rgba(10,14,26,0.4)] after:to-transparent">
         <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1547347298-4074fc3086f0?w=1400&q=70')] bg-cover bg-center opacity-[0.22]" />
         <div ref={heroRef} className="relative z-[1] text-center max-w-[780px] container">
-          <span className="inline-block text-[0.72rem] font-bold tracking-[0.15em] uppercase text-[#00c8aa] mb-5 px-4 py-1.5 rounded-full border border-[#00c8aa]/30 bg-[#00c8aa]/10">Về PRO-SPORT</span>
-          <h1 className="font-['Oswald'] text-[clamp(2rem,4.5vw,3.5rem)] font-bold text-white leading-[1.1] tracking-[-0.01em] mb-[22px]">
+          <span className="inline-block text-[0.72rem] font-bold tracking-[0.15em] uppercase text-[#14B8A6] mb-5 px-4 py-1.5 rounded-full border border-[#14B8A6]/30 bg-[#14B8A6]/10">Về PRO-SPORT</span>
+          <h1 className="font-['Oswald'] text-[clamp(2rem,4.5vw,3.5rem)] font-bold text-[var(--theme-primary)] leading-[1.1] tracking-[-0.01em] mb-[22px]">
             Định hình lại Tương lai<br />Hiệu suất Thể thao.
           </h1>
-          <p className="text-[1.05rem] text-white/65 leading-[1.7] max-w-[540px] mx-auto mb-8">
+          <p className="text-[1.05rem] text-[var(--theme-primary)]/65 leading-[1.7] max-w-[540px] mx-auto mb-8">
             Chúng tôi thu hẹp khoảng cách giữa tiềm năng con người và độ chính xác của công nghệ,
             xây dựng môi trường nơi các vận động viên tinh hoa được rèn giũa.
           </p>
           <div className="flex gap-3 justify-center flex-wrap">
-            <Link to="/courts" className="bg-[#00c8aa] hover:bg-[#009e87] hover:shadow-[0_0_24px_rgba(0,200,170,0.25)] hover:-translate-y-[1px] text-white rounded-full font-semibold tracking-[0.03em] transition-all inline-flex items-center gap-2 px-[26px] py-[13px] text-[0.95rem]">
+            <Link to="/courts" className="bg-[#14B8A6] hover:bg-[#0D9488] hover:shadow-[0_0_24px_rgba(0,200,170,0.25)] hover:-translate-y-[1px] text-[var(--theme-primary)] rounded-full font-semibold tracking-[0.03em] transition-all inline-flex items-center gap-2 px-[26px] py-[13px] text-[0.95rem]">
               Explore Facilities →
             </Link>
-            <Link to="/contact" className="bg-transparent text-white border-[1.5px] border-white/25 rounded-full font-medium transition-all hover:border-[#00c8aa] hover:text-[#00c8aa] hover:bg-[#00c8aa]/5 inline-flex items-center gap-2 px-[22px] py-[13px] text-[0.95rem]">
+            <Link to="/contact" className="bg-transparent text-[var(--theme-primary)] border-[1.5px] border-white/25 rounded-full font-medium transition-all hover:border-[#14B8A6] hover:text-[#14B8A6] hover:bg-[#14B8A6]/5 inline-flex items-center gap-2 px-[22px] py-[13px] text-[0.95rem]">
               Contact Us
             </Link>
           </div>
@@ -161,7 +161,7 @@ export default function AboutPage() {
       <section className="py-20 bg-white">
         <div ref={missionRef} className="container grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           <div>
-            <span className="text-[0.72rem] font-bold tracking-[0.15em] uppercase text-[#00c8aa] mb-4 block">Sứ mệnh</span>
+            <span className="text-[0.72rem] font-bold tracking-[0.15em] uppercase text-[#14B8A6] mb-4 block">Sứ mệnh</span>
             <h2 className="font-['Oswald'] text-[clamp(1.6rem,3vw,2.4rem)] font-bold text-slate-900 leading-[1.15] mb-6">
               Tiếp sức Vận động viên qua<br />Công nghệ & Cơ sở vật chất Cao cấp
             </h2>
@@ -173,19 +173,19 @@ export default function AboutPage() {
             </p>
             <div className="flex gap-6 flex-wrap">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-[#00c8aa]/10 flex items-center justify-center text-[#00c8aa]">
+                <div className="w-10 h-10 rounded-full bg-[#14B8A6]/10 flex items-center justify-center text-[#14B8A6]">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
                 </div>
                 <span className="text-[0.88rem] font-medium text-slate-700">Hệ thống Đặt sân Thông minh</span>
               </div>
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-[#00c8aa]/10 flex items-center justify-center text-[#00c8aa]">
+                <div className="w-10 h-10 rounded-full bg-[#14B8A6]/10 flex items-center justify-center text-[#14B8A6]">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
                 </div>
                 <span className="text-[0.88rem] font-medium text-slate-700">Ghép kèo AI</span>
               </div>
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-[#00c8aa]/10 flex items-center justify-center text-[#00c8aa]">
+                <div className="w-10 h-10 rounded-full bg-[#14B8A6]/10 flex items-center justify-center text-[#14B8A6]">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
                 </div>
                 <span className="text-[0.88rem] font-medium text-slate-700">Phân tích Thời gian thực</span>
@@ -194,9 +194,9 @@ export default function AboutPage() {
           </div>
           <div className="relative">
             <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=700&q=80" alt="Athletic training" className="w-full h-[420px] object-cover rounded-[20px] shadow-[0_8px_32px_rgba(0,0,0,0.12)]" />
-            <div className="absolute -bottom-5 -left-5 bg-[#0a0e1a] text-white rounded-xl px-6 py-4 shadow-lg max-w-[220px]">
-              <p className="font-['Oswald'] text-[2rem] font-bold text-[#00c8aa] leading-none">5+</p>
-              <p className="text-[0.82rem] text-white/60 mt-1">Năm xuất sắc trong Công nghệ Thể thao</p>
+            <div className="absolute -bottom-5 -left-5 bg-[#0a0e1a] text-[var(--theme-primary)] rounded-xl px-6 py-4 shadow-lg max-w-[220px]">
+              <p className="font-['Oswald'] text-[2rem] font-bold text-[#14B8A6] leading-none">5+</p>
+              <p className="text-[0.82rem] text-[var(--theme-primary)]/60 mt-1">Năm xuất sắc trong Công nghệ Thể thao</p>
             </div>
           </div>
         </div>
@@ -207,8 +207,8 @@ export default function AboutPage() {
         <div ref={statsRef} className="container flex justify-center gap-16 flex-wrap">
           {stats.map(s => (
             <div key={s.label} className="text-center">
-              <p className="font-['Oswald'] text-[2.2rem] font-bold text-[#00c8aa] leading-none">{s.value}</p>
-              <p className="text-[0.82rem] text-white/50 mt-2 tracking-wide">{s.label}</p>
+              <p className="font-['Oswald'] text-[2.2rem] font-bold text-[#14B8A6] leading-none">{s.value}</p>
+              <p className="text-[0.82rem] text-[var(--theme-primary)]/50 mt-2 tracking-wide">{s.label}</p>
             </div>
           ))}
         </div>
@@ -217,15 +217,15 @@ export default function AboutPage() {
       {/* ── Our Journey ── */}
       <section className="py-20 bg-white">
         <div className="container">
-          <span className="text-[0.72rem] font-bold tracking-[0.15em] uppercase text-[#00c8aa] mb-3 block">Chúng tôi làm gì</span>
-          <h2 className="section-title mb-9 after:content-[''] after:block after:w-12 after:h-[3px] after:bg-[#00c8aa] after:mt-[10px]">Hành trình</h2>
+          <span className="text-[0.72rem] font-bold tracking-[0.15em] uppercase text-[#14B8A6] mb-3 block">Chúng tôi làm gì</span>
+          <h2 className="section-title mb-9 after:content-[''] after:block after:w-12 after:h-[3px] after:bg-[#14B8A6] after:mt-[10px]">Hành trình</h2>
           <div ref={journeyRef} className="grid grid-cols-[1.3fr_1fr] grid-rows-[220px_220px] gap-4 max-md:grid-cols-1 max-md:grid-rows-[240px_180px_180px]">
             {journey.map((item) => (
               <div key={item.label} className={`relative rounded-[16px] overflow-hidden cursor-pointer group ${item.large ? 'row-span-2 max-md:row-span-1' : ''}`}>
                 <img src={item.image} alt={item.label} className="w-full h-full object-cover transition-transform duration-500 ease-in-out group-hover:scale-105" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/[0.72] to-transparent flex flex-col justify-end p-5 gap-[6px]">
-                  <span className="text-[0.68rem] font-bold tracking-[0.12em] text-[#00c8aa] uppercase">{item.tag}</span>
-                  <p className="font-['Oswald'] text-[1.05rem] font-bold text-white">{item.label}</p>
+                  <span className="text-[0.68rem] font-bold tracking-[0.12em] text-[#14B8A6] uppercase">{item.tag}</span>
+                  <p className="font-['Oswald'] text-[1.05rem] font-bold text-[var(--theme-primary)]">{item.label}</p>
                 </div>
               </div>
             ))}
@@ -237,18 +237,18 @@ export default function AboutPage() {
       <section className="py-20 bg-[var(--color-bg)]">
         <div className="container">
           <div className="text-center mb-[52px]">
-            <span className="text-[0.72rem] font-bold tracking-[0.15em] uppercase text-[#00c8aa] mb-3 block">Tại sao chọn chúng tôi</span>
+            <span className="text-[0.72rem] font-bold tracking-[0.15em] uppercase text-[#14B8A6] mb-3 block">Tại sao chọn chúng tôi</span>
             <h2 className="section-title">Nguyên tắc Cốt lõi</h2>
             <p className="section-subtitle">Nền tảng thúc đẩy cam kết của chúng tôi đối với sự xuất sắc trong thể thao.</p>
           </div>
           <div ref={principlesRef} className="grid grid-cols-3 gap-6 max-md:grid-cols-1">
             {principles.map((p) => (
-              <div key={p.title} className="bg-white rounded-[16px] px-7 py-9 border-[1.5px] border-slate-200 transition-all hover:shadow-md hover:-translate-y-1 hover:border-[#00c8aa] group">
-                <div className="w-12 h-12 rounded-xl bg-[rgba(0,200,170,0.1)] flex items-center justify-center text-[#00c8aa] mb-[18px] transition-all group-hover:bg-[#00c8aa] group-hover:text-white">{p.icon}</div>
+              <div key={p.title} className="bg-white rounded-[16px] px-7 py-9 border-[1.5px] border-slate-200 transition-all hover:shadow-md hover:-translate-y-1 hover:border-[#14B8A6] group">
+                <div className="w-12 h-12 rounded-xl bg-[rgba(0,200,170,0.1)] flex items-center justify-center text-[#14B8A6] mb-[18px] transition-all group-hover:bg-[#14B8A6] group-hover:text-[var(--theme-primary)]">{p.icon}</div>
                 <h3 className="font-['Oswald'] text-[1.2rem] font-bold text-[#0a0e1a] mb-[10px]">{p.title}</h3>
                 <p className="text-sm text-slate-500 leading-[1.65] mb-5">{p.desc}</p>
                 <div className="flex flex-col gap-[2px] border-t border-slate-200 pt-4">
-                  <span className="font-['Oswald'] text-[1.6rem] font-bold text-[#00c8aa]">{p.stat}</span>
+                  <span className="font-['Oswald'] text-[1.6rem] font-bold text-[#14B8A6]">{p.stat}</span>
                   <span className="text-[0.78rem] text-slate-400">{p.statLabel}</span>
                 </div>
               </div>
@@ -261,19 +261,19 @@ export default function AboutPage() {
       <section className="py-20 bg-white">
         <div className="container">
           <div className="text-center mb-14">
-            <span className="text-[0.72rem] font-bold tracking-[0.15em] uppercase text-[#00c8aa] mb-3 block">Câu chuyện</span>
+            <span className="text-[0.72rem] font-bold tracking-[0.15em] uppercase text-[#14B8A6] mb-3 block">Câu chuyện</span>
             <h2 className="section-title">Từ Tầm nhìn đến Hiện thực</h2>
             <p className="section-subtitle">Những cột mốc quan trọng trong hành trình thay đổi quản lý thể thao.</p>
           </div>
           <div ref={timelineRef} className="relative max-w-[700px] mx-auto">
             {/* Timeline line */}
-            <div className="absolute left-[22px] top-0 bottom-0 w-[2px] bg-gradient-to-b from-[#00c8aa] via-[#00c8aa]/40 to-transparent max-md:left-[18px]" />
+            <div className="absolute left-[22px] top-0 bottom-0 w-[2px] bg-gradient-to-b from-[#14B8A6] via-[#14B8A6]/40 to-transparent max-md:left-[18px]" />
             {milestones.map((m, i) => (
               <div key={m.year} className="timeline-item relative flex gap-6 mb-8 last:mb-0 pl-[52px] max-md:pl-[44px]">
                 {/* Dot */}
-                <div className={`absolute left-[14px] top-1 w-[18px] h-[18px] rounded-full border-[3px] ${i === milestones.length - 1 ? 'border-[#00c8aa] bg-[#00c8aa] shadow-[0_0_12px_rgba(0,200,170,0.4)]' : 'border-[#00c8aa] bg-white'} max-md:left-[10px]`} />
-                <div className="bg-[#f8fafb] border border-slate-200 rounded-xl px-6 py-5 flex-1 transition-all hover:shadow-md hover:border-[#00c8aa]/40">
-                  <span className="text-[0.72rem] font-bold tracking-[0.1em] text-[#00c8aa] uppercase">{m.year}</span>
+                <div className={`absolute left-[14px] top-1 w-[18px] h-[18px] rounded-full border-[3px] ${i === milestones.length - 1 ? 'border-[#14B8A6] bg-[#14B8A6] shadow-[0_0_12px_rgba(0,200,170,0.4)]' : 'border-[#14B8A6] bg-white'} max-md:left-[10px]`} />
+                <div className="bg-[#f8fafb] border border-slate-200 rounded-xl px-6 py-5 flex-1 transition-all hover:shadow-md hover:border-[#14B8A6]/40">
+                  <span className="text-[0.72rem] font-bold tracking-[0.1em] text-[#14B8A6] uppercase">{m.year}</span>
                   <h3 className="font-['Oswald'] text-[1.05rem] font-bold text-slate-900 mt-1 mb-1.5">{m.title}</h3>
                   <p className="text-[0.85rem] text-slate-500 leading-[1.65]">{m.desc}</p>
                 </div>
@@ -287,22 +287,22 @@ export default function AboutPage() {
       <section className="py-20 bg-[var(--color-bg)]">
         <div className="container">
           <div className="text-center mb-14">
-            <span className="text-[0.72rem] font-bold tracking-[0.15em] uppercase text-[#00c8aa] mb-3 block">Con người</span>
+            <span className="text-[0.72rem] font-bold tracking-[0.15em] uppercase text-[#14B8A6] mb-3 block">Con người</span>
             <h2 className="section-title">Ban Lãnh đạo</h2>
             <p className="section-subtitle">Những người có tầm nhìn thúc đẩy sứ mệnh của PRO-SPORT.</p>
           </div>
           <div ref={teamRef} className="grid grid-cols-4 gap-6 max-lg:grid-cols-2 max-md:grid-cols-1">
             {team.map(t => (
-              <div key={t.name} className="bg-white rounded-[16px] border-[1.5px] border-slate-200 overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1 hover:border-[#00c8aa] group">
+              <div key={t.name} className="bg-white rounded-[16px] border-[1.5px] border-slate-200 overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1 hover:border-[#14B8A6] group">
                 <div className="relative h-[220px] overflow-hidden">
                   <img src={t.avatar} alt={t.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
-                    <p className="text-[0.78rem] text-white/90 italic leading-[1.5]">"{t.quote}"</p>
+                    <p className="text-[0.78rem] text-[var(--theme-primary)]/90 italic leading-[1.5]">"{t.quote}"</p>
                   </div>
                 </div>
                 <div className="px-5 py-4">
                   <h3 className="font-['Oswald'] text-[1.05rem] font-bold text-slate-900">{t.name}</h3>
-                  <p className="text-[0.82rem] text-[#00c8aa] font-medium mt-0.5">{t.role}</p>
+                  <p className="text-[0.82rem] text-[#14B8A6] font-medium mt-0.5">{t.role}</p>
                 </div>
               </div>
             ))}
@@ -316,23 +316,23 @@ export default function AboutPage() {
           <p className="text-center text-[0.72rem] font-bold tracking-[0.15em] text-slate-400 uppercase mb-8">Trusted Partners & Brvàs</p>
           <div className="flex justify-center items-center gap-[52px] flex-wrap">
             {partners.map(b => (
-              <span key={b} className="font-['Oswald'] text-[1.1rem] font-bold tracking-[0.08em] text-slate-400 transition-colors hover:text-[#00c8aa] cursor-default">{b}</span>
+              <span key={b} className="font-['Oswald'] text-[1.1rem] font-bold tracking-[0.08em] text-slate-400 transition-colors hover:text-[#14B8A6] cursor-default">{b}</span>
             ))}
           </div>
         </div>
       </section>
 
       {/* ── Global Operations ── */}
-      <section className="pt-20 pb-[100px] bg-[#0a0e1a] text-white text-center overflow-hidden">
+      <section className="pt-20 pb-[100px] bg-[#0a0e1a] text-[var(--theme-primary)] text-center overflow-hidden">
         <div className="container">
-          <span className="text-[0.72rem] font-bold tracking-[0.15em] uppercase text-[#00c8aa] mb-4 block">Hiện diện Toàn cầu</span>
+          <span className="text-[0.72rem] font-bold tracking-[0.15em] uppercase text-[#14B8A6] mb-4 block">Hiện diện Toàn cầu</span>
           <h2 className="font-['Oswald'] text-[2rem] font-bold mb-3">Hoạt động Toàn cầu</h2>
-          <p className="text-[0.9rem] text-white/55 max-w-[500px] mx-auto mb-[52px] leading-[1.65]">Operating across 14 cities, delivering consistent, elite-tier athletic infrastructure throughout Southeast Asia và beyond.</p>
+          <p className="text-[0.9rem] text-[var(--theme-primary)]/55 max-w-[500px] mx-auto mb-[52px] leading-[1.65]">Operating across 14 cities, delivering consistent, elite-tier athletic infrastructure throughout Southeast Asia và beyond.</p>
           <div className="relative flex items-center justify-center min-h-[160px]">
-            <div className="font-['Oswald'] text-[clamp(2rem,6vw,5rem)] font-bold tracking-[0.15em] text-[#00c8aa] opacity-25 select-none">MẠNG LƯỚI ĐANG HOẠT ĐỘNG</div>
+            <div className="font-['Oswald'] text-[clamp(2rem,6vw,5rem)] font-bold tracking-[0.15em] text-[#14B8A6] opacity-25 select-none">MẠNG LƯỚI ĐANG HOẠT ĐỘNG</div>
             <div className="absolute inset-0 flex flex-wrap gap-[18px] justify-center items-center pointer-events-none">
               {[...Array(40)].map((_, i) => (
-                <div key={i} className="w-1 h-1 rounded-full bg-[#00c8aa] opacity-40 animate-[pulse-glow_2.5s_ease-in-out_infinite]" style={{ animationDelay: `${i * 0.08}s` }} />
+                <div key={i} className="w-1 h-1 rounded-full bg-[#14B8A6] opacity-40 animate-[pulse-glow_2.5s_ease-in-out_infinite]" style={{ animationDelay: `${i * 0.08}s` }} />
               ))}
             </div>
           </div>
@@ -349,10 +349,10 @@ export default function AboutPage() {
             Join 500,000+ vận động viên who trust PRO-SPORT for their training, matches và competitive journey.
           </p>
           <div className="flex gap-3 justify-center flex-wrap">
-            <Link to="/register" className="bg-[#00c8aa] hover:bg-[#009e87] hover:shadow-[0_0_24px_rgba(0,200,170,0.25)] hover:-translate-y-[1px] text-white rounded-full font-semibold tracking-[0.03em] transition-all inline-flex items-center gap-2 px-[28px] py-[14px] text-[0.95rem]">
+            <Link to="/register" className="bg-[#14B8A6] hover:bg-[#0D9488] hover:shadow-[0_0_24px_rgba(0,200,170,0.25)] hover:-translate-y-[1px] text-[var(--theme-primary)] rounded-full font-semibold tracking-[0.03em] transition-all inline-flex items-center gap-2 px-[28px] py-[14px] text-[0.95rem]">
               Start Free Journey →
             </Link>
-            <Link to="/contact" className="bg-transparent text-slate-900 border-[1.5px] border-slate-200 rounded-full font-medium transition-all hover:border-[#00c8aa] hover:text-[#00c8aa] hover:bg-[#00c8aa]/5 inline-flex items-center gap-2 px-[24px] py-[14px] text-[0.95rem]">
+            <Link to="/contact" className="bg-transparent text-slate-900 border-[1.5px] border-slate-200 rounded-full font-medium transition-all hover:border-[#14B8A6] hover:text-[#14B8A6] hover:bg-[#14B8A6]/5 inline-flex items-center gap-2 px-[24px] py-[14px] text-[0.95rem]">
               Talk to Sales
             </Link>
           </div>

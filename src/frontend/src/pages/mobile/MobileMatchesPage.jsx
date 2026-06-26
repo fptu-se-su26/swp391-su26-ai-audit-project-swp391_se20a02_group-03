@@ -11,7 +11,7 @@ export default function MobileMatchesPage() {
 
         {/* Filters */}
         <div className="flex gap-3 overflow-x-auto pb-3 px-4 mb-3 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-          <button className="whitespace-nowrap py-2 px-4 rounded-full bg-[#006070] text-white border border-[#006070] text-sm font-medium cursor-pointer">All Sports</button>
+          <button className="whitespace-nowrap py-2 px-4 rounded-full bg-[#006070] text-[var(--theme-primary)] border border-[#006070] text-sm font-medium cursor-pointer">All Sports</button>
           <button className="whitespace-nowrap py-2 px-4 rounded-full bg-white border border-slate-200 text-sm font-medium text-slate-500 cursor-pointer hover:bg-slate-50">Cầu lông</button>
           <button className="whitespace-nowrap py-2 px-4 rounded-full bg-white border border-slate-200 text-sm font-medium text-slate-500 cursor-pointer hover:bg-slate-50">Pickleball</button>
         </div>
@@ -39,7 +39,7 @@ export default function MobileMatchesPage() {
                 <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=40&q=80" alt="P" className="w-7 h-7 rounded-full border border-white -mr-2 object-cover" />
                 <div className="bg-amber-100 text-amber-800 text-[0.62rem] font-bold py-0.5 px-2 rounded-full ml-4">1 spot</div>
               </div>
-              <button className="bg-[#006070] text-white text-xs font-semibold py-1.5 px-5 rounded-lg border-none hover:bg-[#004e5c] cursor-pointer">Join</button>
+              <button className="bg-[#006070] text-[var(--theme-primary)] text-xs font-semibold py-1.5 px-5 rounded-lg border-none hover:bg-[#004e5c] cursor-pointer">Join</button>
             </div>
 
             <div className="flex items-center gap-1.5 text-[0.72rem] text-slate-400 mt-1.5 pt-2.5 border-t border-dashed border-slate-100">
@@ -68,7 +68,7 @@ export default function MobileMatchesPage() {
                 <img src="https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=40&q=80" alt="P" className="w-7 h-7 rounded-full border border-white -mr-2 object-cover" />
                 <div className="bg-amber-100 text-amber-800 text-[0.62rem] font-bold py-0.5 px-2 rounded-full ml-4">2 spots</div>
               </div>
-              <button className="bg-[#006070] text-white text-xs font-semibold py-1.5 px-5 rounded-lg border-none hover:bg-[#004e5c] cursor-pointer">Join</button>
+              <button className="bg-[#006070] text-[var(--theme-primary)] text-xs font-semibold py-1.5 px-5 rounded-lg border-none hover:bg-[#004e5c] cursor-pointer">Join</button>
             </div>
 
             <div className="flex items-center gap-1.5 text-[0.72rem] text-slate-400 mt-1.5 pt-2.5 border-t border-dashed border-slate-100">
@@ -107,7 +107,7 @@ export default function MobileMatchesPage() {
         </div>
 
         {/* FAB */}
-        <button className="fixed bottom-20 right-4 w-14 h-14 bg-[#006070] hover:bg-[#004e5c] text-white rounded-full flex items-center justify-center shadow-lg border-none cursor-pointer z-50 transition-all">
+        <button className="fixed bottom-20 right-4 w-14 h-14 bg-[#006070] hover:bg-[#004e5c] text-[var(--theme-primary)] rounded-full flex items-center justify-center shadow-lg border-none cursor-pointer z-50 transition-all">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         </button>
 

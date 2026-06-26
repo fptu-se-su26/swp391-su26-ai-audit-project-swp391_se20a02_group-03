@@ -1,112 +1,148 @@
 import { useState } from 'react'
 import ApexLayout from '../../layouts/ApexLayout'
-import './ApexSupportPage.css'
 
 const faqs = [
-  { q: 'How do I cancel a booking?', a: 'Go to your Booking page, select the booking you wish to cancel, and click "Cancel Booking". Cancellations made 24+ hours in advance receive a full refund.' },
-  { q: 'Can I reschedule my court session?', a: 'Yes! Navigate to your upcoming bookings, click "Reschedule", and select a new available time slot. Rescheduling is free up to 4 hours before your session.' },
-  { q: 'How does the wallet top-up work?', a: 'Go to Settings → Payments → Wallet and click "Top Up". You can add funds via credit card, bank transfer, or MoMo.' },
-  { q: 'What is the guest policy?', a: 'Each booking can include up to 3 additional guests per court session. Guests must be registered PRO-SPORT members.' },
-  { q: 'How do I report a problem with a court?', a: 'Use the "Report Issue" button below or contact support directly. Our facility team responds within 2 hours.' },
+  { q: 'Làm thế nào để hủy đặt sân?', a: 'Truy cập trang Đặt sân của bạn, chọn lượt đặt sân muốn hủy và nhấp vào "Hủy đặt sân". Các lượt hủy trước 24 giờ sẽ được hoàn tiền 100%.' },
+  { q: 'Tôi có thể đổi lịch đặt sân không?', a: 'Có! Hãy đi tới các lượt đặt sân sắp tới của bạn, nhấp vào "Đổi lịch" và chọn một khung giờ mới. Đổi lịch miễn phí nếu thực hiện trước 4 giờ.' },
+  { q: 'Việc nạp tiền vào ví hoạt động như thế nào?', a: 'Vào Cài đặt → Thanh toán → Ví và nhấp vào "Nạp tiền". Bạn có thể thêm tiền qua thẻ tín dụng, chuyển khoản ngân hàng hoặc MoMo.' },
+  { q: 'Chính sách khách đi cùng là gì?', a: 'Mỗi lượt đặt sân có thể đi kèm tối đa 3 khách. Khách phải là thành viên PRO-SPORT đã đăng ký.' },
+  { q: 'Làm thế nào để báo cáo sự cố về sân?', a: 'Sử dụng nút "Báo cáo sự cố" bên dưới hoặc liên hệ trực tiếp với bộ phận hỗ trợ. Đội ngũ cơ sở vật chất của chúng tôi sẽ phản hồi trong vòng 2 giờ.' },
 ]
 
 export default function ApexSupportPage() {
   const [openFaq, setOpenFaq] = useState(null)
-  const [form, setForm] = useState({ subject: '', category: 'Booking', message: '' })
+  const [form, setForm] = useState({ subject: '', category: 'Đặt sân', message: '' })
   const [submitted, setSubmitted] = useState(false)
 
   function handleSubmit(e) {
     e.preventDefault()
     setSubmitted(true)
     setTimeout(() => setSubmitted(false), 3000)
-    setForm({ subject: '', category: 'Booking', message: '' })
+    setForm({ subject: '', category: 'Đặt sân', message: '' })
   }
 
   return (
-    <ApexLayout title="Support">
-      <div className="apex-support">
-        {/* Hero */}
-        <div className="support-hero">
-          <div className="support-hero__icon">🎯</div>
-          <h1 className="support-hero__title">How can we help?</h1>
-          <p className="support-hero__sub">Search our FAQ or contact our team directly.</p>
-          <div className="support-hero__search">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input type="text" placeholder="Tìm kiếm for help..." id="support-search" />
+    <ApexLayout>
+      <div className="max-w-[1000px] mx-auto animate-fade-up space-y-8">
+        
+        {/* Compact Header */}
+        <div className="flex max-md:flex-col md:items-end justify-between gap-4 mb-2">
+          <div>
+            <h1 className="text-2xl font-bold text-foreground tracking-tight">Trung tâm hỗ trợ</h1>
+            <p className="text-sm text-foreground-muted mt-1">Tìm câu trả lời hoặc liên hệ đội ngũ hỗ trợ.</p>
+          </div>
+          <div className="relative w-full md:w-[280px]">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#94A3B8]">
+              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input
+              type="text"
+              placeholder="Tìm kiếm hỗ trợ..."
+              className="w-full h-10 pl-10 pr-4 bg-white border border-[#E2E8F0] rounded-xl text-sm text-foreground placeholder:text-[#94A3B8] font-medium focus:border-[#14B8A6] focus:ring-1 focus:ring-[#14B8A6]/20 outline-none transition-all shadow-sm"
+            />
           </div>
         </div>
 
-        {/* Quick Actions */}
-        <div className="support-quick">
-          {[
-            { icon: '📅', label: 'Booking Issue', color: '#0fc8b5' },
-            { icon: '💳', label: 'Payment Help', color: '#6366f1' },
-            { icon: '🎾', label: 'Match Problem', color: '#f59e0b' },
-            { icon: '🔧', label: 'Technical Issue', color: '#ef4444' },
-          ].map(a => (
-            <div key={a.label} className="support-quick-btn" style={{ '--accent': a.color }}>
-              <span className="support-quick-btn__icon" style={{ background: a.color + '1a', color: a.color }}>{a.icon}</span>
-              <span>{a.label}</span>
-            </div>
-          ))}
-        </div>
 
-        <div className="support-grid">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+          
           {/* FAQ */}
-          <div>
-            <h2 className="support-section-title">Frequently Asked Questions</h2>
-            <div className="faq-list">
+          <div className="lg:col-span-3 space-y-4">
+            <h2 className="text-lg font-bold text-foreground mb-5">Câu hỏi thường gặp</h2>
+            <div className="space-y-3">
               {faqs.map((faq, i) => (
-                <div key={faq.q} className={`faq-item ${openFaq === i ? 'faq-item--open' : ''}`}>
-                  <button className="faq-item__question" onClick={() => setOpenFaq(openFaq === i ? null : i)}>
-                    <span>{faq.q}</span>
-                    <span className="faq-item__arrow">{openFaq === i ? '▲' : '▼'}</span>
+                <div 
+                  key={faq.q} 
+                  className={`bg-white border rounded-2xl overflow-hidden transition-all duration-200 ${
+                    openFaq === i ? 'border-[#14B8A6] shadow-sm' : 'border-[#E2E8F0] hover:border-[#CBD5E1]'
+                  }`}
+                >
+                  <button 
+                    className="w-full px-5 py-4 flex items-center justify-between text-left focus:outline-none" 
+                    onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                  >
+                    <span className={`font-semibold pr-4 ${openFaq === i ? 'text-[#14B8A6]' : 'text-foreground'}`}>{faq.q}</span>
+                    <span className={`text-[#94A3B8] transition-transform duration-200 ${openFaq === i ? 'rotate-180' : ''}`}>
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 12 15 18 9"/></svg>
+                    </span>
                   </button>
-                  {openFaq === i && <div className="faq-item__answer">{faq.a}</div>}
+                  {openFaq === i && (
+                    <div className="px-5 pb-5 pt-0 text-sm text-[#475569] leading-relaxed animate-fade-in">
+                      {faq.a}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
           </div>
 
           {/* Contact Form */}
-          <div>
-            <h2 className="support-section-title">Contact Support</h2>
-            <div className="support-contact">
+          <div className="lg:col-span-2 space-y-6">
+            <h2 className="text-lg font-bold text-foreground mb-5">Liên hệ hỗ trợ</h2>
+            
+            <div className="bg-white border border-[#E2E8F0] rounded-2xl p-6 shadow-sm">
               {submitted ? (
-                <div className="support-success">
-                  <span>✅</span>
-                  <p>Your message has been sent! We'll respond within 2 hours.</p>
+                <div className="flex flex-col items-center justify-center py-8 text-center animate-scale-in">
+                  <div className="w-16 h-16 bg-emerald-50 rounded-full flex items-center justify-center text-3xl mb-4">✅</div>
+                  <h3 className="text-[17px] font-bold text-foreground mb-2">Đã gửi tin nhắn</h3>
+                  <p className="text-sm text-foreground-muted">Chúng tôi đã nhận được yêu cầu của bạn và sẽ phản hồi trong vòng 2 giờ.</p>
                 </div>
               ) : (
-                <form className="support-form" onSubmit={handleSubmit}>
-                  <div className="support-field">
-                    <label htmlFor="support-subject">Subject</label>
-                    <input id="support-subject" type="text" placeholder="Briefly describe your issue" value={form.subject} onChange={e => setForm({ ...form, subject: e.target.value })} className="support-input" required />
+                <form className="space-y-4" onSubmit={handleSubmit}>
+                  <div>
+                    <label htmlFor="support-subject" className="block text-xs font-bold text-[#475569] uppercase tracking-wider mb-2">Chủ đề</label>
+                    <input 
+                      id="support-subject" 
+                      type="text" 
+                      placeholder="Mô tả ngắn gọn vấn đề của bạn" 
+                      value={form.subject} 
+                      onChange={e => setForm({ ...form, subject: e.target.value })} 
+                      className="w-full h-11 px-4 bg-white border border-[#E2E8F0] rounded-xl text-sm text-foreground font-medium focus:border-[#14B8A6] focus:ring-1 focus:ring-[#14B8A6]/20 outline-none transition-all shadow-sm" 
+                      required 
+                    />
                   </div>
-                  <div className="support-field">
-                    <label htmlFor="support-category">Category</label>
-                    <select id="support-category" value={form.category} onChange={e => setForm({ ...form, category: e.target.value })} className="support-input">
-                      {['Booking', 'Payment', 'Match', 'Account', 'Technical', 'Other'].map(c => <option key={c}>{c}</option>)}
+                  <div>
+                    <label htmlFor="support-category" className="block text-xs font-bold text-[#475569] uppercase tracking-wider mb-2">Danh mục</label>
+                    <select 
+                      id="support-category" 
+                      value={form.category} 
+                      onChange={e => setForm({ ...form, category: e.target.value })} 
+                      className="w-full h-11 px-4 bg-white border border-[#E2E8F0] rounded-xl text-sm text-foreground font-medium focus:border-[#14B8A6] focus:ring-1 focus:ring-[#14B8A6]/20 outline-none transition-all shadow-sm cursor-pointer"
+                    >
+                      {['Đặt sân', 'Thanh toán', 'Trận đấu', 'Tài khoản', 'Kỹ thuật', 'Khác'].map(c => <option key={c}>{c}</option>)}
                     </select>
                   </div>
-                  <div className="support-field">
-                    <label htmlFor="support-message">Message</label>
-                    <textarea id="support-message" rows={5} placeholder="Describe your issue in detail..." value={form.message} onChange={e => setForm({ ...form, message: e.target.value })} className="support-input support-textarea" required />
+                  <div>
+                    <label htmlFor="support-message" className="block text-xs font-bold text-[#475569] uppercase tracking-wider mb-2">Tin nhắn</label>
+                    <textarea 
+                      id="support-message" 
+                      rows={4} 
+                      placeholder="Mô tả chi tiết vấn đề của bạn..." 
+                      value={form.message} 
+                      onChange={e => setForm({ ...form, message: e.target.value })} 
+                      className="w-full p-4 bg-white border border-[#E2E8F0] rounded-xl text-sm text-foreground font-medium focus:border-[#14B8A6] focus:ring-1 focus:ring-[#14B8A6]/20 outline-none transition-all shadow-sm resize-none" 
+                      required 
+                    />
                   </div>
-                  <button type="submit" className="btn-primary support-submit">Send Message</button>
+                  <button type="submit" className="w-full h-11 bg-[#14B8A6] text-[var(--theme-primary)] rounded-xl font-semibold shadow-sm hover:bg-[#0D9488] active:scale-[0.98] transition-all duration-200 mt-2">
+                    Gửi tin nhắn
+                  </button>
                 </form>
               )}
+            </div>
 
-              <div className="support-contact-info">
-                <div className="contact-info-item">
-                  <span>📧</span><span>support@prosport.com</span>
-                </div>
-                <div className="contact-info-item">
-                  <span>📞</span><span>+84 28 3838 3838 (8am–10pm)</span>
-                </div>
-                <div className="contact-info-item">
-                  <span>💬</span><span>Live chat available in-app</span>
-                </div>
+            <div className="bg-[#F8FAFC] border border-[#E2E8F0] rounded-2xl p-5 space-y-3">
+              <div className="flex items-center gap-3">
+                <span className="w-8 h-8 rounded-lg bg-white shadow-sm border border-[#E2E8F0] flex items-center justify-center text-foreground-muted">📧</span>
+                <span className="text-sm font-semibold text-foreground">support@prosport.com</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="w-8 h-8 rounded-lg bg-white shadow-sm border border-[#E2E8F0] flex items-center justify-center text-foreground-muted">📞</span>
+                <span className="text-sm font-semibold text-foreground">+84 28 3838 3838 <span className="font-normal text-foreground-muted text-xs ml-1">(8am–10pm)</span></span>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="w-8 h-8 rounded-lg bg-white shadow-sm border border-[#E2E8F0] flex items-center justify-center text-foreground-muted">💬</span>
+                <span className="text-sm font-semibold text-foreground">Trò chuyện trực tiếp có sẵn trong ứng dụng</span>
               </div>
             </div>
           </div>

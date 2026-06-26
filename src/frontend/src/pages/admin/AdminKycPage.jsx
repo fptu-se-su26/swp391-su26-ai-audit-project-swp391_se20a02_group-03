@@ -42,7 +42,7 @@ export default function AdminKycPage() {
           <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm flex flex-col">
             <div className="p-4 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
               <h2 className="font-semibold text-slate-800">Chi tiết KYC: KYC-092</h2>
-              <span className="text-xs font-semibold text-[#00c8aa]">Tự động đối chiếu AI: Khớp 98%</span>
+              <span className="text-xs font-semibold text-[#14B8A6]">Tự động đối chiếu AI: Khớp 98%</span>
             </div>
             <div className="p-6 flex-1 space-y-6">
               <div className="grid grid-cols-2 gap-4">
@@ -81,7 +81,7 @@ export default function AdminKycPage() {
 
               <div className="flex gap-3 pt-4 border-t border-slate-100">
                 <button className="flex-1 border border-red-200 text-red-500 font-bold py-2.5 rounded-lg hover:bg-red-50 transition-colors">Từ chối</button>
-                <button className="flex-1 bg-[#00c8aa] text-white font-bold py-2.5 rounded-lg hover:bg-[#009e87] transition-colors">Phê duyệt</button>
+                <button className="flex-1 bg-[#14B8A6] text-[var(--theme-primary)] font-bold py-2.5 rounded-lg hover:bg-[#0D9488] transition-colors">Phê duyệt</button>
               </div>
             </div>
           </div>

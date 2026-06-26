@@ -19,14 +19,14 @@ export default function CustomerProfilePage() {
             <div className="flex flex-col gap-2">
               <button 
                 onClick={() => setActiveTab('profile')}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-colors ${activeTab === 'profile' ? 'bg-[#00c8aa]/10 text-[#00c8aa]' : 'text-slate-600 hover:bg-slate-50'}`}
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-colors ${activeTab === 'profile' ? 'bg-[#14B8A6]/10 text-[#14B8A6]' : 'text-slate-600 hover:bg-slate-50'}`}
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                 Thông tin cá nhân
               </button>
               <button 
                 onClick={() => setActiveTab('ekyc')}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-colors ${activeTab === 'ekyc' ? 'bg-[#00c8aa]/10 text-[#00c8aa]' : 'text-slate-600 hover:bg-slate-50'}`}
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-colors ${activeTab === 'ekyc' ? 'bg-[#14B8A6]/10 text-[#14B8A6]' : 'text-slate-600 hover:bg-slate-50'}`}
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                 Xác thực E-KYC
@@ -56,11 +56,11 @@ export default function CustomerProfilePage() {
                 <div className="grid grid-cols-2 max-sm:grid-cols-1 gap-6 mb-8">
                   <div>
                     <label className="block text-sm font-semibold text-slate-700 mb-2">Họ và tên</label>
-                    <input type="text" defaultValue="Alex Mercer" className="w-full border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-[#00c8aa]" />
+                    <input type="text" defaultValue="Alex Mercer" className="w-full border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-[#14B8A6]" />
                   </div>
                   <div>
                     <label className="block text-sm font-semibold text-slate-700 mb-2">Số điện thoại</label>
-                    <input type="tel" defaultValue="0901234567" className="w-full border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-[#00c8aa]" />
+                    <input type="tel" defaultValue="0901234567" className="w-full border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-[#14B8A6]" />
                   </div>
                   <div className="col-span-full">
                     <label className="block text-sm font-semibold text-slate-700 mb-2">Email</label>
@@ -68,7 +68,7 @@ export default function CustomerProfilePage() {
                   </div>
                 </div>
                 
-                <button className="bg-[#00c8aa] text-white font-bold py-3 px-8 rounded-xl hover:bg-[#009e87] transition-colors">Lưu thay đổi</button>
+                <button className="bg-[#14B8A6] text-[var(--theme-primary)] font-bold py-3 px-8 rounded-xl hover:bg-[#0D9488] transition-colors">Lưu thay đổi</button>
               </div>
             )}
 
@@ -89,21 +89,21 @@ export default function CustomerProfilePage() {
                 <div className="space-y-6 mb-8">
                   <div>
                     <label className="block text-sm font-semibold text-slate-700 mb-2">Mặt trước CMND / CCCD</label>
-                    <div className="border-2 border-dashed border-slate-300 rounded-2xl h-40 flex flex-col items-center justify-center text-slate-500 hover:border-[#00c8aa] hover:bg-[#00c8aa]/5 cursor-pointer transition-colors">
+                    <div className="border-2 border-dashed border-slate-300 rounded-2xl h-40 flex flex-col items-center justify-center text-slate-500 hover:border-[#14B8A6] hover:bg-[#14B8A6]/5 cursor-pointer transition-colors">
                       <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="mb-2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                       <span className="text-sm font-medium">Click để tải ảnh lên</span>
                     </div>
                   </div>
                   <div>
                     <label className="block text-sm font-semibold text-slate-700 mb-2">Mặt sau CMND / CCCD</label>
-                    <div className="border-2 border-dashed border-slate-300 rounded-2xl h-40 flex flex-col items-center justify-center text-slate-500 hover:border-[#00c8aa] hover:bg-[#00c8aa]/5 cursor-pointer transition-colors">
+                    <div className="border-2 border-dashed border-slate-300 rounded-2xl h-40 flex flex-col items-center justify-center text-slate-500 hover:border-[#14B8A6] hover:bg-[#14B8A6]/5 cursor-pointer transition-colors">
                       <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="mb-2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                       <span className="text-sm font-medium">Click để tải ảnh lên</span>
                     </div>
                   </div>
                 </div>
 
-                <button className="w-full bg-[#00c8aa] text-white font-bold py-3.5 rounded-xl hover:bg-[#009e87] transition-colors">Gửi yêu cầu xác thực</button>
+                <button className="w-full bg-[#14B8A6] text-[var(--theme-primary)] font-bold py-3.5 rounded-xl hover:bg-[#0D9488] transition-colors">Gửi yêu cầu xác thực</button>
               </div>
             )}
           </div>

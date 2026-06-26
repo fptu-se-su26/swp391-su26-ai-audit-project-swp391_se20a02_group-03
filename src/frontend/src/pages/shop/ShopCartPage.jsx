@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { Heart, Trash2, useState } from 'react'
 import { Link } from 'react-router-dom'
 import ShopLayout from '../../layouts/ShopLayout'
 
@@ -25,7 +25,7 @@ export default function ShopCartPage() {
   return (
     <ShopLayout>
       <div className="px-5 md:px-10 py-8 pb-15 max-w-[1100px] mx-auto">
-        <h1 className="font-oswald text-3xl font-bold text-[#0d2d3a] mb-6">Your Cart</h1>
+        <h1 className="font-oswald text-3xl font-bold text-foreground mb-6">Your Cart</h1>
 
         <div className="grid grid-cols-1 md:grid-cols-[1fr_360px] gap-7 items-start">
           {/* Items */}
@@ -36,21 +36,21 @@ export default function ShopCartPage() {
                 <div className="flex-1 flex flex-col gap-3">
                   <div className="flex justify-between items-start">
                     <div>
-                      <h3 className="text-[0.95rem] font-bold text-[#0d2d3a] mb-1">{item.name}</h3>
+                      <h3 className="text-[0.95rem] font-bold text-foreground mb-1">{item.name}</h3>
                       <p className="text-xs text-[#94a3b8]">Color: {item.color}</p>
                       <p className="text-xs text-[#94a3b8]">Size: {item.size}</p>
                     </div>
-                    <span className="text-base font-bold text-[#0d8a8a] whitespace-nowrap">${(item.price * item.qty).toFixed(2)}</span>
+                    <span className="text-base font-bold text-[#14B8A6] whitespace-nowrap">${(item.price * item.qty).toFixed(2)}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3 border-[1.5px] border-[#e0ecf0] rounded-full py-1.5 px-3.5">
-                      <button onClick={() => updateQty(item.id, -1)} className="bg-transparent border-none cursor-pointer text-base text-[#64748b] leading-none font-sans transition-colors hover:text-[#0d8a8a]" aria-label="Decrease">-</button>
-                      <span className="text-sm font-bold text-[#0d2d3a] min-w-[20px] text-center">{item.qty}</span>
-                      <button onClick={() => updateQty(item.id, 1)} className="bg-transparent border-none cursor-pointer text-base text-[#64748b] leading-none font-sans transition-colors hover:text-[#0d8a8a]" aria-label="Increase">+</button>
+                      <button onClick={() => updateQty(item.id, -1)} className="bg-transparent border-none cursor-pointer text-base text-[#64748b] leading-none font-sans transition-colors hover:text-[#14B8A6]" aria-label="Decrease">-</button>
+                      <span className="text-sm font-bold text-foreground min-w-[20px] text-center">{item.qty}</span>
+                      <button onClick={() => updateQty(item.id, 1)} className="bg-transparent border-none cursor-pointer text-base text-[#64748b] leading-none font-sans transition-colors hover:text-[#14B8A6]" aria-label="Increase">+</button>
                     </div>
                     <div className="flex gap-3">
-                      <button className="bg-transparent border-none cursor-pointer text-[0.82rem] text-[#94a3b8] font-sans flex items-center gap-1 hover:text-red-500">♡ Save</button>
-                      <button className="bg-transparent border-none cursor-pointer text-[0.82rem] text-red-500 font-sans flex items-center gap-1" onClick={() => removeItem(item.id)}>🗑 Remove</button>
+                      <button className="bg-transparent border-none cursor-pointer text-[0.82rem] text-[#94a3b8] font-sans flex items-center gap-1 hover:text-red-500"><Heart size={14} className="inline mr-1" /> Save</button>
+                      <button className="bg-transparent border-none cursor-pointer text-[0.82rem] text-red-500 font-sans flex items-center gap-1" onClick={() => removeItem(item.id)}><Trash2 size={14} className="inline mr-1" /> Remove</button>
                     </div>
                   </div>
                 </div>
@@ -60,24 +60,24 @@ export default function ShopCartPage() {
 
           {/* Summary */}
           <div className="bg-white rounded-[14px] p-6 border-[1.5px] border-[#e0ecf0] md:sticky md:top-20">
-            <h2 className="font-oswald text-[1.2rem] font-bold text-[#0d2d3a] mb-5">Order Summary</h2>
+            <h2 className="font-oswald text-[1.2rem] font-bold text-foreground mb-5">Order Summary</h2>
             <div className="flex flex-col gap-2.5 mb-4 border-b border-[#f0f5f9] pb-4">
               <div className="flex justify-between text-[0.875rem] text-[#64748b]"><span>Subtotal ({items.length} items)</span><span>${subtotal.toFixed(2)}</span></div>
               <div className="flex justify-between text-[0.875rem] text-[#64748b]"><span>Estimated Shipping</span><span>${shipping.toFixed(2)}</span></div>
               <div className="flex justify-between text-[0.875rem] text-[#64748b]"><span>Estimated Tax</span><span>${tax.toFixed(2)}</span></div>
             </div>
-            <div className="flex justify-between text-base font-bold text-[#0d2d3a] my-4">
+            <div className="flex justify-between text-base font-bold text-foreground my-4">
               <span>Tổng cộng</span>
-              <span className="text-[#0d8a8a] text-[1.15rem]">${total.toFixed(2)}</span>
+              <span className="text-[#14B8A6] text-[1.15rem]">${total.toFixed(2)}</span>
             </div>
             <div className="mb-5">
               <p className="text-xs font-semibold text-[#64748b] mb-2">Apply Promo Code</p>
               <div className="flex gap-2">
-                <input type="text" placeholder="Enter code" id="promo-code" value={promo} onChange={e => setPromo(e.target.value)} className="flex-1 border-[1.5px] border-[#e0ecf0] rounded-lg px-3 py-2 font-sans text-[0.85rem] outline-none transition-colors focus:border-[#0d8a8a]" />
-                <button className="bg-white border-[1.5px] border-[#e0ecf0] rounded-lg px-3.5 py-2 font-sans text-[0.85rem] font-semibold text-[#0d2d3a] cursor-pointer transition-colors hover:border-[#0d8a8a] hover:text-[#0d8a8a]">Apply</button>
+                <input type="text" placeholder="Enter code" id="promo-code" value={promo} onChange={e => setPromo(e.target.value)} className="flex-1 border-[1.5px] border-[#e0ecf0] rounded-lg px-3 py-2 font-sans text-[0.85rem] outline-none transition-colors focus:border-[#14B8A6]" />
+                <button className="bg-white border-[1.5px] border-[#e0ecf0] rounded-lg px-3.5 py-2 font-sans text-[0.85rem] font-semibold text-foreground cursor-pointer transition-colors hover:border-[#14B8A6] hover:text-[#14B8A6]">Apply</button>
               </div>
             </div>
-            <Link to="/shop/checkout" className="bg-[#0d8a8a] hover:bg-[#0b7373] text-white font-semibold flex items-center justify-center w-full rounded-full p-[13px] text-[0.95rem] transition-colors border-none no-underline">
+            <Link to="/shop/checkout" className="bg-[#14B8A6] hover:bg-[#0b7373] text-[var(--theme-primary)] font-semibold flex items-center justify-center w-full rounded-full p-[13px] text-[0.95rem] transition-colors border-none no-underline">
               Proceed to Checkout →
             </Link>
           </div>
