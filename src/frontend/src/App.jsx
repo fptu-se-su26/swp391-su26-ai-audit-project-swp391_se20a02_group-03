@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { GoogleOAuthProvider } from '@react-oauth/google'
 import { ToastProvider } from './components/Toast'
 import { ThemeProvider } from './context/ThemeContext'
+import { useAuth } from './context/AuthContext'
 
 // PRO-SPORT Public Pages
 import HomePage from './pages/HomePage'
@@ -94,22 +95,47 @@ const PageLoader = () => (
   </div>
 )
 
-// BUG #13 FIX: Redirect guard — authenticated users can't access login/register
+// CRITICAL FIX: Route guards now use AuthContext instead of direct localStorage reads
+// This ensures guards react to context-driven login/logout actions
 function GuestRoute({ children }) {
-    const token = localStorage.getItem('token') || sessionStorage.getItem('token')
-    if (token) return <Navigate to="/" replace />
+    const { isAuthenticated, loading } = useAuth()
+    if (loading) return null // Wait for auth state to initialize before rendering
+    if (isAuthenticated) return <Navigate to="/" replace />
     return children
 }
 
 function ProtectedRoute({ children }) {
-    const token = localStorage.getItem('token') || sessionStorage.getItem('token')
-    if (!token) return <Navigate to="/login" replace />
+    const { isAuthenticated, loading } = useAuth()
+    if (loading) return null // Wait for auth state to initialize before rendering
+    if (!isAuthenticated) return <Navigate to="/login" replace />
+    return children
+}
+
+// HIGH FIX: Role-based route guard for Admin and Elite Staff portals
+function AdminRoute({ children }) {
+    const { isAuthenticated, isAdmin, loading } = useAuth()
+    if (loading) return null
+    if (!isAuthenticated) return <Navigate to="/login" replace />
+    if (!isAdmin) return <Navigate to="/restricted" replace />
+    return children
+}
+
+function EliteRoute({ children }) {
+    const { isAuthenticated, isStaff, isAdmin, loading } = useAuth()
+    if (loading) return null
+    if (!isAuthenticated) return <Navigate to="/login" replace />
+    if (!isStaff && !isAdmin) return <Navigate to="/restricted" replace />
     return children
 }
 
 function App() {
+    // HIGH FIX: Remove hardcoded Google OAuth client ID fallback — fail loudly if env var is missing
+    const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID
+    if (!googleClientId) {
+        console.error('VITE_GOOGLE_CLIENT_ID is not set. Google OAuth will not function.')
+    }
     return (
-        <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || '451555739002-p36a1gvgpgb5pf5585modtkess26flmf.apps.googleusercontent.com'}>
+        <GoogleOAuthProvider clientId={googleClientId || ''}>
         <ThemeProvider>
         <ToastProvider>
         <CartProvider>
@@ -170,23 +196,23 @@ function App() {
                     <Route path="/apex/settings" element={<ProtectedRoute><ApexSettingsPage /></ProtectedRoute>} />
                     <Route path="/apex/support" element={<ProtectedRoute><ApexSupportPage /></ProtectedRoute>} />
 
-                    {/* Admin Portal Routes — protected + lazy */}
+                    {/* Admin Portal Routes — protected + role-restricted (Admin only) */}
                     <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
-                    <Route path="/admin/dashboard" element={<ProtectedRoute><AdminDashboardPage /></ProtectedRoute>} />
-                    <Route path="/admin/users" element={<ProtectedRoute><AdminUsersPage /></ProtectedRoute>} />
-                    <Route path="/admin/courts" element={<ProtectedRoute><AdminCourtsPage /></ProtectedRoute>} />
-                    <Route path="/admin/kyc" element={<ProtectedRoute><AdminKycPage /></ProtectedRoute>} />
-                    <Route path="/admin/pricing" element={<ProtectedRoute><AdminPricingPage /></ProtectedRoute>} />
-                    <Route path="/admin/inventory" element={<ProtectedRoute><AdminInventoryPage /></ProtectedRoute>} />
-                    <Route path="/admin/complaints" element={<ProtectedRoute><AdminComplaintsPage /></ProtectedRoute>} />
+                    <Route path="/admin/dashboard" element={<AdminRoute><AdminDashboardPage /></AdminRoute>} />
+                    <Route path="/admin/users" element={<AdminRoute><AdminUsersPage /></AdminRoute>} />
+                    <Route path="/admin/courts" element={<AdminRoute><AdminCourtsPage /></AdminRoute>} />
+                    <Route path="/admin/kyc" element={<AdminRoute><AdminKycPage /></AdminRoute>} />
+                    <Route path="/admin/pricing" element={<AdminRoute><AdminPricingPage /></AdminRoute>} />
+                    <Route path="/admin/inventory" element={<AdminRoute><AdminInventoryPage /></AdminRoute>} />
+                    <Route path="/admin/complaints" element={<AdminRoute><AdminComplaintsPage /></AdminRoute>} />
 
-                    {/* Elite Staff Portal Routes — protected + lazy */}
+                    {/* Elite Staff Portal Routes — protected + role-restricted (Staff/Admin) */}
                     <Route path="/elite" element={<Navigate to="/elite/pos" replace />} />
-                    <Route path="/elite/pos" element={<ProtectedRoute><ElitePosWalkInPage /></ProtectedRoute>} />
-                    <Route path="/elite/schedule" element={<ProtectedRoute><EliteSchedulePage /></ProtectedRoute>} />
-                    <Route path="/elite/vouchers" element={<ProtectedRoute><EliteVouchersPage /></ProtectedRoute>} />
-                    <Route path="/elite/disputes" element={<ProtectedRoute><EliteDisputesPage /></ProtectedRoute>} />
-                    <Route path="/elite/scanner" element={<ProtectedRoute><EliteScannerPage /></ProtectedRoute>} />
+                    <Route path="/elite/pos" element={<EliteRoute><ElitePosWalkInPage /></EliteRoute>} />
+                    <Route path="/elite/schedule" element={<EliteRoute><EliteSchedulePage /></EliteRoute>} />
+                    <Route path="/elite/vouchers" element={<EliteRoute><EliteVouchersPage /></EliteRoute>} />
+                    <Route path="/elite/disputes" element={<EliteRoute><EliteDisputesPage /></EliteRoute>} />
+                    <Route path="/elite/scanner" element={<EliteRoute><EliteScannerPage /></EliteRoute>} />
 
                     {/* Mobile App Routes — lazy */}
                     <Route path="/mobile" element={<Navigate to="/mobile/home" replace />} />

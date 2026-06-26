@@ -25,4 +25,6 @@ public interface IEscrowRepository
     /// Thực thi delegate trả về Task<T> trong 1 Database Transaction với Serializable isolation.
     /// </summary>
     Task<T> ExecuteInTransactionAsync<T>(Func<Task<T>> action);
+
+    Task<bool> TransactionExistsByReferenceIdAsync(string referenceId);
 }

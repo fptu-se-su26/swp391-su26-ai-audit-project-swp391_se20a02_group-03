@@ -8,6 +8,7 @@ import dayjs from 'dayjs'
 import StatusBadge from '../../components/ui/StatusBadge'
 import EmptyState from '../../components/ui/EmptyState'
 
+// History data is now fetched from the server.
 
 const levels = ['Mọi cấp độ', 'Người mới', 'Trung bình', 'Nâng cao', 'Chuyên nghiệp']
 const sports = ['Tất cả', 'Cầu lông', 'Pickleball']
@@ -19,15 +20,17 @@ export default function ApexMatchesPage() {
   const [sportFilter, setSportFilter] = useState('Tất cả')
   const [joined, setJoined] = useState([])
   const [openMatches, setOpenMatches] = useState([])
+  const [historyMatches, setHistoryMatches] = useState([])
   const [userId, setUserId] = useState(null)
   const [toastMsg, setToastMsg] = useState(null)
 
   useEffect(() => {
     async function initData() {
       try {
-        const [profileRes, matchesRes] = await Promise.all([
+        const [profileRes, matchesRes, historyRes] = await Promise.all([
           authApi.getProfile(),
-          matchApi.getOpenMatches()
+          matchApi.getOpenMatches(),
+          matchApi.getMyMatchHistory()
         ])
         
         if (profileRes?.data) {
@@ -59,6 +62,38 @@ export default function ApexMatchesPage() {
               .map(m => m.id)
             setJoined(myJoined)
           }
+        }
+        
+        if (historyRes?.data) {
+          const historyList = Array.isArray(historyRes.data) ? historyRes.data : []
+          const formattedHistory = historyList.map(m => ({
+            id: m.matchId,
+            sport: m.sportType || 'Sport',
+            court: m.location || m.notes || 'No location',
+            date: dayjs(m.matchDate || m.startTime).format('ddd, MMM D'),
+            time: dayjs(m.matchDate || m.startTime).format('HH:mm'),
+            icon: (m.sportType || '').toLowerCase().includes('pickleball') ? '🏓' : '🏸',
+            status: m.status,
+            participants: m.participants || []
+          }))
+          
+          // Separate upcoming "My Matches" and past "History" matches
+          // History matches are those that are Completed, Cancelled, or their date has passed
+          const now = dayjs()
+          const myMatchesUpcoming = formattedHistory.filter(m => {
+            const mDate = dayjs(m.date + ' ' + m.time, 'ddd, MMM D HH:mm')
+            return m.status !== 'Cancelled' && m.status !== 'Completed' && (mDate.isValid() ? mDate.isAfter(now) : true)
+          })
+          
+          const myMatchesHistory = formattedHistory.filter(m => {
+            const mDate = dayjs(m.date + ' ' + m.time, 'ddd, MMM D HH:mm')
+            return m.status === 'Cancelled' || m.status === 'Completed' || (mDate.isValid() ? mDate.isBefore(now) : false)
+          })
+          
+          // Add myMatchesUpcoming to joined/open matches to show in "My Matches" tab
+          // To keep it simple, we use the original setJoined logic for upcoming matches,
+          // but we populate history tab with myMatchesHistory
+          setHistoryMatches(myMatchesHistory)
         }
       } catch (err) {
         console.error("Failed to load matches", err)
@@ -268,14 +303,70 @@ export default function ApexMatchesPage() {
 
         {tab === 'history' && (
           <div className="animate-fade-up">
-            <EmptyState
-              icon="🏆"
-              title="Chưa có lịch sử trận đấu"
-              subtitle="Khi bạn tham gia và hoàn thành trận đấu, lịch sử sẽ hiển thị ở đây."
-              action={
-                <button className="btn-primary text-sm" onClick={() => setTab('find')}>Tìm trận đấu</button>
-              }
-            />
+            {historyMatches.length > 0 && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                {historyMatches.map(m => (
+                  <div key={m.id} className="card-base flex flex-col justify-between">
+                    <div>
+                      <div className="flex justify-between items-start mb-3">
+                        <div className="flex items-center gap-2">
+                          <span className="w-8 h-8 rounded-lg bg-[var(--theme-surface)] border border-border-default flex items-center justify-center shrink-0">{m.icon}</span>
+                          <div>
+                            <p className="text-[15px] font-semibold text-[var(--theme-primary)] leading-tight">{m.sport} Match</p>
+                          </div>
+                        </div>
+                        <span className={`px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider rounded-md border ${
+                          m.status === 'Completed' ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 
+                          m.status === 'Cancelled' ? 'bg-red-500/10 text-red-500 border-red-500/20' : 
+                          'bg-[var(--theme-surface)] text-foreground-muted border-border-default'
+                        }`}>
+                          {m.status || 'Finished'}
+                        </span>
+                      </div>
+
+                      <div className="flex flex-col gap-1.5 mb-4">
+                        <p className="text-[13px] text-foreground-muted flex items-center gap-2">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-[var(--theme-primary)]/20"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                          {m.date} lúc {m.time}
+                        </p>
+                        <p className="text-[13px] text-foreground-muted flex items-center gap-2">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-[var(--theme-primary)]/20"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                          {m.court}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {historyMatches.length === 0 && (
+              <EmptyState
+                icon="🏆"
+                title="Chưa có lịch sử trận đấu"
+                subtitle="Khi bạn tham gia và hoàn thành trận đấu, lịch sử sẽ hiển thị ở đây."
+                action={
+                  <button className="btn-primary text-sm" onClick={() => setTab('find')}>Tìm trận đấu</button>
+                }
+              />
+            )}
+
+            {historyMatches.length > 0 && (
+              <div className="grid grid-cols-3 gap-4 mt-6">
+                <div className="card-base text-center py-4">
+                  <span className="block text-2xl font-bold text-[var(--theme-primary)]">{historyMatches.length}</span>
+                  <span className="text-xs text-foreground-muted mt-1">Tổng số</span>
+                </div>
+                <div className="card-base text-center py-4 border-emerald-500/30">
+                  <span className="block text-2xl font-bold text-emerald-500">{historyMatches.filter(m => m.status === 'Completed').length}</span>
+                  <span className="text-xs text-foreground-muted mt-1">Hoàn thành</span>
+                </div>
+                <div className="card-base text-center py-4 border-red-500/30">
+                  <span className="block text-2xl font-bold text-red-500">{historyMatches.filter(m => m.status === 'Cancelled').length}</span>
+                  <span className="text-xs text-foreground-muted mt-1">Đã hủy</span>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>

@@ -347,8 +347,9 @@ public class AuthService : IAuthService
         try
         {
             var user = await _userRepository.GetByEmailAsync(request.Email);
+            // H2 FIX: Prevent user enumeration — always return 200 with generic message
             if (user == null)
-                return new ApiResponseDto<bool>(404, "User not found.", false);
+                return new ApiResponseDto<bool>(200, "Nếu email này đã đăng ký, OTP sẽ được gửi đến hộp thư của bạn.", true);
 
             var otpCode = GenerateOtp();
             await _otpCodeRepository.CreateAsync(new OtpCode
@@ -410,9 +411,14 @@ public class AuthService : IAuthService
 
     private string GenerateJwtToken(User user)
     {
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtSettings:SecretKey"]!));
+        // C1 FIX: Validate JWT secret key at method entry to fail fast with a clear error instead of NullReferenceException
+        var secretKey = _configuration["JwtSettings:SecretKey"]
+            ?? throw new InvalidOperationException("JwtSettings:SecretKey is not configured. Application cannot generate tokens.");
+        var expiryMinutesStr = _configuration["JwtSettings:ExpiryInMinutes"]
+            ?? throw new InvalidOperationException("JwtSettings:ExpiryInMinutes is not configured.");
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-        var expiryMinutes = Convert.ToDouble(_configuration["JwtSettings:ExpiryInMinutes"]);
+        var expiryMinutes = Convert.ToDouble(expiryMinutesStr);
 
         var claims = new[]
         {

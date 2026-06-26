@@ -82,6 +82,13 @@ public class EscrowRepository : IEscrowRepository
 
             wallet.Balance -= amount;
 
+            // C5 FIX: Update booking atomically within the same transaction to prevent split-brain
+            booking.PaymentMethod = PaymentMethod.Escrow;
+            booking.PaymentStatus = PaymentStatus.Paid;
+            booking.Status = BookingStatus.Confirmed;
+            booking.CheckInCode = $"QR-{booking.BookingId}-{Guid.NewGuid().ToString()[..8]}";
+            _context.Bookings.Update(booking);
+
             var transaction = new Transaction
             {
                 EscrowWalletId = wallet.EscrowWalletId,
@@ -142,5 +149,10 @@ public class EscrowRepository : IEscrowRepository
                 throw;
             }
         });
+    }
+
+    public async Task<bool> TransactionExistsByReferenceIdAsync(string referenceId)
+    {
+        return await _context.Transactions.AnyAsync(t => t.ReferenceId == referenceId);
     }
 }

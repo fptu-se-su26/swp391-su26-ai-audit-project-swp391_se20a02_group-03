@@ -90,11 +90,14 @@ public class EscrowService : IEscrowService
                     await _escrowRepository.CreateWalletAsync(wallet);
                 }
 
-                var existingTransactions = await _escrowRepository.GetTransactionsByWalletIdAsync(wallet.EscrowWalletId);
-                if (!string.IsNullOrWhiteSpace(referenceId) &&
-                    existingTransactions.Any(t => t.ReferenceId == referenceId && t.Type == TransactionType.Deposit))
+                // C4 FIX: Prevent O(N) in-memory scan and TOCTOU race by checking existence directly in DB within Serializable tx
+                if (!string.IsNullOrWhiteSpace(referenceId))
                 {
-                    return new ApiResponseDto<bool>(200, "Giao dịch nạp tiền đã được xử lý trước đó", true);
+                    var exists = await _escrowRepository.TransactionExistsByReferenceIdAsync(referenceId);
+                    if (exists)
+                    {
+                        return new ApiResponseDto<bool>(200, "Giao dịch nạp tiền đã được xử lý trước đó", true);
+                    }
                 }
 
                 wallet.Balance += amount;
@@ -128,6 +131,10 @@ public class EscrowService : IEscrowService
     {
         try
         {
+            // L4 FIX: Validate amount > 0 to prevent invalid transaction records
+            if (amount <= 0)
+                return new ApiResponseDto<bool>(400, "Số tiền phải lớn hơn 0", false);
+
             return await _escrowRepository.ExecuteInTransactionAsync(async () =>
             {
                 var wallet = await _escrowRepository.GetWalletByUserIdAsync(userId);
@@ -166,6 +173,10 @@ public class EscrowService : IEscrowService
     {
         try
         {
+            // L4 FIX: Validate amount > 0 to prevent invalid transaction records
+            if (amount <= 0)
+                return new ApiResponseDto<bool>(400, "Số tiền phải lớn hơn 0", false);
+
             return await _escrowRepository.ExecuteInTransactionAsync(async () =>
             {
                 var wallet = await _escrowRepository.GetWalletByUserIdAsync(userId);
@@ -272,12 +283,8 @@ public class EscrowService : IEscrowService
                 return new ApiResponseDto<bool>(400, "Số dư không đủ hoặc đơn đặt sân không còn hợp lệ để thanh toán.", false);
             }
 
-            // Cập nhật booking
-            booking.PaymentMethod = PaymentMethod.Escrow;
-            booking.PaymentStatus = PaymentStatus.Paid;
-            booking.Status = BookingStatus.Confirmed;
-            booking.CheckInCode = $"QR-{booking.BookingId}-{Guid.NewGuid().ToString()[..8]}";
-            await _bookingRepository.UpdateAsync(booking);
+            // C5 FIX: Booking Update logic removed from here. 
+            // It is now handled atomically inside _escrowRepository.PayFromWalletAtomicAsync
 
             return new ApiResponseDto<bool>(200, "Thanh toán bằng ví Escrow thành công", true);
         }

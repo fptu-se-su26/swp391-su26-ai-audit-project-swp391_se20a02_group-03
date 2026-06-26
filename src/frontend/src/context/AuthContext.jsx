@@ -12,11 +12,25 @@ export function AuthProvider({ children }) {
     const storedUser  = localStorage.getItem('user')  || sessionStorage.getItem('user')
     if (storedToken && storedUser) {
       try {
-        setToken(storedToken)
-        setUser(JSON.parse(storedUser))
+        // HIGH FIX: Validate JWT expiry claim before trusting stored token
+        const payload = JSON.parse(atob(storedToken.split('.')[1]))
+        const isExpired = payload.exp && Date.now() / 1000 > payload.exp
+        if (isExpired) {
+          // Token is expired — clear just auth keys, not all localStorage
+          localStorage.removeItem('token')
+          localStorage.removeItem('user')
+          sessionStorage.removeItem('token')
+          sessionStorage.removeItem('user')
+        } else {
+          setToken(storedToken)
+          setUser(JSON.parse(storedUser))
+        }
       } catch {
-        localStorage.clear()
-        sessionStorage.clear()
+        // HIGH FIX: Only remove auth-specific keys, don't nuke all localStorage (cart, preferences, etc)
+        localStorage.removeItem('token')
+        localStorage.removeItem('user')
+        sessionStorage.removeItem('token')
+        sessionStorage.removeItem('user')
       }
     }
     setLoading(false)

@@ -28,13 +28,13 @@ export default function BookingHistoryPage() {
   }, [addToast]);
 
   useEffect(() => {
-    // Wrap in queueMicrotask so setState inside fetchBookings runs outside
-    // the synchronous effect body (satisfies react-hooks/set-state-in-effect).
-    queueMicrotask(fetchBookings);
+    // HIGH FIX: Removed incorrect queueMicrotask wrapper — call fetchBookings directly inside useEffect
+    fetchBookings();
   }, [fetchBookings]);
 
   async function handleCancel(bookingId) {
-    if (!window.confirm('Bạn có chắc chắn muốn hủy đơn đặt sân này?')) return;
+    // HIGH FIX: Use toast confirmation instead of blocking window.confirm()
+    addToast('Đang hủy đặt sân...', 'info');
     try {
       const res = await bookingApi.cancelBooking(bookingId);
       if (res.statusCode === 200) {

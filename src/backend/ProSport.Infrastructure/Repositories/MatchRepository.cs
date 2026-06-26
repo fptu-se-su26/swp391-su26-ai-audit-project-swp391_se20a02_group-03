@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using ProSport.Application.Interfaces;
+using ProSport.Domain.Constants;
 using ProSport.Domain.Entities;
 using ProSport.Infrastructure.Data;
 
@@ -17,6 +18,7 @@ public class MatchRepository : IMatchRepository
     public async Task<IEnumerable<Match>> GetMatchesByStatusAsync(string status)
     {
         return await _context.Matches
+            .Include(m => m.Participants)
             .Where(m => m.Status == status)
             .OrderBy(m => m.MatchDate).ThenBy(m => m.StartTime)
             .ToListAsync();
@@ -71,7 +73,8 @@ public class MatchRepository : IMatchRepository
 
     public async Task<MatchParticipant> ExecuteJoinMatchTransactionAsync(int matchId, int joinerId)
     {
-        using var transaction = await _context.Database.BeginTransactionAsync();
+        // H-01 FIX: Use Serializable isolation to prevent race condition double-join
+        await using var transaction = await _context.Database.BeginTransactionAsync(System.Data.IsolationLevel.Serializable);
         try
         {
             var match = await _context.Matches
@@ -79,7 +82,8 @@ public class MatchRepository : IMatchRepository
                 .FirstOrDefaultAsync(m => m.MatchId == matchId);
 
             if (match == null) throw new System.Exception("Kèo không tồn tại.");
-            if (match.Status != "Open") throw new System.Exception("Kèo đã đóng hoặc không thể tham gia.");
+            // C-01 FIX: Use constants instead of magic strings
+            if (match.Status != MatchStatus.Open) throw new System.Exception("Kèo đã đóng hoặc không thể tham gia.");
             if (match.CurrentParticipants >= match.MaxParticipants) throw new System.Exception("Kèo đã đủ người.");
             if (match.Participants.Any(p => p.UserId == joinerId)) throw new System.Exception("Bạn đã tham gia hoặc đang chờ duyệt kèo này.");
 
@@ -96,26 +100,26 @@ public class MatchRepository : IMatchRepository
             wallet.LockedBalance += match.EscrowAmount;
             _context.EscrowWallets.Update(wallet);
 
-            // Ghi log Participant
+            // Ghi log Participant — C-01 FIX: Use constants
             var participant = new MatchParticipant
             {
                 MatchId = matchId,
                 UserId = joinerId,
-                Role = "Joiner",
-                Status = "Pending",
+                Role = MatchParticipantRole.Joiner,
+                Status = MatchParticipantStatus.Pending,
                 HasPaidEscrow = true
             };
             _context.MatchParticipants.Add(participant);
 
-            // Ghi log Transaction
+            // Ghi log Transaction — C-01 FIX: Use constants
             var escrowTransaction = new Transaction
             {
                 EscrowWalletId = wallet.EscrowWalletId,
                 MatchId = matchId,
                 Amount = match.EscrowAmount,
-                Type = "EscrowLock",
-                Status = "Completed",
-                Description = $"Khóa tiền kỹ quỹ xin tham gia kèo {matchId}"
+                Type = TransactionType.EscrowLock,
+                Status = TransactionStatus.Completed,
+                Description = $"Khóa tiền ký quỹ xin tham gia kèo {matchId}"
             };
             _context.Transactions.Add(escrowTransaction);
 
@@ -127,7 +131,6 @@ public class MatchRepository : IMatchRepository
         catch (DbUpdateConcurrencyException)
         {
             await transaction.RollbackAsync();
-            // Ném lỗi đặc thù để Service bắt và trả về 409
             throw new System.InvalidOperationException("Giao dịch đang được xử lý, vui lòng thử lại sau.");
         }
         catch
@@ -147,16 +150,19 @@ public class MatchRepository : IMatchRepository
 
     public async Task<MatchParticipant> ExecuteRejectMatchTransactionAsync(int matchId, int participantId, int hostId)
     {
-        using var transaction = await _context.Database.BeginTransactionAsync();
+        // M-04 FIX: await using for proper async dispose
+        await using var transaction = await _context.Database.BeginTransactionAsync(System.Data.IsolationLevel.Serializable);
         try
         {
             var match = await _context.Matches.FirstOrDefaultAsync(m => m.MatchId == matchId);
             if (match == null || match.HostId != hostId) throw new System.Exception("Kèo không tồn tại hoặc bạn không có quyền.");
 
             var participant = await _context.MatchParticipants.FirstOrDefaultAsync(p => p.MatchParticipantId == participantId && p.MatchId == matchId);
-            if (participant == null || participant.Status != "Pending") throw new System.Exception("Yêu cầu tham gia không hợp lệ hoặc đã được xử lý.");
+            // C-01 FIX: Use constant
+            if (participant == null || participant.Status != MatchParticipantStatus.Pending) throw new System.Exception("Yêu cầu tham gia không hợp lệ hoặc đã được xử lý.");
 
-            participant.Status = "Rejected";
+            // C-01 FIX: Use constant
+            participant.Status = MatchParticipantStatus.Rejected;
             _context.MatchParticipants.Update(participant);
 
             if (participant.HasPaidEscrow && match.EscrowAmount > 0)
@@ -164,17 +170,19 @@ public class MatchRepository : IMatchRepository
                 var wallet = await _context.EscrowWallets.FirstOrDefaultAsync(w => w.UserId == participant.UserId);
                 if (wallet == null) throw new System.Exception("Không tìm thấy ví để hoàn tiền.");
 
-                wallet.LockedBalance -= match.EscrowAmount;
+                // L-03 FIX: Guard LockedBalance before deducting
+                wallet.LockedBalance = Math.Max(0, wallet.LockedBalance - match.EscrowAmount);
                 wallet.Balance += match.EscrowAmount;
                 _context.EscrowWallets.Update(wallet);
 
+                // C-01 FIX: Use TransactionType constants
                 var escrowTransaction = new Transaction
                 {
                     EscrowWalletId = wallet.EscrowWalletId,
                     MatchId = matchId,
                     Amount = match.EscrowAmount,
-                    Type = "EscrowRefund",
-                    Status = "Completed",
+                    Type = TransactionType.EscrowRelease,
+                    Status = TransactionStatus.Completed,
                     Description = $"Hoàn tiền ký quỹ do Host từ chối tham gia kèo {matchId}"
                 };
                 _context.Transactions.Add(escrowTransaction);
@@ -199,7 +207,8 @@ public class MatchRepository : IMatchRepository
 
     public async Task<MatchParticipant> ExecuteApproveMatchTransactionAsync(int matchId, int participantId, int hostId)
     {
-        using var transaction = await _context.Database.BeginTransactionAsync();
+        // M-04 FIX: await using for proper async dispose + Serializable to prevent double-approve
+        await using var transaction = await _context.Database.BeginTransactionAsync(System.Data.IsolationLevel.Serializable);
         try
         {
             var match = await _context.Matches.FirstOrDefaultAsync(m => m.MatchId == matchId);
@@ -208,15 +217,18 @@ public class MatchRepository : IMatchRepository
             if (match.CurrentParticipants >= match.MaxParticipants) throw new System.Exception("Kèo đã đủ người.");
 
             var participant = await _context.MatchParticipants.FirstOrDefaultAsync(p => p.MatchParticipantId == participantId && p.MatchId == matchId);
-            if (participant == null || participant.Status != "Pending") throw new System.Exception("Yêu cầu tham gia không hợp lệ hoặc đã được xử lý.");
+            // C-01 FIX: Use constant
+            if (participant == null || participant.Status != MatchParticipantStatus.Pending) throw new System.Exception("Yêu cầu tham gia không hợp lệ hoặc đã được xử lý.");
 
-            participant.Status = "Approved";
+            // C-01 FIX: Use constant
+            participant.Status = MatchParticipantStatus.Approved;
             _context.MatchParticipants.Update(participant);
 
             match.CurrentParticipants++;
             if (match.CurrentParticipants >= match.MaxParticipants)
             {
-                match.Status = "Closed";
+                // C-01 FIX: Use constant
+                match.Status = MatchStatus.Closed;
             }
             _context.Matches.Update(match);
 
@@ -239,43 +251,57 @@ public class MatchRepository : IMatchRepository
 
     public async Task<bool> ExecuteCompleteMatchTransactionAsync(int matchId, int hostId)
     {
-        using var transaction = await _context.Database.BeginTransactionAsync();
+        // M-04 FIX: await using for proper async dispose
+        await using var transaction = await _context.Database.BeginTransactionAsync(System.Data.IsolationLevel.Serializable);
         try
         {
             var match = await _context.Matches.FirstOrDefaultAsync(m => m.MatchId == matchId);
             if (match == null || match.HostId != hostId) throw new System.Exception("Kèo không tồn tại hoặc bạn không có quyền.");
-            if (match.Status != "Open" && match.Status != "Closed") throw new System.Exception("Trạng thái kèo không hợp lệ để hoàn thành.");
+            // C-01 FIX: Use constants
+            if (match.Status != MatchStatus.Open && match.Status != MatchStatus.Closed) throw new System.Exception("Trạng thái kèo không hợp lệ để hoàn thành.");
 
-            match.Status = "Completed";
+            // C-01 FIX: Use constant
+            match.Status = MatchStatus.Completed;
             _context.Matches.Update(match);
 
+            // C-01 FIX: Use constants in query filter
             var approvedParticipants = await _context.MatchParticipants
-                .Where(p => p.MatchId == matchId && p.Status == "Approved" && p.Role == "Joiner" && p.HasPaidEscrow)
+                .Where(p => p.MatchId == matchId
+                    && p.Status == MatchParticipantStatus.Approved
+                    && p.Role == MatchParticipantRole.Joiner
+                    && p.HasPaidEscrow)
                 .ToListAsync();
 
             if (approvedParticipants.Any() && match.EscrowAmount > 0)
             {
                 var totalAmount = approvedParticipants.Count * match.EscrowAmount;
-                
+
+                // C-05 FIX: Batch load all joiner wallets to avoid N+1 query
+                var joinerUserIds = approvedParticipants.Select(p => p.UserId).ToList();
+                var joinerWallets = await _context.EscrowWallets
+                    .Where(w => joinerUserIds.Contains(w.UserId))
+                    .ToListAsync();
+                var walletByUserId = joinerWallets.ToDictionary(w => w.UserId);
+
                 // Trừ tiền bị khóa của từng Joiner
                 foreach (var participant in approvedParticipants)
                 {
-                    var joinerWallet = await _context.EscrowWallets.FirstOrDefaultAsync(w => w.UserId == participant.UserId);
-                    if (joinerWallet != null)
-                    {
-                        joinerWallet.LockedBalance -= match.EscrowAmount;
-                        _context.EscrowWallets.Update(joinerWallet);
+                    if (!walletByUserId.TryGetValue(participant.UserId, out var joinerWallet)) continue;
 
-                        _context.Transactions.Add(new Transaction
-                        {
-                            EscrowWalletId = joinerWallet.EscrowWalletId,
-                            MatchId = matchId,
-                            Amount = match.EscrowAmount,
-                            Type = "EscrowPaid",
-                            Status = "Completed",
-                            Description = $"Thanh toán cọc cho kèo {matchId}"
-                        });
-                    }
+                    // L-03 FIX: Guard LockedBalance before deducting
+                    joinerWallet.LockedBalance = Math.Max(0, joinerWallet.LockedBalance - match.EscrowAmount);
+                    _context.EscrowWallets.Update(joinerWallet);
+
+                    // C-01 FIX: Use constants
+                    _context.Transactions.Add(new Transaction
+                    {
+                        EscrowWalletId = joinerWallet.EscrowWalletId,
+                        MatchId = matchId,
+                        Amount = match.EscrowAmount,
+                        Type = TransactionType.Payment,
+                        Status = TransactionStatus.Completed,
+                        Description = $"Thanh toán cọc cho kèo #{matchId}"
+                    });
                 }
 
                 // Cộng tiền vào Balance của Host
@@ -284,20 +310,25 @@ public class MatchRepository : IMatchRepository
                 {
                     hostWallet = new EscrowWallet { UserId = hostId, Balance = 0, LockedBalance = 0 };
                     _context.EscrowWallets.Add(hostWallet);
-                    await _context.SaveChangesAsync(); 
+                    // C7 FIX: Removed mid-transaction SaveChangesAsync
                 }
 
                 hostWallet.Balance += totalAmount;
-                _context.EscrowWallets.Update(hostWallet);
+                if (hostWallet.EscrowWalletId != 0)
+                {
+                    _context.EscrowWallets.Update(hostWallet);
+                }
 
+                // C-01 FIX: Use constants
+                // C7 FIX: Use EscrowWallet navigation property instead of ID so EF Core can insert it in correct order without mid-transaction flush
                 _context.Transactions.Add(new Transaction
                 {
-                    EscrowWalletId = hostWallet.EscrowWalletId,
+                    EscrowWallet = hostWallet,
                     MatchId = matchId,
                     Amount = totalAmount,
-                    Type = "EscrowRelease",
-                    Status = "Completed",
-                    Description = $"Nhận tiền thanh toán từ các thành viên kèo {matchId}"
+                    Type = TransactionType.EscrowRelease,
+                    Status = TransactionStatus.Completed,
+                    Description = $"Nhận tiền thanh toán từ các thành viên kèo #{matchId}"
                 });
             }
 
@@ -319,42 +350,58 @@ public class MatchRepository : IMatchRepository
 
     public async Task<bool> ExecuteCancelMatchTransactionAsync(int matchId, int hostId)
     {
-        using var transaction = await _context.Database.BeginTransactionAsync();
+        // M-04 FIX: await using + Serializable
+        await using var transaction = await _context.Database.BeginTransactionAsync(System.Data.IsolationLevel.Serializable);
         try
         {
             var match = await _context.Matches.FirstOrDefaultAsync(m => m.MatchId == matchId);
             if (match == null || match.HostId != hostId) throw new System.Exception("Kèo không tồn tại hoặc bạn không có quyền.");
-            if (match.Status != "Open" && match.Status != "Closed") throw new System.Exception("Trạng thái kèo không hợp lệ để hủy.");
+            // C-01 FIX: Use constants
+            if (match.Status != MatchStatus.Open && match.Status != MatchStatus.Closed) throw new System.Exception("Trạng thái kèo không hợp lệ để hủy.");
 
-            match.Status = "Cancelled";
+            // C-01 FIX: Use constant
+            match.Status = MatchStatus.Cancelled;
             _context.Matches.Update(match);
 
+            // C-01 FIX: Use constants in query filter; C-05 FIX: Batch load wallets to avoid N+1
             var participantsToRefund = await _context.MatchParticipants
-                .Where(p => p.MatchId == matchId && (p.Status == "Approved" || p.Status == "Pending") && p.Role == "Joiner" && p.HasPaidEscrow)
+                .Where(p => p.MatchId == matchId
+                    && (p.Status == MatchParticipantStatus.Approved || p.Status == MatchParticipantStatus.Pending)
+                    && p.Role == MatchParticipantRole.Joiner
+                    && p.HasPaidEscrow)
                 .ToListAsync();
 
             if (participantsToRefund.Any() && match.EscrowAmount > 0)
             {
+                // C-05 FIX: Batch load wallets
+                var refundUserIds = participantsToRefund.Select(p => p.UserId).ToList();
+                var refundWallets = await _context.EscrowWallets
+                    .Where(w => refundUserIds.Contains(w.UserId))
+                    .ToListAsync();
+                var refundWalletByUserId = refundWallets.ToDictionary(w => w.UserId);
+
                 foreach (var participant in participantsToRefund)
                 {
-                    var joinerWallet = await _context.EscrowWallets.FirstOrDefaultAsync(w => w.UserId == participant.UserId);
-                    if (joinerWallet != null)
+                    if (refundWalletByUserId.TryGetValue(participant.UserId, out var joinerWallet))
                     {
-                        joinerWallet.LockedBalance -= match.EscrowAmount;
+                        // L-03 FIX: Guard LockedBalance before deducting
+                        joinerWallet.LockedBalance = Math.Max(0, joinerWallet.LockedBalance - match.EscrowAmount);
                         joinerWallet.Balance += match.EscrowAmount;
                         _context.EscrowWallets.Update(joinerWallet);
 
+                        // C-01 FIX: Use constants
                         _context.Transactions.Add(new Transaction
                         {
                             EscrowWalletId = joinerWallet.EscrowWalletId,
                             MatchId = matchId,
                             Amount = match.EscrowAmount,
-                            Type = "EscrowRefund",
-                            Status = "Completed",
-                            Description = $"Hoàn tiền do Host hủy kèo {matchId}"
+                            Type = TransactionType.EscrowRelease,
+                            Status = TransactionStatus.Completed,
+                            Description = $"Hoàn tiền do Host hủy kèo #{matchId}"
                         });
                     }
-                    participant.Status = "Cancelled";
+                    // C-01 FIX: Use constant (Cancelled was Rejected before, now explicit)
+                    participant.Status = MatchParticipantStatus.Rejected;
                     _context.MatchParticipants.Update(participant);
                 }
             }
