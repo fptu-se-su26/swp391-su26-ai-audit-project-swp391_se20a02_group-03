@@ -9,6 +9,7 @@ namespace ProSport.API.Controllers;
 
 [ApiController]
 [Route("api/equipments")]
+[Route("api/equipment")] // alias: frontend (equipmentApi.js) gọi /api/equipment (số ít) -> chấp nhận cả 2 để tránh 404.
 public class EquipmentController : ControllerBase
 {
     private readonly IEquipmentService _equipmentService;
@@ -36,6 +37,7 @@ public class EquipmentController : ControllerBase
         return Ok(result);
     }
 
+    [Authorize(Roles = "Admin")] // TK-039: chỉ Admin được tạo thiết bị
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateEquipmentDto dto)
     {
@@ -43,6 +45,7 @@ public class EquipmentController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = result.EquipmentId }, result);
     }
 
+    [Authorize(Roles = "Admin")] // TK-039: chỉ Admin được sửa thiết bị
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, [FromBody] UpdateEquipmentDto dto)
     {
@@ -51,6 +54,7 @@ public class EquipmentController : ControllerBase
         return Ok(result);
     }
 
+    [Authorize(Roles = "Admin")] // TK-039: chỉ Admin được xóa thiết bị
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
@@ -69,6 +73,7 @@ public class EquipmentController : ControllerBase
 
 
 
+    [Authorize(Roles = "Admin")] // TK-039: dashboard kho chỉ dành cho Admin
     [HttpGet("dashboard")]
     public async Task<IActionResult> GetDashboard()
     {

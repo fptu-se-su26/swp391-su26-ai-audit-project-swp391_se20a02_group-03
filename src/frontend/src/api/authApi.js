@@ -27,6 +27,9 @@ const authApi = {
   },
   getProfile: () => {
     return axiosClient.get('/auth/me');
+  },
+  updateProfile: (data) => {
+    return axiosClient.put('/auth/profile', data);
   }
 };
 

@@ -16,6 +16,9 @@ export const bookingApi = {
   // Xem lịch sử đặt sân của user
   getMyBookings: () => axiosClient.get('/bookings/my-bookings'),
 
+  // (Admin/Staff) Lấy toàn bộ booking
+  getAllBookings: () => axiosClient.get('/bookings'),
+
   // Hủy đặt sân
   cancelBooking: (bookingId) => axiosClient.put(`/bookings/${bookingId}/cancel`),
 

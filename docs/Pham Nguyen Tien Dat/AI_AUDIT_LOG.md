@@ -368,3 +368,38 @@
 - Lệnh `dotnet test` vượt qua rào cản môi trường, Unit Test (WhiteBox) đạt tỷ lệ Pass 100% (7/7 tests).
 - Lệnh biên dịch Frontend `npm run build` thành công tuyệt đối (0 errors) sau khi fix dependency.
 - Mã nguồn mới nhất đã được đồng bộ chuẩn xác lên nhánh `DE190147/audit-module` trên CodeGraph.
+
+---
+
+## Log #14
+- **Ngày:** 2026-06-27
+- **Người thực hiện:** Phạm Nguyễn Tiến Đạt
+- **Công cụ AI:** Cursor (Claude Opus)
+- **Mục đích:** Hoàn thiện tích hợp Frontend–Backend theo thứ tự ưu tiên nghiệp vụ, chuyển các phân hệ vận hành từ dữ liệu giả (mock) sang dữ liệu thật, đồng thời bổ sung trọn vẹn ba cụm API còn thiếu (Voucher, Khiếu nại, E-KYC) theo kiến trúc phân tầng.
+- **Tham chiếu Prompt:** *"Đóng vai trò là Kỹ sư Full-stack (Senior Full-stack Engineer), hãy triển khai song song hai hướng công việc theo thứ tự ưu tiên nghiệp vụ. Hướng thứ nhất: bổ sung trọn vẹn các API backend còn thiếu cho phân hệ Voucher, Khiếu nại (Report) và Phê duyệt E-KYC, tuân thủ nghiêm ngặt kiến trúc phân tầng Domain–Application–Infrastructure–API (DTO → Repository → Service → Controller → Dependency Injection), chuẩn hóa định dạng phản hồi theo envelope `ApiResponseDto` và áp dụng phân quyền theo vai trò (Role-based Authorization). Hướng thứ hai: hoàn thiện việc kết nối (wiring) các trang giao diện đã có backend sẵn sàng — quản lý đặt sân, check-in QR, cửa hàng và giỏ hàng, ghép trận — thay thế hoàn toàn mock data bằng dữ liệu thực, đồng thời chuẩn hóa trạng thái Loading/Empty/Error và xử lý nhất quán lớp vỏ phản hồi (response envelope) phía client."*
+
+### Tóm tắt kết quả AI
+- **Tính năng đánh giá người chơi & Trust Score (TK-035 — End-to-end):** Hoàn thiện UI tại `MatchDetailPage` để hiển thị điểm tín nhiệm thật của Host/người tham gia và cho phép chấm điểm (1–5 sao) sau trận thông qua `ratingApi`, tự loại trừ việc tự đánh giá bản thân.
+- **Bổ sung 3 cụm Backend Full-stack mới (theo chuẩn envelope `ApiResponseDto`):**
+  - *Voucher:* `VoucherDto`/`VoucherRepository`/`VoucherService`/`VoucherController` (CRUD, kiểm tra trùng mã, lọc voucher còn hiệu lực).
+  - *Khiếu nại (Report):* luồng khách gửi báo cáo → Admin/Staff xử lý (chống báo cáo trùng & tự báo cáo).
+  - *E-KYC:* `KycController` cho phép Admin duyệt/từ chối hồ sơ, đồng bộ trạng thái `EkycProfile.Status` và `User.EKycStatus` trong một giao dịch.
+- **Wiring các trang nghiệp vụ với dữ liệu thật:** `AdminBookingsPage`, `EliteScannerPage` (check-in QR), `EliteVouchersPage`, `AdminComplaintsPage`, `ReportDisputePage`, `EliteDisputesPage`, `AdminKycPage`, `ShopPage`, `ShopProductPage`, `ShopCartPage`, `ShopCheckoutPage`, `MatchProFeedPage`, `MatchProNearbyPage`.
+- **Bổ sung lớp API client Frontend:** `voucherApi.js`, `reportApi.js`, `kycApi.js` và mở rộng `bookingApi.js` (`getAllBookings`).
+
+### Quyết định & Can thiệp của con người
+- **Chấp nhận:** Phê duyệt toàn bộ kiến trúc API mới, các trang đã wire dữ liệu thật và lớp API client.
+- **Can thiệp kỹ thuật 1 (Định hướng ưu tiên & phạm vi):** Trực tiếp điều phối thứ tự triển khai theo độ quan trọng nghiệp vụ và yêu cầu thực thi song song hai hướng (dựng backend còn thiếu + wiring trang đã có backend) thay vì làm tuần tự dàn trải.
+- **Can thiệp kỹ thuật 2 (Chuẩn hóa hợp đồng dữ liệu):** Quyết định bắt buộc các Controller mới tuân theo envelope `ApiResponseDto` để đồng nhất với cách `axiosClient` bóc tách phản hồi, tránh sai lệch giữa controller trả raw và controller trả envelope.
+- **Can thiệp kỹ thuật 3 (Kiểm soát rủi ro Database):** Xác định không phát sinh Migration mới do các Entity và bảng (`Voucher`, `Report`, `EkycProfile`) đã tồn tại sẵn trong model; chỉ bổ sung tầng DTO/Repository/Service/Controller để tránh đụng chạm schema.
+- **Can thiệp kỹ thuật 4 (Sửa lỗi nghiêm trọng phía Frontend):** Chỉ ra và yêu cầu khắc phục các lỗi gây crash render — import sai (`Check`, `Star`, `Trash2`, `useState` bị import nhầm từ `react`) tại các trang Shop và lỗi gọi `m.hostId.substring()` trên kiểu số tại `MatchProFeedPage`, lỗi đọc dư một lớp `.data` tại `EliteScannerPage`.
+
+### Áp dụng cho
+- **Backend:** `VoucherController`/`ReportController`/`KycController` cùng bộ DTO–Repository–Service tương ứng; đăng ký DI tại `Program.cs`.
+- **Frontend API:** `voucherApi.js`, `reportApi.js`, `kycApi.js`, `bookingApi.js`.
+- **Frontend Pages:** nhóm `admin/` (Bookings, Complaints, Kyc), `elite/` (Scanner, Vouchers, Disputes), `shop/` (Page, Product, Cart, Checkout), `matchpro/` (Feed, Nearby), `matches/MatchDetailPage`, `customer/ReportDisputePage`.
+
+### Kiểm chứng
+- Phân tích tĩnh (Static Analysis/Lint) toàn bộ file backend và frontend chỉnh sửa: **0 lỗi**.
+- Đối chiếu nhất quán định dạng phản hồi (envelope vs raw) giữa từng Controller và API client tương ứng để đảm bảo Frontend đọc đúng `statusCode`/`data`.
+- Rà soát phân quyền (Role-based) trên các endpoint nhạy cảm (Admin/Staff) và xác nhận luồng đồng bộ trạng thái E-KYC giữa `EkycProfile` và `User`.

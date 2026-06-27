@@ -1,157 +1,200 @@
+import { useState, useEffect, useMemo } from 'react'
 import AdminLayout from '../../layouts/AdminLayout'
+import { bookingApi } from '../../api/bookingApi'
+import { Search, Loader2, ShieldAlert, CalendarDays } from 'lucide-react'
 
-const bookings = [
-  { id: '#BKG-8401', customer: { initials: 'MJ', name: 'Marcus Johnson', sub: '+1 (555) 019-2834', color: '#0ea5e9' }, court: { name: 'Center Court', sub: 'Hardcourt' }, date: 'Oct 24, 2023', time: '10:00 AM - 11:30 AM', payment: 'PAID', status: 'CONFIRMED' },
-  { id: '#BKG-8402', customer: { initials: 'SW', name: 'Sarah Williams', sub: 'sarah.w@example.com', color: '#64748b' }, court: { name: 'Court 2', sub: 'Clay' }, date: 'Oct 24, 2023', time: '12:00 PM - 02:00 PM', payment: 'PENDING', status: 'CONFIRMED' },
-  { id: '#BKG-8403', customer: { initials: 'DT', name: 'David Torres', sub: 'Member: Gold', color: '#d97706' }, court: { name: 'Court 1', sub: 'Hardcourt' }, date: 'Oct 24, 2023', time: '08:00 AM - 09:30 AM', payment: 'PAID', status: 'CHECKED-IN' },
-  { id: '#BKG-8399', customer: { initials: 'EL', name: 'Elena Lopez', sub: 'Guest', color: '#cbd5e1' }, court: { name: 'Center Court', sub: '' }, date: 'Oct 23, 2023', time: '06:00 PM - 08:00 PM', payment: 'REFUNDED', status: 'CANCELLED' },
-]
-
-const paymentStyles = {
-  PAID: 'bg-[#38bdf8] text-[var(--theme-primary)]',
-  PENDING: 'bg-amber-500 text-[var(--theme-primary)]',
-  REFUNDED: 'bg-red-300 text-[var(--theme-primary)]',
+const PAYMENT_STYLE = {
+  Paid: 'bg-[#38bdf8] text-white',
+  Pending: 'bg-amber-500 text-white',
+  Refunded: 'bg-red-300 text-white',
 }
 
-const statusStyles = {
-  CONFIRMED: 'bg-indigo-100 text-indigo-600',
-  'CHECKED-IN': 'bg-[#14B8A6] text-[var(--theme-primary)]',
-  CANCELLED: 'bg-slate-200 text-slate-500',
+const STATUS_STYLE = {
+  Confirmed: 'bg-indigo-100 text-indigo-600',
+  Pending: 'bg-amber-100 text-amber-700',
+  Completed: 'bg-[#14B8A6] text-white',
+  Cancelled: 'bg-slate-200 text-slate-500',
+}
+
+const STATUS_TABS = [
+  { key: '', label: 'Tất cả' },
+  { key: 'Pending', label: 'Chờ xử lý' },
+  { key: 'Confirmed', label: 'Đã xác nhận' },
+  { key: 'Completed', label: 'Hoàn thành' },
+  { key: 'Cancelled', label: 'Đã hủy' },
+]
+
+function fmtTime(t) {
+  return t ? String(t).slice(0, 5) : ''
 }
 
 export default function AdminBookingsPage() {
+  const [bookings, setBookings] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [search, setSearch] = useState('')
+  const [statusFilter, setStatusFilter] = useState('')
+
+  useEffect(() => {
+    let active = true
+    async function load() {
+      try {
+        setLoading(true)
+        setError(null)
+        const res = await bookingApi.getAllBookings()
+        if (!active) return
+        if (res.statusCode === 200 && Array.isArray(res.data)) {
+          setBookings(res.data)
+        } else {
+          setError(res.message || 'Không tải được danh sách đặt sân.')
+        }
+      } catch (err) {
+        if (active) setError(typeof err === 'string' ? err : 'Không tải được danh sách đặt sân.')
+      } finally {
+        if (active) setLoading(false)
+      }
+    }
+    load()
+    return () => { active = false }
+  }, [])
+
+  const stats = useMemo(() => ({
+    active: bookings.filter(b => b.status === 'Pending' || b.status === 'Confirmed').length,
+    pendingPay: bookings.filter(b => b.paymentStatus === 'Pending').length,
+    total: bookings.length,
+  }), [bookings])
+
+  const filtered = useMemo(() => {
+    return bookings.filter(b => {
+      if (statusFilter && b.status !== statusFilter) return false
+      const q = search.trim().toLowerCase()
+      if (!q) return true
+      const court = b.details?.[0]?.courtName?.toLowerCase() || ''
+      return String(b.bookingId).includes(q) || court.includes(q) || String(b.userId).includes(q)
+    })
+  }, [bookings, search, statusFilter])
+
   return (
     <AdminLayout>
       <div className="space-y-6">
-        <div className="flex justify-between items-start mb-6">
+        <div className="flex justify-between items-start mb-2">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 mb-1">Booking Management</h1>
-            <p className="text-sm text-slate-500">Manage court reservations, monitor statuses, and process payments.</p>
-          </div>
-          <div className="flex gap-3">
-            <div className="flex bg-white border border-slate-200 rounded-md overflow-hidden">
-              <button className="flex items-center gap-[6px] py-2 px-4 bg-slate-100 border-none text-sm font-semibold text-slate-900 cursor-pointer">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-                List
-              </button>
-              <button className="flex items-center gap-[6px] py-2 px-4 bg-transparent border-none text-sm font-medium text-slate-500 cursor-pointer hover:bg-slate-50">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                Timeline
-              </button>
-            </div>
-            <button className="bg-[#14B8A6] hover:bg-[#0b7373] text-[var(--theme-primary)] border-none rounded-md py-2.5 px-4 text-sm font-semibold cursor-pointer flex items-center justify-center gap-2 transition-all">
-              + Manual Booking
-            </button>
+            <h1 className="text-2xl font-bold text-slate-900 mb-1">Quản lý Đặt sân</h1>
+            <p className="text-sm text-slate-500">Theo dõi toàn bộ lượt đặt sân, thanh toán và trạng thái.</p>
           </div>
         </div>
 
-        {/* Top Stats */}
-        <div className="grid grid-cols-3 gap-6 mb-6">
+        <div className="grid grid-cols-3 gap-6 max-md:grid-cols-1">
           <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
-            <div className="flex justify-between items-start mb-4">
-              <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: '#e0f2fe', color: '#0ea5e9' }}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-              </div>
-              <span className="bg-slate-100 text-slate-600 text-xs font-semibold py-1 px-2 rounded">Today</span>
-            </div>
-            <p className="font-['Oswald'] text-[2.5rem] font-bold text-slate-900 leading-none mb-2">42</p>
-            <p className="text-sm text-slate-500">Total Active Bookings</p>
+            <p className="font-['Oswald'] text-[2.5rem] font-bold text-slate-900 leading-none mb-2">{stats.active}</p>
+            <p className="text-sm text-slate-500">Lượt đặt đang hoạt động</p>
           </div>
           <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
-            <div className="flex justify-between items-start mb-4">
-              <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: '#f1f5f9', color: '#64748b' }}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-              </div>
-            </div>
-            <p className="font-['Oswald'] text-[2.5rem] font-bold text-slate-900 leading-none mb-2">85<span style={{ fontSize: '1.25rem' }}>%</span></p>
-            <p className="text-sm text-slate-500">Peak Court Utilization</p>
+            <p className="font-['Oswald'] text-[2.5rem] font-bold text-slate-900 leading-none mb-2">{stats.total}</p>
+            <p className="text-sm text-slate-500">Tổng số lượt đặt</p>
           </div>
           <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
-            <div className="flex justify-between items-start mb-4">
-              <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: '#fef3c7', color: '#d97706' }}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="4" width="20" height="16" rx="2" ry="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
-              </div>
-            </div>
-            <p className="font-['Oswald'] text-[2.5rem] font-bold text-slate-900 leading-none mb-2">8</p>
-            <p className="text-sm text-slate-500">Pending Payments Action Required</p>
+            <p className="font-['Oswald'] text-[2.5rem] font-bold text-amber-600 leading-none mb-2">{stats.pendingPay}</p>
+            <p className="text-sm text-slate-500">Chờ thanh toán</p>
           </div>
         </div>
 
-        {/* Table Area */}
         <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
-          <div className="flex justify-between items-center py-4 px-5 border-b border-slate-200 bg-white">
-            <div className="flex gap-3">
-              <select className="border border-slate-200 rounded-md py-2 px-3 font-['Inter'] text-sm text-slate-900 outline-none bg-white">
-                <option>All Courts</option>
-              </select>
-              <div className="flex items-center gap-2 border border-slate-200 rounded-md py-2 px-3 bg-white">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-slate-400"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                <input type="text" placeholder="mm/dd/yyyy" className="border-none outline-none font-['Inter'] text-sm text-slate-900 w-[100px]" />
-              </div>
+          <div className="flex flex-wrap gap-3 justify-between items-center py-4 px-5 border-b border-slate-200">
+            <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-full py-2 px-4 w-72 focus-within:border-[#14B8A6]">
+              <Search size={16} className="text-slate-400" />
+              <input
+                type="text"
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                placeholder="Tìm mã đặt / sân / user..."
+                className="border-none outline-none text-sm text-slate-900 w-full bg-transparent"
+              />
             </div>
-            <button className="flex items-center gap-2 bg-transparent border-none text-slate-500 text-sm font-semibold cursor-pointer hover:text-[#14B8A6]">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-              Export CSV
-            </button>
+            <div className="flex gap-2 flex-wrap">
+              {STATUS_TABS.map(tab => (
+                <button
+                  key={tab.key}
+                  onClick={() => setStatusFilter(tab.key)}
+                  className={`py-[6px] px-4 rounded-full border text-sm font-medium cursor-pointer transition-colors ${
+                    statusFilter === tab.key
+                      ? 'border-[#e0f2fe] bg-[#e0f2fe] text-[#0284c7]'
+                      : 'border-slate-200 bg-white text-slate-500 hover:bg-slate-50'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
           </div>
 
-          <table className="w-full border-collapse">
-            <thead>
-              <tr className="border-b border-slate-200 bg-slate-50">
-                <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Booking ID</th>
-                <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Customer</th>
-                <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Sân</th>
-                <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Date & Time</th>
-                <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Payment</th>
-                <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Trạng thái</th>
-                <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Thao tác</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {bookings.map((b, i) => (
-                <tr key={b.id} className="hover:bg-slate-50/55 transition-colors">
-                  <td className="px-5 py-4 whitespace-nowrap text-sm font-semibold text-slate-500">{b.id}</td>
-                  <td className="px-5 py-4 whitespace-nowrap">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full flex items-center justify-center text-[var(--theme-primary)] text-xs font-bold" style={{ background: b.customer.color }}>{b.customer.initials}</div>
-                      <div>
-                        <p className="font-semibold text-slate-900 text-sm">{b.customer.name}</p>
-                        <p className="text-xs text-slate-500">{b.customer.sub}</p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-5 py-4 whitespace-nowrap">
-                    <p className="font-semibold text-slate-900 text-sm">{b.court.name}</p>
-                    {b.court.sub && <p className="text-xs text-slate-500">{b.court.sub}</p>}
-                  </td>
-                  <td className="px-5 py-4 whitespace-nowrap">
-                    <p className="font-semibold text-slate-900 text-sm">{b.date}</p>
-                    <p className="text-xs text-slate-500">{b.time}</p>
-                  </td>
-                  <td className="px-5 py-4 whitespace-nowrap">
-                    <span className={`inline-block py-1 px-3 rounded-full text-xs font-bold ${paymentStyles[b.payment] || ''}`}>{b.payment}</span>
-                  </td>
-                  <td className="px-5 py-4 whitespace-nowrap">
-                    <span className={`inline-block py-1 px-3 rounded text-xs font-bold ${statusStyles[b.status] || ''}`}>{b.status}</span>
-                  </td>
-                  <td className="px-5 py-4 whitespace-nowrap">
-                    <button className="bg-transparent border-none text-[1.2rem] text-slate-400 hover:text-slate-600 cursor-pointer">...</button>
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="border-b border-slate-200 bg-slate-50">
+                  <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Mã đặt</th>
+                  <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Khách</th>
+                  <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Sân</th>
+                  <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Ngày & Giờ</th>
+                  <th className="px-5 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Tổng tiền</th>
+                  <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Thanh toán</th>
+                  <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Trạng thái</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {loading && (
+                  <tr><td colSpan={7} className="px-5 py-12 text-center text-slate-400">
+                    <Loader2 className="inline animate-spin mr-2" size={18} /> Đang tải...
+                  </td></tr>
+                )}
+                {!loading && error && (
+                  <tr><td colSpan={7} className="px-5 py-12 text-center text-red-500">
+                    <ShieldAlert className="inline mr-2" size={18} /> {error}
+                  </td></tr>
+                )}
+                {!loading && !error && filtered.length === 0 && (
+                  <tr><td colSpan={7} className="px-5 py-12 text-center text-slate-400">Không có lượt đặt nào.</td></tr>
+                )}
+                {!loading && !error && filtered.map(b => {
+                  const d = b.details?.[0]
+                  return (
+                    <tr key={b.bookingId} className="hover:bg-slate-50/55 transition-colors">
+                      <td className="px-5 py-4 whitespace-nowrap text-sm font-semibold text-slate-500">#BKG-{b.bookingId}</td>
+                      <td className="px-5 py-4 whitespace-nowrap text-sm text-slate-900">Người dùng #{b.userId}</td>
+                      <td className="px-5 py-4 whitespace-nowrap text-sm font-semibold text-slate-900">{d?.courtName || '—'}</td>
+                      <td className="px-5 py-4 whitespace-nowrap">
+                        {d ? (
+                          <>
+                            <p className="text-sm font-semibold text-slate-900 flex items-center gap-1">
+                              <CalendarDays size={13} className="text-slate-400" />
+                              {new Date(d.bookingDate).toLocaleDateString('vi-VN')}
+                            </p>
+                            <p className="text-xs text-slate-500">{fmtTime(d.startTime)} – {fmtTime(d.endTime)}</p>
+                          </>
+                        ) : '—'}
+                      </td>
+                      <td className="px-5 py-4 whitespace-nowrap text-right text-sm font-semibold text-slate-900">
+                        {Number(b.totalAmount).toLocaleString('vi-VN')} ₫
+                      </td>
+                      <td className="px-5 py-4 whitespace-nowrap">
+                        <span className={`inline-block py-1 px-3 rounded-full text-xs font-bold ${PAYMENT_STYLE[b.paymentStatus] || 'bg-slate-100 text-slate-500'}`}>
+                          {b.paymentStatus || 'N/A'}
+                        </span>
+                      </td>
+                      <td className="px-5 py-4 whitespace-nowrap">
+                        <span className={`inline-block py-1 px-3 rounded text-xs font-bold ${STATUS_STYLE[b.status] || 'bg-slate-100 text-slate-500'}`}>
+                          {b.status}
+                        </span>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
 
-          <div className="flex justify-between items-center py-4 px-5 border-t border-slate-200 bg-white">
-            <span className="text-sm text-slate-500">Showing 1 to 4 of 42 entries</span>
-            <div className="flex gap-1">
-              <button className="w-8 h-8 border-none bg-transparent rounded text-sm text-slate-500 cursor-pointer hover:bg-slate-100">&lt;</button>
-              <button className="w-8 h-8 border-none rounded text-sm cursor-pointer bg-[#14B8A6] text-[var(--theme-primary)] font-semibold">1</button>
-              <button className="w-8 h-8 border-none bg-transparent rounded text-sm text-slate-500 cursor-pointer hover:bg-slate-100">2</button>
-              <button className="w-8 h-8 border-none bg-transparent rounded text-sm text-slate-500 cursor-pointer hover:bg-slate-100">3</button>
-              <span className="flex items-center justify-center w-8 text-slate-400">...</span>
-              <button className="w-8 h-8 border-none bg-transparent rounded text-sm text-slate-500 cursor-pointer hover:bg-slate-100">&gt;</button>
-            </div>
+          <div className="py-3 px-5 border-t border-slate-200 bg-white text-sm text-slate-500">
+            Hiển thị {filtered.length} / {bookings.length} lượt đặt
           </div>
         </div>
       </div>

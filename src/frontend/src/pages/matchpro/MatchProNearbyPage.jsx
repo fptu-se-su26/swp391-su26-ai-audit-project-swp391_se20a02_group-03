@@ -1,9 +1,11 @@
 import { useState, useEffect, useRef } from 'react'
+import { Link } from 'react-router-dom'
 import { gsap } from 'gsap'
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import MatchProLayout from '../../layouts/MatchProLayout'
+import { matchApi } from '../../api/matchApi'
 import { MapPin, Flame, Zap, Swords, Map, MessageSquare } from 'lucide-react'
 
 // Simple SVG strings for leaflet icons
@@ -77,6 +79,7 @@ function MapFlyTo({ selectedPosition }) {
 export default function MatchProNearbyPage() {
   const [sportFilter, setSportFilter] = useState('All Sports')
   const [selectedVenue, setSelectedVenue] = useState(null)
+  const [openMatches, setOpenMatches] = useState([])
   const pageRef = useRef(null)
 
   useEffect(() => {
@@ -85,6 +88,12 @@ export default function MatchProNearbyPage() {
     }, pageRef)
     return () => ctx.revert()
   }, [sportFilter])
+
+  useEffect(() => {
+    matchApi.getOpenMatches()
+      .then(res => { if (res?.data) setOpenMatches(res.data) })
+      .catch(err => console.error(err))
+  }, [])
 
   const filteredVenues = venues.filter(v => sportFilter === 'All Sports' || v.sport === sportFilter)
   const activeVenueInfo = venues.find(v => v.id === selectedVenue)
@@ -242,33 +251,32 @@ export default function MatchProNearbyPage() {
             </div>
           </div>
 
-          {/* Pickup Games */}
+          {/* Pickup Games - kèo mở thật từ API */}
           <div className="card-base !p-6">
             <h3 className="text-base font-bold text-[var(--theme-primary)] mb-5 flex items-center gap-2">
-               <Zap className="text-yellow-400" size={20} /> Pickup Games
+               <Zap className="text-yellow-400" size={20} /> Kèo đang mở
             </h3>
             <div className="flex flex-col gap-3">
-              <div className="bg-[var(--theme-surface)] rounded-2xl p-3 border border-border-default flex items-center gap-3 hover:border-[#5E6AD2]/50 transition-colors group cursor-pointer">
-                <div className="w-12 h-12 rounded-xl bg-background-elevated border border-border-default flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                   <Swords className="text-[#5E6AD2]" size={20} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-bold text-[var(--theme-primary)] truncate">Cầu lông Đôi Nam</p>
-                  <p className="text-[0.7rem] font-bold text-[#5E6AD2] uppercase mt-1">Trong 30 phút</p>
-                </div>
-                <button className="px-3 py-1.5 bg-[var(--theme-surface-hover)] text-[var(--theme-primary)] text-xs font-bold rounded-lg group-hover:bg-[#5E6AD2] transition-colors">Tham gia</button>
-              </div>
-              
-              <div className="bg-[var(--theme-surface)] rounded-2xl p-3 border border-border-default flex items-center gap-3 hover:border-[#5E6AD2]/50 transition-colors group cursor-pointer">
-                <div className="w-12 h-12 rounded-xl bg-background-elevated border border-border-default flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                   <Swords className="text-[#5E6AD2]" size={20} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-bold text-[var(--theme-primary)] truncate">Pickleball Tự do</p>
-                  <p className="text-[0.7rem] font-bold text-[#5E6AD2] uppercase mt-1">Lúc 18:00</p>
-                </div>
-                <button className="px-3 py-1.5 bg-[var(--theme-surface-hover)] text-[var(--theme-primary)] text-xs font-bold rounded-lg group-hover:bg-[#5E6AD2] transition-colors">Tham gia</button>
-              </div>
+              {openMatches.length === 0 ? (
+                <p className="text-sm text-foreground-muted text-center py-4">Chưa có kèo nào đang mở.</p>
+              ) : openMatches.slice(0, 5).map(m => (
+                <Link
+                  key={m.matchId}
+                  to={`/matches/${m.matchId}`}
+                  className="bg-[var(--theme-surface)] rounded-2xl p-3 border border-border-default flex items-center gap-3 hover:border-[#5E6AD2]/50 transition-colors group cursor-pointer no-underline text-inherit"
+                >
+                  <div className="w-12 h-12 rounded-xl bg-background-elevated border border-border-default flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                    <Swords className="text-[#5E6AD2]" size={20} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold text-[var(--theme-primary)] truncate">{m.title}</p>
+                    <p className="text-[0.7rem] font-bold text-[#5E6AD2] uppercase mt-1">
+                      Còn {m.maxParticipants - m.currentParticipants} slot • {m.escrowAmount?.toLocaleString('vi-VN')}đ
+                    </p>
+                  </div>
+                  <span className="px-3 py-1.5 bg-[var(--theme-surface-hover)] text-[var(--theme-primary)] text-xs font-bold rounded-lg group-hover:bg-[#5E6AD2] transition-colors">Xem</span>
+                </Link>
+              ))}
             </div>
           </div>
 

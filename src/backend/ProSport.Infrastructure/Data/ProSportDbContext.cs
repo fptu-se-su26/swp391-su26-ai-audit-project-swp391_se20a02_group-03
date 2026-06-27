@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using ProSport.Domain.Entities;
 
@@ -35,12 +36,14 @@ public class ProSportDbContext : DbContext
     public override int SaveChanges()
     {
         UpdateAuditFields();
+        ApplySoftDelete();
         return base.SaveChanges();
     }
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         UpdateAuditFields();
+        ApplySoftDelete();
         return base.SaveChangesAsync(cancellationToken);
     }
 
@@ -57,6 +60,26 @@ public class ProSportDbContext : DbContext
             {
                 entry.Entity.UpdatedAt = DateTime.UtcNow;
             }
+        }
+    }
+
+    // TK-015: Mọi lệnh Delete trên entity kế thừa BaseEntity sẽ được tự động chuyển
+    // thành cập nhật cờ IsDeleted = true (Soft Delete), thay vì xóa cứng khỏi DB.
+    // Ngoại lệ: entity có IsDeleted bị Ignore (vd OtpCode) vẫn xóa cứng bình thường.
+    private void ApplySoftDelete()
+    {
+        foreach (var entry in ChangeTracker.Entries<BaseEntity>())
+        {
+            if (entry.State != EntityState.Deleted)
+                continue;
+
+            // Nếu IsDeleted không được map (bị Ignore) thì cho phép hard delete.
+            if (entry.Metadata.FindProperty(nameof(BaseEntity.IsDeleted)) is null)
+                continue;
+
+            entry.State = EntityState.Modified;
+            entry.Entity.IsDeleted = true;
+            entry.Entity.UpdatedAt = DateTime.UtcNow;
         }
     }
 
@@ -85,6 +108,7 @@ public class ProSportDbContext : DbContext
             entity.Property(e => e.AvatarUrl).HasMaxLength(500).HasColumnType("varchar(500)");
             entity.Property(e => e.GoogleId).HasMaxLength(100).HasColumnType("varchar(100)");
             entity.Property(e => e.IsPhoneVerified).HasDefaultValue(false);
+            entity.Property(e => e.IsLocked).HasColumnName("IsLocked").HasDefaultValue(false);
             entity.Property(e => e.IsDeleted).HasColumnName("IsDeleted").HasDefaultValue(false);
             entity.Property(e => e.CreatedAt).HasColumnName("CreatedAt").HasDefaultValueSql("SYSDATETIME()");
             entity.Property(e => e.UpdatedAt).HasColumnName("UpdatedAt");
@@ -452,5 +476,24 @@ public class ProSportDbContext : DbContext
                   .WithMany()
                   .HasForeignKey(ci => ci.UserId);
         });
+
+        // TK-015: Global Query Filter — tự động loại bỏ các bản ghi đã soft-delete
+        // (IsDeleted = true) khỏi mọi truy vấn, áp dụng cho mọi entity kế thừa BaseEntity
+        // mà có map cột IsDeleted (bỏ qua entity Ignore IsDeleted như OtpCode).
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+        {
+            if (!typeof(BaseEntity).IsAssignableFrom(entityType.ClrType))
+                continue;
+            if (entityType.FindProperty(nameof(BaseEntity.IsDeleted)) is null)
+                continue;
+
+            var parameter = Expression.Parameter(entityType.ClrType, "e");
+            var body = Expression.Not(Expression.Property(parameter, nameof(BaseEntity.IsDeleted)));
+            modelBuilder.Entity(entityType.ClrType).HasQueryFilter(Expression.Lambda(body, parameter));
+        }
+
+        // TK-038: Seed dữ liệu mẫu bằng HasData() (Users, CourtTypes, Courts, PricingRules,
+        // EquipmentCategories, Equipments). Dữ liệu sẽ được nhúng vào Migration -> xuất ra file SQL.
+        modelBuilder.SeedInitialData();
     }
 }

@@ -47,4 +47,34 @@ public class UserRepository : IUserRepository
         _context.Users.Update(user);
         await _context.SaveChangesAsync();
     }
+
+    // TK-010: Global query filter đã tự loại bỏ user IsDeleted, nên không cần lọc thủ công ở đây.
+    public async Task<(List<User> Items, int TotalCount)> GetPagedAsync(string? search, string? role, int page, int pageSize)
+    {
+        var query = _context.Users.AsNoTracking().AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var term = search.Trim();
+            query = query.Where(u =>
+                u.FullName.Contains(term) ||
+                u.Email.Contains(term) ||
+                (u.PhoneNumber != null && u.PhoneNumber.Contains(term)));
+        }
+
+        if (!string.IsNullOrWhiteSpace(role))
+        {
+            query = query.Where(u => u.Role == role);
+        }
+
+        var totalCount = await query.CountAsync();
+
+        var items = await query
+            .OrderByDescending(u => u.CreatedAt)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return (items, totalCount);
+    }
 }

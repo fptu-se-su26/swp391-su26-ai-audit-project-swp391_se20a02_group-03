@@ -3,8 +3,10 @@ import { Link } from 'react-router-dom'
 import ApexLayout from '../../layouts/ApexLayout'
 import authApi from '../../api/authApi'
 import { bookingApi } from '../../api/bookingApi'
+import { useToast } from '../../components/Toast'
 
 export default function ApexProfilePage() {
+  const { addToast } = useToast()
   const [editing, setEditing] = useState(false)
   const [profile, setProfile] = useState(null)
   const [bookingCount, setBookingCount] = useState(0)
@@ -22,17 +24,15 @@ export default function ApexProfilePage() {
           bookingApi.getMyBookings()
         ])
 
-        if (profileRes?.data?.data) {
-          const p = profileRes.data.data
+        if (profileRes?.statusCode === 200 && profileRes.data) {
+          const p = profileRes.data
           setProfile(p)
-          setForm({
+          setForm(prev => ({
+            ...prev,
             name: p.fullName || '',
             email: p.email || '',
-            phone: p.phone || '',
-            sport: p.sportPreference || 'Cầu lông',
-            level: p.skillLevel || 'Trung bình',
-            bio: p.bio || ''
-          })
+            phone: p.phoneNumber || prev.phone,
+          }))
         }
 
         if (bookingsRes?.data) {
@@ -52,9 +52,19 @@ export default function ApexProfilePage() {
     fetchData()
   }, [])
 
-  function save() {
-    setEditing(false)
-    // TODO: Wire to authApi.updateProfile()
+  async function save() {
+    try {
+      const res = await authApi.updateProfile({ fullName: form.name, phoneNumber: form.phone })
+      if (res?.statusCode === 200) {
+        addToast('Đã cập nhật hồ sơ.', 'success')
+        if (res.data) setProfile(res.data)
+        setEditing(false)
+      } else {
+        addToast(res?.message || 'Cập nhật hồ sơ thất bại.', 'error')
+      }
+    } catch (err) {
+      addToast(typeof err === 'string' ? err : 'Cập nhật hồ sơ thất bại.', 'error')
+    }
   }
 
   const statusLabels = {
