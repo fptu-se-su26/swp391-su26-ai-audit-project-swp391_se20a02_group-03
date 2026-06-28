@@ -1,9 +1,10 @@
 import { Link, useLocation } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
 import { ArrowLeft, ShoppingBag, Store } from 'lucide-react'
+import ProSportLogo from '../components/ui/ProSportLogo'
 
 const navLinks = [
-  { path: '/gear/catalog', label: 'Catalog' },
+  { path: '/gear/catalog', label: 'Danh mục' },
 ]
 
 export default function GearLayout({ children }) {
@@ -23,7 +24,8 @@ export default function GearLayout({ children }) {
       {/* Top Navbar */}
       <header className="h-16 bg-background-base/50 backdrop-blur-md border-b border-border-default flex items-center px-6 md:px-10 gap-6 sticky top-0 z-[100]">
         <div className="flex items-center gap-6">
-          <Link to="/apex" className="w-9 h-9 rounded-lg flex items-center justify-center text-foreground-muted hover:text-[var(--theme-primary)] hover:bg-[var(--theme-surface)] transition-colors" title="Back">
+          <ProSportLogo size="sm" iconOnly className="hidden sm:inline-flex" />
+          <Link to="/apex" className="w-9 h-9 rounded-lg flex items-center justify-center text-foreground-muted hover:text-[var(--theme-primary)] hover:bg-[var(--theme-surface)] transition-colors" title="Quay lại">
             <ArrowLeft className="w-5 h-5" />
           </Link>
           <Link to="/gear/catalog" className="text-lg font-semibold tracking-tight text-[var(--theme-primary)] flex items-center gap-2">
@@ -45,9 +47,9 @@ export default function GearLayout({ children }) {
         </nav>
 
         <div className="flex items-center gap-4 ml-auto md:ml-4">
-          <Link to="/gear/cart" className="flex items-center gap-2 px-4 h-9 bg-[var(--theme-surface)] border border-border-default rounded-lg text-foreground-muted hover:bg-white/[0.06] hover:text-[var(--theme-primary)] font-medium transition-colors relative" aria-label="Cart">
+          <Link to="/gear/cart" className="flex items-center gap-2 px-4 h-9 bg-[var(--theme-surface)] border border-border-default rounded-lg text-foreground-muted hover:bg-white/[0.06] hover:text-[var(--theme-primary)] font-medium transition-colors relative" aria-label="Giỏ hàng">
             <ShoppingBag className="w-4 h-4 text-foreground-muted" />
-            <span className="hidden sm:inline text-sm">Cart</span>
+            <span className="hidden sm:inline text-sm">Giỏ hàng</span>
             {cartCount > 0 && (
               <span className="absolute -top-1.5 -right-1.5 bg-[#5E6AD2] text-[var(--theme-primary)] w-4 h-4 flex items-center justify-center rounded-full text-[10px] font-bold shadow-[0_0_8px_rgba(94,106,210,0.6)]">
                 {cartCount}
@@ -64,10 +66,8 @@ export default function GearLayout({ children }) {
       </main>
 
       <footer className="border-t border-border-default py-8 px-10 flex flex-col md:flex-row gap-6 items-center justify-between text-foreground-muted relative z-10">
-        <div className="text-xs font-mono tracking-wider flex items-center gap-2 uppercase">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#5E6AD2] shadow-[0_0_5px_rgba(94,106,210,0.8)]" /> PRO-SPORT GEAR
-        </div>
-        <p className="text-sm font-medium text-foreground-muted">Equipping your game.</p>
+        <ProSportLogo size="sm" subtitle="Gear" />
+        <p className="text-sm font-medium text-foreground-muted">Trang bị cho trận đấu của bạn.</p>
       </footer>
     </div>
   )

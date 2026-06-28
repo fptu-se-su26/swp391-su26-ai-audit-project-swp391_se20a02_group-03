@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import ApexLayout from '../../layouts/ApexLayout'
 import { useTheme } from '../../context/ThemeContext'
+import authApi from '../../api/authApi'
 
 const sections = [
   { id: 'Tài khoản', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> },
@@ -13,10 +14,25 @@ const sections = [
 
 export default function ApexSettingsPage() {
   const [activeSection, setActiveSection] = useState('Tài khoản')
+  const [accountForm, setAccountForm] = useState({ name: '', email: '', phone: '' })
   const [notifs, setNotifs] = useState({ bookingReminder: true, matchInvite: true, payments: true, marketing: false, sms: false, email: true })
   const [privacy, setPrivacy] = useState({ publicProfile: true, showActivity: true, showMatches: false })
   const [saved, setSaved] = useState(false)
   const { theme, toggleTheme } = useTheme()
+
+  useEffect(() => {
+    authApi.getProfile()
+      .then(res => {
+        if (res?.statusCode === 200 && res.data) {
+          setAccountForm({
+            name: res.data.fullName || '',
+            email: res.data.email || '',
+            phone: res.data.phoneNumber || '',
+          })
+        }
+      })
+      .catch(() => {})
+  }, [])
 
   function handleSave() {
     setSaved(true)
@@ -81,13 +97,19 @@ export default function ApexSettingsPage() {
                 
                 <div className="space-y-4 max-w-[480px]">
                   {[
-                    { label: 'Họ và tên', id: 'set-name', type: 'text', default: 'Alex Johnson' },
-                    { label: 'Địa chỉ Email', id: 'set-email', type: 'email', default: 'alex@prosport.com' },
-                    { label: 'Số điện thoại', id: 'set-phone', type: 'tel', default: '+84 901 234 567' },
+                    { label: 'Họ và tên', id: 'set-name', type: 'text', key: 'name' },
+                    { label: 'Địa chỉ Email', id: 'set-email', type: 'email', key: 'email' },
+                    { label: 'Số điện thoại', id: 'set-phone', type: 'tel', key: 'phone' },
                   ].map(f => (
                     <div key={f.id}>
                       <label htmlFor={f.id} className="block text-xs font-bold text-foreground-muted uppercase tracking-wider mb-2">{f.label}</label>
-                      <input id={f.id} type={f.type} defaultValue={f.default} className="w-full h-11 px-4 bg-[var(--theme-surface)] border border-border-default rounded-xl text-sm text-[var(--theme-primary)] font-medium focus:border-accent focus:ring-1 focus:ring-accent/20 outline-none transition-all shadow-sm" />
+                      <input
+                        id={f.id}
+                        type={f.type}
+                        value={accountForm[f.key]}
+                        onChange={e => setAccountForm(prev => ({ ...prev, [f.key]: e.target.value }))}
+                        className="w-full h-11 px-4 bg-[var(--theme-surface)] border border-border-default rounded-xl text-sm text-[var(--theme-primary)] font-medium focus:border-accent focus:ring-1 focus:ring-accent/20 outline-none transition-all shadow-sm"
+                      />
                     </div>
                   ))}
                   
@@ -214,7 +236,7 @@ export default function ApexSettingsPage() {
                 <div className="flex items-start gap-3 mb-6 bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2" className="shrink-0 mt-0.5"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
                   <p className="text-sm text-blue-200 leading-relaxed">
-                    Xác thực E-KYC là bắt buộc để bạn có thể <strong>Tạo kèo</strong> và <strong>Sử dụng ví Escrow</strong>. Thông tin của bạn được mã hóa an toàn.
+                    Xác thực E-KYC là bắt buộc để bạn có thể <strong>Tạo kèo</strong> và <strong>Sử dụng ví ký quỹ</strong>. Thông tin của bạn được mã hóa an toàn.
                   </p>
                 </div>
 
@@ -223,14 +245,14 @@ export default function ApexSettingsPage() {
                     <label className="block text-xs font-bold text-foreground-muted uppercase tracking-wider mb-2">Mặt trước CMND / CCCD</label>
                     <div className="border-2 border-dashed border-border-hover rounded-2xl h-36 flex flex-col items-center justify-center text-foreground-muted hover:border-accent hover:bg-accent/10 cursor-pointer transition-all">
                       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="mb-2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-                      <span className="text-sm font-medium">Click để tải ảnh lên</span>
+                      <span className="text-sm font-medium">Nhấn để tải ảnh lên</span>
                     </div>
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-foreground-muted uppercase tracking-wider mb-2">Mặt sau CMND / CCCD</label>
                     <div className="border-2 border-dashed border-border-hover rounded-2xl h-36 flex flex-col items-center justify-center text-foreground-muted hover:border-accent hover:bg-accent/10 cursor-pointer transition-all">
                       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="mb-2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-                      <span className="text-sm font-medium">Click để tải ảnh lên</span>
+                      <span className="text-sm font-medium">Nhấn để tải ảnh lên</span>
                     </div>
                   </div>
                 </div>
@@ -247,7 +269,7 @@ export default function ApexSettingsPage() {
                 <h2 className="text-[15px] font-bold text-[var(--theme-primary)] mb-5 pb-4 border-b border-border-default">Cài đặt giao diện</h2>
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex-1">
-                    <p className="text-sm font-semibold text-[var(--theme-primary)]">Chế độ tối (Dark Mode)</p>
+                    <p className="text-sm font-semibold text-[var(--theme-primary)]">Chế độ tối</p>
                     <p className="text-xs text-foreground-muted mt-0.5">Bật giao diện màu tối để bảo vệ mắt.</p>
                   </div>
                   <Toggle 

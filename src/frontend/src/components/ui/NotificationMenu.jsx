@@ -14,7 +14,7 @@ export default function NotificationMenu() {
 
   const notifications = [
     { id: 1, text: 'Đã xác nhận đặt Sân A1', time: '2 phút trước', read: false },
-    { id: 2, text: 'Lời mời chơi từ David K.', time: '1 giờ trước', read: false },
+    { id: 2, text: 'Lời mời chơi từ Minh K.', time: '1 giờ trước', read: false },
     { id: 3, text: 'Dụng cụ thuê hết hạn trong 2 giờ', time: '3 giờ trước', read: true },
   ]
 
@@ -25,7 +25,7 @@ export default function NotificationMenu() {
       <button
         onClick={() => setOpen(!open)}
         className="relative flex items-center justify-center w-10 h-10 rounded-lg text-foreground-muted hover:bg-[var(--theme-surface)] hover:text-[var(--theme-primary)] transition-colors"
-        aria-label="Notifications"
+        aria-label="Thông báo"
       >
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>

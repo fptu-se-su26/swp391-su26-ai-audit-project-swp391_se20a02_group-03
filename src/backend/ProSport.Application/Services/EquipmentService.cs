@@ -165,7 +165,7 @@ public class EquipmentService : IEquipmentService
         EquipmentId = e.EquipmentId,
         EquipmentCategoryId = e.EquipmentCategoryId,
         CategoryName = e.EquipmentCategory?.Name ?? "Unknown",
-        Name = e.Name ?? e.EquipmentName,
+        Name = !string.IsNullOrWhiteSpace(e.Name) ? e.Name : e.EquipmentName,
         Description = e.Description,
         Price = e.Price,
         StockQuantity = e.StockQuantity,

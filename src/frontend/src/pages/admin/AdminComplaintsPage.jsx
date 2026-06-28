@@ -157,7 +157,7 @@ export default function AdminComplaintsPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-2">Ghi chú xử lý của Admin</label>
+                    <label className="block text-sm font-semibold text-slate-700 mb-2">Ghi chú xử lý của quản trị viên</label>
                     <textarea
                       rows={4}
                       value={adminNote}

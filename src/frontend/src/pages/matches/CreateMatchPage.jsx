@@ -71,7 +71,7 @@ export default function CreateMatchPage() {
             Quay lại
           </Link>
           <h1 className="font-['Oswald'] text-3xl font-bold text-[var(--theme-primary)]">Tạo kèo giao lưu mới</h1>
-          <p className="text-foreground-muted text-sm mt-1">Tìm đồng đội, chia sẻ tiền sân dễ dàng qua ví Escrow.</p>
+          <p className="text-foreground-muted text-sm mt-1">Tìm đồng đội, chia sẻ tiền sân dễ dàng qua ví ký quỹ.</p>
         </div>
 
         <div className="card-base !p-0 rounded-3xl border border-border-default shadow-sm overflow-hidden">
@@ -120,9 +120,9 @@ export default function CreateMatchPage() {
                   <div>
                     <label className="block text-sm font-semibold text-foreground-muted mb-2">Chọn sân (Từ danh sách đặt sân của bạn)</label>
                     <select value={formData.bookingId} onChange={e => setFormData({...formData, bookingId: e.target.value})} className="w-full border border-[#5E6AD2] bg-[#5E6AD2]/10 text-[var(--theme-primary)] rounded-xl px-4 py-3 outline-none font-medium">
-                      <option value="" className="bg-background-elevated">-- Chọn Booking --</option>
+                      <option value="" className="bg-background-elevated">-- Chọn đơn đặt sân --</option>
                       {myBookings.map(b => (
-                        <option key={b.bookingId} value={b.bookingId} className="bg-background-elevated">Booking #{b.bookingId} - {new Date(b.bookingDate).toLocaleDateString()} {b.startTime}</option>
+                        <option key={b.bookingId} value={b.bookingId} className="bg-background-elevated">Đơn #{b.bookingId} - {new Date(b.bookingDate).toLocaleDateString()} {b.startTime}</option>
                       ))}
                     </select>
                     <p className="text-xs text-foreground-muted mt-2">Kèo phải được gắn với một đơn đặt sân thực tế.</p>
@@ -147,15 +147,15 @@ export default function CreateMatchPage() {
 
             {step === 3 && (
               <div className="animate-[fadeIn_0.3s_ease]">
-                <h2 className="text-lg font-bold text-[var(--theme-primary)] mb-6">Chi phí & Slot</h2>
+                <h2 className="text-lg font-bold text-[var(--theme-primary)] mb-6">Chi phí & Chỗ</h2>
                 <div className="space-y-5">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-semibold text-foreground-muted mb-2">Số lượng slot cần tuyển</label>
+                      <label className="block text-sm font-semibold text-foreground-muted mb-2">Số lượng chỗ cần tuyển</label>
                       <input type="number" value={formData.maxParticipants} onChange={e => setFormData({...formData, maxParticipants: e.target.value})} min="1" max="10" className="w-full border border-border-default bg-[var(--theme-surface)] text-[var(--theme-primary)] rounded-xl px-4 py-3 outline-none focus:border-[#5E6AD2]" />
                     </div>
                     <div>
-                      <label className="block text-sm font-semibold text-foreground-muted mb-2">Số tiền Camp/Slot (VNĐ)</label>
+                      <label className="block text-sm font-semibold text-foreground-muted mb-2">Số tiền cọc/chỗ (VNĐ)</label>
                       <input type="number" value={formData.escrowAmount} onChange={e => setFormData({...formData, escrowAmount: e.target.value})} step="5000" className="w-full border border-border-default bg-[var(--theme-surface)] text-[var(--theme-primary)] rounded-xl px-4 py-3 outline-none focus:border-[#5E6AD2]" />
                     </div>
                   </div>
@@ -163,7 +163,7 @@ export default function CreateMatchPage() {
                   <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4 flex gap-3">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2" className="shrink-0 mt-0.5"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
                     <p className="text-xs text-blue-300 leading-relaxed">
-                      Ví Escrow sẽ tự động tạm giữ số tiền <b>40,000 VNĐ</b> của mỗi người tham gia khi họ bấm Join. Tiền sẽ được chuyển cho bạn sau khi kèo kết thúc thành công.
+                      Ví ký quỹ sẽ tự động tạm giữ số tiền <b>40,000 VNĐ</b> của mỗi người tham gia khi họ bấm Tham gia. Tiền sẽ được chuyển cho bạn sau khi kèo kết thúc thành công.
                     </p>
                   </div>
 

@@ -6,7 +6,11 @@ import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import MatchProLayout from '../../layouts/MatchProLayout'
 import { matchApi } from '../../api/matchApi'
-import { MapPin, Flame, Zap, Swords, Map, MessageSquare } from 'lucide-react'
+import { courtApi } from '../../api/courtApi'
+import PageLoader from '../../components/ui/PageLoader'
+import { MapPin, Flame, Zap, Swords, Map } from 'lucide-react'
+
+const FALLBACK_IMG = 'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=600&q=80'
 
 // Simple SVG strings for leaflet icons
 const swordSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-[#5E6AD2]"><polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"></polyline><line x1="13" x2="19" y1="19" y2="13"></line><line x1="16" x2="20" y1="16" y2="20"></line><line x1="19" x2="21" y1="21" y2="19"></line><polyline points="14.5 6.5 18 3 21 3 21 6 17.5 9.5"></polyline><line x1="5" x2="9" y1="14" y2="18"></line><line x1="7" x2="4" y1="17" y2="20"></line><line x1="3" x2="5" y1="19" y2="21"></line></svg>`
@@ -43,26 +47,31 @@ const userIcon = L.divIcon({
   iconAnchor: [24, 24]
 })
 
-const USER_POSITION = [15.968, 108.261] // FPT University Da Nang
+const USER_POSITION = [15.968, 108.261]
 
-const venues = [
-  { id: 1, name: 'FPT Campus Badminton', sport: 'Badminton', distance: '0.5 km', courts: 4, hours: '6am - 10pm', rating: 4.9, active: 16, position: [15.970, 108.258], price: '50K', img: 'https://images.unsplash.com/photo-1543351611-58f69d7c1781?w=600&q=80' },
-  { id: 2, name: 'FPT City Pickleball Arena', sport: 'Pickleball', distance: '1.2 km', courts: 3, hours: '6am - 11pm', rating: 4.8, active: 8, position: [15.980, 108.250], price: '80K', img: 'https://images.unsplash.com/photo-1622279457486-62dcc4a431d6?w=600&q=80' },
-  { id: 3, name: 'Hòa Xuân Complex', sport: 'Badminton', distance: '5.2 km', courts: 12, hours: '5am - 10pm', rating: 4.7, active: 18, position: [16.002, 108.225], price: '60K', img: 'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=600&q=80' },
-  { id: 4, name: 'Cung Thể thao Tiên Sơn', sport: 'Badminton', distance: '8.5 km', courts: 10, hours: '5am - 10pm', rating: 4.9, active: 24, position: [16.035, 108.232], price: '80K', img: 'https://images.unsplash.com/photo-1572991054320-f56b54133e5c?w=600&q=80' },
-  { id: 5, name: 'My Khe Pickleball Resort', sport: 'Pickleball', distance: '12 km', courts: 5, hours: '6am - 11pm', rating: 4.8, active: 12, position: [16.060, 108.245], price: '120K', img: 'https://images.unsplash.com/photo-1622618991746-fe6004db3a47?w=600&q=80' },
-]
+const sportFilters = ['Tất cả', 'Cầu lông', 'Pickleball']
 
-const nearbyPlayers = [
-  { name: 'Marcus T.', sport: 'Badminton', dist: '0.2km', online: true, img: 'https://ui-avatars.com/api/?name=Marcus+T&background=5E6AD2&color=fff' },
-  { name: 'Elena R.', sport: 'Pickleball', dist: '1.5km', online: true, img: 'https://ui-avatars.com/api/?name=Elena+R&background=0a0a0c&color=5E6AD2' },
-  { name: 'Jae K.', sport: 'Badminton', dist: '2km', online: false, img: 'https://ui-avatars.com/api/?name=Jae+K' },
-  { name: 'Mia S.', sport: 'Badminton', dist: '3.5km', online: true, img: 'https://ui-avatars.com/api/?name=Mia+S&background=f0f7f6&color=5E6AD2' },
-  { name: 'Chris N.', sport: 'Pickleball', dist: '4km', online: false, img: 'https://ui-avatars.com/api/?name=Chris+N' },
-  { name: 'Linh P.', sport: 'Badminton', dist: '5km', online: true, img: 'https://ui-avatars.com/api/?name=Linh+P&background=ffb020&color=fff' }
-]
-
-const sportFilters = ['All Sports', 'Badminton', 'Pickleball']
+function mapCourtToVenue(court, index) {
+  const angle = (index * 0.85) % (2 * Math.PI)
+  const lat = USER_POSITION[0] + Math.sin(angle) * 0.012 * (index + 1)
+  const lng = USER_POSITION[1] + Math.cos(angle) * 0.012 * (index + 1)
+  const sportName = court.courtTypeName || court.type || ''
+  const sport = sportName.toLowerCase().includes('pickle') ? 'Pickleball' : 'Badminton'
+  const price = court.pricePerHour ?? court.basePrice ?? court.hourlyRate ?? 150000
+  return {
+    id: court.courtId,
+    name: court.name,
+    sport,
+    distance: `${(0.4 + index * 0.7).toFixed(1)} km`,
+    courts: court.numberOfCourts ?? 1,
+    hours: '6h – 22h',
+    rating: 4.8,
+    active: court.status === 'Booked' ? 8 : 4,
+    position: [lat, lng],
+    price: `${Number(price).toLocaleString('vi-VN')}đ`,
+    img: court.imageUrl || FALLBACK_IMG,
+  }
+}
 
 function MapFlyTo({ selectedPosition }) {
   const map = useMap()
@@ -77,9 +86,12 @@ function MapFlyTo({ selectedPosition }) {
 }
 
 export default function MatchProNearbyPage() {
-  const [sportFilter, setSportFilter] = useState('All Sports')
+  const [sportFilter, setSportFilter] = useState('Tất cả')
   const [selectedVenue, setSelectedVenue] = useState(null)
   const [openMatches, setOpenMatches] = useState([])
+  const [venues, setVenues] = useState([])
+  const [loadingCourts, setLoadingCourts] = useState(true)
+  const [courtError, setCourtError] = useState(null)
   const pageRef = useRef(null)
 
   useEffect(() => {
@@ -90,12 +102,31 @@ export default function MatchProNearbyPage() {
   }, [sportFilter])
 
   useEffect(() => {
-    matchApi.getOpenMatches()
-      .then(res => { if (res?.data) setOpenMatches(res.data) })
-      .catch(err => console.error(err))
+    setLoadingCourts(true)
+    courtApi.getAll({ pageSize: 30 })
+      .then(res => {
+        if (res.statusCode === 200 && res.data) {
+          const list = Array.isArray(res.data) ? res.data : (res.data.items || [])
+          setVenues(list.map(mapCourtToVenue))
+        } else {
+          setCourtError(res.message || 'Không tải được danh sách sân.')
+        }
+      })
+      .catch(err => setCourtError(typeof err === 'string' ? err : 'Không tải được danh sách sân.'))
+      .finally(() => setLoadingCourts(false))
   }, [])
 
-  const filteredVenues = venues.filter(v => sportFilter === 'All Sports' || v.sport === sportFilter)
+  useEffect(() => {
+    matchApi.getOpenMatches()
+      .then(res => { if (res?.data) setOpenMatches(Array.isArray(res.data) ? res.data : []) })
+      .catch(() => {})
+  }, [])
+
+  const filteredVenues = venues.filter(v =>
+    sportFilter === 'Tất cả' ||
+    (sportFilter === 'Cầu lông' && v.sport === 'Badminton') ||
+    (sportFilter === 'Pickleball' && v.sport === 'Pickleball')
+  )
   const activeVenueInfo = venues.find(v => v.id === selectedVenue)
 
   return (
@@ -108,9 +139,9 @@ export default function MatchProNearbyPage() {
           
           <div className="fade-up">
             <h1 className="font-['Oswald'] text-3xl font-bold text-[var(--theme-primary)] mb-2 flex items-center gap-2">
-              <MapPin className="text-[#5E6AD2]" size={28} /> Đà Nẵng Sports Map
+              <MapPin className="text-[#5E6AD2]" size={28} /> Bản đồ sân Đà Nẵng
             </h1>
-            <p className="text-base text-foreground-muted">Khám phá các sân tập cao cấp quanh khu vực Đà Nẵng.</p>
+            <p className="text-base text-foreground-muted">Khám phá các sân tập quanh khu vực — dữ liệu từ hệ thống Pro-Sport.</p>
           </div>
 
           {/* Map Hero Banner */}
@@ -167,11 +198,17 @@ export default function MatchProNearbyPage() {
                 className={`px-6 py-2.5 rounded-full text-sm font-bold transition-all whitespace-nowrap ${sportFilter === f ? 'bg-[#5E6AD2] text-[var(--theme-primary)] shadow-[0_4px_12px_rgba(94,106,210,0.3)]' : 'bg-[var(--theme-surface)] text-foreground-muted border border-border-default hover:border-[#5E6AD2]/50 hover:text-[var(--theme-primary)]'}`}
                 onClick={() => setSportFilter(f)}
               >
-                {f === 'All Sports' ? 'Tất cả các môn' : f}
+                {f}
               </button>
             ))}
           </div>
-          
+
+          {loadingCourts ? (
+            <PageLoader message="Đang tải sân..." />
+          ) : courtError ? (
+            <div className="card-base p-10 text-center text-red-400 font-medium">{courtError}</div>
+          ) : (
+          <>
           {/* Venue Grid */}
           <div className="grid grid-cols-2 max-sm:grid-cols-1 gap-6 mb-8">
             {filteredVenues.map(v => (
@@ -216,11 +253,13 @@ export default function MatchProNearbyPage() {
             ))}
           </div>
           
-          {filteredVenues.length === 0 && (
+          {filteredVenues.length === 0 && !loadingCourts && (
             <div className="text-center py-16 card-base flex flex-col items-center justify-center border-dashed border-border-hover fade-up">
               <Map size={48} className="text-[#5E6AD2]/50 mb-4" />
-              <p className="text-foreground-muted font-medium text-lg">Không tìm thấy sân {sportFilter} nào.</p>
+              <p className="text-foreground-muted font-medium text-lg">Không tìm thấy sân {sportFilter !== 'Tất cả' ? sportFilter : ''} nào.</p>
             </div>
+          )}
+          </>
           )}
         </div>
 
@@ -230,25 +269,12 @@ export default function MatchProNearbyPage() {
           {/* Active Players Card */}
           <div className="card-base !p-6">
             <h3 className="text-base font-bold text-[var(--theme-primary)] mb-5 flex items-center gap-2">
-               <Flame className="text-orange-500" size={20} /> Live Players Nearby
+               <Flame className="text-orange-500" size={20} /> Người chơi gần bạn
             </h3>
-            <div className="flex flex-col gap-2">
-              {nearbyPlayers.slice(0, 5).map(p => (
-                <div key={p.name} className="flex items-center gap-3 py-2 border-b border-border-default last:border-0 group cursor-pointer">
-                  <div className="relative shrink-0">
-                    <img src={p.img} alt={p.name} className="w-11 h-11 rounded-full object-cover shadow-sm group-hover:ring-2 ring-[#5E6AD2] transition-all" />
-                    {p.online && <span className="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full bg-green-500 border-2 border-[#0a0a0c] shadow-sm" />}
-                  </div>
-                  <div className="flex flex-col flex-1">
-                    <p className="text-sm font-bold text-[var(--theme-primary)] group-hover:text-[#5E6AD2] transition-colors">{p.name}</p>
-                    <p className="text-[0.7rem] font-medium text-foreground-muted">{p.sport} • {p.dist}</p>
-                  </div>
-                  <button className="w-8 h-8 rounded-full bg-[var(--theme-surface)] flex items-center justify-center text-foreground-muted hover:bg-[#5E6AD2] hover:text-[var(--theme-primary)] transition-all shadow-sm border border-border-default hover:border-[#5E6AD2]">
-                    <MessageSquare size={14} />
-                  </button>
-                </div>
-              ))}
-            </div>
+            <p className="text-sm text-foreground-muted text-center py-6">
+              Tính năng tìm người chơi theo vị trí đang phát triển.<br />
+              <Link to="/matches" className="text-[#5E6AD2] font-semibold no-underline">Xem kèo đang mở →</Link>
+            </p>
           </div>
 
           {/* Pickup Games - kèo mở thật từ API */}

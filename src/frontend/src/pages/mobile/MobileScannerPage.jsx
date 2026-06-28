@@ -1,3 +1,5 @@
+import ProSportLogo from '../../components/ui/ProSportLogo'
+
 export default function MobileScannerPage() {
   return (
     <div className="flex justify-center min-h-screen bg-slate-200 py-5 max-[449px]:p-0">
@@ -8,7 +10,7 @@ export default function MobileScannerPage() {
           <button className="bg-[var(--theme-surface-hover)] border-none w-9 h-9 rounded-full text-[var(--theme-primary)] flex items-center justify-center cursor-pointer hover:bg-white/20">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           </button>
-          <h1 className="font-['Oswald',sans-serif] text-[1.25rem] font-bold text-[var(--theme-primary)]">PRO-SPORT</h1>
+          <ProSportLogo size="sm" variant="light" />
           <button className="bg-[var(--theme-surface-hover)] border-none w-9 h-9 rounded-full text-[var(--theme-primary)] flex items-center justify-center cursor-pointer hover:bg-white/20">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
           </button>
@@ -19,7 +21,7 @@ export default function MobileScannerPage() {
           <div className="absolute inset-0 bg-gradient-to-br from-slate-800 via-slate-700 to-slate-950 opacity-80"></div>
           
           <div className="relative z-10 flex flex-col items-center w-full">
-            <div className="bg-black/60 text-[var(--theme-primary)] text-xs py-2 px-4 rounded-full mb-10">Position QR code within the frame</div>
+            <div className="bg-black/60 text-[var(--theme-primary)] text-xs py-2 px-4 rounded-full mb-10">Đặt mã QR vào khung quét</div>
             
             <div className="w-[250px] h-[250px] relative bg-[var(--theme-surface)] shadow-[0_0_0_9999px_rgba(0,0,0,0.5)] mb-10">
               {/* Corner brackets */}
@@ -32,7 +34,7 @@ export default function MobileScannerPage() {
               <div className="absolute left-0 right-0 h-0.5 bg-[#00c2ff] shadow-[0_0_8px_2px_rgba(0,194,255,0.5)] animate-pulse"></div>
             </div>
 
-            <button className="bg-transparent border-none text-[#00c2ff] text-sm font-semibold cursor-pointer hover:underline">Enter Court ID Manually</button>
+            <button className="bg-transparent border-none text-[#00c2ff] text-sm font-semibold cursor-pointer hover:underline">Nhập mã sân thủ công</button>
           </div>
         </div>
 
@@ -42,11 +44,11 @@ export default function MobileScannerPage() {
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
           </div>
           <div className="flex-1">
-            <span className="block text-[0.65rem] font-bold text-[#008ba3] mb-0.5">Scan Successful</span>
-            <h3 className="text-base font-bold text-slate-900 mb-0.5">Court 04 Check-in</h3>
-            <p className="text-xs text-slate-500">Booking verified for 14:00</p>
+            <span className="block text-[0.65rem] font-bold text-[#008ba3] mb-0.5">Quét thành công</span>
+            <h3 className="text-base font-bold text-slate-900 mb-0.5">Xác nhận vào Sân 04</h3>
+            <p className="text-xs text-slate-500">Đặt sân đã xác minh lúc 14:00</p>
           </div>
-          <button className="bg-[#006070] text-[var(--theme-primary)] border-none py-2.5 px-4 rounded-lg text-sm font-semibold cursor-pointer hover:bg-[#004e5c]">Enter Court</button>
+          <button className="bg-[#006070] text-[var(--theme-primary)] border-none py-2.5 px-4 rounded-lg text-sm font-semibold cursor-pointer hover:bg-[#004e5c]">Vào sân</button>
         </div>
 
       </div>

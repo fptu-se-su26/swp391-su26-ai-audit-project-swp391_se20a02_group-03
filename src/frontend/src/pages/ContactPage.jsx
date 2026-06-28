@@ -19,7 +19,7 @@ const channels = [
         <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13.5 19.79 19.79 0 0 1 1.61 5 2 2 0 0 1 3.59 3h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 10.9a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 18z"/>
       </svg>
     ),
-    label: 'Đường dây nóng', value: '+1 (800) PRO-SPORT', sub: 'T2 – T6, 8h – 20h',
+    label: 'Đường dây nóng', value: '1900 6688', sub: 'T2 – T6, 8h – 20h',
   },
   {
     icon: (
@@ -27,7 +27,7 @@ const channels = [
         <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
       </svg>
     ),
-    label: 'Email', value: 'performance@pro-sport.com', sub: 'Phản hồi trong 2 giờ',
+    label: 'Thư điện tử', value: 'performance@pro-sport.com', sub: 'Phản hồi trong 2 giờ',
   },
   {
     icon: (
@@ -39,9 +39,13 @@ const channels = [
   },
 ]
 
+import { useToast } from '../components/Toast'
+
 export default function ContactPage() {
+  const { addToast } = useToast()
   const [openFaq, setOpenFaq] = useState(null)
   const [formSent, setFormSent] = useState(false)
+  const [form, setForm] = useState({ name: '', email: '', subject: 'Hỏi đáp chung', message: '' })
 
   const heroRef    = useRef(null)
   const formRef    = useRef(null)
@@ -112,22 +116,30 @@ export default function ContactPage() {
                 <h3 className="font-heading text-xl font-bold text-brand-900">Đã gửi tin nhắn!</h3>
                 <p className="text-brand-500 text-sm leading-relaxed max-w-xs">Đội ngũ của chúng tôi sẽ phản hồi lại trong vòng 2 giờ.</p>
                 <button onClick={() => setFormSent(false)} className="mt-2 text-sm text-accent font-semibold hover:text-accent-hover transition-colors">
-                  Send another →
+                  Gửi tin nhắn khác →
                 </button>
               </div>
             ) : (
-              <form className="flex flex-col gap-5" onSubmit={e => { e.preventDefault(); setFormSent(true) }}>
+              <form className="flex flex-col gap-5" onSubmit={e => {
+                e.preventDefault()
+                if (!form.name.trim() || !form.email.trim() || !form.message.trim()) {
+                  addToast('Vui lòng điền đầy đủ thông tin bắt buộc', 'error')
+                  return
+                }
+                setFormSent(true)
+                addToast('Tin nhắn đã được ghi nhận. Chúng tôi sẽ phản hồi sớm!', 'success')
+              }}>
                 <div className="flex flex-col gap-1.5">
                   <label htmlFor="c-name" className="text-sm font-semibold text-brand-900">Họ và tên</label>
-                  <input id="c-name" type="text" placeholder="John Doe" className="input-base" />
+                  <input id="c-name" type="text" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="Nguyễn Văn A" className="input-base" required />
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <label htmlFor="c-email" className="text-sm font-semibold text-brand-900">Email</label>
-                  <input id="c-email" type="email" placeholder="john@example.com" className="input-base" />
+                  <label htmlFor="c-email" className="text-sm font-semibold text-brand-900">Thư điện tử</label>
+                  <input id="c-email" type="email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} placeholder="ban@email.com" className="input-base" required />
                 </div>
                 <div className="flex flex-col gap-1.5">
                   <label htmlFor="c-subject" className="text-sm font-semibold text-brand-900">Chủ đề</label>
-                  <select id="c-subject" className="input-base text-brand-900">
+                  <select id="c-subject" value={form.subject} onChange={e => setForm({ ...form, subject: e.target.value })} className="input-base text-brand-900">
                     <option>Hỏi đáp chung</option>
                     <option>Đặt sân</option>
                     <option>Hỗ trợ kỹ thuật</option>
@@ -136,7 +148,7 @@ export default function ContactPage() {
                 </div>
                 <div className="flex flex-col gap-1.5">
                   <label htmlFor="c-message" className="text-sm font-semibold text-brand-900">Nội dung</label>
-                  <textarea id="c-message" rows={4} placeholder="Chúng tôi có thể giúp gì cho bạn hôm nay?" className="input-base resize-y min-h-[120px] py-3" />
+                  <textarea id="c-message" rows={4} value={form.message} onChange={e => setForm({ ...form, message: e.target.value })} placeholder="Chúng tôi có thể giúp gì cho bạn hôm nay?" className="input-base resize-y min-h-[120px] py-3" required />
                 </div>
                 <button type="submit" className="btn-primary mt-2 py-3.5">Gửi tin nhắn</button>
               </form>
@@ -190,12 +202,12 @@ export default function ContactPage() {
 
       {/* Facility Image */}
       <section className="relative h-[400px] overflow-hidden">
-        <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1400&q=80" alt="Elite Facility" className="w-full h-full object-cover" />
+        <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1400&q=80" alt="Cơ sở thể thao cao cấp" className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-brand-950/20 mix-blend-multiply" />
         <div className="absolute bottom-10 left-10 bg-brand-950/80 backdrop-blur-md rounded-xl p-6 max-w-sm flex flex-col gap-3 shadow-2xl border border-border-default">
           <div className="text-xs font-bold tracking-widest uppercase text-accent">Cơ sở vật chất hiện đại</div>
           <p className="text-sm text-brand-100 leading-relaxed">Tọa lạc tại vị trí trung tâm thể thao dễ dàng di chuyển.</p>
-          <a href="#" className="text-sm text-accent font-semibold hover:text-accent-hover transition-colors">Xem bản đồ →</a>
+          <Link to="/matches/nearby" className="text-sm text-accent font-semibold hover:text-accent-hover transition-colors no-underline">Xem sân gần bạn →</Link>
         </div>
       </section>
 

@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback } from 'react'
 import AdminLayout from '../../layouts/AdminLayout'
 import { courtApi } from '../../api/courtApi'
 import { useToast } from '../../components/Toast'
+import { useConfirm } from '../../components/ui/ConfirmDialog'
+import { translateStatus, translateCourtTypeName } from '../../utils/labels'
 import { Search, Trash2, Loader2, ShieldAlert, MapPin } from 'lucide-react'
 
 const STATUS_TABS = [
@@ -22,6 +24,7 @@ const FALLBACK_IMG = 'https://images.unsplash.com/photo-1626224583764-f87db24ac4
 
 export default function AdminCourtsPage() {
   const { addToast } = useToast()
+  const confirm = useConfirm()
   const [courts, setCourts] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -54,7 +57,14 @@ export default function AdminCourtsPage() {
   }, [fetchCourts])
 
   async function handleDelete(court) {
-    if (!window.confirm(`Xóa sân "${court.name}"? Thao tác này là xóa mềm (ẩn khỏi hệ thống).`)) return
+    const ok = await confirm({
+      title: 'Xóa sân',
+      message: `Xóa sân "${court.name}"? Thao tác này là xóa mềm (ẩn khỏi hệ thống).`,
+      confirmLabel: 'Xóa sân',
+      cancelLabel: 'Hủy',
+      variant: 'danger',
+    })
+    if (!ok) return
     try {
       setDeletingId(court.courtId)
       const res = await courtApi.remove(court.courtId)
@@ -129,14 +139,17 @@ export default function AdminCourtsPage() {
         {!loading && !error && courts.length > 0 && (
           <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-6">
             {courts.map(court => {
-              const st = STATUS_STYLE[court.status] || { label: (court.status || '').toUpperCase(), cls: 'bg-slate-400 text-white' }
+              const st = STATUS_STYLE[court.status] || {
+                label: translateStatus(court.status, 'Không rõ').toUpperCase(),
+                cls: 'bg-slate-400 text-white',
+              }
               return (
                 <div key={court.courtId} className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.02)] flex flex-col">
                   <div className="relative h-[140px]">
                     <img src={court.imageUrl || FALLBACK_IMG} alt={court.name} className="w-full h-full object-cover" />
                     <div className="absolute top-3 left-3 right-3 flex justify-between">
                       <span className="py-1 px-[10px] rounded-full text-[0.65rem] font-bold tracking-[0.05em] bg-white text-slate-900">
-                        {(court.courtTypeName || '').toUpperCase()}
+                        {translateCourtTypeName(court.courtTypeName)}
                       </span>
                       <span className={`py-1 px-[10px] rounded-full text-[0.65rem] font-bold tracking-[0.05em] ${st.cls}`}>{st.label}</span>
                     </div>

@@ -53,6 +53,14 @@ export function AuthProvider({ children }) {
     setUser(null)
   }, [])
 
+  useEffect(() => {
+    function onSessionExpired() {
+      logout()
+    }
+    window.addEventListener('auth:session-expired', onSessionExpired)
+    return () => window.removeEventListener('auth:session-expired', onSessionExpired)
+  }, [logout])
+
   return (
     <AuthContext.Provider value={{
       user,

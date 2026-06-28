@@ -5,6 +5,7 @@ import ApexLayout from '../../layouts/ApexLayout'
 import { bookingApi } from '../../api/bookingApi'
 import { paymentApi } from '../../api/paymentApi'
 import { useToast } from '../../components/Toast'
+import { useConfirm, BOOKING_CANCEL_CONFIRM } from '../../components/ui/ConfirmDialog'
 import StatusBadge from '../../components/ui/StatusBadge'
 import EmptyState from '../../components/ui/EmptyState'
 
@@ -20,6 +21,7 @@ export default function ApexBookingsPage() {
   const [filter, setFilter] = useState('All')
   const [isLoading, setIsLoading] = useState(true)
   const { addToast } = useToast()
+  const confirm = useConfirm()
 
   const fetchBookings = useCallback(async () => {
     setIsLoading(true)
@@ -41,7 +43,8 @@ export default function ApexBookingsPage() {
   }, [fetchBookings])
 
   async function handleCancel(bookingId) {
-    if (!window.confirm('Bạn có chắc chắn muốn hủy đơn đặt sân này?')) return
+    const ok = await confirm(BOOKING_CANCEL_CONFIRM)
+    if (!ok) return
     try {
       const res = await bookingApi.cancelBooking(bookingId)
       if (res.statusCode === 200) {
@@ -107,7 +110,7 @@ export default function ApexBookingsPage() {
         <div className="flex max-sm:flex-col sm:items-center justify-between gap-4 mb-8">
           <div>
             <h1 className="text-2xl font-bold text-[var(--theme-primary)] tracking-tight">Lịch sử đặt sân</h1>
-            <p className="text-sm text-foreground-muted mt-1">Quản lý tất cả lịch đặt sân, thanh toán và trạng thái check-in.</p>
+            <p className="text-sm text-foreground-muted mt-1">Quản lý tất cả lịch đặt sân, thanh toán và trạng thái nhận sân.</p>
           </div>
           <Link to="/apex/booking" className="btn-primary shrink-0">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -184,7 +187,7 @@ export default function ApexBookingsPage() {
                       {/* Check-in code */}
                       {b.status === 'Confirmed' && b.checkInCode && (
                         <div className="mt-2 flex items-center gap-2">
-                          <span className="text-xs text-foreground-muted">Mã check-in:</span>
+                          <span className="text-xs text-foreground-muted">Mã vào sân:</span>
                           <span className="font-mono font-bold text-accent bg-accent/10 border border-accent/20 px-2.5 py-1 rounded-lg text-xs tracking-wider">{b.checkInCode}</span>
                         </div>
                       )}

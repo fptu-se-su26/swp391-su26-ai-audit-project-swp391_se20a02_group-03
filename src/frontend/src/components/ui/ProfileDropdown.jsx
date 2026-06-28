@@ -1,10 +1,12 @@
 import { useState, useRef, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useAuth } from '../../context/AuthContext'
 
 export default function ProfileDropdown({ user }) {
   const [open, setOpen] = useState(false)
   const ref = useRef(null)
   const navigate = useNavigate()
+  const { logout } = useAuth()
 
   useEffect(() => {
     function handleClick(e) {
@@ -15,23 +17,22 @@ export default function ProfileDropdown({ user }) {
   }, [])
 
   function handleLogout() {
-    localStorage.removeItem('token')
-    sessionStorage.removeItem('token')
+    logout()
     navigate('/login')
   }
 
-  const defaultAvatar = "https://ui-avatars.com/api/?name=" + (user?.fullName || 'User') + "&background=14B8A6&color=fff&size=80"
+  const defaultAvatar = "https://ui-avatars.com/api/?name=" + (user?.fullName || 'Nguoi dung') + "&background=14B8A6&color=fff&size=80"
 
   return (
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen(!open)}
         className="flex items-center gap-2 rounded-full transition-all duration-200 hover:ring-2 hover:ring-[#14B8A6]/20"
-        aria-label="Profile menu"
+        aria-label="Menu hồ sơ"
       >
         <img
           src={user?.avatarUrl || defaultAvatar}
-          alt={user?.fullName || 'User'}
+          alt={user?.fullName || 'Người dùng'}
           className="w-8 h-8 rounded-full object-cover"
         />
       </button>
@@ -39,7 +40,7 @@ export default function ProfileDropdown({ user }) {
       {open && (
         <div className="absolute right-0 top-full mt-2 w-56 bg-white border border-[#E2E8F0] rounded-xl shadow-lg py-1.5 z-50 animate-scale-in">
           <div className="px-4 py-3 border-b border-[#E2E8F0]">
-            <p className="text-sm font-semibold text-foreground truncate">{user?.fullName || 'User'}</p>
+            <p className="text-sm font-semibold text-foreground truncate">{user?.fullName || 'Người dùng'}</p>
             <p className="text-xs text-foreground-muted truncate">{user?.email || ''}</p>
           </div>
           <div className="py-1">

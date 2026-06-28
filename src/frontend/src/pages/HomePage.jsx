@@ -69,7 +69,7 @@ const features = [
 const steps = [
   { num: '01', title: 'Tạo tài khoản', desc: 'Đăng ký trong vài giây. Hoàn tất e-KYC để truy cập đầy đủ tính năng.' },
   { num: '02', title: 'Tìm & Đặt sân', desc: 'Duyệt tìm sân trống hoặc tham gia các trận mở trong khu vực của bạn.' },
-  { num: '03', title: 'Chơi & Kết nối', desc: 'Check-in bằng QR, tham gia thi đấu và xây dựng điểm uy tín của bạn.' },
+  { num: '03', title: 'Chơi & Kết nối', desc: 'Quét QR vào sân, tham gia thi đấu và xây dựng điểm uy tín của bạn.' },
 ]
 
 const stats = [
@@ -208,9 +208,8 @@ export default function HomePage() {
               <span className="text-accent">KIỂM SOÁT ĐỈNH CAO.</span>
             </h1>
             <p className="text-brand-400 text-lg leading-[1.8] max-w-[560px] mb-12">
-              The premier management platform for athletes and facilities.
-              Book courts, schedule matches, and access pro-tier gear with
-              seamless precision.
+              Nền tảng quản lý hàng đầu cho vận động viên và cơ sở thể thao —
+              đặt sân, ghép trận và thuê thiết bị chuyên nghiệp một cách liền mạch.
             </p>
             <div className="flex gap-4 flex-wrap items-center justify-center">
               <Link to="/register" className="btn-primary px-8 py-4 text-base rounded-xl hover:-translate-y-0.5 hover:shadow-lg hover:shadow-accent/20">

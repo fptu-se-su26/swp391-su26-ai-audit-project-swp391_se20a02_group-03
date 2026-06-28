@@ -251,3 +251,18 @@
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-10px); }
 }
+
+/* ── PRO-SPORT Logo — athletic swoosh ── */
+.prosport-mark {
+  transition: transform 0.2s ease;
+}
+
+.group:hover .prosport-mark {
+  transform: scale(1.03);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .group:hover .prosport-mark {
+    transform: none;
+  }
+}

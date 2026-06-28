@@ -6,10 +6,23 @@ import { Search, Lock, Unlock, Loader2, ShieldAlert } from 'lucide-react'
 
 const ROLE_TABS = [
   { key: '', label: 'Tất cả' },
-  { key: 'Admin', label: 'Admin' },
+  { key: 'Admin', label: 'Quản trị viên' },
   { key: 'Staff', label: 'Nhân sự' },
   { key: 'Customer', label: 'Khách hàng' },
 ]
+
+const ROLE_LABELS = {
+  Admin: 'Quản trị viên',
+  Staff: 'Nhân sự',
+  Customer: 'Khách hàng',
+}
+
+const EKYC_LABELS = {
+  Verified: 'Đã xác minh',
+  Pending: 'Chờ xác minh',
+  Rejected: 'Từ chối',
+  NotSubmitted: 'Chưa nộp',
+}
 
 const ROLE_COLORS = {
   Admin: '#818cf8',
@@ -201,13 +214,13 @@ export default function AdminUsersPage() {
                       </td>
                       <td className="px-5 py-4 whitespace-nowrap">
                         <span className="inline-block py-1 px-3 rounded-full text-xs font-bold" style={{ background: roleColor + '20', color: roleColor === '#94a3b8' ? '#64748b' : roleColor }}>
-                          {u.role}
+                          {ROLE_LABELS[u.role] || u.role}
                         </span>
                       </td>
                       <td className="px-5 py-4 whitespace-nowrap">
                         <div className="flex items-center gap-2">
                           <span className="w-2 h-2 rounded-full" style={{ background: verified ? '#22c55e' : '#f59e0b' }}></span>
-                          <span className="text-sm font-medium text-slate-900">{u.eKycStatus}</span>
+                          <span className="text-sm font-medium text-slate-900">{EKYC_LABELS[u.eKycStatus] || u.eKycStatus}</span>
                         </div>
                       </td>
                       <td className="px-5 py-4 whitespace-nowrap">

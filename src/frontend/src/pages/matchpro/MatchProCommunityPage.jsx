@@ -2,36 +2,38 @@ import { useState, useEffect, useRef } from 'react'
 import { gsap } from 'gsap'
 import { Users, Trophy, Swords, Heart, MessageCircle, Share2, Calendar, MapPin, Camera, Sparkles, MessageSquare, Flame } from 'lucide-react'
 import MatchProLayout from '../../layouts/MatchProLayout'
+import { useToast } from '../../components/Toast'
 
 const posts = [
-  { id: 1, user: 'Sarah J.', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&q=80', time: '2 min ago', content: 'Vừa lập kỷ lục cá nhân mới tại Pro-Sport Badminton Center! 🏸 Ai muốn đánh đôi cuối tuần này không?', likes: 24, comments: 8, sport: 'Badminton' },
-  { id: 2, user: 'Marcus T.', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&q=80', time: '15 min ago', content: 'Buổi Pickleball hôm nay tuyệt vời quá! Đang tìm partner level advanced cho tối thứ 5. Inbox mình nhé!', likes: 18, comments: 5, sport: 'Pickleball' },
-  { id: 3, user: 'Alex M.', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&q=80', time: '1 hr ago', content: 'Sân cầu lông mới ở Đà Nẵng (Hòa Xuân Complex) quá xịn! Mặt sàn BWF, đèn LED 800 lux. Rất recommend!', likes: 42, comments: 14, sport: 'Badminton' },
+  { id: 1, user: 'Lan P.', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&q=80', time: '2 phút trước', content: 'Vừa lập kỷ lục cá nhân mới tại Pro-Sport Badminton Center! 🏸 Ai muốn đánh đôi cuối tuần này không?', likes: 24, comments: 8, sport: 'Cầu lông' },
+  { id: 2, user: 'Minh T.', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&q=80', time: '15 phút trước', content: 'Buổi Pickleball hôm nay tuyệt vời quá! Đang tìm đối thủ trình độ nâng cao cho tối thứ 5. Nhắn tin cho mình nhé!', likes: 18, comments: 5, sport: 'Pickleball' },
+  { id: 3, user: 'Hùng M.', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&q=80', time: '1 giờ trước', content: 'Sân cầu lông mới ở Đà Nẵng (Hòa Xuân Complex) quá xịn! Mặt sàn BWF, đèn LED 800 lux. Rất đáng thử!', likes: 42, comments: 14, sport: 'Cầu lông' },
 ]
 
 const events = [
-  { id: 1, name: 'Pro-Sport Badminton Open', date: 'Jun 15', sport: 'Badminton', participants: 48, maxParticipants: 64, prize: '5.000.000đ', img: 'https://images.unsplash.com/photo-1544919982-b61976f0ba43?w=400&q=80' },
-  { id: 2, name: 'Summer Pickleball League', date: 'Jun 20', sport: 'Pickleball', participants: 32, maxParticipants: 32, prize: 'Trophy + Gear', img: 'https://images.unsplash.com/photo-1622279457486-62dcc4a431d6?w=400&q=80' },
-  { id: 3, name: 'Cầu lông Đôi Hè 2026', date: 'Jul 4', sport: 'Badminton', participants: 24, maxParticipants: 48, prize: '10.000.000đ', img: 'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=400&q=80' },
+  { id: 1, name: 'Giải Cầu lông Mở Pro-Sport', date: '15/06', sport: 'Cầu lông', participants: 48, maxParticipants: 64, prize: '5.000.000đ', img: 'https://images.unsplash.com/photo-1544919982-b61976f0ba43?w=400&q=80' },
+  { id: 2, name: 'Giải Pickleball Mùa Hè', date: '20/06', sport: 'Pickleball', participants: 32, maxParticipants: 32, prize: 'Cúp + Dụng cụ', img: 'https://images.unsplash.com/photo-1622279457486-62dcc4a431d6?w=400&q=80' },
+  { id: 3, name: 'Cầu lông Đôi Hè 2026', date: '04/07', sport: 'Cầu lông', participants: 24, maxParticipants: 48, prize: '10.000.000đ', img: 'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=400&q=80' },
 ]
 
 const groups = [
-  { id: 1, name: 'Cầu lông Trung cấp ĐN', members: 234, sport: 'Badminton', icon: <Swords size={24} />, joined: false },
+  { id: 1, name: 'Cầu lông Trung cấp ĐN', members: 234, sport: 'Cầu lông', icon: <Swords size={24} />, joined: false },
   { id: 2, name: 'Pickleball Warriors ĐN', members: 189, sport: 'Pickleball', icon: <Swords size={24} className="text-green-400" />, joined: true },
-  { id: 3, name: 'Badminton Masters VN', members: 456, sport: 'Badminton', icon: <Swords size={24} />, joined: false },
+  { id: 3, name: 'Cầu lông Masters VN', members: 456, sport: 'Cầu lông', icon: <Swords size={24} />, joined: false },
   { id: 4, name: 'Đà Nẵng Pickleball Club', members: 312, sport: 'Pickleball', icon: <Swords size={24} className="text-green-400" />, joined: false },
 ]
 
 const challenges = [
-  { id: 1, title: 'Đánh 10 trận trong tháng', sport: 'Any', progress: 7, total: 10, reward: '500 pts', icon: <Trophy size={24} className="text-yellow-400" />, color: 'from-amber-400 to-amber-600' },
-  { id: 2, title: 'Thắng 5 trận liên tiếp', sport: 'Badminton', progress: 3, total: 5, reward: 'Badge', icon: <Sparkles size={24} className="text-blue-400" />, color: 'from-[#5E6AD2] to-[#6872D9]' },
-  { id: 3, title: 'Chơi cả 2 môn thể thao', sport: 'Multi', progress: 1, total: 2, reward: '300 pts', icon: <Sparkles size={24} className="text-purple-400" />, color: 'from-blue-500 to-indigo-600' },
+  { id: 1, title: 'Đánh 10 trận trong tháng', sport: 'Any', progress: 7, total: 10, reward: '500 điểm', icon: <Trophy size={24} className="text-yellow-400" />, color: 'from-amber-400 to-amber-600' },
+  { id: 2, title: 'Thắng 5 trận liên tiếp', sport: 'Badminton', progress: 3, total: 5, reward: 'Huy hiệu', icon: <Sparkles size={24} className="text-blue-400" />, color: 'from-[#5E6AD2] to-[#6872D9]' },
+  { id: 3, title: 'Chơi cả 2 môn thể thao', sport: 'Multi', progress: 1, total: 2, reward: '300 điểm', icon: <Sparkles size={24} className="text-purple-400" />, color: 'from-blue-500 to-indigo-600' },
 ]
 
-const sportColors = { Badminton: '#5E6AD2', Pickleball: '#6366f1', Multi: '#8b5cf6', Any: '#f59e0b' }
+const sportColors = { Badminton: '#5E6AD2', Pickleball: '#6366f1', 'Cầu lông': '#5E6AD2', Multi: '#8b5cf6', Any: '#f59e0b' }
 
 export default function MatchProCommunityPage() {
-  const [activeTab, setActiveTab] = useState('Feed')
+  const { addToast } = useToast()
+  const [activeTab, setActiveTab] = useState('Bảng tin')
   const [likedPosts, setLikedPosts] = useState(new Set())
   const [joinedGroups, setJoinedGroups] = useState(new Set(groups.filter(g => g.joined).map(g => g.id)))
   const [newPostText, setNewPostText] = useState('')
@@ -53,7 +55,7 @@ export default function MatchProCommunityPage() {
 
   function handlePost() {
     if (newPostText.trim()) {
-      alert("Post created successfully!")
+      addToast('Bài viết đã được đăng!', 'success')
       setNewPostText('')
     }
   }
@@ -61,6 +63,9 @@ export default function MatchProCommunityPage() {
   return (
     <MatchProLayout>
       <div className="flex gap-6 max-lg:flex-col items-start w-full max-w-[1400px] mx-auto pb-12" ref={pageRef}>
+        <div className="w-full rounded-xl border border-[#5E6AD2]/30 bg-[#5E6AD2]/10 px-4 py-3 text-sm text-foreground-muted">
+          <span className="font-semibold text-[#5E6AD2]">Bản thử nghiệm:</span> Nội dung cộng đồng hiện là dữ liệu minh họa — API cộng đồng đang được phát triển.
+        </div>
         
         {/* Main Content Area */}
         <div className="flex-1 min-w-0 w-full flex flex-col">
@@ -68,7 +73,7 @@ export default function MatchProCommunityPage() {
           {/* Hero Banner */}
           <div className="mp-comm-hero bg-gradient-to-br from-[#5E6AD2]/20 to-[#020203] p-8 md:p-10 rounded-[2rem] mb-8 text-[var(--theme-primary)] shadow-xl relative overflow-hidden">
             <div className="relative z-10">
-               <h1 className="font-['Oswald'] text-3xl md:text-4xl font-bold mb-3 tracking-wide"><Users size={32} className="inline mr-2 text-[#5E6AD2]" /> Community Hub</h1>
+               <h1 className="font-['Oswald'] text-3xl md:text-4xl font-bold mb-3 tracking-wide"><Users size={32} className="inline mr-2 text-[#5E6AD2]" /> Trung tâm cộng đồng</h1>
                <p className="text-[var(--theme-primary)]/80 text-base md:text-lg max-w-lg">Kết nối, chia sẻ kinh nghiệm và tranh tài cùng cộng đồng đam mê thể thao quanh bạn.</p>
             </div>
             {/* Decorative elements */}
@@ -79,20 +84,20 @@ export default function MatchProCommunityPage() {
 
           {/* Tabs */}
           <div className="flex gap-2 border-b border-border-default pb-0 mb-8 overflow-x-auto scrollbar-hide fade-up">
-            {['Feed', 'Events', 'Groups', 'Challenges'].map(tab => (
-              <button 
-                key={tab} 
+            {['Bảng tin', 'Sự kiện', 'Hội nhóm', 'Thử thách'].map(tab => (
+              <button
+                key={tab}
                 className={`px-6 py-3.5 font-bold text-[0.95rem] transition-all whitespace-nowrap border-b-[3px] ${activeTab === tab ? 'border-[#5E6AD2] text-[var(--theme-primary)]' : 'border-transparent text-foreground-muted hover:text-[var(--theme-primary)] hover:bg-[var(--theme-surface)] rounded-t-xl'}`}
                 onClick={() => setActiveTab(tab)}
               >
-                {tab === 'Feed' ? 'Tin tức' : tab === 'Events' ? 'Sự kiện' : tab === 'Groups' ? 'Hội nhóm' : 'Thử thách'}
+                {tab}
               </button>
             ))}
           </div>
 
           <div className="flex flex-col gap-6">
             {/* ================= FEED TAB ================= */}
-            {activeTab === 'Feed' && (
+            {activeTab === 'Bảng tin' && (
               <>
                 {/* Post Composer */}
                 <div className="fade-up card-base p-5 md:p-6 rounded-[2rem] border border-border-default shadow-[0_0_15px_rgba(0,0,0,0.3)] mb-2">
@@ -163,7 +168,7 @@ export default function MatchProCommunityPage() {
             )}
 
             {/* ================= EVENTS TAB ================= */}
-            {activeTab === 'Events' && (
+            {activeTab === 'Sự kiện' && (
               <div className="grid grid-cols-2 max-sm:grid-cols-1 gap-6">
                 {events.map(ev => (
                   <div key={ev.id} className="fade-up card-base rounded-3xl overflow-hidden border border-border-default shadow-[0_0_15px_rgba(0,0,0,0.3)] hover:shadow-xl hover:-translate-y-1.5 transition-all group">
@@ -190,7 +195,7 @@ export default function MatchProCommunityPage() {
             )}
 
             {/* ================= GROUPS TAB ================= */}
-            {activeTab === 'Groups' && (
+            {activeTab === 'Hội nhóm' && (
               <div className="grid grid-cols-2 max-sm:grid-cols-1 gap-6">
                 {groups.map(group => {
                   const isJoined = joinedGroups.has(group.id)
@@ -218,7 +223,7 @@ export default function MatchProCommunityPage() {
             )}
 
             {/* ================= CHALLENGES TAB ================= */}
-            {activeTab === 'Challenges' && (
+            {activeTab === 'Thử thách' && (
               <div className="flex flex-col gap-4">
                 {challenges.map(ch => {
                   const percent = Math.min(100, Math.round((ch.progress / ch.total) * 100))
@@ -232,7 +237,7 @@ export default function MatchProCommunityPage() {
                           <h3 className="font-bold text-[var(--theme-primary)] text-[1.05rem]">{ch.title}</h3>
                           <span className="text-xs font-bold px-2.5 py-1 bg-amber-500/20 text-amber-600 rounded-lg border border-amber-500/20 max-sm:mt-2">{ch.reward}</span>
                         </div>
-                        <p className="text-xs text-foreground-muted mb-3 font-semibold">{ch.sport} Challenge</p>
+                        <p className="text-xs text-foreground-muted mb-3 font-semibold">Thử thách {ch.sport}</p>
                         
                         <div className="flex items-center gap-4">
                           <div className="flex-1 h-3 bg-[var(--theme-surface-hover)] rounded-full overflow-hidden shadow-inner">
@@ -287,7 +292,7 @@ export default function MatchProCommunityPage() {
                 <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=80&q=80" alt="Jae" className="w-11 h-11 rounded-full object-cover shadow-[0_0_15px_rgba(0,0,0,0.3)] group-hover:ring-2 ring-[#5E6AD2] transition-all" />
                 <div className="flex flex-col flex-1">
                   <p className="text-sm font-bold text-[var(--theme-primary)] group-hover:text-[#5E6AD2] transition-colors">Jae K.</p>
-                  <p className="text-[0.7rem] font-medium text-foreground-muted">Badminton</p>
+                  <p className="text-[0.7rem] font-medium text-foreground-muted">Cầu lông</p>
                 </div>
                 <button className="w-8 h-8 rounded-full bg-[var(--theme-surface)] flex items-center justify-center text-foreground-muted hover:bg-[#5E6AD2] hover:text-[var(--theme-primary)] transition-all shadow-[0_0_15px_rgba(0,0,0,0.3)]">
                   <MessageSquare size={14} />

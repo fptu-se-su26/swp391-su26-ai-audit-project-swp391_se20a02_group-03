@@ -1,46 +1,54 @@
-import { Link, useLocation } from 'react-router-dom'
-import { useEffect, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { gsap } from 'gsap'
+import { useAuth } from '../context/AuthContext'
+import ProSportLogo from '../components/ui/ProSportLogo'
 
 const navLinks = [
-  { path: '/matches', label: 'Feed' },
-  { path: '/matches/nearby', label: 'Nearby' },
-  { path: '/matches/community', label: 'Community' },
-  { path: '/matches/leaderboard', label: 'Leaderboard' },
-  { path: '/matches/create', label: 'Create Match' },
+  { path: '/matches', label: 'Bảng tin' },
+  { path: '/matches/nearby', label: 'Sân gần bạn' },
+  { path: '/matches/community', label: 'Cộng đồng' },
+  { path: '/matches/leaderboard', label: 'Xếp hạng' },
+  { path: '/matches/create', label: 'Tạo trận' },
 ]
 
 export default function MatchProLayout({ children }) {
   const location = useLocation()
+  const navigate = useNavigate()
+  const { isAuthenticated } = useAuth()
+  const [menuOpen, setMenuOpen] = useState(false)
+  const headerRef = useRef(null)
+  const contentRef = useRef(null)
+
   function isActive(path) {
     if (path === '/matches') return location.pathname === '/matches'
     return location.pathname.startsWith(path)
   }
-  const headerRef = useRef(null)
-  const contentRef = useRef(null)
+
+  useEffect(() => {
+    setMenuOpen(false)
+  }, [location.pathname])
 
   useEffect(() => {
     if (headerRef.current) {
-      gsap.fromTo(headerRef.current,
-        { y: -20, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.5, ease: 'power2.out' }
-      )
+      gsap.fromTo(headerRef.current, { y: -20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: 'power2.out' })
     }
     if (contentRef.current) {
-      gsap.fromTo(contentRef.current,
-        { opacity: 0 },
-        { opacity: 1, duration: 0.6, delay: 0.2, ease: 'power2.out' }
-      )
+      gsap.fromTo(contentRef.current, { opacity: 0 }, { opacity: 1, duration: 0.6, delay: 0.2, ease: 'power2.out' })
     }
   }, [])
 
+  function handleProfile() {
+    if (isAuthenticated) navigate('/apex/profile')
+    else navigate('/login')
+  }
+
   return (
     <div className="min-h-screen bg-background-deep flex flex-col text-[var(--theme-primary)]">
-      <header ref={headerRef} className="h-[60px] bg-background-base/80 backdrop-blur-md border-b border-border-default flex items-center px-8 gap-8 sticky top-0 z-[200]">
-        <Link to="/matches" className="font-['Oswald',sans-serif] text-[1.3rem] font-bold text-[var(--theme-primary)] tracking-[0.03em] no-underline shrink-0 flex items-center gap-0.5">
-          <span>PRO</span><span className="text-[#5E6AD2]">-</span><span>SPORT</span>
-        </Link>
-        <nav className="flex gap-1 flex-1 justify-center">
+      <header ref={headerRef} className="h-[60px] bg-background-base/80 backdrop-blur-md border-b border-border-default flex items-center px-4 md:px-8 gap-4 sticky top-0 z-[200]">
+        <ProSportLogo size="sm" className="shrink-0" />
+
+        <nav className="hidden lg:flex gap-1 flex-1 justify-center">
           {navLinks.map(link => (
             <Link
               key={link.path}
@@ -55,18 +63,49 @@ export default function MatchProLayout({ children }) {
             </Link>
           ))}
         </nav>
+
         <div className="flex items-center gap-2 ml-auto">
-          <button className="w-9 h-9 rounded-full bg-transparent flex items-center justify-center text-foreground-muted border-none cursor-pointer transition-all hover:bg-[var(--theme-surface-hover)] hover:text-[var(--theme-primary)]" aria-label="Notifications">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-          </button>
-          <button className="w-9 h-9 rounded-full bg-transparent flex items-center justify-center text-foreground-muted border-none cursor-pointer transition-all hover:bg-[var(--theme-surface-hover)] hover:text-[var(--theme-primary)]" aria-label="Messages">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-          </button>
-          <button className="w-9 h-9 rounded-full bg-transparent flex items-center justify-center text-foreground-muted border-none cursor-pointer transition-all hover:bg-[var(--theme-surface-hover)] hover:text-[var(--theme-primary)]" aria-label="Profile">
+          <button
+            type="button"
+            onClick={handleProfile}
+            className="hidden sm:flex w-9 h-9 rounded-full bg-transparent items-center justify-center text-foreground-muted border-none cursor-pointer transition-all hover:bg-[var(--theme-surface-hover)] hover:text-[var(--theme-primary)]"
+            aria-label="Hồ sơ"
+          >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </button>
+          <button
+            type="button"
+            className="lg:hidden w-9 h-9 rounded-full bg-transparent flex items-center justify-center text-foreground-muted border-none cursor-pointer transition-all hover:bg-[var(--theme-surface-hover)]"
+            onClick={() => setMenuOpen(v => !v)}
+            aria-label="Mở menu MatchPro"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              {menuOpen ? (
+                <><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></>
+              ) : (
+                <><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="18" x2="21" y2="18" /></>
+              )}
+            </svg>
           </button>
         </div>
       </header>
+
+      {menuOpen && (
+        <nav className="lg:hidden bg-background-base border-b border-border-default px-4 py-3 flex flex-col gap-1 z-[199]">
+          {navLinks.map(link => (
+            <Link
+              key={link.path}
+              to={link.path}
+              className={`py-2.5 px-4 rounded-xl text-sm font-medium no-underline ${
+                isActive(link.path) ? 'bg-[#5E6AD2]/15 text-[#5E6AD2]' : 'text-foreground-muted'
+              }`}
+            >
+              {link.label}
+            </Link>
+          ))}
+        </nav>
+      )}
+
       <main ref={contentRef} className="flex-1">{children}</main>
     </div>
   )

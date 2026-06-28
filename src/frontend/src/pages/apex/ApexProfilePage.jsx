@@ -4,6 +4,7 @@ import ApexLayout from '../../layouts/ApexLayout'
 import authApi from '../../api/authApi'
 import { bookingApi } from '../../api/bookingApi'
 import { useToast } from '../../components/Toast'
+import StatusBadge from '../../components/ui/StatusBadge'
 
 export default function ApexProfilePage() {
   const { addToast } = useToast()
@@ -65,13 +66,6 @@ export default function ApexProfilePage() {
     } catch (err) {
       addToast(typeof err === 'string' ? err : 'Cập nhật hồ sơ thất bại.', 'error')
     }
-  }
-
-  const statusLabels = {
-    Confirmed: 'Đã xác nhận',
-    Pending: 'Chờ thanh toán',
-    Completed: 'Đã hoàn thành',
-    Cancelled: 'Đã hủy',
   }
 
   return (
@@ -217,14 +211,7 @@ export default function ApexProfilePage() {
                           <span className="text-xs text-foreground-muted font-medium">
                             {new Date(b.details?.[0]?.bookingDate).toLocaleDateString('vi-VN')}
                           </span>
-                          <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border ${
-                            b.status === 'Confirmed' ? 'bg-accent/10 text-accent border-accent/20' :
-                            b.status === 'Pending' ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' :
-                            b.status === 'Cancelled' ? 'bg-red-500/10 text-red-400 border-red-500/20' :
-                            'bg-[var(--theme-surface)] text-foreground-muted border-border-default'
-                          }`}>
-                            {statusLabels[b.status] || b.status}
-                          </span>
+                          <StatusBadge status={b.status} />
                         </div>
                       </div>
                     </div>

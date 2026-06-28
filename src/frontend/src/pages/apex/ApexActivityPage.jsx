@@ -11,7 +11,7 @@ const notifications = [
     icon: <Swords size={20} />,
     iconBg: '#14B8A6',
     title: 'Lời mời thi đấu',
-    body: 'Sarah J. đã mời bạn tham gia trận đánh đôi Pickleball tại Grand Slam Center.',
+    body: 'Lan J. đã mời bạn tham gia trận đánh đôi Pickleball tại Trung tâm Grand Slam.',
     time: '2 phút trước',
     unread: true,
     extra: { date: 'Ngày mai, 18:00 - Sân 3' },

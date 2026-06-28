@@ -50,7 +50,9 @@ builder.Services.AddSwaggerGen(c =>
 
 // Configure Database
 builder.Services.AddDbContext<ProSportDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        sql => sql.MigrationsAssembly(typeof(ProSportDbContext).Assembly.GetName().Name)));
 
 // Configure Dependency Injection
 builder.Services.AddScoped<IUserRepository, UserRepository>();
@@ -106,8 +108,21 @@ builder.Services.AddRateLimiter(options =>
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 });
 
-// Configure JWT Authentication
+// Configure JWT Authentication — secret from env/config (never commit production keys)
+const string JwtPlaceholder = "YOUR_JWT_SECRET_KEY_HERE_MIN_256_BITS";
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
+var jwtSecret = jwtSettings["SecretKey"]
+    ?? Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
+if (string.IsNullOrWhiteSpace(jwtSecret) || jwtSecret == JwtPlaceholder)
+{
+    if (!builder.Environment.IsDevelopment())
+        throw new InvalidOperationException(
+            "JwtSettings:SecretKey or JWT_SECRET_KEY environment variable must be set in non-Development environments.");
+    jwtSecret = "ProSport-Dev-Only-JWT-Secret-Key-256bits-DoNotUseInProduction!!";
+}
+if (jwtSecret.Length < 32)
+    throw new InvalidOperationException("JWT secret must be at least 256 bits (32 characters).");
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -119,7 +134,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateIssuerSigningKey = true,
             ValidIssuer = jwtSettings["Issuer"],
             ValidAudience = jwtSettings["Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["SecretKey"]!))
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret))
         };
     });
 builder.Services.AddAuthorization();
@@ -132,7 +147,12 @@ builder.Services.AddCors(options =>
         {
             // Read origins from config: Cors:AllowedOrigins (array) or fallback to dev default
             var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
-                ?? new[] { "http://localhost:5173", "http://localhost:5174" };
+                ?? new[] {
+                    "http://localhost:5173",
+                    "http://localhost:5174",
+                    "http://127.0.0.1:5173",
+                    "http://127.0.0.1:5174",
+                };
             
             policy.WithOrigins(allowedOrigins)
                   .AllowAnyHeader()
@@ -162,49 +182,20 @@ app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Seed Data
-// LƯU Ý (FIX nghiêm trọng): trước đây gọi EnsureDeletedAsync() -> XÓA & TẠO LẠI toàn bộ DB
-// mỗi lần khởi động, làm mất sạch dữ liệu. Đã bỏ dòng đó.
-// EnsureCreatedAsync() chỉ tạo schema từ model khi DB chưa tồn tại (giữ nguyên dữ liệu cũ).
-// (Nếu DB cũ đã tồn tại nhưng thiếu cột mới như Users.IsLocked, cần drop DB 1 lần để tạo lại,
-//  hoặc chuyển sang dùng Migrations khi terminal sẵn sàng.)
+// Apply migrations + idempotent seed (never wipe existing data on startup)
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<ProSportDbContext>();
-    await context.Database.EnsureCreatedAsync();
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+    await DatabaseBootstrap.ApplyAsync(context, logger);
     await DatabaseSeeder.EnsureEquipmentRentalSchemaAsync(context);
     await DatabaseSeeder.SeedEquipmentAsync(context);
     await DatabaseSeeder.SeedCourtsAsync(context);
+    await SampleUserSeeder.SeedAsync(context, scope.ServiceProvider.GetRequiredService<IConfiguration>(), app.Environment.IsDevelopment(), logger);
 }
 
 app.MapControllers();
 
 app.MapGet("/", () => "ProSport API is running. Go to /swagger to view the API documentation.");
-
-// === ADMIN SEEDER ===
-// Tạo tài khoản Admin mặc định nếu chưa có (idempotent — chỉ chạy 1 lần).
-using (var scope = app.Services.CreateScope())
-{
-    var context = scope.ServiceProvider.GetRequiredService<ProSportDbContext>();
-    if (!context.Users.Any(u => u.Email == "admin@prosport.vn"))
-    {
-        context.Users.Add(new ProSport.Domain.Entities.User
-        {
-            FullName = "System Admin",
-            Email = "admin@prosport.vn",
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin@123456"),
-            Role = "Admin",
-            IsPhoneVerified = true,
-            IsDeleted = false,
-            CreatedAt = DateTime.UtcNow
-        });
-        context.SaveChanges();
-        Console.WriteLine("[Seeder] Admin user created: admin@prosport.vn / Admin@123456");
-    }
-    else
-    {
-        Console.WriteLine("[Seeder] Admin user already exists. Skipping.");
-    }
-}
 
 app.Run();

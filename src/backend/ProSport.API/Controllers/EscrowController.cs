@@ -12,10 +12,12 @@ namespace ProSport.API.Controllers;
 public class EscrowController : ControllerBase
 {
     private readonly IEscrowService _escrowService;
+    private readonly IWebHostEnvironment _environment;
 
-    public EscrowController(IEscrowService escrowService)
+    public EscrowController(IEscrowService escrowService, IWebHostEnvironment environment)
     {
         _escrowService = escrowService;
+        _environment = environment;
     }
 
     private bool TryGetUserId(out int userId)
@@ -45,12 +47,19 @@ public class EscrowController : ControllerBase
         return StatusCode(response.StatusCode, response);
     }
 
-    // API nạp tiền tạm thời dùng cho FE test (Mock VNPay)
+    // API nạp tiền mock — chỉ Development, ẩn hoàn toàn ở Production
     [HttpPost("deposit-mock")]
     public async Task<IActionResult> DepositMock([FromQuery] decimal amount)
     {
+        if (!_environment.IsDevelopment())
+            return NotFound();
+
         if (!TryGetUserId(out int userId))
             return Unauthorized(new ApiResponseDto<object>(401, "Unauthorized"));
+
+        const decimal maxMockDeposit = 10_000_000m;
+        if (amount > maxMockDeposit)
+            return BadRequest(new ApiResponseDto<object>(400, $"Số tiền mock tối đa {maxMockDeposit:N0} VND"));
 
         var response = await _escrowService.DepositAsync(userId, amount, $"MOCK-{Guid.NewGuid()}", "Nạp tiền Mock");
         return StatusCode(response.StatusCode, response);

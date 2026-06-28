@@ -49,7 +49,7 @@ export default function ApexBookingPage() {
           setCourts(mappedCourts)
         }
       })
-      .catch(err => addToast('Lỗi tải danh sách sân: ' + (typeof err === 'string' ? err : err.message || 'Unknown error'), 'error'))
+      .catch(err => addToast('Lỗi tải danh sách sân: ' + (typeof err === 'string' ? err : err.message || 'Lỗi không xác định'), 'error'))
       
     // Load Wallet
     paymentApi.getEscrowWallet()

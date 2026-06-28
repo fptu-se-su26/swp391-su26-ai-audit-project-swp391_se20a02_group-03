@@ -5,12 +5,15 @@ import Footer from '../../components/Footer'
 import { bookingApi } from '../../api/bookingApi'
 import { paymentApi } from '../../api/paymentApi'
 import { useToast } from '../../components/Toast'
+import { useConfirm, BOOKING_CANCEL_CONFIRM } from '../../components/ui/ConfirmDialog'
+import StatusBadge from '../../components/ui/StatusBadge'
 
 export default function BookingHistoryPage() {
   const [bookings, setBookings] = useState([]);
   const [filter, setFilter] = useState('All');
   const [isLoading, setIsLoading] = useState(true);
   const { addToast } = useToast();
+  const confirm = useConfirm();
 
   const fetchBookings = useCallback(async () => {
     setIsLoading(true);
@@ -33,7 +36,8 @@ export default function BookingHistoryPage() {
   }, [fetchBookings]);
 
   async function handleCancel(bookingId) {
-    // HIGH FIX: Use toast confirmation instead of blocking window.confirm()
+    const ok = await confirm(BOOKING_CANCEL_CONFIRM);
+    if (!ok) return;
     addToast('Đang hủy đặt sân...', 'info');
     try {
       const res = await bookingApi.cancelBooking(bookingId);
@@ -70,21 +74,10 @@ export default function BookingHistoryPage() {
     return true;
   });
 
-  function getStatusColor(status) {
-    switch (status) {
-      case 'Confirmed': return 'bg-green-100 text-green-700';
-      case 'Pending': return 'bg-yellow-100 text-yellow-700';
-      case 'Completed': return 'bg-slate-100 text-slate-600';
-      case 'Cancelled': return 'bg-red-100 text-red-600';
-      default: return 'bg-slate-100 text-slate-600';
-    }
-  };
-
   function formatTime(t) {
     if (!t) return '';
-    // Handle "HH:MM:SS" → "HH:MM"
     return t.length > 5 ? t.slice(0, 5) : t;
-  };
+  }
 
   // Tính thời gian còn lại cho PaymentDeadline
   const getDeadlineRemaining = useCallback((deadline) => {
@@ -143,7 +136,7 @@ export default function BookingHistoryPage() {
                     <div>
                       <div className="flex items-center gap-2 mb-1">
                         <h3 className="font-bold text-slate-900">{b.details?.[0]?.courtName || 'Sân chưa xác định'}</h3>
-                        <span className={`text-[0.65rem] font-bold px-2 py-0.5 rounded-full ${getStatusColor(b.status)}`}>{b.status}</span>
+                        <StatusBadge status={b.status} />
                       </div>
                       <p className="text-sm text-slate-500">{new Date(b.details?.[0]?.bookingDate).toLocaleDateString('vi-VN')} • {formatTime(b.details?.[0]?.startTime)} - {formatTime(b.details?.[0]?.endTime)}</p>
                       <p className="text-xs text-slate-400 mt-1">Mã đơn: #{b.bookingId}</p>
@@ -158,7 +151,7 @@ export default function BookingHistoryPage() {
                       {/* Mã Check-in cho Confirmed */}
                       {b.status === 'Confirmed' && b.checkInCode && (
                         <p className="text-xs mt-1.5 flex items-center gap-1">
-                          <span className="text-slate-400">Mã check-in:</span>
+                          <span className="text-slate-400">Mã vào sân:</span>
                           <span className="font-mono font-bold text-[#14B8A6] bg-[#14B8A6]/10 px-2 py-0.5 rounded">{b.checkInCode}</span>
                         </p>
                       )}

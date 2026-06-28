@@ -2,41 +2,45 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import MatchProLayout from '../../layouts/MatchProLayout'
 import { matchApi } from '../../api/matchApi'
+import PageLoader from '../../components/ui/PageLoader'
 import { TrendingUp, MapPin, Users, Trophy, Swords, Clock, Calendar, Wallet } from 'lucide-react'
 import bannerImage from '../../assets/pickleball_banner.png'
 
 const sidebarLinks = [
-  { label: 'Trending Matches', icon: TrendingUp, active: true, path: '/matches' },
-  { label: 'Nearby Sports', icon: MapPin, path: '/matches/nearby' },
-  { label: 'Community Hub', icon: Users, path: '/matches/community' },
-  { label: 'Leaderboards', icon: Trophy, path: '/matches/leaderboard' },
+  { label: 'Bảng tin kèo', icon: TrendingUp, active: true, path: '/matches' },
+  { label: 'Sân gần bạn', icon: MapPin, path: '/matches/nearby' },
+  { label: 'Cộng đồng', icon: Users, path: '/matches/community' },
+  { label: 'Xếp hạng', icon: Trophy, path: '/matches/leaderboard' },
 ]
 
 const sportFilters = ['Tất cả', 'Cầu lông', 'Pickleball']
 
-const nearbyPlayers = [
-  { name: 'David K.', dist: '1.2 km away', avatar: 'https://ui-avatars.com/api/?name=David+K&background=5E6AD2&color=fff', online: true },
-  { name: 'Sarah M.', dist: '2.5 km away', avatar: 'https://ui-avatars.com/api/?name=Sarah+M&background=2c2f48&color=5E6AD2', online: false },
-  { name: 'Michael T.', dist: '3.1 km away', avatar: 'https://ui-avatars.com/api/?name=Michael+T&background=1a1b26&color=fff', online: true },
-]
+const levelLabels = {
+  Pro: 'Chuyên nghiệp',
+  Advanced: 'Nâng cao',
+  Intermediate: 'Trung bình',
+  Beginner: 'Người mới',
+}
 
-const leaderboard = [
-  { rank: 1, name: 'Alex H.', pts: '2,450', avatar: 'https://ui-avatars.com/api/?name=Alex+H' },
-  { rank: 2, name: 'Jordan L.', pts: '2,120', avatar: 'https://ui-avatars.com/api/?name=Jordan+L' },
-  { rank: 3, name: 'Taylor S.', pts: '1,980', avatar: 'https://ui-avatars.com/api/?name=Taylor+S' },
-]
+const nearbyPlayers = []
+
+const leaderboard = []
 
 export default function MatchProFeedPage() {
   const [activeFilter, setActiveFilter] = useState('Tất cả')
   const [matches, setMatches] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
   useEffect(() => {
+    setLoading(true)
     matchApi.getOpenMatches()
       .then(res => {
-        if(res.data) setMatches(res.data);
+        if (res.data) setMatches(Array.isArray(res.data) ? res.data : [])
       })
-      .catch(err => console.error(err));
-  }, []);
+      .catch(err => setError(typeof err === 'string' ? err : 'Không tải được danh sách kèo'))
+      .finally(() => setLoading(false))
+  }, [])
 
   return (
     <MatchProLayout>
@@ -45,8 +49,8 @@ export default function MatchProFeedPage() {
         {/* Left sidebar */}
         <aside className="fade-up card-base flex flex-col gap-6 max-md:hidden shrink-0 sticky top-[100px]">
           <div className="border-b border-border-default pb-5">
-            <p className="text-base font-bold text-[var(--theme-primary)]">Pro Matcher</p>
-            <p className="text-xs font-bold text-[#5E6AD2] bg-[#5E6AD2]/10 border border-[#5E6AD2]/20 w-fit px-2.5 py-1 rounded-md mt-2">Elite Rank</p>
+            <p className="text-base font-bold text-[var(--theme-primary)]">MatchPro</p>
+            <p className="text-xs font-bold text-[#5E6AD2] bg-[#5E6AD2]/10 border border-[#5E6AD2]/20 w-fit px-2.5 py-1 rounded-md mt-2">Hạng cao cấp</p>
           </div>
           <div className="flex flex-col gap-2">
             {sidebarLinks.map(link => (
@@ -64,11 +68,11 @@ export default function MatchProFeedPage() {
           
           {/* Hero banner */}
           <div className="fade-up relative rounded-[2rem] overflow-hidden h-[260px] mb-8 cursor-pointer group shadow-2xl border border-border-default">
-            <img src={bannerImage} alt="Match" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+            <img src={bannerImage} alt="Trận đấu" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
             <div className="absolute inset-0 bg-gradient-to-t from-[#020203]/90 via-[#020203]/40 to-transparent flex flex-col justify-end px-8 py-8 gap-2">
               <span className="text-xs font-bold text-red-400 tracking-wider flex items-center gap-2 bg-red-500/10 backdrop-blur-md w-fit px-3 py-1.5 rounded-lg border border-red-500/20">
                 <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
-                TRENDING NOW
+                ĐANG HOT
               </span>
               <h2 className="font-['Oswald'] text-3xl md:text-4xl font-bold text-[var(--theme-primary)] leading-tight mt-2">Giải Đấu Pickleball Mùa Hè Đà Nẵng</h2>
               <div className="flex gap-5 text-sm text-foreground-muted font-medium mt-1">
@@ -91,7 +95,13 @@ export default function MatchProFeedPage() {
 
           {/* Match cards */}
           <div className="grid grid-cols-2 max-sm:grid-cols-1 gap-5">
-            {matches.length === 0 ? (
+            {loading ? (
+              <div className="col-span-full"><PageLoader message="Đang tải kèo..." /></div>
+            ) : error ? (
+              <div className="col-span-full card-base p-10 text-center">
+                <p className="text-red-400 font-medium">{error}</p>
+              </div>
+            ) : matches.length === 0 ? (
               <div className="fade-up col-span-full text-center py-16 card-base flex flex-col items-center justify-center">
                 <div className="w-16 h-16 rounded-full bg-[#5E6AD2]/10 border border-[#5E6AD2]/20 flex items-center justify-center mb-6 shadow-[0_0_20px_rgba(94,106,210,0.2)]">
                   <Swords size={32} className="text-[#5E6AD2]" />
@@ -111,7 +121,7 @@ export default function MatchProFeedPage() {
                   <div className="flex-1 min-w-0">
                     <p className="font-bold text-[1.05rem] text-[var(--theme-primary)] truncate group-hover:text-[#5E6AD2] transition-colors">{m.title}</p>
                     <p className="text-[0.8rem] text-foreground-muted mt-1 flex items-center gap-2">
-                       <span className="bg-[var(--theme-surface)] border border-border-default px-2 py-0.5 rounded text-foreground-muted font-semibold">{m.skillLevel}</span>
+                       <span className="bg-[var(--theme-surface)] border border-border-default px-2 py-0.5 rounded text-foreground-muted font-semibold">{levelLabels[m.skillLevel] || m.skillLevel}</span>
                     </p>
                   </div>
                 </div>
@@ -127,7 +137,7 @@ export default function MatchProFeedPage() {
 
                 <div className="mt-auto pt-4 flex items-center justify-between pl-1 border-t border-border-default">
                   <span className="text-xs font-bold px-3 py-1.5 rounded-lg bg-orange-500/10 text-orange-400 border border-orange-500/20">
-                    CÒN {m.maxParticipants - m.currentParticipants} SLOT
+                    CÒN {m.maxParticipants - m.currentParticipants} CHỖ
                   </span>
                   <div className="text-[#5E6AD2] bg-[#5E6AD2]/10 border border-[#5E6AD2]/20 w-8 h-8 rounded-full flex items-center justify-center group-hover:bg-[#5E6AD2] group-hover:text-[var(--theme-primary)] transition-all shadow-[0_0_10px_rgba(94,106,210,0)] group-hover:shadow-[0_0_10px_rgba(94,106,210,0.4)]">
                     →
@@ -147,7 +157,9 @@ export default function MatchProFeedPage() {
               <button className="text-foreground-muted hover:text-[#5E6AD2] transition-colors"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg></button>
             </div>
             <div className="flex flex-col gap-3">
-              {nearbyPlayers.map(p => (
+              {nearbyPlayers.length === 0 ? (
+                <p className="text-sm text-foreground-muted py-4 text-center">Chưa có người chơi gần bạn.<br /><Link to="/matches/nearby" className="text-[#5E6AD2] no-underline font-semibold">Khám phá sân →</Link></p>
+              ) : nearbyPlayers.map(p => (
                 <div key={p.name} className="flex items-center gap-3 py-2 border-b border-border-default last:border-0 group cursor-pointer">
                   <div className="relative shrink-0">
                     <img src={p.avatar} alt={p.name} className="w-11 h-11 rounded-full object-cover shadow-sm group-hover:ring-2 ring-[#5E6AD2] transition-all" />
@@ -157,7 +169,7 @@ export default function MatchProFeedPage() {
                     <p className="text-sm font-bold text-[var(--theme-primary)] group-hover:text-[#5E6AD2] transition-colors">{p.name}</p>
                     <p className="text-[0.7rem] font-medium text-foreground-muted">{p.dist}</p>
                   </div>
-                  <button className="ml-auto w-8 h-8 rounded-full bg-[var(--theme-surface)] flex items-center justify-center text-foreground-muted hover:bg-[#5E6AD2] hover:text-[var(--theme-primary)] transition-all border border-border-default hover:border-[#5E6AD2]" aria-label="Add friend">
+                  <button className="ml-auto w-8 h-8 rounded-full bg-[var(--theme-surface)] flex items-center justify-center text-foreground-muted hover:bg-[#5E6AD2] hover:text-[var(--theme-primary)] transition-all border border-border-default hover:border-[#5E6AD2]" aria-label="Kết bạn">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>
                   </button>
                 </div>
@@ -171,7 +183,9 @@ export default function MatchProFeedPage() {
               <Trophy size={20} className="text-[#5E6AD2]" />
             </div>
             <div className="flex flex-col gap-3">
-              {leaderboard.map((p, i) => (
+              {leaderboard.length === 0 ? (
+                <p className="text-sm text-foreground-muted py-4 text-center"><Link to="/matches/leaderboard" className="text-[#5E6AD2] no-underline font-semibold">Xem bảng xếp hạng đầy đủ →</Link></p>
+              ) : leaderboard.map((p, i) => (
                 <div key={p.name} className="flex items-center gap-3 py-2 border-b border-border-default last:border-0">
                   <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-[var(--theme-primary)] shrink-0 ${i === 0 ? 'bg-orange-500 shadow-[0_0_10px_rgba(249,115,22,0.4)]' : i === 1 ? 'bg-gray-400 shadow-[0_0_10px_rgba(156,163,175,0.4)]' : i === 2 ? 'bg-amber-700 shadow-[0_0_10px_rgba(180,83,9,0.4)]' : 'bg-[var(--theme-surface-hover)]'}`}>
                     {p.rank}

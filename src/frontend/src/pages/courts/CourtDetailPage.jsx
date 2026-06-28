@@ -6,10 +6,10 @@ import { MapPin, Wifi, Car, Shirt, Wind, ShoppingBag, Droplets, Star, ChevronRig
 
 const court = {
   id: 1,
-  name: 'Infinity Court – Level 1',
-  sport: 'Badminton / Pickleball',
-  type: 'Premium Indoor Court',
-  address: 'Le Van Loc, District 7, HCMC',
+  name: 'Sân Infinity – Tầng 1',
+  sport: 'Cầu lông / Pickleball',
+  type: 'Sân trong nhà cao cấp',
+  address: 'Lê Văn Lương, Quận 7, TP.HCM',
   rating: 4.9,
   reviews: 124,
   pricePerSlot: 120000,
@@ -20,14 +20,14 @@ const court = {
     'https://images.unsplash.com/photo-1551958219-acbc595b39c6?w=600&q=80',
   ],
   amenities: [
-    { label: 'Free High-Speed Wi-Fi', icon: <Wifi className="w-5 h-5" /> },
-    { label: 'Secure Parking', icon: <Car className="w-5 h-5" /> },
-    { label: 'Locker Rooms', icon: <Shirt className="w-5 h-5" /> },
-    { label: 'Air Conditioning', icon: <Wind className="w-5 h-5" /> },
-    { label: 'Equipment Rental', icon: <ShoppingBag className="w-5 h-5" /> },
-    { label: 'Water Station', icon: <Droplets className="w-5 h-5" /> },
+    { label: 'Wi-Fi tốc độ cao', icon: <Wifi className="w-5 h-5" /> },
+    { label: 'Bãi đỗ xe an toàn', icon: <Car className="w-5 h-5" /> },
+    { label: 'Phòng thay đồ', icon: <Shirt className="w-5 h-5" /> },
+    { label: 'Điều hòa', icon: <Wind className="w-5 h-5" /> },
+    { label: 'Cho thuê dụng cụ', icon: <ShoppingBag className="w-5 h-5" /> },
+    { label: 'Trạm nước uống', icon: <Droplets className="w-5 h-5" /> },
   ],
-  description: 'Premium indoor court equipped with top-tier flooring, anti-glare lighting, and full climate control. Ideal for competitive matches and professional training sessions. Includes access to all premium amenities and equipment rental services.',
+  description: 'Sân trong nhà cao cấp với mặt sàn chuẩn, hệ thống chiếu sáng chống chói và điều hòa toàn khu. Phù hợp thi đấu chuyên nghiệp và tập luyện. Bao gồm quyền sử dụng tiện ích và dịch vụ cho thuê dụng cụ.',
 }
 
 const HOURS = ['07:00','08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00']
@@ -52,9 +52,9 @@ export default function CourtDetailPage() {
       <main className="flex-1 max-w-[1200px] mx-auto px-6 pt-28 pb-24 w-full relative z-10">
         {/* Breadcrumb */}
         <nav className="flex items-center gap-2 text-sm font-medium tracking-wide text-foreground-muted mb-8">
-          <Link to="/" className="hover:text-[var(--theme-primary)] transition-colors duration-200">Home</Link>
+          <Link to="/" className="hover:text-[var(--theme-primary)] transition-colors duration-200">Trang chủ</Link>
           <ChevronRight className="w-4 h-4 text-[var(--theme-primary)]/[0.1]" />
-          <Link to="/courts" className="hover:text-[var(--theme-primary)] transition-colors duration-200">Courts</Link>
+          <Link to="/courts" className="hover:text-[var(--theme-primary)] transition-colors duration-200">Sân</Link>
           <ChevronRight className="w-4 h-4 text-[var(--theme-primary)]/[0.1]" />
           <span className="text-[var(--theme-primary)]">{court.name}</span>
         </nav>
@@ -70,7 +70,7 @@ export default function CourtDetailPage() {
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#050506]/80 via-transparent to-transparent pointer-events-none" />
             <span className="absolute top-5 left-5 bg-black/40 backdrop-blur-md text-[var(--theme-primary)] font-mono text-xs tracking-widest uppercase px-3 py-1.5 border border-border-default rounded-full shadow-[0_4px_12px_rgba(0,0,0,0.5)] z-10">
-              AVAILABLE NOW
+              CÒN TRỐNG
             </span>
           </div>
           
@@ -111,7 +111,7 @@ export default function CourtDetailPage() {
                 <div className="flex items-center gap-2 bg-[var(--theme-surface)] border border-border-default rounded-full px-4 py-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
                   <Star className="w-4 h-4 text-yellow-500 fill-yellow-500/30" />
                   <span className="font-semibold text-[var(--theme-primary)]">{court.rating}</span>
-                  <span className="text-foreground-muted text-sm ml-1">({court.reviews} reviews)</span>
+                  <span className="text-foreground-muted text-sm ml-1">({court.reviews} đánh giá)</span>
                 </div>
               </div>
               
@@ -127,7 +127,7 @@ export default function CourtDetailPage() {
             <div className="card-base p-8">
               <h2 className="text-xl font-semibold text-foreground tracking-tight mb-6 flex items-center gap-3">
                 <div className="w-1.5 h-6 bg-white/[0.1] rounded-full" />
-                Amenities
+                Tiện ích
               </h2>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 {court.amenities.map(a => (
@@ -147,15 +147,15 @@ export default function CourtDetailPage() {
                 <div>
                   <h2 className="text-xl font-semibold text-foreground tracking-tight mb-1 flex items-center gap-3">
                     <div className="w-1.5 h-6 bg-[#5E6AD2] rounded-full shadow-[0_0_10px_rgba(94,106,210,0.8)]" />
-                    Available Schedule
+                    Lịch trống
                   </h2>
-                  <p className="text-foreground-muted text-sm ml-4.5">Select a time slot for today</p>
+                  <p className="text-foreground-muted text-sm ml-4.5">Chọn khung giờ cho hôm nay</p>
                 </div>
                 {/* Legend */}
                 <div className="hidden sm:flex gap-5 text-sm font-medium text-foreground-muted">
-                  <span className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-[var(--theme-surface)] border border-border-default"/> Available</span>
-                  <span className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-red-500/20 border border-red-500/30"/> Booked</span>
-                  <span className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-[#5E6AD2] shadow-[0_0_8px_rgba(94,106,210,0.6)]"/> Selected</span>
+                  <span className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-[var(--theme-surface)] border border-border-default"/> Trống</span>
+                  <span className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-red-500/20 border border-red-500/30"/> Đã đặt</span>
+                  <span className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-[#5E6AD2] shadow-[0_0_8px_rgba(94,106,210,0.6)]"/> Đã chọn</span>
                 </div>
               </div>
               
@@ -183,7 +183,7 @@ export default function CourtDetailPage() {
             <div className="card-base p-8 relative">
               
               <div className="mb-8">
-                <p className="text-foreground-muted font-medium text-sm mb-2 uppercase tracking-widest">Rate per hour</p>
+                <p className="text-foreground-muted font-medium text-sm mb-2 uppercase tracking-widest">Giá theo giờ</p>
                 <p className="text-4xl font-semibold text-foreground tracking-tight flex items-baseline gap-2">
                   {court.pricePerSlot.toLocaleString('vi-VN')} 
                   <span className="text-lg font-medium text-foreground-muted tracking-normal">VND</span>
@@ -195,17 +195,17 @@ export default function CourtDetailPage() {
                 <div className="bg-[#5E6AD2]/10 border border-[#5E6AD2]/20 p-5 rounded-xl shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
                   <p className="text-xs font-mono tracking-wider uppercase text-[#5E6AD2] mb-2 flex items-center gap-1.5">
                     <span className="w-1.5 h-1.5 rounded-full bg-[#5E6AD2] shadow-[0_0_5px_rgba(94,106,210,0.8)] animate-pulse" />
-                    Selected Time
+                    Khung giờ đã chọn
                   </p>
                   <p className="text-2xl font-semibold text-[var(--theme-primary)] mb-1 tracking-tight">{selectedSlot} – {HOURS[HOURS.indexOf(selectedSlot) + 1] || '22:00'}</p>
-                  <p className="text-foreground-muted text-sm font-medium">Today • {court.name}</p>
+                  <p className="text-foreground-muted text-sm font-medium">Hôm nay • {court.name}</p>
                 </div>
               </div>
 
               {/* Placeholder when unselected */}
               <div className={`transition-all duration-300 overflow-hidden ${!selectedSlot ? 'max-h-16 opacity-100 mb-6' : 'max-h-0 opacity-0 mb-0'}`}>
                 <div className="bg-white/[0.02] border border-border-default py-4 text-center rounded-xl border-dashed">
-                  <p className="text-foreground-muted font-medium text-sm">Please select a time slot</p>
+                  <p className="text-foreground-muted font-medium text-sm">Vui lòng chọn khung giờ</p>
                 </div>
               </div>
 
@@ -215,29 +215,29 @@ export default function CourtDetailPage() {
                 onClick={e => !selectedSlot && e.preventDefault()}
                 className={`w-full flex items-center justify-center h-12 rounded-xl font-semibold text-sm transition-all duration-200
                   ${selectedSlot ? 'bg-[#EDEDEF] text-[#050506] hover:bg-white shadow-[0_4px_14px_rgba(255,255,255,0.15)] active:scale-[0.98]' : 'bg-[var(--theme-surface)] text-foreground-muted border border-border-default cursor-not-allowed'}`}>
-                {selectedSlot ? 'Confirm Booking' : 'Select Time Slot'}
+                {selectedSlot ? 'Xác nhận đặt sân' : 'Chọn khung giờ'}
               </Link>
 
               <p className="text-center text-foreground-muted text-xs font-medium mt-6">
-                Payments secured by VNPay & Stripe
+                Thanh toán bảo mật qua VNPay & Stripe
               </p>
 
               {/* Receipt / Invoice Preview */}
               <div className={`transition-all duration-500 ease-in-out overflow-hidden border-t border-border-default ${selectedSlot ? 'max-h-64 mt-6 pt-6 opacity-100' : 'max-h-0 mt-0 pt-0 opacity-0'}`}>
                 <div className="space-y-4 text-sm font-medium">
                   <div className="flex justify-between items-center text-foreground-muted">
-                    <span>Court Rental (1 hour)</span>
+                    <span>Thuê sân (1 giờ)</span>
                     <span>{court.pricePerSlot.toLocaleString('vi-VN')}</span>
                   </div>
                   <div className="flex justify-between items-center text-foreground-muted">
                     <span className="flex items-center gap-2">
-                      Platform Fee 
+                      Phí nền tảng 
                       <span className="bg-white/[0.06] text-foreground-muted border border-border-default px-1.5 py-0.5 rounded text-[10px] font-mono">5%</span>
                     </span>
                     <span>{(court.pricePerSlot * 0.05).toLocaleString('vi-VN')}</span>
                   </div>
                   <div className="flex justify-between items-center border-t border-border-default pt-4 mt-2">
-                    <span className="font-semibold text-[var(--theme-primary)] text-base">Total</span>
+                    <span className="font-semibold text-[var(--theme-primary)] text-base">Tổng cộng</span>
                     <span className="text-xl font-semibold text-[var(--theme-primary)] tracking-tight">
                       {(court.pricePerSlot * 1.05).toLocaleString('vi-VN')} <span className="text-sm font-medium text-foreground-muted">VND</span>
                     </span>

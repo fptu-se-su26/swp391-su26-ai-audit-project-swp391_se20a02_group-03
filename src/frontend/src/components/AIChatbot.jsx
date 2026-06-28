@@ -99,7 +99,7 @@ export default function AIChatbot() {
             }}>🤖</div>
             <div style={{ flex: 1 }}>
               <p style={{ margin: 0, fontWeight: 700, color: '#fff', fontSize: 14, fontFamily: 'Inter, sans-serif' }}>
-                Pro-Sport AI Assistant
+                Trợ lý AI Pro-Sport
               </p>
               <p style={{ margin: 0, fontSize: 11, color: 'rgba(255,255,255,0.65)' }}>
                 {loading ? '✦ Đang soạn câu trả lời...' : '● Trực tuyến 24/7'}

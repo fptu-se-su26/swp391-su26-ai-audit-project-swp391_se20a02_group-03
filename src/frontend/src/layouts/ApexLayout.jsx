@@ -5,6 +5,8 @@ import SearchBar from '../components/ui/SearchBar'
 import ProfileDropdown from '../components/ui/ProfileDropdown'
 import NotificationMenu from '../components/ui/NotificationMenu'
 import { useCart } from '../context/CartContext'
+import { useAuth } from '../context/AuthContext'
+import ProSportLogo from '../components/ui/ProSportLogo'
 import { 
   Home, 
   Calendar, 
@@ -25,33 +27,33 @@ import {
 const mainNav = [
   {
     path: '/apex',
-    label: 'Dashboard',
+    label: 'Tổng quan',
     icon: <Home className="w-5 h-5" />,
     exact: true,
   },
   {
     path: '/apex/booking',
-    label: 'Book Court',
+    label: 'Đặt sân',
     icon: <Calendar className="w-5 h-5" />,
   },
   {
     path: '/apex/matches',
-    label: 'Matches',
+    label: 'Kèo đấu',
     icon: <Swords className="w-5 h-5" />,
   },
   {
     path: '/gear/catalog',
-    label: 'Gear Store',
+    label: 'Cửa hàng',
     icon: <ShoppingBag className="w-5 h-5" />,
   },
   {
     path: '/apex/bookings',
-    label: 'History',
+    label: 'Lịch sử',
     icon: <BookOpen className="w-5 h-5" />,
   },
   {
     path: '/apex/activity',
-    label: 'Activity',
+    label: 'Hoạt động',
     icon: <Activity className="w-5 h-5" />,
   },
 ]
@@ -59,12 +61,12 @@ const mainNav = [
 const accountNav = [
   {
     path: '/apex/profile',
-    label: 'Profile',
+    label: 'Hồ sơ',
     icon: <User className="w-5 h-5" />,
   },
   {
     path: '/apex/settings',
-    label: 'Settings',
+    label: 'Cài đặt',
     icon: <Settings className="w-5 h-5" />,
   },
 ]
@@ -72,7 +74,7 @@ const accountNav = [
 const supportNav = [
   {
     path: '/apex/support',
-    label: 'Support',
+    label: 'Hỗ trợ',
     icon: <LifeBuoy className="w-5 h-5" />,
   },
 ]
@@ -117,12 +119,13 @@ export default function ApexLayout({ children }) {
   const [desktopSidebarCollapsed, setDesktopSidebarCollapsed] = useState(false)
   const [userProfile, setUserProfile] = useState(null)
   const { cartCount } = useCart()
+  const { logout } = useAuth()
 
   useEffect(() => {
     async function fetchProfile() {
       try {
         const res = await authApi.getProfile()
-        if (res?.data?.data) setUserProfile(res.data.data)
+        if (res?.data) setUserProfile(res.data)
       } catch (err) {
         console.error("Failed to fetch profile", err)
       }
@@ -131,8 +134,7 @@ export default function ApexLayout({ children }) {
   }, [])
 
   function handleLogout() {
-    localStorage.removeItem('token')
-    sessionStorage.removeItem('token')
+    logout()
     navigate('/login')
   }
 
@@ -157,22 +159,19 @@ export default function ApexLayout({ children }) {
       <aside className={`w-[280px] h-screen bg-background-deep/80 backdrop-blur-xl border-r border-border-default flex flex-col fixed left-0 top-0 bottom-0 z-[200] transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${desktopSidebarCollapsed ? '-translate-x-full' : 'translate-x-0'} ${mobileSidebarOpen ? 'max-[900px]:!translate-x-0' : 'max-[900px]:!-translate-x-full'}`}>
         {/* Brand */}
         <div className="flex items-center gap-3 px-6 h-16 border-b border-border-default shrink-0">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#5E6AD2] to-indigo-600 flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(94,106,210,0.4)]">
-            <span className="text-[var(--theme-primary)] font-bold text-sm">P</span>
-          </div>
-          <span className="font-semibold tracking-tight text-[var(--theme-primary)]">ProSport</span>
+          <ProSportLogo size="sm" />
         </div>
 
         {/* Nav groups */}
         <nav className="flex-1 px-3 py-4 flex flex-col overflow-y-auto">
-          <GroupLabel>Main</GroupLabel>
+          <GroupLabel>Chính</GroupLabel>
           <div className="flex flex-col gap-1">
             {mainNav.map(link => (
               <NavItem key={link.path} link={link} isActive={isActive(link)} onClick={() => setMobileSidebarOpen(false)} />
             ))}
           </div>
 
-          <GroupLabel>Account</GroupLabel>
+          <GroupLabel>Tài khoản</GroupLabel>
           <div className="flex flex-col gap-1">
             {accountNav.map(link => (
               <NavItem key={link.path} link={link} isActive={isActive(link)} onClick={() => setMobileSidebarOpen(false)} />
@@ -192,7 +191,7 @@ export default function ApexLayout({ children }) {
               className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 text-foreground-muted hover:bg-red-500/10 hover:text-red-400 text-left w-full"
             >
               <LogOut className="w-5 h-5 shrink-0" />
-              <span>Log Out</span>
+              <span>Đăng xuất</span>
             </button>
           </div>
         </nav>
@@ -206,7 +205,7 @@ export default function ApexLayout({ children }) {
           <button
             className="hidden max-[900px]:flex items-center justify-center w-10 h-10 rounded-lg text-foreground-muted hover:bg-[var(--theme-surface)] hover:text-[var(--theme-primary)] transition-colors"
             onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}
-            aria-label="Menu"
+            aria-label="Mở menu"
           >
             {mobileSidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
@@ -215,7 +214,7 @@ export default function ApexLayout({ children }) {
           <button
             className="max-[900px]:hidden flex items-center justify-center w-10 h-10 rounded-lg text-foreground-muted hover:bg-[var(--theme-surface)] hover:text-[var(--theme-primary)] transition-colors"
             onClick={() => setDesktopSidebarCollapsed(!desktopSidebarCollapsed)}
-            aria-label="Toggle Sidebar"
+            aria-label="Thu gọn menu"
           >
             <Menu className="w-5 h-5" />
           </button>
@@ -225,7 +224,7 @@ export default function ApexLayout({ children }) {
             className="flex items-center justify-center w-10 h-10 rounded-lg text-foreground-muted hover:bg-[var(--theme-surface)] hover:text-[var(--theme-primary)] transition-colors sm:ml-2"
             onClick={() => navigate('/')}
             title="Quay về trang chính"
-            aria-label="Go to Home"
+            aria-label="Về trang chủ"
           >
             <Home className="w-5 h-5" />
           </button>
@@ -236,7 +235,7 @@ export default function ApexLayout({ children }) {
 
           <div className="flex items-center gap-4 ml-auto">
             {/* Cart */}
-            <Link to="/gear/cart" className="relative flex items-center justify-center w-10 h-10 rounded-lg text-foreground-muted hover:bg-[var(--theme-surface)] hover:text-[var(--theme-primary)] transition-colors" title="Cart">
+            <Link to="/gear/cart" className="relative flex items-center justify-center w-10 h-10 rounded-lg text-foreground-muted hover:bg-[var(--theme-surface)] hover:text-[var(--theme-primary)] transition-colors" title="Giỏ hàng">
               <ShoppingBag className="w-5 h-5" />
               {cartCount > 0 && (
                 <span className="absolute top-1.5 right-1.5 bg-[#5E6AD2] text-[var(--theme-primary)] w-4 h-4 flex items-center justify-center rounded-full text-[10px] font-bold shadow-[0_0_8px_rgba(94,106,210,0.6)]">
