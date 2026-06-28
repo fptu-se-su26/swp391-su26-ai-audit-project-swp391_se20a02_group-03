@@ -280,3 +280,37 @@ Antigravity AI sinh toàn bộ cấu trúc JSX, CSS và hệ thống routing ban
 
 ### Hỗ trợ từ AI (AI-assisted)
 * Antigravity AI (Gemini) đóng vai trò một Kỹ sư Kiểm thử & DevSecOps: tự động quét mã nguồn Backend để đưa ra các bản vá lỗi, khởi tạo hạ tầng chạy Unit Test và tự động thiết lập cấu hình tích hợp bộ quy tắc `taste-skill`. Người thực hiện đóng vai trò Quản trị viên Dự án (Project Manager): trực tiếp đưa ra quyết định hạ cấp phiên bản .NET để phá vỡ bế tắc của hệ điều hành, điều phối luồng đẩy code (Git Push) an toàn, và quyết liệt ép hệ thống phải "học" bộ quy tắc thiết kế mới từ bên ngoài để chặn đứng rủi ro AI sinh ra các giao diện rập khuôn rẻ tiền (AI-slop).
+
+
+
+
+
+
+
+## [2026-06-27] - Giai đoạn: Hoàn thiện tích hợp Frontend–Backend & Bổ sung API còn thiếu (Voucher / Khiếu nại / E-KYC)
+**Người thực hiện:** Phạm Nguyễn Tiến Đạt
+
+### Thêm mới (Added)
+* **Backend - Voucher:** Dựng mới full-stack cụm mã giảm giá theo kiến trúc phân tầng (`VoucherDto` → `IVoucherRepository`/`VoucherRepository` → `IVoucherService`/`VoucherService` → `VoucherController`), hỗ trợ CRUD, kiểm tra trùng mã, lọc voucher còn hiệu lực; đăng ký Dependency Injection tại `Program.cs`.
+* **Backend - Khiếu nại (Report):** Dựng mới full-stack luồng báo cáo người chơi (khách gửi → Admin/Staff xử lý), kèm cơ chế chống tự báo cáo và báo cáo trùng.
+* **Backend - E-KYC:** Khởi tạo `KycController` cho phép Admin duyệt/từ chối hồ sơ, đồng bộ trạng thái `EkycProfile.Status` và `User.EKycStatus` trong cùng một giao dịch.
+* **Frontend - API Client:** Bổ sung `voucherApi.js`, `reportApi.js`, `kycApi.js` và mở rộng `bookingApi.js` (`getAllBookings`).
+* **Tính năng đánh giá người chơi (TK-035):** Hoàn thiện UI chấm điểm (1–5 sao) và hiển thị Trust Score thật cho Host/người tham gia tại `MatchDetailPage` thông qua `ratingApi`.
+
+### Thay đổi (Changed)
+* **Chuyển Mock → Dữ liệu thật:** Kết nối (wiring) hàng loạt trang nghiệp vụ với API thực, thay thế toàn bộ dữ liệu giả:
+  * **Admin:** `AdminBookingsPage`, `AdminComplaintsPage`, `AdminKycPage`.
+  * **Elite (Staff):** `EliteScannerPage` (check-in QR), `EliteVouchersPage`, `EliteDisputesPage`.
+  * **Shop:** `ShopPage`, `ShopProductPage`, `ShopCartPage`, `ShopCheckoutPage` (giỏ hàng + thanh toán qua `cartApi`).
+  * **MatchPro:** `MatchProFeedPage`, `MatchProNearbyPage` (dùng `matchApi.getOpenMatches`).
+  * **Customer:** `ReportDisputePage` (gửi khiếu nại thật).
+* **Chuẩn hóa hợp đồng dữ liệu (Data Contract):** Bắt buộc toàn bộ Controller mới tuân theo envelope `ApiResponseDto` để đồng nhất với cách `axiosClient` bóc tách phản hồi.
+* **Chuẩn hóa UX:** Áp dụng nhất quán trạng thái Loading / Empty / Error cho các trang được wire.
+
+### Sửa lỗi (Fixed)
+* **[Frontend - Crash] Import sai module:** Khắc phục lỗi sập trang do `Check`, `Star`, `Trash2`, `useState` bị import nhầm từ `react` (đúng ra là từ `lucide-react`) tại `ShopPage`, `ShopProductPage`, `ShopCartPage`.
+* **[Frontend - Crash] Sai kiểu dữ liệu:** Sửa lỗi gọi `m.hostId.substring()` trên giá trị kiểu số tại `MatchProFeedPage` (chuyển sang `String(...)`).
+* **[Frontend - API] Bóc tách sai gói dữ liệu:** Sửa lỗi đọc dư một lớp `.data` tại `EliteScannerPage` khiến kết quả check-in luôn rỗng; đồng thời bổ sung luồng nhập mã thủ công khi không có camera.
+
+### Hỗ trợ từ AI (AI-assisted)
+* Cursor (Claude Opus) đóng vai trò Kỹ sư Full-stack: sinh các tầng DTO–Repository–Service–Controller cho 3 cụm API mới theo chuẩn envelope và phân quyền theo vai trò (Role-based Authorization), đồng thời wiring các trang Frontend với dữ liệu thật. Người thực hiện đóng vai trò định hướng và kiểm soát: điều phối thứ tự ưu tiên nghiệp vụ, yêu cầu triển khai song song hai hướng (dựng backend còn thiếu + wiring trang đã có backend), bắt buộc chuẩn hóa envelope `ApiResponseDto`, xác định không phát sinh Migration mới (do Entity/bảng `Voucher`/`Report`/`EkycProfile` đã tồn tại sẵn), và chỉ ra các lỗi crash nghiêm trọng phía Frontend để vá triệt để.
