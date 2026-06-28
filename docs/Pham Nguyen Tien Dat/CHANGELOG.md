@@ -314,3 +314,31 @@ Antigravity AI sinh toàn bộ cấu trúc JSX, CSS và hệ thống routing ban
 
 ### Hỗ trợ từ AI (AI-assisted)
 * Cursor (Claude Opus) đóng vai trò Kỹ sư Full-stack: sinh các tầng DTO–Repository–Service–Controller cho 3 cụm API mới theo chuẩn envelope và phân quyền theo vai trò (Role-based Authorization), đồng thời wiring các trang Frontend với dữ liệu thật. Người thực hiện đóng vai trò định hướng và kiểm soát: điều phối thứ tự ưu tiên nghiệp vụ, yêu cầu triển khai song song hai hướng (dựng backend còn thiếu + wiring trang đã có backend), bắt buộc chuẩn hóa envelope `ApiResponseDto`, xác định không phát sinh Migration mới (do Entity/bảng `Voucher`/`Report`/`EkycProfile` đã tồn tại sẵn), và chỉ ra các lỗi crash nghiêm trọng phía Frontend để vá triệt để.
+
+
+
+
+
+## [2026-06-29] - Giai đoạn: Tích hợp Google OAuth, Làm mới logo PRO-SPORT & Việt hóa UI
+**Người thực hiện:** Phạm Nguyễn Tiến Đạt
+
+### Thêm mới (Added)
+* **Google OAuth (Frontend):** Tích hợp `@react-oauth/google` — `GoogleSignInButton.jsx`, `googleAuth.js`, bọc `GoogleOAuthProvider` tại `main.jsx`; nút Google trên `LoginPage` và `RegisterPage`.
+* **Google OAuth (Backend):** Endpoint `POST /api/auth/google-login`, validate `googleIdToken` trong `AuthService.GoogleLoginAsync`.
+* **Nhận diện thương hiệu:** `ProSportLogoMark.jsx`, `ProSportLogo.jsx`, `public/logo.svg`, favicon; áp dụng trên Navbar, Footer, layouts và trang auth/status.
+* **Utility & UI:** `labels.js`, `ConfirmDialog.jsx`, `PageLoader.jsx`.
+* **Cấu hình dev:** `setup-local.ps1`, `appsettings.Development.example.json`, cập nhật `.env.example`.
+
+### Thay đổi (Changed)
+* **Việt hóa:** Rà soát và chuyển chuỗi EN → VI trên 80+ trang/component; chuẩn hóa `StatusBadge` và `labels.js`.
+* **Auth flow:** Sửa `AuthContext.jsx`, đồng bộ Google login qua `login()` tại Login/Register.
+* **Bảo mật repo:** Xóa `appsettings.Development.json` khỏi Git; secret chỉ giữ cục bộ (`.env`, `appsettings.Development.json`).
+
+### Sửa lỗi (Fixed)
+* **[OAuth] Origin bị chặn:** Thêm `http://localhost:5173` và `http://127.0.0.1:5173` vào Google Cloud Console.
+* **[OAuth] Client ID sai ký tự:** Sửa typo Client ID và đồng bộ `.env` / `appsettings.Development.json` cục bộ.
+* **[OAuth] Khởi tạo trùng:** Giảm lỗi `initialize() called multiple times` bằng cấu trúc provider/render đúng.
+* **[Frontend] UX:** Sửa logout, orphan routes, Loading/Error và chuỗi EN còn sót.
+
+### Hỗ trợ từ AI (AI-assisted)
+* Cursor (Claude Opus) triển khai OAuth end-to-end, logo PRO-SPORT, Việt hóa và chuẩn hóa cấu hình dev. Người thực hiện cấu hình GCP, sửa Client ID, tinh chỉnh logo, commit và push lên `DE190147/audit-module` (commit `fed44de`).
