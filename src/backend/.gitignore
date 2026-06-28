@@ -6,6 +6,10 @@ obj/
 *.user
 .vs/
 
+## SDK installers / binaries — KHÔNG commit (TK-001 cleanup)
+dotnet8sdk.exe
+*.exe
+
 ## Local secrets — NEVER commit these
 appsettings.Development.json
 appsettings.*.json

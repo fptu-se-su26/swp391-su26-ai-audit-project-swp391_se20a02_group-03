@@ -114,4 +114,16 @@ public class AuthController : ControllerBase
         var result = await _authService.GetProfileAsync(userId);
         return StatusCode(result.StatusCode, result);
     }
+
+    [HttpPut("profile")]
+    [Authorize]
+    public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileRequestDto request)
+    {
+        var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out var userId))
+            return Unauthorized(new ApiResponseDto<object>(401, "Unauthorized"));
+
+        var result = await _authService.UpdateProfileAsync(userId, request);
+        return StatusCode(result.StatusCode, result);
+    }
 }

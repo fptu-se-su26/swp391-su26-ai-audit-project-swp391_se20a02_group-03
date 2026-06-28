@@ -103,6 +103,18 @@ public class CompleteProfileRequestDto
     public string PhoneNumber { get; set; } = null!;
 }
 
+public class UpdateProfileRequestDto
+{
+    [StringLength(100, MinimumLength = 2, ErrorMessage = "Full Name must be between 2 and 100 characters.")]
+    public string? FullName { get; set; }
+
+    [Phone(ErrorMessage = "Invalid phone number format.")]
+    [RegularExpression(@"^[0-9]+$", ErrorMessage = "Phone number must contain only digits.")]
+    public string? PhoneNumber { get; set; }
+
+    public string? AvatarUrl { get; set; }
+}
+
 public class AuthResponseDto
 {
     public int UserId { get; set; }

@@ -1,134 +1,132 @@
-import { Star, useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useParams, useNavigate, Link } from 'react-router-dom'
+import { Loader2, Minus, Plus, ShoppingCart } from 'lucide-react'
 import ShopLayout from '../../layouts/ShopLayout'
+import { equipmentApi } from '../../api/equipmentApi'
+import { cartApi } from '../../api/cartApi'
+import { useToast } from '../../components/Toast'
 
-const colors = [
-  { name: 'Neon Blue / Ice White', hex: '#00b4d8' },
-  { name: 'Midnight Black', hex: '#1a1a2e' },
-  { name: 'Coral Orange', hex: '#f4845f' },
-]
-
-const sizes = [8, 8.5, 9, 9.5, 10, 10.5, 11, 11.5]
-
-const specs = [
-  { label: 'Weight', value: '210g (Size 9)' },
-  { label: 'Drop', value: '8mm' },
-  { label: 'Cushioning', value: 'Max - React Foam+', highlight: true },
-  { label: 'Plate', value: 'Full-length Carbon Fiber', highlight: true },
-]
-
-const thumbs = [
-  'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=200&q=80',
-  'https://images.unsplash.com/photo-1608231387042-66d1773d3028?w=200&q=80',
-  'https://images.unsplash.com/photo-1556906781-9a412961a28c?w=200&q=80',
-]
+const FALLBACK_IMG = 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&q=80'
 
 export default function ShopProductPage() {
-  const [selectedColor, setSelectedColor] = useState(0)
-  const [selectedSize, setSelectedSize] = useState(9.5)
-  const [activeThumb, setActiveThumb] = useState(0)
-  const [specsOpen, setSpecsOpen] = useState(true)
+  const { id } = useParams()
+  const navigate = useNavigate()
+  const { addToast } = useToast()
+  const [product, setProduct] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [qty, setQty] = useState(1)
+  const [adding, setAdding] = useState(false)
+
+  useEffect(() => {
+    let active = true
+    async function load() {
+      try {
+        setLoading(true)
+        setError(null)
+        const res = await equipmentApi.getById(id)
+        if (!active) return
+        // GetById trả EquipmentDto trực tiếp (không bọc envelope)
+        const data = res?.data && res?.statusCode ? res.data : res
+        if (data && data.equipmentId) setProduct(data)
+        else setError('Không tìm thấy sản phẩm.')
+      } catch (err) {
+        if (active) setError(typeof err === 'string' ? err : 'Không tải được sản phẩm.')
+      } finally {
+        if (active) setLoading(false)
+      }
+    }
+    load()
+    return () => { active = false }
+  }, [id])
+
+  async function handleAddToCart(goToCart = false) {
+    if (!product) return
+    try {
+      setAdding(true)
+      const res = await cartApi.addToCart({ equipmentId: product.equipmentId, quantity: qty })
+      if (res?.success === false) {
+        addToast(res.message || 'Thêm vào giỏ thất bại.', 'error')
+        return
+      }
+      addToast('Đã thêm vào giỏ hàng!', 'success')
+      if (goToCart) navigate('/shop/cart')
+    } catch (err) {
+      addToast(typeof err === 'string' ? err : 'Thêm vào giỏ thất bại. Vui lòng đăng nhập.', 'error')
+    } finally {
+      setAdding(false)
+    }
+  }
+
+  if (loading) {
+    return <ShopLayout><div className="py-32 text-center text-slate-400"><Loader2 className="inline animate-spin mr-2" size={22} /> Đang tải...</div></ShopLayout>
+  }
+  if (error || !product) {
+    return <ShopLayout><div className="py-32 text-center text-red-500">{error || 'Không tìm thấy sản phẩm.'}</div></ShopLayout>
+  }
+
+  const price = product.retailPrice || product.price || 0
+  const inStock = product.stockQuantity > 0 && product.status === 'Available'
 
   return (
     <ShopLayout>
-      <div className="px-5 md:px-10 py-5 pb-15 max-w-[1200px] mx-auto">
-        {/* Breadcrumb */}
+      <div className="px-5 md:px-10 py-5 pb-16 max-w-[1200px] mx-auto">
         <div className="text-xs text-[#94a3b8] mb-5">
-          <a href="#" className="text-[#14B8A6] no-underline hover:underline">Home</a> › <a href="#" className="text-[#14B8A6] no-underline hover:underline">Shoes</a> › <span className="text-[#64748b]">AeroPulse Elite X</span>
+          <Link to="/shop" className="text-[#14B8A6] no-underline hover:underline">Cửa hàng</Link> › <span className="text-[#64748b]">{product.name}</span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
-          {/* Gallery */}
           <div>
-            <div className="relative rounded-2xl overflow-hidden bg-[#f5f9fc] aspect-square mb-3">
-              <img src={thumbs[activeThumb]} alt="Product" className="w-full h-full object-cover" />
-              <button className="absolute top-3 right-3 w-9 h-9 rounded-full bg-white border border-[#e0ecf0] cursor-pointer flex items-center justify-center text-[#94a3b8] shadow-[0_2px_8px_rgba(0,0,0,0.1)] transition-all duration-200 hover:text-[#ef4444] hover:border-[#ef4444]" aria-label="Save">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-              </button>
-            </div>
-            <div className="flex gap-2">
-              {thumbs.map((t, i) => (
-                <button key={t} className={`w-[72px] h-[72px] rounded-[10px] border-2 overflow-hidden cursor-pointer p-0 bg-[#f5f9fc] transition-colors duration-200 ${activeThumb === i ? 'border-[#14B8A6]' : 'border-[#e0ecf0]'}`} onClick={() => setActiveThumb(i)}>
-                  <img src={t} alt={`View ${i + 1}`} className="w-full h-full object-cover" />
-                </button>
-              ))}
+            <div className="relative rounded-2xl overflow-hidden bg-[#f5f9fc] aspect-square">
+              <img src={product.imageUrl || FALLBACK_IMG} alt={product.name} className="w-full h-full object-cover" onError={e => { e.currentTarget.src = FALLBACK_IMG }} />
             </div>
           </div>
 
-          {/* Details */}
           <div>
-            <h1 className="font-oswald text-3xl font-bold text-foreground mb-1.5">AeroPulse Elite X</h1>
-            <p className="text-sm text-[#14B8A6] mb-4">Professional Grade Marathon Footwear</p>
+            <p className="text-[0.7rem] font-bold tracking-widest uppercase text-[#94a3b8] mb-1">{product.category} • {product.type}</p>
+            <h1 className="font-oswald text-3xl font-bold text-foreground mb-1.5">{product.name}</h1>
+            <p className="text-sm text-[#14B8A6] mb-4">{product.categoryName}</p>
+
             <div className="flex items-center gap-4 mb-6">
-              <span className="font-oswald text-3xl font-bold text-foreground">$249.99</span>
-              <span className="text-[0.82rem] bg-[#f59e0b]/10 text-[#f59e0b] px-2.5 py-1 rounded-full font-semibold"><Star size={12} fill="currentColor" className="inline mr-1 text-yellow-500" /> 4.9 (128 Reviews)</span>
-            </div>
-
-            {/* Color */}
-            <div className="mb-5">
-              <p className="text-[0.85rem] font-semibold text-foreground mb-2.5">Color: <span className="text-[#14B8A6] font-normal">{colors[selectedColor].name}</span></p>
-              <div className="flex gap-2">
-                {colors.map((c, i) => (
-                  <button
-                    key={c.name}
-                    className={`w-7 h-7 rounded-full border-[2.5px] cursor-pointer transition-all duration-200 ${selectedColor === i ? 'border-[#0F172A] shadow-[0_0_0_2px_white,0_0_0_4px_#0F172A]' : 'border-transparent'}`}
-                    style={{background: c.hex}}
-                    onClick={() => setSelectedColor(i)}
-                    aria-label={c.name}
-                  />
-                ))}
-              </div>
-            </div>
-
-            {/* Size */}
-            <div className="mb-5">
-              <div className="flex justify-between items-center mb-2.5">
-                <p className="text-[0.85rem] font-semibold text-foreground">Size (US Men's)</p>
-                <a href="#" className="text-xs text-[#14B8A6] hover:underline">Size Guide</a>
-              </div>
-              <div className="grid grid-cols-4 gap-2 mb-3">
-                {sizes.map(s => (
-                  <button
-                    key={s}
-                    className={`p-2 border-[1.5px] rounded-lg font-sans text-sm font-medium cursor-pointer transition-all duration-200 ${selectedSize === s ? 'bg-[var(--theme-primary)] border-[#0F172A] text-[var(--theme-primary)]' : s === 11 ? 'opacity-35 cursor-not-allowed line-through border-[#e0ecf0] bg-white text-foreground' : 'border-[#e0ecf0] bg-white text-foreground hover:border-[#14B8A6] hover:text-[#14B8A6]'}`}
-                    onClick={() => s !== 11 && setSelectedSize(s)}
-                    disabled={s === 11}
-                  >{s}</button>
-                ))}
-              </div>
-              <p className="flex items-center gap-1.5 text-[0.82rem] text-green-500">
-                <span className="w-2 h-2 rounded-full bg-green-500" />
-                In Stock & Ready to Ship
-              </p>
-            </div>
-
-            {/* CTAs */}
-            <button className="bg-[#14B8A6] hover:bg-[#0b7373] text-[var(--theme-primary)] font-semibold flex items-center justify-center w-full gap-2 p-3.5 text-[0.95rem] mt-5 rounded-full transition-colors cursor-pointer border-none">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-              Add to Cart
-            </button>
-            <button className="w-full bg-white border-[1.5px] border-[#0F172A] text-foreground p-[13px] rounded-full font-sans text-[0.95rem] font-semibold cursor-pointer mt-2.5 transition-all duration-200 hover:bg-[var(--theme-primary)] hover:text-[var(--theme-primary)]">Buy Now with FastPay</button>
-
-            {/* Specs */}
-            <div className="mt-6 border-[1.5px] border-[#e0ecf0] rounded-xl overflow-hidden">
-              <button className="w-full flex justify-between items-center p-3.5 px-4.5 bg-transparent border-none font-sans text-sm font-semibold text-[#14B8A6] cursor-pointer" onClick={() => setSpecsOpen(!specsOpen)}>
-                <span>Technical Specifications</span>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{transform: specsOpen ? 'rotate(180deg)' : 'none', transition: '0.2s'}}><polyline points="18 15 12 9 6 15"/></svg>
-              </button>
-              {specsOpen && (
-                <div className="px-4.5 pb-3">
-                  {specs.map(s => (
-                    <div key={s.label} className="flex justify-between py-2.5 border-t border-[#f0f5f9] text-sm">
-                      <span className="text-[#64748b]">{s.label}</span>
-                      <span className={`font-semibold ${s.highlight ? 'text-[#14B8A6]' : 'text-foreground'}`}>{s.value}</span>
-                    </div>
-                  ))}
-                </div>
+              <span className="font-oswald text-3xl font-bold text-foreground">{price.toLocaleString('vi-VN')}₫</span>
+              {inStock ? (
+                <span className="flex items-center gap-1.5 text-[0.82rem] text-green-600"><span className="w-2 h-2 rounded-full bg-green-500" /> Còn {product.stockQuantity} sản phẩm</span>
+              ) : (
+                <span className="text-[0.82rem] bg-slate-100 text-slate-500 px-2.5 py-1 rounded-full font-semibold">Hết hàng</span>
               )}
             </div>
+
+            {product.description && (
+              <p className="text-sm text-[#475569] leading-relaxed mb-6">{product.description}</p>
+            )}
+
+            <div className="mb-5">
+              <p className="text-[0.85rem] font-semibold text-foreground mb-2.5">Số lượng</p>
+              <div className="flex items-center gap-3">
+                <button onClick={() => setQty(q => Math.max(1, q - 1))} className="w-10 h-10 rounded-lg border border-[#e0ecf0] flex items-center justify-center hover:border-[#14B8A6]"><Minus size={16} /></button>
+                <span className="w-12 text-center font-bold text-lg">{qty}</span>
+                <button onClick={() => setQty(q => Math.min(product.stockQuantity || 1, q + 1))} className="w-10 h-10 rounded-lg border border-[#e0ecf0] flex items-center justify-center hover:border-[#14B8A6]"><Plus size={16} /></button>
+              </div>
+            </div>
+
+            <button
+              onClick={() => handleAddToCart(false)}
+              disabled={!inStock || adding}
+              className="bg-[#14B8A6] hover:bg-[#0b7373] text-white font-semibold flex items-center justify-center w-full gap-2 p-3.5 text-[0.95rem] mt-5 rounded-full transition-colors cursor-pointer border-none disabled:opacity-50"
+            >
+              {adding ? <Loader2 size={16} className="animate-spin" /> : <ShoppingCart size={16} />}
+              {inStock ? 'Thêm vào giỏ' : 'Hết hàng'}
+            </button>
+            <button
+              onClick={() => handleAddToCart(true)}
+              disabled={!inStock || adding}
+              className="w-full bg-white border-[1.5px] border-[#0F172A] text-foreground p-[13px] rounded-full text-[0.95rem] font-semibold cursor-pointer mt-2.5 transition-all hover:bg-[#0F172A] hover:text-white disabled:opacity-50"
+            >
+              Mua ngay
+            </button>
           </div>
         </div>
       </div>
     </ShopLayout>
   )
 }
-

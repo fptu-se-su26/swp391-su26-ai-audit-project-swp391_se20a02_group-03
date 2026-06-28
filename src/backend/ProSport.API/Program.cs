@@ -76,6 +76,22 @@ builder.Services.AddScoped<IStorageService, LocalStorageService>();
 builder.Services.AddScoped<IChatbotService, ChatbotService>();
 builder.Services.AddScoped<ICartRepository, CartRepository>();
 builder.Services.AddScoped<ICartService, CartService>();
+// TK-010: quản lý người dùng (Admin)
+builder.Services.AddScoped<IUserService, UserService>();
+// TK-035: đánh giá người chơi + Trust Score
+builder.Services.AddScoped<IPlayerRatingRepository, PlayerRatingRepository>();
+builder.Services.AddScoped<IRatingService, RatingService>();
+// Admin Dashboard: tổng hợp số liệu tổng quan
+builder.Services.AddScoped<IDashboardService, DashboardService>();
+// Voucher giảm giá (Admin/Staff phát hành)
+builder.Services.AddScoped<IVoucherRepository, VoucherRepository>();
+builder.Services.AddScoped<IVoucherService, VoucherService>();
+// Khiếu nại / báo cáo người chơi
+builder.Services.AddScoped<IReportRepository, ReportRepository>();
+builder.Services.AddScoped<IReportService, ReportService>();
+// Phê duyệt E-KYC (Admin)
+builder.Services.AddScoped<IEkycRepository, EkycRepository>();
+builder.Services.AddScoped<IEkycService, EkycService>();
 
 // Configure Rate Limiting
 builder.Services.AddRateLimiter(options =>
@@ -128,8 +144,12 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-app.UseSwagger();
-app.UseSwaggerUI();
+// TK-039: chỉ bật Swagger ở môi trường Development, ẩn hoàn toàn ở Production.
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
 app.UseStaticFiles(); // Added for LocalStorageService
 
@@ -143,10 +163,14 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 // Seed Data
+// LƯU Ý (FIX nghiêm trọng): trước đây gọi EnsureDeletedAsync() -> XÓA & TẠO LẠI toàn bộ DB
+// mỗi lần khởi động, làm mất sạch dữ liệu. Đã bỏ dòng đó.
+// EnsureCreatedAsync() chỉ tạo schema từ model khi DB chưa tồn tại (giữ nguyên dữ liệu cũ).
+// (Nếu DB cũ đã tồn tại nhưng thiếu cột mới như Users.IsLocked, cần drop DB 1 lần để tạo lại,
+//  hoặc chuyển sang dùng Migrations khi terminal sẵn sàng.)
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<ProSportDbContext>();
-    await context.Database.EnsureDeletedAsync();
     await context.Database.EnsureCreatedAsync();
     await DatabaseSeeder.EnsureEquipmentRentalSchemaAsync(context);
     await DatabaseSeeder.SeedEquipmentAsync(context);

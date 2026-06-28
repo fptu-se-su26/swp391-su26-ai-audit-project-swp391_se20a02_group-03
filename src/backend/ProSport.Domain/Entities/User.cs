@@ -35,6 +35,10 @@ public class User : BaseEntity
     [Column("IsPhoneVerified")]
     public bool IsPhoneVerified { get; set; }
 
+    // TK-010: Cờ khóa tài khoản (Ban/Unban). true = bị khóa, không thể đăng nhập / thao tác.
+    [Column("IsLocked")]
+    public bool IsLocked { get; set; } = false;
+
     // Navigation properties
     public EkycProfile? EkycProfile { get; set; }
     public EscrowWallet? EscrowWallet { get; set; }

@@ -1,5 +1,6 @@
 namespace ProSport.API.Controllers;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ProSport.Application.DTOs;
 using ProSport.Application.Interfaces;
@@ -31,6 +32,7 @@ public class EquipmentCategoryController : ControllerBase
         return Ok(result);
     }
 
+    [Authorize(Roles = "Admin")] // TK-039: chỉ Admin được tạo danh mục
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateUpdateEquipmentCategoryDto dto)
     {
@@ -38,6 +40,7 @@ public class EquipmentCategoryController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = result.EquipmentCategoryId }, result);
     }
 
+    [Authorize(Roles = "Admin")] // TK-039: chỉ Admin được sửa danh mục
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, [FromBody] CreateUpdateEquipmentCategoryDto dto)
     {
@@ -46,6 +49,7 @@ public class EquipmentCategoryController : ControllerBase
         return Ok(result);
     }
 
+    [Authorize(Roles = "Admin")] // TK-039: chỉ Admin được xóa danh mục
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {

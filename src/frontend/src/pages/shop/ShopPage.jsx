@@ -1,35 +1,76 @@
-import { Check, Star, useState } from 'react'
+import { useState, useEffect, useMemo } from 'react'
+import { Check, Loader2 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import ShopLayout from '../../layouts/ShopLayout'
+import { equipmentApi } from '../../api/equipmentApi'
 
-const categories = ['Equipment', 'Apparel', 'Shoes']
-const sports = ['Tất cả', 'Cầu lông', 'Pickleball']
-
-const products = [
-  { id: 1, name: 'Aero Sprint Pro X', brand: 'VELOCITY', price: '$189.00', rating: 4.9, badge: 'NEW', img: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&q=80' },
-  { id: 2, name: 'Therma-Shield Jacket', brand: 'CORETECH', price: '$145.00', rating: 4.7, img: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&q=80' },
-  { id: 3, name: 'Elite Stride Shorts', brand: 'VELOCITY', price: '$65.00', rating: 4.9, badge: 'TRENDING', img: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&q=80' },
-]
+const FALLBACK_IMG = 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&q=80'
 
 export default function ShopPage() {
-  const [selectedCat, setSelectedCat] = useState(['Apparel'])
-  const [selectedSport, setSelectedSport] = useState(['Cầu lông'])
-  const [priceRange, setPriceRange] = useState(250)
+  const [items, setItems] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [selectedCat, setSelectedCat] = useState([])
+  const [selectedSport, setSelectedSport] = useState([])
+  const [priceRange, setPriceRange] = useState(0)
+  const [sort, setSort] = useState('recommended')
+
+  useEffect(() => {
+    let active = true
+    async function load() {
+      try {
+        setLoading(true)
+        setError(null)
+        const res = await equipmentApi.getAll()
+        if (!active) return
+        if (res.statusCode === 200 && Array.isArray(res.data)) {
+          setItems(res.data)
+          const max = res.data.reduce((m, e) => Math.max(m, e.retailPrice || e.price || 0), 0)
+          setPriceRange(Math.ceil(max) || 0)
+        } else {
+          setError(res.message || 'Không tải được sản phẩm.')
+        }
+      } catch (err) {
+        if (active) setError(typeof err === 'string' ? err : 'Không tải được sản phẩm.')
+      } finally {
+        if (active) setLoading(false)
+      }
+    }
+    load()
+    return () => { active = false }
+  }, [])
+
+  const categories = useMemo(() => [...new Set(items.map(i => i.category).filter(Boolean))], [items])
+  const sports = useMemo(() => [...new Set(items.map(i => i.type).filter(Boolean))], [items])
+  const maxPrice = useMemo(() => items.reduce((m, e) => Math.max(m, e.retailPrice || e.price || 0), 0), [items])
 
   const toggle = (arr, setArr, val) => setArr(arr.includes(val) ? arr.filter(x => x !== val) : [...arr, val])
+
+  const filtered = useMemo(() => {
+    let list = items.filter(p => {
+      const price = p.retailPrice || p.price || 0
+      if (selectedCat.length && !selectedCat.includes(p.category)) return false
+      if (selectedSport.length && !selectedSport.includes(p.type)) return false
+      if (priceRange && price > priceRange) return false
+      return true
+    })
+    if (sort === 'price-asc') list = [...list].sort((a, b) => (a.retailPrice || a.price) - (b.retailPrice || b.price))
+    if (sort === 'price-desc') list = [...list].sort((a, b) => (b.retailPrice || b.price) - (a.retailPrice || a.price))
+    return list
+  }, [items, selectedCat, selectedSport, priceRange, sort])
 
   return (
     <ShopLayout showFlashBanner darkHeader>
       <div className="flex flex-col md:flex-row min-h-[calc(100vh-96px)]">
-        {/* Left Sidebar */}
-        <aside className="w-full md:w-[180px] shrink-0 p-6 md:py-6 md:px-5 bg-[#0d1a24] border-b md:border-b-0 md:border-r border-white/6 flex flex-col gap-6">
+        <aside className="w-full md:w-[200px] shrink-0 p-6 md:py-6 md:px-5 bg-[#0d1a24] border-b md:border-b-0 md:border-r border-white/6 flex flex-col gap-6">
           <div className="flex flex-col">
-            <p className="text-[0.7rem] font-bold tracking-[0.12em] uppercase text-[var(--theme-primary)]/40 mb-3">CATEGORIES</p>
+            <p className="text-[0.7rem] font-bold tracking-[0.12em] uppercase text-white/40 mb-3">DANH MỤC</p>
+            {categories.length === 0 && <p className="text-xs text-white/30">—</p>}
             {categories.map(c => (
-              <label key={c} className="flex items-center gap-2 cursor-pointer text-sm text-[var(--theme-primary)]/70 py-1 select-none" htmlFor={`cat-${c}`}>
-                <input type="checkbox" id={`cat-${c}`} className="hidden" checked={selectedCat.includes(c)} onChange={() => toggle(selectedCat, setSelectedCat, c)} />
-                <span className={`w-4 h-4 border-[1.5px] border-white/25 rounded shrink-0 transition-all duration-200 flex items-center justify-center ${selectedCat.includes(c) ? 'bg-[#14B8A6] border-[#14B8A6]' : ''}`}>
-                  {selectedCat.includes(c) && <span className="text-[var(--theme-primary)] text-[0.65rem] font-bold"><Check size={12} className="inline" /></span>}
+              <label key={c} className="flex items-center gap-2 cursor-pointer text-sm text-white/70 py-1 select-none">
+                <input type="checkbox" className="hidden" checked={selectedCat.includes(c)} onChange={() => toggle(selectedCat, setSelectedCat, c)} />
+                <span className={`w-4 h-4 border-[1.5px] border-white/25 rounded shrink-0 flex items-center justify-center ${selectedCat.includes(c) ? 'bg-[#14B8A6] border-[#14B8A6]' : ''}`}>
+                  {selectedCat.includes(c) && <Check size={12} className="text-white" />}
                 </span>
                 <span>{c}</span>
               </label>
@@ -37,69 +78,71 @@ export default function ShopPage() {
           </div>
 
           <div className="flex flex-col">
-            <p className="text-[0.7rem] font-bold tracking-[0.12em] uppercase text-[var(--theme-primary)]/40 mb-3">SPORT</p>
+            <p className="text-[0.7rem] font-bold tracking-[0.12em] uppercase text-white/40 mb-3">MÔN</p>
             <div className="flex flex-wrap gap-1.5">
               {sports.map(s => (
-                <button key={s} className={`px-2.5 py-1 rounded-full border-[1.5px] border-white/15 bg-transparent text-xs font-medium text-[var(--theme-primary)]/60 cursor-pointer font-sans transition-all duration-200 hover:border-[#14B8A6] hover:text-[#0fc8b5] ${selectedSport.includes(s) ? 'bg-[#14B8A6] border-[#14B8A6] text-[var(--theme-primary)]' : ''}`} onClick={() => toggle(selectedSport, setSelectedSport, s)}>{s}</button>
+                <button key={s} onClick={() => toggle(selectedSport, setSelectedSport, s)} className={`px-2.5 py-1 rounded-full border-[1.5px] text-xs font-medium cursor-pointer transition-all ${selectedSport.includes(s) ? 'bg-[#14B8A6] border-[#14B8A6] text-white' : 'border-white/15 bg-transparent text-white/60 hover:border-[#14B8A6] hover:text-[#0fc8b5]'}`}>{s}</button>
               ))}
             </div>
           </div>
 
           <div className="flex flex-col">
-            <p className="text-[0.7rem] font-bold tracking-[0.12em] uppercase text-[var(--theme-primary)]/40 mb-3">PRICE</p>
-            <input type="range" min={0} max={500} value={priceRange} onChange={e => setPriceRange(e.target.value)} className="w-full accent-[#14B8A6] cursor-pointer" id="price-range" />
-            <div className="flex justify-between text-[0.78rem] text-[var(--theme-primary)]/50 mt-1.5"><span>$0</span><span>${priceRange}</span></div>
+            <p className="text-[0.7rem] font-bold tracking-[0.12em] uppercase text-white/40 mb-3">GIÁ TỐI ĐA</p>
+            <input type="range" min={0} max={maxPrice || 0} value={priceRange} onChange={e => setPriceRange(Number(e.target.value))} className="w-full accent-[#14B8A6] cursor-pointer" />
+            <div className="flex justify-between text-[0.78rem] text-white/50 mt-1.5"><span>0₫</span><span>{Number(priceRange).toLocaleString('vi-VN')}₫</span></div>
           </div>
         </aside>
 
-        {/* Main */}
         <div className="flex-1 p-7 md:p-8 bg-[#0d1a24]">
           <div className="flex items-start justify-between mb-6">
             <div>
-              <h1 className="font-oswald text-2xl font-bold text-[var(--theme-primary)]">Elite Apparel</h1>
-              <p className="text-[0.82rem] text-[var(--theme-primary)]/45 mt-1">Showing 124 results for high-performance gear.</p>
+              <h1 className="font-oswald text-2xl font-bold text-white">Cửa hàng thiết bị</h1>
+              <p className="text-[0.82rem] text-white/45 mt-1">{loading ? 'Đang tải...' : `${filtered.length} sản phẩm`}</p>
             </div>
-            <div className="flex items-center gap-2 text-[0.82rem] text-[var(--theme-primary)]/55">
-              <span>Sort by:</span>
-              <select id="shop-sort" className="bg-white/6 border border-white/12 rounded-lg text-[var(--theme-primary)] px-2.5 py-1.5 font-sans text-[0.82rem] outline-none cursor-pointer">
-                <option>Recommended</option>
-                <option>Price: Low to High</option>
-                <option>Newest</option>
+            <div className="flex items-center gap-2 text-[0.82rem] text-white/55">
+              <span>Sắp xếp:</span>
+              <select value={sort} onChange={e => setSort(e.target.value)} className="bg-white/6 border border-white/12 rounded-lg text-white px-2.5 py-1.5 text-[0.82rem] outline-none cursor-pointer">
+                <option value="recommended">Đề xuất</option>
+                <option value="price-asc">Giá: Thấp → Cao</option>
+                <option value="price-desc">Giá: Cao → Thấp</option>
               </select>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {products.map(p => (
-              <Link to={`/shop/product/${p.id}`} key={p.id} className="group bg-white/4 rounded-[14px] border border-white/8 overflow-hidden no-underline text-inherit transition-all duration-200 hover:shadow-[0_8px_24px_rgba(0,0,0,0.3)] hover:-translate-y-1 hover:border-[#0fc8b5]/30">
-                <div className="relative h-[200px] overflow-hidden">
-                  <img src={`https://images.unsplash.com/photo-${p.id === 1 ? '1542291026-7eec264c27ff' : p.id === 2 ? '1591047139829-d91aecb6caea' : '1506629082955-511b1aa562c8'}?w=600&q=80`} alt={p.name} className="w-full h-full object-cover transition-transform duration-400 group-hover:scale-105" />
-                  {p.badge && <span className={`absolute top-2.5 left-2.5 text-[0.65rem] font-bold tracking-wider px-2 py-0.5 rounded ${p.badge === 'TRENDING' ? 'bg-red-500 text-white' : 'bg-green-500 text-white'}`}>{p.badge}</span>}
-                  <button className="absolute top-2 right-2 w-[30px] h-[30px] rounded-full bg-white/15 backdrop-blur-[4px] border-none cursor-pointer flex items-center justify-center text-foreground transition-all duration-200 hover:bg-red-500/30 hover:text-red-500" aria-label="Wishlist">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-                  </button>
-                </div>
-                <div className="p-3.5">
-                  <p className="text-[0.68rem] font-bold tracking-widest uppercase text-[var(--theme-primary)]/35 mb-1">{p.brand}</p>
-                  <h3 className="text-sm font-bold text-[var(--theme-primary)] mb-2.5">{p.name}</h3>
-                  <div className="flex items-center justify-between">
-                    <p className="text-[0.95rem] font-bold text-[#0fc8b5]">{p.price}</p>
-                    <span className="text-[0.78rem] text-amber-500"><Star size={12} fill="currentColor" className="inline mr-1 text-yellow-500" /> {p.rating}</span>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-
-          <div className="text-center mt-8">
-            <button className="inline-flex gap-2 items-center px-6 py-2.5 text-[var(--theme-primary)]/70 border border-border-hover rounded-md transition-colors hover:border-[#0fc8b5] hover:text-[#0fc8b5] bg-transparent cursor-pointer font-medium text-sm">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-6.06"/></svg>
-              Load More Gear
-            </button>
-          </div>
+          {loading ? (
+            <div className="py-20 text-center text-white/50"><Loader2 className="inline animate-spin mr-2" size={20} /> Đang tải sản phẩm...</div>
+          ) : error ? (
+            <div className="py-20 text-center text-red-400">{error}</div>
+          ) : filtered.length === 0 ? (
+            <div className="py-20 text-center text-white/40">Không có sản phẩm phù hợp.</div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              {filtered.map(p => {
+                const price = p.retailPrice || p.price || 0
+                const out = p.stockQuantity <= 0 || p.status !== 'Available'
+                return (
+                  <Link to={`/shop/product/${p.equipmentId}`} key={p.equipmentId} className="group bg-white/4 rounded-[14px] border border-white/8 overflow-hidden no-underline text-inherit transition-all hover:shadow-[0_8px_24px_rgba(0,0,0,0.3)] hover:-translate-y-1 hover:border-[#0fc8b5]/30">
+                    <div className="relative h-[200px] overflow-hidden bg-white/5">
+                      <img src={p.imageUrl || FALLBACK_IMG} alt={p.name} className="w-full h-full object-cover transition-transform duration-400 group-hover:scale-105" onError={e => { e.currentTarget.src = FALLBACK_IMG }} />
+                      {out
+                        ? <span className="absolute top-2.5 left-2.5 text-[0.65rem] font-bold tracking-wider px-2 py-0.5 rounded bg-slate-600 text-white">HẾT HÀNG</span>
+                        : p.stockQuantity <= 5 && <span className="absolute top-2.5 left-2.5 text-[0.65rem] font-bold tracking-wider px-2 py-0.5 rounded bg-amber-500 text-white">SẮP HẾT</span>}
+                    </div>
+                    <div className="p-3.5">
+                      <p className="text-[0.68rem] font-bold tracking-widest uppercase text-white/35 mb-1">{p.category} • {p.type}</p>
+                      <h3 className="text-sm font-bold text-white mb-2.5 line-clamp-2">{p.name}</h3>
+                      <div className="flex items-center justify-between">
+                        <p className="text-[0.95rem] font-bold text-[#0fc8b5]">{price.toLocaleString('vi-VN')}₫</p>
+                        <span className="text-[0.72rem] text-white/40">Còn {p.stockQuantity}</span>
+                      </div>
+                    </div>
+                  </Link>
+                )
+              })}
+            </div>
+          )}
         </div>
       </div>
     </ShopLayout>
   )
 }
-

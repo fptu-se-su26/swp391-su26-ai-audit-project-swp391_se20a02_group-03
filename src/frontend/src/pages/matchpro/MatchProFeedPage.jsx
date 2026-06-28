@@ -106,7 +106,7 @@ export default function MatchProFeedPage() {
                 
                 <div className="flex items-start gap-4 pl-1">
                   <div className="w-12 h-12 rounded-2xl bg-[var(--theme-surface)] border border-border-default flex items-center justify-center font-bold text-[#5E6AD2] text-lg">
-                    {m.hostId.substring(0, 2).toUpperCase()}
+                    {String(m.hostId ?? '').slice(0, 2).toUpperCase() || '#'}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-bold text-[1.05rem] text-[var(--theme-primary)] truncate group-hover:text-[#5E6AD2] transition-colors">{m.title}</p>

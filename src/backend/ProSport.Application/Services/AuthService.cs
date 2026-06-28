@@ -154,6 +154,10 @@ public class AuthService : IAuthService
             if (user == null || user.PasswordHash == null || !BC.Verify(request.Password, user.PasswordHash))
                 return new ApiResponseDto<AuthResponseDto>(401, "Invalid email or password.");
 
+            // TK-010: Chặn đăng nhập nếu tài khoản đã bị Admin khóa (Ban).
+            if (user.IsLocked)
+                return new ApiResponseDto<AuthResponseDto>(403, "Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.");
+
             // BUG-13 FIX: Block unverified users from logging in (must verify OTP after registration)
             if (!user.IsPhoneVerified && user.GoogleId == null)
                 return new ApiResponseDto<AuthResponseDto>(403, "Please verify your email before logging in.");
@@ -224,6 +228,10 @@ public class AuthService : IAuthService
                 user.AvatarUrl ??= payload.Picture;
                 await _userRepository.UpdateAsync(user);
             }
+
+            // TK-010: Chặn đăng nhập Google nếu tài khoản đã bị Admin khóa (Ban).
+            if (user.IsLocked)
+                return new ApiResponseDto<AuthResponseDto>(403, "Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.");
 
             var token = GenerateJwtToken(user);
 
@@ -466,6 +474,48 @@ public class AuthService : IAuthService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error getting profile for UserId: {UserId}", userId);
+            return new ApiResponseDto<AuthResponseDto>(500, "An unexpected error occurred.");
+        }
+    }
+
+    public async Task<ApiResponseDto<AuthResponseDto>> UpdateProfileAsync(int userId, UpdateProfileRequestDto request)
+    {
+        try
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+            if (user == null)
+                return new ApiResponseDto<AuthResponseDto>(404, "User not found.");
+
+            if (!string.IsNullOrWhiteSpace(request.FullName))
+                user.FullName = request.FullName.Trim();
+
+            if (!string.IsNullOrWhiteSpace(request.PhoneNumber))
+            {
+                var existingPhone = await _userRepository.GetByPhoneAsync(request.PhoneNumber);
+                if (existingPhone != null && existingPhone.UserId != userId)
+                    return new ApiResponseDto<AuthResponseDto>(400, "Số điện thoại đã được sử dụng.");
+                user.PhoneNumber = request.PhoneNumber;
+            }
+
+            if (request.AvatarUrl != null)
+                user.AvatarUrl = request.AvatarUrl;
+
+            await _userRepository.UpdateAsync(user);
+
+            return new ApiResponseDto<AuthResponseDto>(200, "Cập nhật hồ sơ thành công.", new AuthResponseDto
+            {
+                UserId = user.UserId,
+                FullName = user.FullName,
+                Email = user.Email,
+                Role = user.Role,
+                AccessToken = "",
+                IsProfileComplete = !string.IsNullOrEmpty(user.PhoneNumber),
+                AvatarUrl = user.AvatarUrl
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating profile for UserId: {UserId}", userId);
             return new ApiResponseDto<AuthResponseDto>(500, "An unexpected error occurred.");
         }
     }
