@@ -411,7 +411,7 @@
 ---
 
 ## Log #15
-- **Ngày:** 2026-06-27
+- **Ngày:** 2026-06-29
 - **Người thực hiện:** Phạm Nguyễn Tiến Đạt
 - **Công cụ AI:** Cursor (Claude Opus)
 - **Mục đích:** Hoàn thiện luồng xác thực Google OAuth end-to-end, làm mới nhận diện thương hiệu PRO-SPORT, rà soát Việt hóa toàn hệ thống và chuẩn hóa cấu hình môi trường phát triển an toàn.
