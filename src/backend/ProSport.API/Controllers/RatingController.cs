@@ -40,4 +40,12 @@ public class RatingController : ControllerBase
         var response = await _ratingService.GetTrustScoreAsync(userId);
         return StatusCode(response.StatusCode, response);
     }
+
+    // GET: bảng xếp hạng người chơi theo Trust Score (công khai).
+    [HttpGet("leaderboard")]
+    public async Task<IActionResult> GetLeaderboard([FromQuery] int limit = 20)
+    {
+        var response = await _ratingService.GetLeaderboardAsync(limit);
+        return StatusCode(response.StatusCode, response);
+    }
 }

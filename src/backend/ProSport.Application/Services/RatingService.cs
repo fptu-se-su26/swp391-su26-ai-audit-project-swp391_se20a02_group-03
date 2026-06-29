@@ -84,4 +84,11 @@ public class RatingService : IRatingService
 
         return new ApiResponseDto<TrustScoreDto>(200, "Lấy điểm tín nhiệm thành công.", dto);
     }
+
+    public async Task<ApiResponseDto<IEnumerable<LeaderboardEntryDto>>> GetLeaderboardAsync(int limit = 20)
+    {
+        var safeLimit = Math.Clamp(limit, 1, 50);
+        var entries = await _ratingRepository.GetLeaderboardAsync(safeLimit);
+        return new ApiResponseDto<IEnumerable<LeaderboardEntryDto>>(200, "Lấy bảng xếp hạng thành công.", entries);
+    }
 }

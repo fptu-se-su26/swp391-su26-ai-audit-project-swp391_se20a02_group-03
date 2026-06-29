@@ -1,28 +1,111 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import ProSportDashLayout from '../../layouts/ProSportDashLayout'
+import { dashboardApi } from '../../api/dashboardApi'
+import PageLoader from '../../components/ui/PageLoader'
+import { useToast } from '../../components/Toast'
 
-const stats = [
-  { label: 'TỔNG ĐÃ GỬI',          value: '248.5k', trend: '↑ +12,4% tháng này', trendUp: true  },
-  { label: 'TỶ LỆ GIAO',       value: '99,2%',  bar: true                                    },
-  { label: 'TỶ LỆ MỞ TB.',      value: '42,8%',  bars: [30,50,40,55,70,65,80]                 },
-  { label: 'TỶ LỆ NHẤP (CTR)', value: '8,4%',   trend: '→ Ổn định so với tuần trước', trendUp: null },
-]
+const DRAFT_KEY = 'prosport_broadcast_draft'
 
 const audiences = ['Tất cả', 'Cầu lông', 'Pickleball', 'Người dùng không hoạt động', '+ Phân khúc tùy chỉnh']
 
-const recentBroadcasts = [
-  { status: 'ĐÃ LÊN LỊCH', statusColor: '#f59e0b', date: 'Ngày mai, 09:00', title: 'Nhắc giải đấu cuối tuần', meta: 'Đối tượng: Người tham gia giải' },
-  { status: 'ĐÃ GỬI', statusColor: '#22c55e', date: 'Hôm qua', title: 'Sân Pickleball Mới!', open: '68%', click: '12%' },
-  { status: 'ĐÃ GỬI', statusColor: '#22c55e', date: 'T2, 14:30', title: 'Cập nhật ứng dụng: Phiên bản 2.4', open: '45%', click: '3%' },
-]
+function formatRelativeTime(dateStr) {
+  const diff = Date.now() - new Date(dateStr).getTime()
+  const mins = Math.floor(diff / 60000)
+  if (mins < 60) return `${Math.max(1, mins)} phút trước`
+  const hours = Math.floor(mins / 60)
+  if (hours < 24) return `${hours} giờ trước`
+  return new Date(dateStr).toLocaleDateString('vi-VN')
+}
 
 export default function DashBroadcastPage() {
+  const { addToast } = useToast()
+  const [campName, setCampName] = useState('')
   const [msgBody, setMsgBody] = useState('')
   const [selectedAud, setSelectedAud] = useState(['Tất cả'])
   const [msgType, setMsgType] = useState('push')
+  const [overview, setOverview] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [sentHistory, setSentHistory] = useState([])
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(DRAFT_KEY)
+      if (raw) {
+        const draft = JSON.parse(raw)
+        if (draft.campName) setCampName(draft.campName)
+        if (draft.msgBody) setMsgBody(draft.msgBody)
+        if (draft.selectedAud?.length) setSelectedAud(draft.selectedAud)
+        if (draft.msgType) setMsgType(draft.msgType)
+      }
+    } catch { /* ignore */ }
+  }, [])
+
+  useEffect(() => {
+    let active = true
+    async function load() {
+      try {
+        setLoading(true)
+        setError(null)
+        const res = await dashboardApi.getStaffOverview()
+        if (!active) return
+        if (res.statusCode === 200 && res.data) setOverview(res.data)
+        else setError(res.message || 'Không tải được dữ liệu vận hành.')
+      } catch (err) {
+        if (active) setError(typeof err === 'string' ? err : 'Không tải được dữ liệu vận hành.')
+      } finally {
+        if (active) setLoading(false)
+      }
+    }
+    load()
+    return () => { active = false }
+  }, [])
+
+  const stats = [
+    { label: 'ĐƠN HÔM NAY', value: String(overview?.todayBookings ?? 0), trend: `${overview?.openMatches ?? 0} kèo đang mở`, trendUp: true },
+    { label: 'KHIẾU NẠI CHỜ', value: String(overview?.pendingReports ?? 0), bar: true },
+    { label: 'NGƯỜI DÙNG', value: String(overview?.totalUsers ?? 0), bars: [20, 35, 40, 50, 55, 60, overview?.totalUsers ? Math.min(80, overview.totalUsers) : 30] },
+    { label: 'HOẠT ĐỘNG', value: String(overview?.recentActivity?.length ?? 0), trend: 'Từ API vận hành thực', trendUp: null },
+  ]
+
+  const recentBroadcasts = [
+    ...sentHistory,
+    ...(overview?.recentActivity ?? []).slice(0, 3).map(a => ({
+      status: 'HOẠT ĐỘNG',
+      statusColor: '#22c55e',
+      date: formatRelativeTime(a.time),
+      title: a.title,
+      meta: a.description,
+    })),
+  ].slice(0, 5)
 
   const toggleAud = (a) =>
     setSelectedAud(selectedAud.includes(a) ? selectedAud.filter(x => x !== a) : [...selectedAud, a])
+
+  function saveDraft() {
+    const draft = { campName, msgBody, selectedAud, msgType, savedAt: new Date().toISOString() }
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(draft))
+    addToast('Đã lưu nháp chiến dịch trên thiết bị này', 'success')
+  }
+
+  function sendNow() {
+    if (!msgBody.trim()) {
+      addToast('Nhập nội dung tin nhắn trước khi gửi', 'warning')
+      return
+    }
+    const entry = {
+      title: campName.trim() || 'Chiến dịch không tên',
+      meta: `${msgType === 'push' ? 'Push' : 'Email'} · ${selectedAud.join(', ')} · ${msgBody.slice(0, 80)}${msgBody.length > 80 ? '…' : ''}`,
+      date: 'Vừa gửi',
+      status: 'ĐÃ GỬI',
+      statusColor: '#14B8A6',
+    }
+    setSentHistory(prev => [entry, ...prev].slice(0, 5))
+    localStorage.removeItem(DRAFT_KEY)
+    addToast(`Đã ghi nhận phát sóng tới ${selectedAud.length} nhóm đối tượng (demo nội bộ)`, 'success')
+    setMsgBody('')
+    setCampName('')
+  }
 
   return (
     <ProSportDashLayout>
@@ -39,6 +122,14 @@ export default function DashBroadcastPage() {
             Phát sóng mới
           </button>
         </div>
+
+        {error && (
+          <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>
+        )}
+        <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          <strong>Chế độ demo:</strong> Phát sóng push/email chưa kết nối backend. «Gửi ngay» ghi nhận nội bộ trên thiết bị; «Lưu nháp» lưu localStorage.
+        </div>
+        {loading && <PageLoader label="Đang tải dữ liệu..." />}
 
         {/* Stats */}
         <div className="grid grid-cols-4 max-[1000px]:grid-cols-2 gap-4 mb-6">
@@ -66,7 +157,7 @@ export default function DashBroadcastPage() {
 
             <div className="mb-[18px]">
               <label className="text-[0.78rem] font-semibold text-slate-500 block mb-2" htmlFor="camp-name">Tên nội bộ chiến dịch</label>
-              <input id="camp-name" type="text" placeholder="VD: Khuyến mãi giải cầu lông mùa hè" className="w-full border-[1.5px] border-[#e0ecf0] rounded-lg px-3.5 py-2.5 font-['Inter'] text-sm text-foreground outline-none transition-colors focus:border-[#14B8A6] placeholder:text-slate-400 box-border" />
+              <input id="camp-name" type="text" value={campName} onChange={e => setCampName(e.target.value)} placeholder="VD: Khuyến mãi giải cầu lông mùa hè" className="w-full border-[1.5px] border-[#e0ecf0] rounded-lg px-3.5 py-2.5 font-['Inter'] text-sm text-foreground outline-none transition-colors focus:border-[#14B8A6] placeholder:text-slate-400 box-border" />
             </div>
 
             <div className="mb-[18px]">
@@ -129,8 +220,8 @@ export default function DashBroadcastPage() {
                 Lên lịch gửi sau
               </button>
               <div className="flex gap-2.5">
-                <button className="btn-outline py-[9px] px-[18px] text-[0.85rem]">Lưu nháp</button>
-                <button className="btn-primary py-[9px] px-[18px] text-[0.85rem]">Gửi ngay</button>
+                <button type="button" className="btn-outline py-[9px] px-[18px] text-[0.85rem]" onClick={saveDraft}>Lưu nháp</button>
+                <button type="button" className="btn-primary py-[9px] px-[18px] text-[0.85rem]" onClick={sendNow}>Gửi ngay</button>
               </div>
             </div>
           </div>
@@ -141,8 +232,11 @@ export default function DashBroadcastPage() {
               <h2 className="text-[0.95rem] font-bold text-foreground">Phát sóng gần đây</h2>
               <button className="bg-transparent border-none cursor-pointer text-slate-400 text-base">···</button>
             </div>
-            {recentBroadcasts.map((b) => (
-              <div key={b.title} className="py-3.5 border-b border-[#f0f5f9] last:border-b-0">
+            {recentBroadcasts.length === 0 && !loading && (
+              <p className="text-sm text-slate-400 py-4">Chưa có hoạt động gần đây.</p>
+            )}
+            {recentBroadcasts.map((b, idx) => (
+              <div key={`${b.title}-${idx}`} className="py-3.5 border-b border-[#f0f5f9] last:border-b-0">
                 <div className="flex items-center justify-between mb-1.5">
                   <span className="text-[0.65rem] font-bold tracking-[0.06em] px-2 py-[3px] rounded-full" style={{ background: b.statusColor + '20', color: b.statusColor }}>{b.status}</span>
                   <span className="text-[0.75rem] text-slate-400">{b.date}</span>

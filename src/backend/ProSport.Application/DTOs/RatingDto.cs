@@ -36,3 +36,16 @@ public class TrustScoreDto
     public double TrustScore { get; set; }
     public int TotalRatings { get; set; }
 }
+
+// Bảng xếp hạng người chơi theo Trust Score.
+public class LeaderboardEntryDto
+{
+    public int Rank { get; set; }
+    public int UserId { get; set; }
+    public string FullName { get; set; } = null!;
+    public string? AvatarUrl { get; set; }
+    public double TrustScore { get; set; }
+    public int TotalRatings { get; set; }
+    public int MatchCount { get; set; }
+    public int Points { get; set; }
+}

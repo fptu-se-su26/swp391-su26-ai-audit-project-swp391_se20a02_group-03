@@ -1,5 +1,8 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import ProSportDashLayout from '../../layouts/ProSportDashLayout'
+import { useToast } from '../../components/Toast'
+
+const NOTIF_SETTINGS_KEY = 'prosport_staff_notif_settings'
 
 const topics = [
   { id: 'bookings', emoji: '📅', iconBg: '#6366f1', label: 'Đặt sân',    desc: 'Xác nhận, hủy và nhắc lịch đặt sân sắp tới.', push: true,  email: true,  sms: false },
@@ -18,11 +21,45 @@ function Toggle({ checked, onChange, id }) {
 }
 
 export default function DashNotifSettingsPage() {
+  const { addToast } = useToast()
   const [topicState, setTopicState] = useState(topics)
   const [masterPush,  setMasterPush]  = useState(true)
   const [masterEmail, setMasterEmail] = useState(true)
   const [masterSms,   setMasterSms]   = useState(false)
   const [quietHours,  setQuietHours]  = useState(true)
+  const [timezone, setTimezone] = useState('UTC+7 (Hồ Chí Minh)')
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(NOTIF_SETTINGS_KEY)
+      if (!raw) return
+      const saved = JSON.parse(raw)
+      if (saved.topicState) setTopicState(saved.topicState)
+      if (typeof saved.masterPush === 'boolean') setMasterPush(saved.masterPush)
+      if (typeof saved.masterEmail === 'boolean') setMasterEmail(saved.masterEmail)
+      if (typeof saved.masterSms === 'boolean') setMasterSms(saved.masterSms)
+      if (typeof saved.quietHours === 'boolean') setQuietHours(saved.quietHours)
+      if (saved.timezone) setTimezone(saved.timezone)
+    } catch { /* ignore */ }
+  }, [])
+
+  function saveSettings() {
+    localStorage.setItem(NOTIF_SETTINGS_KEY, JSON.stringify({
+      topicState, masterPush, masterEmail, masterSms, quietHours, timezone,
+    }))
+    addToast('Đã lưu tùy chọn trên thiết bị này (demo — chưa đồng bộ server)', 'success')
+  }
+
+  function resetSettings() {
+    setTopicState(topics)
+    setMasterPush(true)
+    setMasterEmail(true)
+    setMasterSms(false)
+    setQuietHours(true)
+    setTimezone('UTC+7 (Hồ Chí Minh)')
+    localStorage.removeItem(NOTIF_SETTINGS_KEY)
+    addToast('Đã khôi phục mặc định', 'info')
+  }
 
   const toggleChannel = (id, ch) =>
     setTopicState(topicState.map(t => t.id === id ? { ...t, [ch]: !t[ch] } : t))
@@ -33,6 +70,9 @@ export default function DashNotifSettingsPage() {
         <div className="mb-6">
           <h1 className="font-['Oswald'] text-[1.6rem] font-bold text-foreground">Thông báo</h1>
           <p className="text-[0.85rem] text-slate-500 mt-1 max-w-[520px] leading-relaxed">Cấu hình cách và thời điểm bạn muốn nhận cảnh báo về hoạt động thể thao, đặt sân và cập nhật tài khoản.</p>
+          <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 mt-3 max-w-[520px]">
+            Demo: cài đặt lưu trên trình duyệt. API thông báo thật sẽ có ở phiên bản sau.
+          </p>
         </div>
 
         <div className="grid grid-cols-[1fr_280px] max-[900px]:grid-cols-1 gap-5 items-start">
@@ -123,10 +163,10 @@ export default function DashNotifSettingsPage() {
               </div>
               <div className="mt-3">
                 <p className="text-[0.68rem] font-bold tracking-[0.1em] uppercase text-slate-400 mb-1.5">MÚI GIỜ</p>
-                <select id="tz-select" className="w-full border-[1.5px] border-[#e0ecf0] rounded-lg px-2.5 py-2 text-[0.82rem] text-foreground outline-none font-['Inter'] cursor-pointer">
+                <select id="tz-select" value={timezone} onChange={e => setTimezone(e.target.value)} className="w-full border-[1.5px] border-[#e0ecf0] rounded-lg px-2.5 py-2 text-[0.82rem] text-foreground outline-none font-['Inter'] cursor-pointer">
+                  <option>UTC+7 (Hồ Chí Minh)</option>
                   <option>Giờ Thái Bình Dương (Mỹ & Canada)</option>
                   <option>Giờ miền Đông (Mỹ & Canada)</option>
-                  <option>UTC+7 (Hồ Chí Minh)</option>
                 </select>
               </div>
             </div>
@@ -147,8 +187,8 @@ export default function DashNotifSettingsPage() {
         </div>
 
         <div className="flex justify-end gap-3 mt-6 pt-5 border-t border-[#e0ecf0]">
-          <button className="btn-outline">Hủy thay đổi</button>
-          <button className="btn-primary">Lưu tùy chọn</button>
+          <button type="button" className="btn-outline" onClick={resetSettings}>Hủy thay đổi</button>
+          <button type="button" className="btn-primary" onClick={saveSettings}>Lưu tùy chọn</button>
         </div>
       </div>
     </ProSportDashLayout>

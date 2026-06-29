@@ -63,10 +63,22 @@ const AdminBookingsPage     = lazy(() => import('./pages/admin/AdminBookingsPage
 
 // PRO-SPORT Elite Staff — lazy loaded
 const ElitePosWalkInPage  = lazy(() => import('./pages/elite/ElitePosWalkInPage'))
+const EliteDashboardPage  = lazy(() => import('./pages/elite/EliteDashboardPage'))
+const EliteBookingsPage   = lazy(() => import('./pages/elite/EliteBookingsPage'))
+const EliteEquipmentPage  = lazy(() => import('./pages/elite/EliteEquipmentPage'))
 const EliteSchedulePage   = lazy(() => import('./pages/elite/EliteSchedulePage'))
 const EliteVouchersPage   = lazy(() => import('./pages/elite/EliteVouchersPage'))
 const EliteDisputesPage   = lazy(() => import('./pages/elite/EliteDisputesPage'))
 const EliteScannerPage    = lazy(() => import('./pages/elite/EliteScannerPage'))
+
+// PRO-SPORT Staff Dash — lazy loaded
+const DashInboxPage       = lazy(() => import('./pages/dashboard/DashInboxPage'))
+const DashBroadcastPage   = lazy(() => import('./pages/dashboard/DashBroadcastPage'))
+const DashBookingsPage    = lazy(() => import('./pages/dashboard/DashBookingsPage'))
+const DashMatchesPage     = lazy(() => import('./pages/dashboard/DashMatchesPage'))
+const DashRentalsPage     = lazy(() => import('./pages/dashboard/DashRentalsPage'))
+const DashPaymentsPage    = lazy(() => import('./pages/dashboard/DashPaymentsPage'))
+const DashNotifSettingsPage = lazy(() => import('./pages/dashboard/DashNotifSettingsPage'))
 
 // PRO-SPORT Mobile App Pages — lazy loaded
 const MobileHomePage      = lazy(() => import('./pages/mobile/MobileHomePage'))
@@ -176,7 +188,7 @@ function App() {
                     <Route path="/gear/cart" element={<ProtectedRoute><CartPage /></ProtectedRoute>} />
                     <Route path="/gear/cart/checkout" element={<ProtectedRoute><CartCheckoutPage /></ProtectedRoute>} />
 
-                    <Route path="/gear/maintenance" element={<GearMaintenancePage />} />
+                    <Route path="/gear/maintenance" element={<EliteRoute><GearMaintenancePage /></EliteRoute>} />
                     <Route path="/gear/support" element={<GearSupportPage />} />
                     <Route path="/gear/privacy" element={<GearPrivacyPage />} />
 
@@ -212,12 +224,25 @@ function App() {
                     <Route path="/restricted" element={<Navigate to="/403" replace />} />
 
                     {/* Elite Staff Portal Routes — protected + role-restricted (Staff/Admin) */}
-                    <Route path="/elite" element={<Navigate to="/elite/pos" replace />} />
+                    <Route path="/elite" element={<Navigate to="/elite/dashboard" replace />} />
+                    <Route path="/elite/dashboard" element={<EliteRoute><EliteDashboardPage /></EliteRoute>} />
+                    <Route path="/elite/bookings" element={<EliteRoute><EliteBookingsPage /></EliteRoute>} />
+                    <Route path="/elite/equipment" element={<EliteRoute><EliteEquipmentPage /></EliteRoute>} />
                     <Route path="/elite/pos" element={<EliteRoute><ElitePosWalkInPage /></EliteRoute>} />
                     <Route path="/elite/schedule" element={<EliteRoute><EliteSchedulePage /></EliteRoute>} />
                     <Route path="/elite/vouchers" element={<EliteRoute><EliteVouchersPage /></EliteRoute>} />
                     <Route path="/elite/disputes" element={<EliteRoute><EliteDisputesPage /></EliteRoute>} />
                     <Route path="/elite/scanner" element={<EliteRoute><EliteScannerPage /></EliteRoute>} />
+
+                    {/* Staff ProSport Dash — protected (Staff/Admin) */}
+                    <Route path="/dashboard" element={<Navigate to="/dashboard/inbox" replace />} />
+                    <Route path="/dashboard/inbox" element={<EliteRoute><DashInboxPage /></EliteRoute>} />
+                    <Route path="/dashboard/broadcast" element={<EliteRoute><DashBroadcastPage /></EliteRoute>} />
+                    <Route path="/dashboard/bookings" element={<EliteRoute><DashBookingsPage /></EliteRoute>} />
+                    <Route path="/dashboard/matches" element={<EliteRoute><DashMatchesPage /></EliteRoute>} />
+                    <Route path="/dashboard/rentals" element={<EliteRoute><DashRentalsPage /></EliteRoute>} />
+                    <Route path="/dashboard/payments" element={<EliteRoute><DashPaymentsPage /></EliteRoute>} />
+                    <Route path="/dashboard/settings" element={<EliteRoute><DashNotifSettingsPage /></EliteRoute>} />
 
                     {/* Mobile App Routes — lazy */}
                     <Route path="/mobile" element={<Navigate to="/mobile/home" replace />} />
@@ -225,7 +250,7 @@ function App() {
                     <Route path="/mobile/profile" element={<ProtectedRoute><MobileProfilePage /></ProtectedRoute>} />
                     <Route path="/mobile/matches" element={<MobileMatchesPage />} />
                     <Route path="/mobile/dashboard" element={<ProtectedRoute><MobileDashboardPage /></ProtectedRoute>} />
-                    <Route path="/mobile/scanner" element={<ProtectedRoute><MobileScannerPage /></ProtectedRoute>} />
+                    <Route path="/mobile/scanner" element={<EliteRoute><MobileScannerPage /></EliteRoute>} />
                     <Route path="/mobile/wallet" element={<ProtectedRoute><MobileWalletPage /></ProtectedRoute>} />
                     <Route path="/mobile/chat" element={<MobileChatPage />} />
                     <Route path="/mobile/booking" element={<ProtectedRoute><MobileBookingPage /></ProtectedRoute>} />

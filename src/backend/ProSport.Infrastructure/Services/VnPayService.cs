@@ -17,15 +17,26 @@ public class VnPayService : IVnPayService
 
     public string CreatePaymentUrl(string ipAddress, int userId, decimal amount, string orderType, string referenceId)
     {
+        var tmnCode = _configuration["VnPay:TmnCode"]
+            ?? Environment.GetEnvironmentVariable("VNPAY_TMN_CODE");
+        var hashSecret = _configuration["VnPay:HashSecret"]
+            ?? Environment.GetEnvironmentVariable("VNPAY_HASH_SECRET");
+        var baseUrl = _configuration["VnPay:BaseUrl"]
+            ?? "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
+        var returnUrl = _configuration["VnPay:ReturnUrl"]
+            ?? "http://localhost:5173/payment-return";
+
+        if (string.IsNullOrWhiteSpace(tmnCode) || tmnCode.StartsWith("YOUR_", StringComparison.OrdinalIgnoreCase)
+            || string.IsNullOrWhiteSpace(hashSecret) || hashSecret.StartsWith("YOUR_", StringComparison.OrdinalIgnoreCase))
+        {
+            throw new InvalidOperationException(
+                "VNPay chưa được cấu hình. Đặt VnPay:TmnCode và VnPay:HashSecret trong appsettings.Development.json hoặc biến môi trường VNPAY_TMN_CODE / VNPAY_HASH_SECRET.");
+        }
+
         // Sử dụng referenceId + GUID để đảm bảo unique (thay vì DateTime.Ticks có thể trùng)
         var txnRef = $"{referenceId}-{DateTime.UtcNow:yyyyMMddHHmmss}-{Guid.NewGuid().ToString("N")[..8]}";
 
         var vnpay = new VnPayLibrary();
-        
-        var tmnCode = _configuration["VnPay:TmnCode"];
-        var hashSecret = _configuration["VnPay:HashSecret"];
-        var baseUrl = _configuration["VnPay:BaseUrl"];
-        var returnUrl = _configuration["VnPay:ReturnUrl"];
 
         // VNPay sử dụng timezone GMT+7 (SE Asia Standard Time)
         var vnTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow,

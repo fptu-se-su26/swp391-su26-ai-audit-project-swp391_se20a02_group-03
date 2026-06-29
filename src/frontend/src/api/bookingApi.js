@@ -24,4 +24,7 @@ export const bookingApi = {
 
   // Quét mã QR Check-in (Dành cho Staff)
   checkInBooking: (checkInCode) => axiosClient.post('/bookings/check-in', { checkInCode }),
+
+  // Đặt sân walk-in tại quầy (Staff)
+  createWalkInBooking: (data) => axiosClient.post('/bookings/walk-in', data),
 };

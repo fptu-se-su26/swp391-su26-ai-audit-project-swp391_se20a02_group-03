@@ -1,12 +1,14 @@
-import { useState } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import ProSportDashLayout from '../../layouts/ProSportDashLayout'
+import { dashboardApi } from '../../api/dashboardApi'
+import PageLoader from '../../components/ui/PageLoader'
 
 const tabs = [
   { key: 'All', label: 'Tất cả' },
   { key: 'Unread', label: 'Chưa đọc' },
   { key: 'Bookings', label: 'Đặt sân' },
   { key: 'Matches', label: 'Trận đấu' },
-  { key: 'Rentals', label: 'Thuê thiết bị' },
+  { key: 'Reports', label: 'Khiếu nại' },
 ]
 
 const CalendarIcon = () => (
@@ -16,74 +18,83 @@ const CalendarIcon = () => (
     <line x1="3" y1="10" x2="21" y2="10"/>
   </svg>
 )
-const BagIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
-    <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
-    <line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
-  </svg>
-)
-const CheckIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
-    <polyline points="20 6 9 17 4 12"/>
-  </svg>
-)
 
-const tagStyles = {
-  urgent: 'bg-red-500/[0.12] text-red-500',
-  pro: 'bg-[rgba(13,138,138,0.12)] text-[#14B8A6]',
-  new: 'bg-green-500/[0.12] text-green-500',
+function formatRelativeTime(dateStr) {
+  const diff = Date.now() - new Date(dateStr).getTime()
+  const mins = Math.floor(diff / 60000)
+  if (mins < 60) return `${Math.max(1, mins)} phút trước`
+  const hours = Math.floor(mins / 60)
+  if (hours < 24) return `${hours} giờ trước`
+  return new Date(dateStr).toLocaleDateString('vi-VN')
 }
 
-const notifications = [
-  {
-    id: 1,
+function mapNotification(n) {
+  const category = n.category || 'All'
+  const iconBg = category === 'Reports' ? '#ef4444' : category === 'Matches' ? '#14B8A6' : '#f59e0b'
+  return {
+    id: n.id,
     iconEl: <CalendarIcon />,
-    iconBg: '#ef4444',
-    tags: ['KHẨN', 'PRO'],
-    title: 'Đặt sân Center Court Elite',
-    body: 'Giờ sân bạn đặt bắt đầu vào 10:00 sáng mai. Vui lòng đến trước 15 phút để hoàn tất nhận sân tại quầy lễ tân.',
-    time: '10 phút trước',
-    actions: [{ label: 'Xem đặt sân', variant: 'primary' }],
-  },
-  {
-    id: 2,
-    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&q=80',
-    tags: ['MỚI'],
-    title: 'Lời mời trận đấu: Alex Mercer',
-    body: 'Alex đã mời bạn tham gia trận đơn cạnh tranh vào tối thứ Sáu. Bạn có chấp nhận thử thách không?',
-    time: '2 giờ trước',
-    actions: [{ label: 'Tham gia', variant: 'primary' }, { label: 'Từ chối', variant: 'outline' }],
-  },
-  {
-    id: 3,
-    iconEl: <BagIcon />,
-    iconBg: '#f59e0b',
-    tags: [],
-    title: 'Nhắc trả thiết bị thuê',
-    body: "Thiết bị thuê 'Premium Carbon Racket' cần được trả hôm nay trước 17:00. Vui lòng mang về pro shop.",
-    time: '4 giờ trước',
-    actions: [{ label: 'Gia hạn thuê', variant: 'dark' }],
-  },
-  {
-    id: 4,
-    iconEl: <CheckIcon />,
-    iconBg: '#14B8A6',
-    tags: [],
-    title: 'Thanh toán thành công',
-    body: "Giao dịch mua 'Pro Gear Pack V2' đã hoàn tất. Biên lai đã được gửi đến email của bạn.",
-    time: 'Hôm qua',
+    iconBg,
+    tags: n.isRead ? [] : ['MỚI'],
+    title: n.title,
+    body: n.body,
+    time: formatRelativeTime(n.time),
+    category,
+    isRead: n.isRead,
     actions: [],
-  },
-]
-
-const actionBtnStyles = {
-  primary: 'bg-[#14B8A6] text-[var(--theme-primary)] border-none rounded-lg px-[18px] py-2 text-[0.82rem] font-bold cursor-pointer font-[\'Inter\'] transition-colors hover:bg-[var(--theme-primary)]',
-  dark: 'bg-[var(--theme-primary)] text-[var(--theme-primary)] border-none rounded-lg px-[18px] py-2 text-[0.82rem] font-bold cursor-pointer font-[\'Inter\'] transition-colors hover:bg-[#14B8A6]',
-  outline: 'bg-white text-foreground border-[1.5px] border-[#e0ecf0] rounded-lg px-[18px] py-2 text-[0.82rem] font-semibold cursor-pointer font-[\'Inter\'] transition-all hover:border-[#14B8A6] hover:text-[#14B8A6]',
+  }
 }
 
 export default function DashInboxPage() {
   const [activeTab, setActiveTab] = useState('All')
+  const [items, setItems] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+
+  useEffect(() => {
+    let active = true
+    async function load() {
+      try {
+        setLoading(true)
+        setError(null)
+        const res = await dashboardApi.getStaffOverview()
+        if (!active) return
+        if (res.statusCode === 200 && res.data) {
+          const fromNotifs = (res.data.notifications ?? []).map(mapNotification)
+          const fromActivity = (res.data.recentActivity ?? []).map((a, i) => ({
+            id: 1000 + i,
+            iconEl: <CalendarIcon />,
+            iconBg: '#14B8A6',
+            tags: [],
+            title: a.title,
+            body: a.description,
+            time: formatRelativeTime(a.time),
+            category: 'Bookings',
+            isRead: true,
+            actions: [],
+          }))
+          setItems([...fromNotifs, ...fromActivity])
+        } else {
+          setError(res.message || 'Không tải được thông báo.')
+        }
+      } catch (err) {
+        if (active) setError(typeof err === 'string' ? err : 'Không tải được thông báo.')
+      } finally {
+        if (active) setLoading(false)
+      }
+    }
+    load()
+    return () => { active = false }
+  }, [])
+
+  const filtered = useMemo(() => {
+    if (activeTab === 'All') return items
+    if (activeTab === 'Unread') return items.filter(n => !n.isRead)
+    if (activeTab === 'Bookings') return items.filter(n => n.category === 'Bookings')
+    if (activeTab === 'Matches') return items.filter(n => n.category === 'Matches')
+    if (activeTab === 'Reports') return items.filter(n => n.category === 'Reports')
+    return items
+  }, [activeTab, items])
 
   return (
     <ProSportDashLayout>
@@ -91,15 +102,13 @@ export default function DashInboxPage() {
         <div className="flex items-start justify-between mb-5">
           <div>
             <h1 className="font-['Oswald'] text-[1.6rem] font-bold text-foreground">Thông báo</h1>
-            <p className="text-[0.85rem] text-slate-500 mt-1">Quản lý cảnh báo và luôn cập nhật thông tin mới nhất.</p>
+            <p className="text-[0.85rem] text-slate-500 mt-1">Cảnh báo vận hành từ đặt sân, kèo và khiếu nại.</p>
           </div>
-          <button className="flex items-center gap-1.5 bg-transparent border-[1.5px] border-[#e0ecf0] rounded-full px-3.5 py-[7px] text-[0.82rem] font-semibold text-[#14B8A6] cursor-pointer font-['Inter'] transition-all whitespace-nowrap hover:bg-[rgba(13,138,138,0.07)] hover:border-[#14B8A6]">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <polyline points="20 6 9 17 4 12"/>
-            </svg>
-            Đánh dấu đã đọc tất cả
-          </button>
         </div>
+
+        {error && (
+          <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>
+        )}
 
         <div className="flex gap-2 mb-5 flex-wrap">
           {tabs.map(t => (
@@ -107,36 +116,25 @@ export default function DashInboxPage() {
           ))}
         </div>
 
+        {loading && <PageLoader label="Đang tải thông báo..." />}
+
         <div className="flex flex-col gap-3">
-          {notifications.map(n => (
+          {!loading && filtered.length === 0 && (
+            <div className="py-12 text-center text-slate-400 text-sm">Không có thông báo trong mục này.</div>
+          )}
+          {filtered.map(n => (
             <div key={n.id} className="flex gap-3.5 bg-white rounded-xl p-[18px] border-[1.5px] border-[#e0ecf0] transition-shadow hover:shadow-[0_2px_12px_rgba(0,0,0,0.06)]">
               <div className="shrink-0">
-                {n.avatar ? (
-                  <img src={n.avatar} alt="" className="w-10 h-10 rounded-full object-cover" />
-                ) : (
-                  <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: n.iconBg }}>
-                    {n.iconEl}
-                  </div>
-                )}
+                <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: n.iconBg }}>
+                  {n.iconEl}
+                </div>
               </div>
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1.5">
-                  <div className="flex gap-1.5">
-                    {n.tags.map(tag => (
-                      <span key={tag} className={`text-[0.65rem] font-bold tracking-[0.06em] px-[7px] py-0.5 rounded uppercase ${tagStyles[tag.toLowerCase()] || ''}`}>{tag}</span>
-                    ))}
-                  </div>
                   <span className="text-[0.75rem] text-slate-400 ml-auto whitespace-nowrap">{n.time}</span>
                 </div>
                 <h3 className="text-[0.95rem] font-bold text-foreground mb-1.5">{n.title}</h3>
                 <p className="text-sm text-slate-500 leading-[1.55]">{n.body}</p>
-                {n.actions.length > 0 && (
-                  <div className="flex gap-2.5 mt-3">
-                    {n.actions.map(a => (
-                      <button key={a.label} className={actionBtnStyles[a.variant]}>{a.label}</button>
-                    ))}
-                  </div>
-                )}
               </div>
             </div>
           ))}

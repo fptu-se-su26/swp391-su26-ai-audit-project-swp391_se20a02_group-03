@@ -15,6 +15,9 @@ public class MatchDto
     public string Status { get; set; } = null!;
     public string? LevelRequirement { get; set; }
     public string? Notes { get; set; }
+    public string? HostName { get; set; }
+    public string? CourtName { get; set; }
+    public string? SportType { get; set; }
 }
 
 public class CreateMatchDto

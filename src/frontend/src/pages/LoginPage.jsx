@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useToast } from '../components/Toast'
 import authApi from '../api/authApi'
 import { useAuth } from '../context/AuthContext'
@@ -7,8 +7,29 @@ import ProSportLogo from '../components/ui/ProSportLogo'
 import GoogleSignInButton from '../components/auth/GoogleSignInButton'
 import { extractAuthPayload, mapGoogleAuthError } from '../utils/googleAuth'
 
+function getPostLoginPath(role) {
+  if (role === 'Admin') return '/admin/dashboard'
+  if (role === 'Staff') return '/elite/dashboard'
+  return '/'
+}
+
+function resolveRedirect(role, redirectParam) {
+  if (!redirectParam || !redirectParam.startsWith('/') || redirectParam.startsWith('//')) {
+    return getPostLoginPath(role)
+  }
+  const staffPaths = ['/elite', '/dashboard', '/mobile/scanner', '/gear/maintenance']
+  const adminPaths = ['/admin']
+  const isStaffTarget = staffPaths.some(p => redirectParam === p || redirectParam.startsWith(`${p}/`))
+  const isAdminTarget = adminPaths.some(p => redirectParam === p || redirectParam.startsWith(`${p}/`))
+  if (isAdminTarget && role !== 'Admin') return getPostLoginPath(role)
+  if (isStaffTarget && role !== 'Staff' && role !== 'Admin') return getPostLoginPath(role)
+  return redirectParam
+}
+
 export default function LoginPage() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const redirectParam = searchParams.get('redirect')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPass, setShowPass] = useState(false)
@@ -67,8 +88,8 @@ export default function LoginPage() {
       if (response.data?.isProfileComplete === false) {
         navigate('/complete-profile')
       } else {
-        navigate('/')
-  }
+        navigate(resolveRedirect(userData.role, redirectParam))
+      }
       } else {
         setError('Đăng nhập thất bại. Không nhận được token.')
       }
@@ -102,7 +123,7 @@ export default function LoginPage() {
         if (auth.isProfileComplete === false) {
           navigate('/complete-profile')
         } else {
-          navigate('/')
+          navigate(resolveRedirect(auth.role, redirectParam))
         }
       } else {
         setError('Đăng nhập Google thất bại. Không nhận được token.')

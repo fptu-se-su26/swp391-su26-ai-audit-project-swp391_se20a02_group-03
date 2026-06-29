@@ -32,6 +32,7 @@ public class ProSportDbContext : DbContext
     public DbSet<Report> Reports { get; set; } = null!;
     public DbSet<ChatHistory> ChatHistories { get; set; } = null!;
     public DbSet<CartItem> CartItems { get; set; } = null!;
+    public DbSet<BookingDetailEquipment> BookingDetailEquipments { get; set; } = null!;
 
     public override int SaveChanges()
     {
@@ -225,6 +226,37 @@ public class ProSportDbContext : DbContext
             entity.HasOne(e => e.Court)
                   .WithMany(c => c.BookingDetails)
                   .HasForeignKey(e => e.CourtId)
+                  .OnDelete(DeleteBehavior.ClientSetNull);
+        });
+
+        modelBuilder.Entity<BookingDetailEquipment>(entity =>
+        {
+            entity.ToTable("BookingDetails_Equipments");
+            entity.HasKey(e => e.DetailId);
+            entity.Property(e => e.UnitPrice).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.DepositAmount).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.DamageFee).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.DepositRefundAmount).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.AdditionalCharge).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.DepositStatus).HasMaxLength(20).HasDefaultValue("Held");
+            entity.Property(e => e.RentalStatus).HasMaxLength(20).HasDefaultValue("Rented");
+            entity.Property(e => e.ReturnCondition).HasMaxLength(20);
+            entity.Property(e => e.DamageNote).HasMaxLength(500);
+            entity.Property(e => e.RentedAt).HasDefaultValueSql("SYSDATETIME()");
+
+            entity.HasOne(e => e.Booking)
+                  .WithMany()
+                  .HasForeignKey(e => e.BookingId)
+                  .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasOne(e => e.User)
+                  .WithMany()
+                  .HasForeignKey(e => e.UserId)
+                  .OnDelete(DeleteBehavior.ClientSetNull);
+
+            entity.HasOne(e => e.Equipment)
+                  .WithMany()
+                  .HasForeignKey(e => e.EquipmentId)
                   .OnDelete(DeleteBehavior.ClientSetNull);
         });
 
