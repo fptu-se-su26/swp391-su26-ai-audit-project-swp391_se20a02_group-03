@@ -7,6 +7,7 @@ namespace ProSport.Application.Services;
 public class ReportService : IReportService
 {
     private static readonly string[] AllowedStatuses = { "Investigating", "Resolved", "Rejected" };
+    private static readonly string[] StaffAllowedStatuses = { "Investigating" };
 
     private readonly IReportRepository _repository;
     private readonly IUserRepository _userRepository;
@@ -28,6 +29,8 @@ public class ReportService : IReportService
         Status = r.Status,
         AdminNote = r.AdminNote,
         ResolvedByAdminId = r.ResolvedByAdminId,
+        ReporterName = r.Reporter?.FullName,
+        ReportedUserName = r.ReportedUser?.FullName,
         CreatedAt = r.CreatedAt
     };
 
@@ -70,10 +73,14 @@ public class ReportService : IReportService
         return new ApiResponseDto<List<ReportDto>>(200, "Thành công.", items.Select(Map).ToList());
     }
 
-    public async Task<ApiResponseDto<ReportDto>> ResolveAsync(int reportId, int adminId, ResolveReportDto dto)
+    public async Task<ApiResponseDto<ReportDto>> ResolveAsync(int reportId, int resolverId, string resolverRole, ResolveReportDto dto)
     {
         if (!AllowedStatuses.Contains(dto.Status))
             return new ApiResponseDto<ReportDto>(400, "Trạng thái không hợp lệ. Chỉ chấp nhận: Investigating, Resolved, Rejected.");
+
+        var isAdmin = string.Equals(resolverRole, "Admin", StringComparison.OrdinalIgnoreCase);
+        if (!isAdmin && !StaffAllowedStatuses.Contains(dto.Status))
+            return new ApiResponseDto<ReportDto>(403, "Nhân viên chỉ được chuyển trạng thái sang Investigating. Admin mới được Resolved/Rejected.");
 
         var report = await _repository.GetByIdAsync(reportId);
         if (report is null)
@@ -81,7 +88,7 @@ public class ReportService : IReportService
 
         report.Status = dto.Status;
         report.AdminNote = dto.AdminNote;
-        report.ResolvedByAdminId = adminId;
+        report.ResolvedByAdminId = resolverId;
 
         await _repository.UpdateAsync(report);
         return new ApiResponseDto<ReportDto>(200, "Cập nhật khiếu nại thành công.", Map(report));

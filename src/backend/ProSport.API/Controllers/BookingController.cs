@@ -92,7 +92,21 @@ public class BookingController : ControllerBase
         return StatusCode(response.StatusCode, response);
     }
 
-    [Authorize(Roles = "Admin,Staff,EliteStaff")]
+    [Authorize(Roles = "Admin,Staff")]
+    [HttpPost("walk-in")]
+    public async Task<IActionResult> CreateWalkInBooking([FromBody] WalkInBookingDto dto)
+    {
+        var staffIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(staffIdClaim) || !int.TryParse(staffIdClaim, out int staffId))
+        {
+            return Unauthorized(new ApiResponseDto<object>(401, "Unauthorized"));
+        }
+
+        var response = await _bookingService.CreateWalkInBookingAsync(dto, staffId);
+        return StatusCode(response.StatusCode, response);
+    }
+
+    [Authorize(Roles = "Admin,Staff")]
     [HttpPost("check-in")]
     public async Task<IActionResult> ProcessCheckIn([FromBody] CheckInRequestDto dto)
     {

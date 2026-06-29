@@ -16,7 +16,10 @@ public class ReportRepository : IReportRepository
 
     public async Task<List<Report>> GetAllAsync(string? status = null)
     {
-        var query = _context.Reports.AsQueryable();
+        var query = _context.Reports
+            .Include(r => r.Reporter)
+            .Include(r => r.ReportedUser)
+            .AsQueryable();
         if (!string.IsNullOrWhiteSpace(status))
             query = query.Where(r => r.Status == status);
         return await query.OrderByDescending(r => r.ReportId).ToListAsync();
@@ -32,7 +35,10 @@ public class ReportRepository : IReportRepository
 
     public async Task<Report?> GetByIdAsync(int id)
     {
-        return await _context.Reports.FirstOrDefaultAsync(r => r.ReportId == id);
+        return await _context.Reports
+            .Include(r => r.Reporter)
+            .Include(r => r.ReportedUser)
+            .FirstOrDefaultAsync(r => r.ReportId == id);
     }
 
     public async Task<bool> ExistsAsync(int reporterId, int reportedUserId, int matchId)

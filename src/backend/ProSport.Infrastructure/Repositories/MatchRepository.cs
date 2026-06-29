@@ -19,6 +19,9 @@ public class MatchRepository : IMatchRepository
     {
         return await _context.Matches
             .Include(m => m.Participants)
+            .Include(m => m.Host)
+            .Include(m => m.Court)
+                .ThenInclude(c => c.CourtType)
             .Where(m => m.Status == status)
             .OrderBy(m => m.MatchDate).ThenBy(m => m.StartTime)
             .ToListAsync();
@@ -28,6 +31,9 @@ public class MatchRepository : IMatchRepository
     {
         return await _context.Matches
             .Include(m => m.Participants)
+            .Include(m => m.Host)
+            .Include(m => m.Court)
+                .ThenInclude(c => c.CourtType)
             .Where(m => m.Participants.Any(p => p.UserId == userId))
             .OrderByDescending(m => m.MatchDate).ThenByDescending(m => m.StartTime)
             .ToListAsync();
@@ -37,6 +43,9 @@ public class MatchRepository : IMatchRepository
     {
         return await _context.Matches
             .Include(m => m.Participants)
+            .Include(m => m.Host)
+            .Include(m => m.Court)
+                .ThenInclude(c => c.CourtType)
             .FirstOrDefaultAsync(m => m.MatchId == matchId);
     }
 

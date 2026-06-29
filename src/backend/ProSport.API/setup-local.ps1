@@ -34,6 +34,7 @@ if ([string]::IsNullOrWhiteSpace($GoogleClientId)) {
     $GoogleClientId = [Environment]::GetEnvironmentVariable("GOOGLE_CLIENT_ID", "User")
 }
 
+# Ghi Google Client ID vao appsettings neu co
 if (-not [string]::IsNullOrWhiteSpace($GoogleClientId)) {
     $json = Get-Content $target -Raw | ConvertFrom-Json
     $json.GoogleAuth.ClientId = $GoogleClientId.Trim()
@@ -44,28 +45,44 @@ if (-not [string]::IsNullOrWhiteSpace($GoogleClientId)) {
     Write-Host '       Dat bien GOOGLE_CLIENT_ID (User) hoac chay setup-local.ps1 -GoogleClientId "YOUR_ID.apps.googleusercontent.com"'
 }
 
-# Frontend .env
+# Frontend .env — giu VITE_GOOGLE_CLIENT_ID cu neu khong truyen -GoogleClientId
 $feExample = Join-Path $frontendRoot ".env.example"
 $feTarget = Join-Path $frontendRoot ".env"
+$existingGoogleId = ""
+if (Test-Path $feTarget) {
+    $existingEnv = Get-Content $feTarget -Raw
+    if ($existingEnv -match '(?m)^VITE_GOOGLE_CLIENT_ID=(.+)$') {
+        $existingGoogleId = $Matches[1].Trim()
+    }
+}
+
 if (Test-Path $feExample) {
-    Copy-Item -Path $feExample -Destination $feTarget -Force
-    if (-not [string]::IsNullOrWhiteSpace($GoogleClientId)) {
+    if (-not (Test-Path $feTarget)) {
+        Copy-Item -Path $feExample -Destination $feTarget -Force
+        Write-Host "[OK] Da tao src/frontend/.env tu .env.example"
+    } else {
+        Write-Host "[SKIP] src/frontend/.env da ton tai - khong ghi de"
+    }
+
+    $clientIdToWrite = if (-not [string]::IsNullOrWhiteSpace($GoogleClientId)) { $GoogleClientId.Trim() } else { $existingGoogleId }
+    if (-not [string]::IsNullOrWhiteSpace($clientIdToWrite)) {
         $envContent = Get-Content $feTarget -Raw
         if ($envContent -match '(?m)^VITE_GOOGLE_CLIENT_ID=.*$') {
-            $envContent = [regex]::Replace($envContent, '(?m)^VITE_GOOGLE_CLIENT_ID=.*$', "VITE_GOOGLE_CLIENT_ID=$($GoogleClientId.Trim())")
+            $envContent = [regex]::Replace($envContent, '(?m)^VITE_GOOGLE_CLIENT_ID=.*$', "VITE_GOOGLE_CLIENT_ID=$clientIdToWrite")
         } else {
-            $envContent += "`nVITE_GOOGLE_CLIENT_ID=$($GoogleClientId.Trim())`n"
+            $envContent += "`nVITE_GOOGLE_CLIENT_ID=$clientIdToWrite`n"
         }
-        Set-Content -Path $feTarget -Value $envContent -Encoding utf8NoBOM
-    }
-    Write-Host "[OK] Da tao src/frontend/.env (gitignored)"
-    if (-not [string]::IsNullOrWhiteSpace($GoogleClientId)) {
-        Write-Host "     VITE_GOOGLE_CLIENT_ID da dong bo voi backend"
+        Set-Content -Path $feTarget -Value $envContent -Encoding UTF8
+        Write-Host "[OK] VITE_GOOGLE_CLIENT_ID da dong bo"
     }
 } else {
     Write-Host "[WARN] Khong tim thay src/frontend/.env.example"
 }
 
+Write-Host ""
+Write-Host "Cau hinh tuy chon (User env hoac appsettings.Development.json):"
+Write-Host "  EMAIL_SMTP_USER / EMAIL_SMTP_PASSWORD  — gui OTP dang ky / quen mat khau"
+Write-Host "  VNPAY_TMN_CODE / VNPAY_HASH_SECRET     — thanh toan VNPay sandbox"
 Write-Host ""
 Write-Host "Google Cloud Console - Authorized JavaScript origins (them CA HAI):"
 Write-Host "  http://localhost:5173"

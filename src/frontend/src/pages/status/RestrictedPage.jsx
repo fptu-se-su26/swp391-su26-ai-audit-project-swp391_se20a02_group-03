@@ -1,6 +1,9 @@
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 
 export default function RestrictedPage() {
+  const location = useLocation()
+  const reason = location.state?.reason
+
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-50 to-indigo-50 font-sans">
       <main className="flex-1 flex items-center justify-center p-6">
@@ -13,15 +16,15 @@ export default function RestrictedPage() {
 
           <h2 className="font-['Oswald',sans-serif] text-3xl font-bold text-slate-900 mb-4">Khu vực hạn chế</h2>
           <p className="text-base text-slate-600 mb-8">
-            Tài khoản của bạn không có quyền truy cập khu vực này. Vui lòng liên hệ quản trị viên nếu bạn cần quyền truy cập.
+            {reason || 'Tài khoản của bạn không có quyền truy cập khu vực này. Vui lòng liên hệ quản trị viên nếu bạn cần quyền truy cập.'}
           </p>
 
           <div className="flex justify-center gap-4 flex-col sm:flex-row">
-            <Link to="/" className="flex items-center justify-center gap-2 bg-[#5E6AD2] hover:bg-[#4e5bc4] text-white px-6 py-3 rounded-lg no-underline font-semibold text-sm transition-colors">
-              Về trang chủ
+            <Link to="/role-selection" className="flex items-center justify-center gap-2 bg-[#5E6AD2] hover:bg-[#4e5bc4] text-white px-6 py-3 rounded-lg no-underline font-semibold text-sm transition-colors">
+              Chọn vai trò khác
             </Link>
-            <Link to="/contact" className="flex items-center justify-center gap-2 bg-white hover:bg-slate-50 text-[#5E6AD2] px-6 py-3 rounded-lg font-semibold text-sm border border-[#5E6AD2] no-underline transition-all">
-              Liên hệ hỗ trợ
+            <Link to="/" className="flex items-center justify-center gap-2 bg-white hover:bg-slate-50 text-[#5E6AD2] px-6 py-3 rounded-lg font-semibold text-sm border border-[#5E6AD2] no-underline transition-all">
+              Về trang chủ
             </Link>
           </div>
         </div>

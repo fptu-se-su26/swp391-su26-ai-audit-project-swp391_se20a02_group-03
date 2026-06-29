@@ -94,8 +94,15 @@ public class PaymentController : ControllerBase
             return BadRequest(new ApiResponseDto<object>(400, "Loại thanh toán không hợp lệ"));
         }
 
-        var url = _vnPayService.CreatePaymentUrl(ipAddress, userId, amount, orderType, referenceId);
-        return Ok(new ApiResponseDto<string>(200, "Tạo URL thanh toán thành công", url));
+        try
+        {
+            var url = _vnPayService.CreatePaymentUrl(ipAddress, userId, amount, orderType, referenceId);
+            return Ok(new ApiResponseDto<string>(200, "Tạo URL thanh toán thành công", url));
+        }
+        catch (InvalidOperationException ex)
+        {
+            return StatusCode(503, new ApiResponseDto<object>(503, ex.Message));
+        }
     }
 
     /// <summary>

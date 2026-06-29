@@ -1,7 +1,82 @@
-import { Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import ProSportLogo from '../components/ui/ProSportLogo'
+import { useAuth } from '../context/AuthContext'
+
+const cardStyle = {
+  background: '#f8fafc',
+  border: '2px solid #e2e8f0',
+  borderRadius: '12px',
+  padding: '20px',
+  display: 'flex',
+  alignItems: 'center',
+  gap: '16px',
+  cursor: 'pointer',
+  transition: 'border-color 0.2s, box-shadow 0.2s',
+}
+
+function RoleCard({ icon, title, description, onClick }) {
+  return (
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={onClick}
+      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick() } }}
+      style={cardStyle}
+      onMouseEnter={e => { e.currentTarget.style.borderColor = '#94a3b8' }}
+      onMouseLeave={e => { e.currentTarget.style.borderColor = '#e2e8f0' }}
+    >
+      {icon}
+      <div style={{ flex: 1 }}>
+        <h3 style={{ fontWeight: 700, color: '#0f172a', marginBottom: '4px', fontSize: '1rem' }}>{title}</h3>
+        <p style={{ fontSize: '0.875rem', color: '#64748b', margin: 0 }}>{description}</p>
+      </div>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
+    </div>
+  )
+}
 
 export default function RoleSelectionPage() {
+  const navigate = useNavigate()
+  const { isAuthenticated, user } = useAuth()
+
+  function goCustomer() {
+    if (isAuthenticated && (user?.role === 'Staff' || user?.role === 'Admin')) {
+      navigate('/403', { state: { reason: 'Tài khoản nhân viên/quản trị không dùng cổng người chơi tại đây.' } })
+      return
+    }
+    navigate(isAuthenticated ? '/' : '/mobile/home')
+  }
+
+  function goStaff() {
+    const target = '/elite/dashboard'
+    if (!isAuthenticated) {
+      navigate(`/login?redirect=${encodeURIComponent(target)}`)
+      return
+    }
+    if (user?.role === 'Staff') {
+      navigate(target)
+      return
+    }
+    if (user?.role === 'Admin') {
+      navigate('/admin/dashboard')
+      return
+    }
+    navigate('/403', { state: { reason: 'Chỉ tài khoản Nhân viên hoặc Quản trị mới truy cập được EliteSport OS.' } })
+  }
+
+  function goAdmin() {
+    const target = '/admin/dashboard'
+    if (!isAuthenticated) {
+      navigate(`/login?redirect=${encodeURIComponent(target)}`)
+      return
+    }
+    if (user?.role === 'Admin') {
+      navigate(target)
+      return
+    }
+    navigate('/403', { state: { reason: 'Chỉ tài khoản Quản trị viên mới truy cập được cổng Admin.' } })
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-green-50 to-sky-100 font-sans">
       <header className="p-6 flex justify-center">
@@ -15,72 +90,53 @@ export default function RoleSelectionPage() {
           padding: '40px',
           maxWidth: '560px',
           width: '100%',
-          boxShadow: '0 10px 40px rgba(0,0,0,0.05)'
+          boxShadow: '0 10px 40px rgba(0,0,0,0.05)',
         }}>
           <h2 style={{ fontSize: '1.75rem', fontWeight: 700, color: '#0f172a', marginBottom: '8px' }}>
             Chọn vai trò của bạn
           </h2>
           <p style={{ color: '#64748b', marginBottom: '32px', fontSize: '0.9375rem' }}>
-            Chọn cách bạn muốn truy cập vào nền tảng.
+            {isAuthenticated
+              ? `Đang đăng nhập: ${user?.fullName || user?.email}. Chọn khu vực phù hợp với vai trò.`
+              : 'Chọn cách bạn muốn truy cập — nhân viên và quản trị sẽ được chuyển tới đăng nhập.'}
           </p>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-
-            <Link to="/mobile/home" style={{ textDecoration: 'none' }}>
-              <div style={{
-                background: '#f8fafc', border: '2px solid #e2e8f0', borderRadius: '12px',
-                padding: '20px', display: 'flex', alignItems: 'center', gap: '16px', cursor: 'pointer',
-                transition: 'border-color 0.2s, box-shadow 0.2s'
-              }}>
+            <RoleCard
+              title="Người chơi / Thành viên"
+              description="Đặt sân, tham gia kèo đấu & kết nối với người chơi khác"
+              onClick={goCustomer}
+              icon={(
                 <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#e0f2fe', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#008ba3" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                 </div>
-                <div style={{ flex: 1 }}>
-                  <h3 style={{ fontWeight: 700, color: '#0f172a', marginBottom: '4px', fontSize: '1rem' }}>Người chơi / Thành viên</h3>
-                  <p style={{ fontSize: '0.875rem', color: '#64748b', margin: 0 }}>Đặt sân, tham gia kèo đấu &amp; kết nối với người chơi khác</p>
-                </div>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
-              </div>
-            </Link>
+              )}
+            />
 
-            <Link to="/elite/pos" style={{ textDecoration: 'none' }}>
-              <div style={{
-                background: '#f8fafc', border: '2px solid #e2e8f0', borderRadius: '12px',
-                padding: '20px', display: 'flex', alignItems: 'center', gap: '16px', cursor: 'pointer',
-                transition: 'border-color 0.2s, box-shadow 0.2s'
-              }}>
+            <RoleCard
+              title="Nhân viên / Quản lý cơ sở"
+              description="Quản lý lịch đặt, khách lẻ & máy tính tiền POS"
+              onClick={goStaff}
+              icon={(
                 <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#cffafe', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0891b2" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
                 </div>
-                <div style={{ flex: 1 }}>
-                  <h3 style={{ fontWeight: 700, color: '#0f172a', marginBottom: '4px', fontSize: '1rem' }}>Nhân viên / Quản lý cơ sở</h3>
-                  <p style={{ fontSize: '0.875rem', color: '#64748b', margin: 0 }}>Quản lý lịch đặt, khách lẻ &amp; máy tính tiền POS</p>
-                </div>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
-              </div>
-            </Link>
+              )}
+            />
 
-            <Link to="/admin/dashboard" style={{ textDecoration: 'none' }}>
-              <div style={{
-                background: '#f8fafc', border: '2px solid #e2e8f0', borderRadius: '12px',
-                padding: '20px', display: 'flex', alignItems: 'center', gap: '16px', cursor: 'pointer',
-                transition: 'border-color 0.2s, box-shadow 0.2s'
-              }}>
+            <RoleCard
+              title="Quản trị viên"
+              description="Toàn quyền kiểm soát hệ thống, phân tích & cổng quản lý"
+              onClick={goAdmin}
+              icon={(
                 <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#fee2e2', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
                 </div>
-                <div style={{ flex: 1 }}>
-                  <h3 style={{ fontWeight: 700, color: '#0f172a', marginBottom: '4px', fontSize: '1rem' }}>Quản trị viên</h3>
-                  <p style={{ fontSize: '0.875rem', color: '#64748b', margin: 0 }}>Toàn quyền kiểm soát hệ thống, phân tích &amp; cổng quản lý</p>
-                </div>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
-              </div>
-            </Link>
-
+              )}
+            />
           </div>
         </div>
       </main>
     </div>
   )
 }
-

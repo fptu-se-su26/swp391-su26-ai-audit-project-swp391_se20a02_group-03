@@ -17,6 +17,7 @@ public class BookingServiceTests
     private readonly Mock<IBookingRepository> _bookingRepoMock;
     private readonly Mock<ICourtRepository> _courtRepoMock;
     private readonly Mock<IEscrowRepository> _escrowRepoMock;
+    private readonly Mock<IUserRepository> _userRepoMock;
     private readonly Mock<IEmailService> _emailServiceMock;
     private readonly Mock<ILogger<BookingService>> _loggerMock;
     private readonly BookingService _bookingService;
@@ -26,6 +27,7 @@ public class BookingServiceTests
         _bookingRepoMock = new Mock<IBookingRepository>();
         _courtRepoMock = new Mock<ICourtRepository>();
         _escrowRepoMock = new Mock<IEscrowRepository>();
+        _userRepoMock = new Mock<IUserRepository>();
         _emailServiceMock = new Mock<IEmailService>();
         _loggerMock = new Mock<ILogger<BookingService>>();
 
@@ -33,6 +35,7 @@ public class BookingServiceTests
             _bookingRepoMock.Object,
             _courtRepoMock.Object,
             _escrowRepoMock.Object,
+            _userRepoMock.Object,
             _emailServiceMock.Object,
             _loggerMock.Object);
     }

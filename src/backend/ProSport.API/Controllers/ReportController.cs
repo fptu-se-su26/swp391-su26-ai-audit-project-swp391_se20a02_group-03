@@ -43,7 +43,7 @@ public class ReportController : ControllerBase
         return StatusCode(result.StatusCode, result);
     }
 
-    [Authorize(Roles = "Admin,Staff,EliteStaff")]
+    [Authorize(Roles = "Admin,Staff")]
     [HttpGet]
     public async Task<IActionResult> GetAll([FromQuery] string? status)
     {
@@ -51,14 +51,17 @@ public class ReportController : ControllerBase
         return StatusCode(result.StatusCode, result);
     }
 
-    [Authorize(Roles = "Admin,Staff,EliteStaff")]
+    [Authorize(Roles = "Admin,Staff")]
     [HttpPut("{id}/resolve")]
     public async Task<IActionResult> Resolve(int id, [FromBody] ResolveReportDto dto)
     {
         var uid = CurrentUserId();
         if (uid is null) return Unauthorized(new ApiResponseDto<object>(401, "Unauthorized"));
 
-        var result = await _service.ResolveAsync(id, uid.Value, dto);
+        var role = User.FindFirstValue(ClaimTypes.Role)
+            ?? User.FindFirstValue("role")
+            ?? (User.IsInRole("Admin") ? "Admin" : User.IsInRole("Staff") ? "Staff" : "");
+        var result = await _service.ResolveAsync(id, uid.Value, role, dto);
         return StatusCode(result.StatusCode, result);
     }
 }

@@ -1,43 +1,77 @@
 import { useState, useEffect, useRef } from 'react'
 import { gsap } from 'gsap'
-import { Users, Trophy, Swords, Heart, MessageCircle, Share2, Calendar, MapPin, Camera, Sparkles, MessageSquare, Flame } from 'lucide-react'
+import { Users, Trophy, Swords, Calendar, MapPin, Camera, Sparkles, MessageSquare, Flame } from 'lucide-react'
 import MatchProLayout from '../../layouts/MatchProLayout'
 import { useToast } from '../../components/Toast'
-
-const posts = [
-  { id: 1, user: 'Lan P.', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&q=80', time: '2 phút trước', content: 'Vừa lập kỷ lục cá nhân mới tại Pro-Sport Badminton Center! 🏸 Ai muốn đánh đôi cuối tuần này không?', likes: 24, comments: 8, sport: 'Cầu lông' },
-  { id: 2, user: 'Minh T.', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&q=80', time: '15 phút trước', content: 'Buổi Pickleball hôm nay tuyệt vời quá! Đang tìm đối thủ trình độ nâng cao cho tối thứ 5. Nhắn tin cho mình nhé!', likes: 18, comments: 5, sport: 'Pickleball' },
-  { id: 3, user: 'Hùng M.', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&q=80', time: '1 giờ trước', content: 'Sân cầu lông mới ở Đà Nẵng (Hòa Xuân Complex) quá xịn! Mặt sàn BWF, đèn LED 800 lux. Rất đáng thử!', likes: 42, comments: 14, sport: 'Cầu lông' },
-]
-
-const events = [
-  { id: 1, name: 'Giải Cầu lông Mở Pro-Sport', date: '15/06', sport: 'Cầu lông', participants: 48, maxParticipants: 64, prize: '5.000.000đ', img: 'https://images.unsplash.com/photo-1544919982-b61976f0ba43?w=400&q=80' },
-  { id: 2, name: 'Giải Pickleball Mùa Hè', date: '20/06', sport: 'Pickleball', participants: 32, maxParticipants: 32, prize: 'Cúp + Dụng cụ', img: 'https://images.unsplash.com/photo-1622279457486-62dcc4a431d6?w=400&q=80' },
-  { id: 3, name: 'Cầu lông Đôi Hè 2026', date: '04/07', sport: 'Cầu lông', participants: 24, maxParticipants: 48, prize: '10.000.000đ', img: 'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=400&q=80' },
-]
-
-const groups = [
-  { id: 1, name: 'Cầu lông Trung cấp ĐN', members: 234, sport: 'Cầu lông', icon: <Swords size={24} />, joined: false },
-  { id: 2, name: 'Pickleball Warriors ĐN', members: 189, sport: 'Pickleball', icon: <Swords size={24} className="text-green-400" />, joined: true },
-  { id: 3, name: 'Cầu lông Masters VN', members: 456, sport: 'Cầu lông', icon: <Swords size={24} />, joined: false },
-  { id: 4, name: 'Đà Nẵng Pickleball Club', members: 312, sport: 'Pickleball', icon: <Swords size={24} className="text-green-400" />, joined: false },
-]
-
-const challenges = [
-  { id: 1, title: 'Đánh 10 trận trong tháng', sport: 'Any', progress: 7, total: 10, reward: '500 điểm', icon: <Trophy size={24} className="text-yellow-400" />, color: 'from-amber-400 to-amber-600' },
-  { id: 2, title: 'Thắng 5 trận liên tiếp', sport: 'Badminton', progress: 3, total: 5, reward: 'Huy hiệu', icon: <Sparkles size={24} className="text-blue-400" />, color: 'from-[#5E6AD2] to-[#6872D9]' },
-  { id: 3, title: 'Chơi cả 2 môn thể thao', sport: 'Multi', progress: 1, total: 2, reward: '300 điểm', icon: <Sparkles size={24} className="text-purple-400" />, color: 'from-blue-500 to-indigo-600' },
-]
+import { matchApi } from '../../api/matchApi'
+import PageLoader from '../../components/ui/PageLoader'
 
 const sportColors = { Badminton: '#5E6AD2', Pickleball: '#6366f1', 'Cầu lông': '#5E6AD2', Multi: '#8b5cf6', Any: '#f59e0b' }
+
+function sportLabel(sportType) {
+  if (!sportType) return 'Thể thao'
+  return sportType.toLowerCase().includes('pickle') ? 'Pickleball' : 'Cầu lông'
+}
+
+function formatMatchTime(m) {
+  const d = new Date(m.matchDate).toLocaleDateString('vi-VN')
+  const start = String(m.startTime || '').slice(0, 5)
+  return `${d} · ${start}`
+}
 
 export default function MatchProCommunityPage() {
   const { addToast } = useToast()
   const [activeTab, setActiveTab] = useState('Bảng tin')
+  const [openMatches, setOpenMatches] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
   const [likedPosts, setLikedPosts] = useState(new Set())
-  const [joinedGroups, setJoinedGroups] = useState(new Set(groups.filter(g => g.joined).map(g => g.id)))
   const [newPostText, setNewPostText] = useState('')
   const pageRef = useRef(null)
+
+  useEffect(() => {
+    let active = true
+    async function load() {
+      try {
+        setLoading(true)
+        setError(null)
+        const res = await matchApi.getOpenMatches()
+        if (!active) return
+        if (res.statusCode === 200 && Array.isArray(res.data)) setOpenMatches(res.data)
+        else setError(res.message || 'Không tải được kèo mở.')
+      } catch (err) {
+        if (active) setError(typeof err === 'string' ? err : 'Không tải được kèo mở.')
+      } finally {
+        if (active) setLoading(false)
+      }
+    }
+    load()
+    return () => { active = false }
+  }, [])
+
+  const posts = openMatches
+    .filter(m => m.notes)
+    .map(m => ({
+      id: m.matchId,
+      user: m.hostName || 'Host',
+      avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(m.hostName || 'Host')}&background=5E6AD2&color=fff`,
+      time: formatMatchTime(m),
+      content: m.notes,
+      likes: m.currentParticipants,
+      comments: m.maxParticipants - m.currentParticipants,
+      sport: sportLabel(m.sportType),
+    }))
+
+  const events = openMatches.map(m => ({
+    id: m.matchId,
+    name: m.courtName ? `Kèo tại ${m.courtName}` : `Kèo #${m.matchId}`,
+    date: new Date(m.matchDate).toLocaleDateString('vi-VN'),
+    sport: sportLabel(m.sportType),
+    participants: m.currentParticipants,
+    maxParticipants: m.maxParticipants,
+    prize: `${Number(m.escrowAmount).toLocaleString('vi-VN')}₫ cọc`,
+    img: 'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=400&q=80',
+  }))
 
   function toggleLike(id) {
     const newLikes = new Set(likedPosts)
@@ -46,16 +80,9 @@ export default function MatchProCommunityPage() {
     setLikedPosts(newLikes)
   }
 
-  function toggleGroup(id) {
-    const newJoined = new Set(joinedGroups)
-    if (newJoined.has(id)) newJoined.delete(id)
-    else newJoined.add(id)
-    setJoinedGroups(newJoined)
-  }
-
   function handlePost() {
     if (newPostText.trim()) {
-      addToast('Bài viết đã được đăng!', 'success')
+      addToast('Tạo kèo mới tại trang Gần bạn để chia sẻ với cộng đồng.', 'info')
       setNewPostText('')
     }
   }
@@ -63,9 +90,10 @@ export default function MatchProCommunityPage() {
   return (
     <MatchProLayout>
       <div className="flex gap-6 max-lg:flex-col items-start w-full max-w-[1400px] mx-auto pb-12" ref={pageRef}>
-        <div className="w-full rounded-xl border border-[#5E6AD2]/30 bg-[#5E6AD2]/10 px-4 py-3 text-sm text-foreground-muted">
-          <span className="font-semibold text-[#5E6AD2]">Bản thử nghiệm:</span> Nội dung cộng đồng hiện là dữ liệu minh họa — API cộng đồng đang được phát triển.
-        </div>
+        {error && (
+          <div className="w-full rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">{error}</div>
+        )}
+        {loading && <PageLoader label="Đang tải kèo mở..." />}
         
         {/* Main Content Area */}
         <div className="flex-1 min-w-0 w-full flex flex-col">
@@ -128,6 +156,9 @@ export default function MatchProCommunityPage() {
                   </div>
                 </div>
 
+                {posts.length === 0 && !loading && (
+                  <div className="text-center py-10 text-foreground-muted text-sm">Chưa có ghi chú kèo nào. Tạo kèo mới để xuất hiện trên bảng tin.</div>
+                )}
                 {/* Feed Posts */}
                 {posts.map(post => {
                   const isLiked = likedPosts.has(post.id)
@@ -170,6 +201,9 @@ export default function MatchProCommunityPage() {
             {/* ================= EVENTS TAB ================= */}
             {activeTab === 'Sự kiện' && (
               <div className="grid grid-cols-2 max-sm:grid-cols-1 gap-6">
+                {events.length === 0 && !loading && (
+                  <div className="col-span-2 text-center py-10 text-foreground-muted text-sm">Hiện chưa có kèo mở.</div>
+                )}
                 {events.map(ev => (
                   <div key={ev.id} className="fade-up card-base rounded-3xl overflow-hidden border border-border-default shadow-[0_0_15px_rgba(0,0,0,0.3)] hover:shadow-xl hover:-translate-y-1.5 transition-all group">
                     <div className="relative w-full h-48 overflow-hidden">
@@ -196,62 +230,14 @@ export default function MatchProCommunityPage() {
 
             {/* ================= GROUPS TAB ================= */}
             {activeTab === 'Hội nhóm' && (
-              <div className="grid grid-cols-2 max-sm:grid-cols-1 gap-6">
-                {groups.map(group => {
-                  const isJoined = joinedGroups.has(group.id)
-                  return (
-                    <div key={group.id} className="fade-up card-base rounded-3xl p-6 border border-border-default shadow-[0_0_15px_rgba(0,0,0,0.3)] hover:shadow-md transition-all flex flex-col">
-                      <div className="flex gap-4 items-start mb-5">
-                        <div className="w-14 h-14 bg-[var(--theme-surface)] rounded-2xl flex items-center justify-center text-3xl shadow-inner border border-border-default shrink-0">
-                          {group.icon}
-                        </div>
-                        <div>
-                          <h3 className="font-bold text-[var(--theme-primary)] text-lg leading-tight mb-1">{group.name}</h3>
-                          <p className="text-xs font-semibold px-2 py-1 bg-[var(--theme-surface-hover)] rounded-md text-foreground-muted inline-block">{group.sport} • {group.members} thành viên</p>
-                        </div>
-                      </div>
-                      <button 
-                        className={`w-full mt-auto py-2.5 rounded-xl font-bold text-sm transition-all shadow-[0_0_15px_rgba(0,0,0,0.3)] ${isJoined ? 'card-base border-2 border-border-default text-foreground-muted hover:border-red-500/50 hover:text-red-500 hover:bg-red-500/20' : 'bg-[#5E6AD2] text-white border-2 border-[#5E6AD2] hover:bg-[#6872D9] hover:border-[#6872D9]'}`}
-                        onClick={() => toggleGroup(group.id)}
-                      >
-                        {isJoined ? 'Đã tham gia (Rời nhóm)' : 'Tham gia nhóm'}
-                      </button>
-                    </div>
-                  )
-                })}
+              <div className="text-center py-16 card-base rounded-3xl border border-border-default">
+                <p className="text-foreground-muted">Hội nhóm đang phát triển — tham gia kèo mở để kết nối người chơi.</p>
               </div>
             )}
 
-            {/* ================= CHALLENGES TAB ================= */}
             {activeTab === 'Thử thách' && (
-              <div className="flex flex-col gap-4">
-                {challenges.map(ch => {
-                  const percent = Math.min(100, Math.round((ch.progress / ch.total) * 100))
-                  return (
-                    <div key={ch.id} className="fade-up card-base rounded-3xl p-6 border border-border-default shadow-[0_0_15px_rgba(0,0,0,0.3)] hover:shadow-md transition-all flex gap-5 items-center max-sm:flex-col max-sm:text-center">
-                      <div className="w-16 h-16 bg-[var(--theme-surface)] rounded-2xl flex items-center justify-center text-3xl shadow-inner border border-border-default shrink-0">
-                        {ch.icon}
-                      </div>
-                      <div className="flex-1 w-full">
-                        <div className="flex justify-between items-start mb-1 max-sm:flex-col max-sm:items-center">
-                          <h3 className="font-bold text-[var(--theme-primary)] text-[1.05rem]">{ch.title}</h3>
-                          <span className="text-xs font-bold px-2.5 py-1 bg-amber-500/20 text-amber-600 rounded-lg border border-amber-500/20 max-sm:mt-2">{ch.reward}</span>
-                        </div>
-                        <p className="text-xs text-foreground-muted mb-3 font-semibold">Thử thách {ch.sport}</p>
-                        
-                        <div className="flex items-center gap-4">
-                          <div className="flex-1 h-3 bg-[var(--theme-surface-hover)] rounded-full overflow-hidden shadow-inner">
-                            <div 
-                              className={`h-full rounded-full bg-gradient-to-r ${ch.color} transition-all duration-1000 ease-out`}
-                              style={{ width: `${percent}%` }}
-                            ></div>
-                          </div>
-                          <span className="text-sm font-bold text-[var(--theme-primary)] min-w-[45px] text-right">{ch.progress} / {ch.total}</span>
-                        </div>
-                      </div>
-                    </div>
-                  )
-                })}
+              <div className="text-center py-16 card-base rounded-3xl border border-border-default">
+                <p className="text-foreground-muted">Thử thách sẽ dựa trên lịch sử kèo và bảng xếp hạng — sắp ra mắt.</p>
               </div>
             )}
           </div>

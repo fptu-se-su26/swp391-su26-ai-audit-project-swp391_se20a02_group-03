@@ -2,149 +2,147 @@ import { useState, useEffect, useRef } from 'react'
 import { gsap } from 'gsap'
 import MatchProLayout from '../../layouts/MatchProLayout'
 import { useAuth } from '../../context/AuthContext'
+import { ratingApi } from '../../api/ratingApi'
+import PageLoader from '../../components/ui/PageLoader'
 import './MatchProLeaderboardPage.css'
-
-const periods = ['Tuần này', 'Tháng này', 'Mọi thời đại']
-const sports = ['Tất cả', 'Cầu lông', 'Pickleball']
-
-const levelLabels = {
-  Pro: 'Chuyên nghiệp',
-  Advanced: 'Nâng cao',
-  Intermediate: 'Trung bình',
-  Beginner: 'Người mới',
-}
-
-const players = [
-  { rank: 1, name: 'Đức K.', pts: 2450, wins: 34, matches: 40, sport: 'Badminton', level: 'Pro', img: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&q=80', change: 0 },
-  { rank: 2, name: 'Hương W.', pts: 2100, wins: 28, matches: 35, sport: 'Pickleball', level: 'Advanced', img: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=80&q=80', change: 1 },
-  { rank: 3, name: 'Minh T.', pts: 1980, wins: 25, matches: 33, sport: 'Badminton', level: 'Advanced', img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&q=80', change: -1 },
-  { rank: 4, name: 'Lan P.', pts: 1750, wins: 22, matches: 30, sport: 'Pickleball', level: 'Intermediate', img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&q=80', change: 2 },
-  { rank: 5, name: 'Jae Kim', pts: 1620, wins: 20, matches: 28, sport: 'Badminton', level: 'Advanced', img: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=80&q=80', change: 0 },
-  { rank: 6, name: 'Hùng M.', pts: 1540, wins: 19, matches: 27, sport: 'Pickleball', level: 'Intermediate', img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&q=80', change: -2 },
-  { rank: 7, name: 'Elena R.', pts: 1420, wins: 17, matches: 25, sport: 'Badminton', level: 'Advanced', img: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&q=80', change: 1 },
-  { rank: 8, name: 'Chris N.', pts: 1380, wins: 16, matches: 24, sport: 'Pickleball', level: 'Intermediate', img: 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=80&q=80', change: 0 },
-  { rank: 9, name: 'Mia S.', pts: 1250, wins: 14, matches: 22, sport: 'Badminton', level: 'Intermediate', img: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=80&q=80', change: 3 },
-  { rank: 10, name: 'Tom B.', pts: 1190, wins: 13, matches: 21, sport: 'Pickleball', level: 'Beginner', img: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=80&q=80', change: -1 },
-]
 
 const sportColors = { Badminton: '#22c55e', Pickleball: '#6366f1', All: '#5E6AD2' }
 
+function avatarUrl(entry) {
+  return entry.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(entry.fullName || 'Player')}&background=5E6AD2&color=fff`
+}
+
 export default function MatchProLeaderboardPage() {
   const { user } = useAuth()
-  const [period, setPeriod] = useState('Tuần này')
-  const [sport, setSport] = useState('Tất cả')
+  const [players, setPlayers] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [myRank, setMyRank] = useState(null)
   const pageRef = useRef(null)
 
   useEffect(() => {
+    let active = true
+    async function load() {
+      try {
+        setLoading(true)
+        setError(null)
+        const res = await ratingApi.getLeaderboard(20)
+        if (!active) return
+        if (res.statusCode === 200 && Array.isArray(res.data)) {
+          setPlayers(res.data)
+          if (user?.userId) {
+            const mine = res.data.find(p => p.userId === user.userId)
+            setMyRank(mine ?? null)
+          }
+        } else {
+          setError(res.message || 'Không tải được bảng xếp hạng.')
+        }
+      } catch (err) {
+        if (active) setError(typeof err === 'string' ? err : 'Không tải được bảng xếp hạng.')
+      } finally {
+        if (active) setLoading(false)
+      }
+    }
+    load()
+    return () => { active = false }
+  }, [user?.userId])
+
+  useEffect(() => {
+    if (loading) return
     const ctx = gsap.context(() => {
       gsap.from('.lb-hero', { opacity: 0, y: 24, duration: 0.6, ease: 'power3.out' })
       gsap.from('.lb-podium__place', { opacity: 0, y: 40, duration: 0.6, stagger: 0.12, ease: 'back.out(1.5)', delay: 0.3 })
       gsap.from('.lb-row', { opacity: 0, x: -30, duration: 0.4, stagger: 0.06, ease: 'power2.out', delay: 0.5 })
     }, pageRef)
     return () => ctx.revert()
-  }, [period, sport])
+  }, [loading, players.length])
 
-  const filtered = players.filter(p => sport === 'Tất cả' || (sport === 'Cầu lông' && p.sport === 'Badminton') || (sport === 'Pickleball' && p.sport === 'Pickleball'))
-  const top3 = filtered.slice(0, 3)
-  const rest = filtered.slice(3)
+  const top3 = players.slice(0, 3)
+  const rest = players.slice(3)
 
   return (
     <MatchProLayout>
       <div className="mp-lb-page" ref={pageRef}>
-        {/* Hero */}
         <div className="lb-hero">
           <div>
-            <p className="text-xs text-[#5E6AD2] font-semibold mb-2">Bản thử nghiệm — dữ liệu minh họa</p>
             <h1 className="lb-hero__title">Bảng xếp hạng</h1>
-            <p className="lb-hero__sub">Top người chơi xuất sắc trong tuần.</p>
-          </div>
-          <div className="lb-filters">
-            {periods.map(p => (
-              <button key={p} className={`lb-period-btn ${period === p ? 'active' : ''}`} onClick={() => setPeriod(p)}>{p}</button>
-            ))}
+            <p className="lb-hero__sub">Xếp hạng theo điểm tín nhiệm và số trận đã tham gia.</p>
           </div>
         </div>
 
-        {/* Sport filter */}
-        <div className="lb-sport-filters">
-          {sports.map(s => (
-            <button key={s} className={`lb-sport-btn ${sport === s ? 'active' : ''}`}
-              style={sport === s ? { background: sportColors[s.replace(' Sports','').trim()] || '#5E6AD2' } : {}}
-              onClick={() => setSport(s)}>
-              {s}
-            </button>
-          ))}
-        </div>
-
-        {/* Podium top 3 */}
-        {filtered.length >= 3 && (
-          <div className="lb-podium">
-            {/* 2nd */}
-            <div className="lb-podium__place lb-podium__place--2">
-              <img src={top3[1].img} alt={top3[1].name} className="lb-podium__avatar" />
-              <div className="lb-podium__medal lb-podium__medal--silver"></div>
-              <p className="lb-podium__name">{top3[1].name}</p>
-              <p className="lb-podium__pts">{top3[1].pts.toLocaleString()}</p>
-              <div className="lb-podium__bar lb-podium__bar--2" />
-            </div>
-            {/* 1st */}
-            <div className="lb-podium__place lb-podium__place--1">
-              <div className="lb-podium__crown"></div>
-              <img src={top3[0].img} alt={top3[0].name} className="lb-podium__avatar lb-podium__avatar--1" />
-              <div className="lb-podium__medal lb-podium__medal--gold"></div>
-              <p className="lb-podium__name">{top3[0].name}</p>
-              <p className="lb-podium__pts">{top3[0].pts.toLocaleString()}</p>
-              <div className="lb-podium__bar lb-podium__bar--1" />
-            </div>
-            {/* 3rd */}
-            <div className="lb-podium__place lb-podium__place--3">
-              <img src={top3[2].img} alt={top3[2].name} className="lb-podium__avatar" />
-              <div className="lb-podium__medal lb-podium__medal--bronze"></div>
-              <p className="lb-podium__name">{top3[2].name}</p>
-              <p className="lb-podium__pts">{top3[2].pts.toLocaleString()}</p>
-              <div className="lb-podium__bar lb-podium__bar--3" />
-            </div>
-          </div>
+        {error && (
+          <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300 mb-4">{error}</div>
         )}
 
-        {/* Full table */}
-        <div className="lb-table">
-          <div className="lb-table__header">
-            <span className="lb-col-rank">Hạng</span>
-            <span className="lb-col-player">Người chơi</span>
-            <span className="lb-col-sport">Môn</span>
-            <span className="lb-col-wins">Thắng</span>
-            <span className="lb-col-pts">Điểm</span>
-            <span className="lb-col-change">±</span>
-          </div>
-          {rest.map((p, i) => (
-            <div key={p.rank} className={`lb-row ${i % 2 === 0 ? 'lb-row--alt' : ''}`}>
-              <span className="lb-col-rank lb-rank-num">{p.rank}</span>
-              <div className="lb-col-player lb-player">
-                <img src={p.img} alt={p.name} className="lb-player__avatar" />
-                <div>
-                  <p className="lb-player__name">{p.name}</p>
-                  <p className="lb-player__level">{levelLabels[p.level] || p.level}</p>
+        {loading ? (
+          <PageLoader label="Đang tải bảng xếp hạng..." />
+        ) : players.length === 0 ? (
+          <div className="text-center py-16 text-foreground-muted">Chưa có đánh giá nào. Hãy tham gia kèo và nhận đánh giá từ đồng đội!</div>
+        ) : (
+          <>
+            {players.length >= 3 && (
+              <div className="lb-podium">
+                <div className="lb-podium__place lb-podium__place--2">
+                  <img src={avatarUrl(top3[1])} alt={top3[1].fullName} className="lb-podium__avatar" />
+                  <div className="lb-podium__medal lb-podium__medal--silver"></div>
+                  <p className="lb-podium__name">{top3[1].fullName}</p>
+                  <p className="lb-podium__pts">{top3[1].points.toLocaleString()}</p>
+                  <div className="lb-podium__bar lb-podium__bar--2" />
+                </div>
+                <div className="lb-podium__place lb-podium__place--1">
+                  <div className="lb-podium__crown"></div>
+                  <img src={avatarUrl(top3[0])} alt={top3[0].fullName} className="lb-podium__avatar lb-podium__avatar--1" />
+                  <div className="lb-podium__medal lb-podium__medal--gold"></div>
+                  <p className="lb-podium__name">{top3[0].fullName}</p>
+                  <p className="lb-podium__pts">{top3[0].points.toLocaleString()}</p>
+                  <div className="lb-podium__bar lb-podium__bar--1" />
+                </div>
+                <div className="lb-podium__place lb-podium__place--3">
+                  <img src={avatarUrl(top3[2])} alt={top3[2].fullName} className="lb-podium__avatar" />
+                  <div className="lb-podium__medal lb-podium__medal--bronze"></div>
+                  <p className="lb-podium__name">{top3[2].fullName}</p>
+                  <p className="lb-podium__pts">{top3[2].points.toLocaleString()}</p>
+                  <div className="lb-podium__bar lb-podium__bar--3" />
                 </div>
               </div>
-              <span className="lb-col-sport">
-                <span className="lb-sport-dot" style={{ background: sportColors[p.sport] || '#94a3b8' }} />
-                {p.sport === 'Badminton' ? 'Cầu lông' : 'Pickleball'}
-              </span>
-              <span className="lb-col-wins">{p.wins}/{p.matches}</span>
-              <span className="lb-col-pts lb-pts">{p.pts.toLocaleString()}</span>
-              <span className={`lb-col-change lb-change ${p.change > 0 ? 'lb-change--up' : p.change < 0 ? 'lb-change--down' : 'lb-change--same'}`}>
-                {p.change > 0 ? `▲${p.change}` : p.change < 0 ? `▼${Math.abs(p.change)}` : '—'}
-              </span>
-            </div>
-          ))}
-        </div>
+            )}
 
-        {/* My rank card */}
+            <div className="lb-table">
+              <div className="lb-table__header">
+                <span className="lb-col-rank">Hạng</span>
+                <span className="lb-col-player">Người chơi</span>
+                <span className="lb-col-sport">Điểm TN</span>
+                <span className="lb-col-wins">Trận</span>
+                <span className="lb-col-pts">Điểm</span>
+                <span className="lb-col-change">Đánh giá</span>
+              </div>
+              {rest.map((p, i) => (
+                <div key={p.userId} className={`lb-row ${i % 2 === 0 ? 'lb-row--alt' : ''}`}>
+                  <span className="lb-col-rank lb-rank-num">{p.rank}</span>
+                  <div className="lb-col-player lb-player">
+                    <img src={avatarUrl(p)} alt={p.fullName} className="lb-player__avatar" />
+                    <div>
+                      <p className="lb-player__name">{p.fullName}</p>
+                      <p className="lb-player__level">{p.trustScore}/5 sao</p>
+                    </div>
+                  </div>
+                  <span className="lb-col-sport">
+                    <span className="lb-sport-dot" style={{ background: sportColors.All }} />
+                    {p.trustScore}
+                  </span>
+                  <span className="lb-col-wins">{p.matchCount}</span>
+                  <span className="lb-col-pts lb-pts">{p.points.toLocaleString()}</span>
+                  <span className="lb-col-change lb-change lb-change--same">{p.totalRatings}</span>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+
         <div className="lb-my-rank">
           <div className="lb-my-rank__left">
             <img
-              src={user?.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.fullName || 'Ban')}&background=5E6AD2&color=fff`}
+              src={user?.avatarUrl || avatarUrl({ fullName: user?.fullName || 'Ban' })}
               alt={user?.fullName || 'Bạn'}
               className="lb-player__avatar"
             />
@@ -152,15 +150,19 @@ export default function MatchProLeaderboardPage() {
               <p className="lb-player__name">
                 {user?.fullName || 'Bạn'} <span className="lb-you-badge">BẠN</span>
               </p>
-              <p className="lb-player__level">Tham gia kèo để xuất hiện trên bảng xếp hạng</p>
+              <p className="lb-player__level">
+                {myRank ? `Hạng #${myRank.rank} · ${myRank.points} điểm` : 'Tham gia kèo và nhận đánh giá để lên bảng xếp hạng'}
+              </p>
             </div>
           </div>
-          <div className="lb-my-rank__progress">
-            <p className="lb-my-rank__label">Dữ liệu xếp hạng cá nhân đang phát triển</p>
-            <div className="lb-my-rank__bar">
-              <div className="lb-my-rank__fill" style={{ width: '0%' }} />
+          {myRank && (
+            <div className="lb-my-rank__progress">
+              <p className="lb-my-rank__label">Trust Score: {myRank.trustScore}/5 · {myRank.matchCount} trận</p>
+              <div className="lb-my-rank__bar">
+                <div className="lb-my-rank__fill" style={{ width: `${Math.min(100, (myRank.trustScore / 5) * 100)}%` }} />
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </MatchProLayout>

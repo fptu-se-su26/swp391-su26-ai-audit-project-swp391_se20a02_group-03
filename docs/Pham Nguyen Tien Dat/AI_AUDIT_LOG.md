@@ -404,10 +404,6 @@
 - Đối chiếu nhất quán định dạng phản hồi (envelope vs raw) giữa từng Controller và API client tương ứng để đảm bảo Frontend đọc đúng `statusCode`/`data`.
 - Rà soát phân quyền (Role-based) trên các endpoint nhạy cảm (Admin/Staff) và xác nhận luồng đồng bộ trạng thái E-KYC giữa `EkycProfile` và `User`.
 
-
-
-
-
 ---
 
 ## Log #15

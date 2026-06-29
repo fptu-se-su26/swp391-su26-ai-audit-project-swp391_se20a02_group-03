@@ -72,6 +72,8 @@ builder.Services.AddScoped<IMatchService, MatchService>();
 builder.Services.AddScoped<IEscrowService, EscrowService>();
 builder.Services.AddScoped<IEquipmentCategoryService, EquipmentCategoryService>();
 builder.Services.AddScoped<IEquipmentService, EquipmentService>();
+builder.Services.AddScoped<IEquipmentRentalRepository, EquipmentRentalRepository>();
+builder.Services.AddScoped<IEquipmentRentalService, EquipmentRentalService>();
 builder.Services.AddScoped<IInventoryService, InventoryService>();
 builder.Services.AddScoped<IVnPayService, VnPayService>();
 builder.Services.AddScoped<IStorageService, LocalStorageService>();
@@ -192,6 +194,14 @@ using (var scope = app.Services.CreateScope())
     await DatabaseSeeder.SeedEquipmentAsync(context);
     await DatabaseSeeder.SeedCourtsAsync(context);
     await SampleUserSeeder.SeedAsync(context, scope.ServiceProvider.GetRequiredService<IConfiguration>(), app.Environment.IsDevelopment(), logger);
+    try
+    {
+        await StaffDemoSeeder.SeedAsync(context, logger);
+    }
+    catch (Exception ex)
+    {
+        logger.LogWarning(ex, "[StaffDemoSeeder] Skipped demo seed due to error (non-fatal).");
+    }
 }
 
 app.MapControllers();

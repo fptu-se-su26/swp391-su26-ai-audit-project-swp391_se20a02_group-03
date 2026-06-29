@@ -1,42 +1,65 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { gsap } from 'gsap'
 import ApexLayout from '../../layouts/ApexLayout'
+import { equipmentApi } from '../../api/equipmentApi'
+import PageLoader from '../../components/ui/PageLoader'
 import './ApexShopPage.css'
+
+const FALLBACK_IMG = 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&q=80'
 
 const categories = [
   { key: 'All', label: 'Tất cả' },
-  { key: 'Rackets', label: 'Vợt' },
-  { key: 'Shoes', label: 'Giày' },
+  { key: 'Racket', label: 'Vợt' },
+  { key: 'Footwear', label: 'Giày' },
   { key: 'Apparel', label: 'Trang phục' },
-  { key: 'Balls', label: 'Cầu / Bóng' },
+  { key: 'Ball / Birdie', label: 'Cầu / Bóng' },
   { key: 'Accessories', label: 'Phụ kiện' },
 ]
 
 const categoryLabels = Object.fromEntries(categories.map(c => [c.key, c.label]))
 
-const badgeLabels = {
-  'PRO PICK': 'LỰA CHỌN PRO',
-  NEW: 'MỚI',
-  BESTSELLER: 'BÁN CHẠY',
-}
-
-const products = [
-  { id: 1, name: 'Vợt Cầu lông Yonex Astrox 99', category: 'Rackets', sport: 'Badminton', price: 189, rental: 12, stock: 8, rating: 4.9, reviews: 124, img: 'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=400&q=80', badge: 'PRO PICK' },
-  { id: 2, name: 'Giày Cầu lông Yonex 65Z', category: 'Shoes', sport: 'Badminton', price: 135, rental: null, stock: 15, rating: 4.7, reviews: 89, img: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&q=80', badge: null },
-  { id: 3, name: 'Vợt Pickleball Selkirk Amped', category: 'Rackets', sport: 'Pickleball', price: 145, rental: 10, stock: 5, rating: 4.8, reviews: 63, img: 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=400&q=80', badge: 'NEW' },
-  { id: 4, name: 'Quần Short Thể thao Pro', category: 'Apparel', sport: 'Multi', price: 55, rental: null, stock: 30, rating: 4.5, reviews: 42, img: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&q=80', badge: null },
-  { id: 5, name: 'Cầu lông Feather (12 quả)', category: 'Balls', sport: 'Badminton', price: 22, rental: null, stock: 60, rating: 4.4, reviews: 78, img: 'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=400&q=80', badge: 'BESTSELLER' },
-  { id: 6, name: 'Bóng Pickleball Franklin X-40 (6 quả)', category: 'Balls', sport: 'Pickleball', price: 18, rental: null, stock: 100, rating: 4.6, reviews: 200, img: 'https://images.unsplash.com/photo-1530549387789-4c1017266635?w=400&q=80', badge: null },
-  { id: 7, name: 'Balo Thể thao Pro', category: 'Accessories', sport: 'Multi', price: 78, rental: null, stock: 12, rating: 4.8, reviews: 55, img: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400&q=80', badge: null },
-  { id: 8, name: 'Băng cổ tay thấm mồ hôi (bộ)', category: 'Accessories', sport: 'Multi', price: 24, rental: null, stock: 50, rating: 4.3, reviews: 33, img: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400&q=80', badge: null },
-]
-
 export default function ApexShopPage() {
+  const [products, setProducts] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
   const [category, setCategory] = useState('All')
   const [cart, setCart] = useState([])
   const [mode, setMode] = useState('buy')
   const [showCart, setShowCart] = useState(false)
   const pageRef = useRef(null)
+
+  useEffect(() => {
+    let active = true
+    async function load() {
+      try {
+        setLoading(true)
+        setError(null)
+        const res = await equipmentApi.getAll()
+        if (!active) return
+        if (res.statusCode === 200 && Array.isArray(res.data)) {
+          setProducts(res.data.map(e => ({
+            id: e.equipmentId,
+            name: e.name,
+            category: e.category,
+            sport: e.type || e.sportType || 'Multi',
+            price: e.retailPrice || e.price,
+            rental: e.price !== e.retailPrice ? e.price : null,
+            stock: e.stockQuantity,
+            img: e.imageUrl || FALLBACK_IMG,
+            status: e.status,
+          })))
+        } else {
+          setError(res.message || 'Không tải được sản phẩm.')
+        }
+      } catch (err) {
+        if (active) setError(typeof err === 'string' ? err : 'Không tải được sản phẩm.')
+      } finally {
+        if (active) setLoading(false)
+      }
+    }
+    load()
+    return () => { active = false }
+  }, [])
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -46,10 +69,11 @@ export default function ApexShopPage() {
     return () => ctx.revert()
   }, [category])
 
-  const filtered = products.filter(p =>
+  const filtered = useMemo(() => products.filter(p =>
     (category === 'All' || p.category === category) &&
-    (mode === 'buy' || p.rental !== null)
-  )
+    (mode === 'buy' || p.rental !== null) &&
+    p.status !== 'Discontinued'
+  ), [products, category, mode])
 
   function addToCart(product) {
     setCart(prev => {
@@ -90,34 +114,33 @@ export default function ApexShopPage() {
           ))}
         </div>
 
+        {error && <div className="shop-error">{error}</div>}
+        {loading && <PageLoader label="Đang tải sản phẩm..." />}
+
         <div className="shop-layout">
           <div className="products-grid">
-            {filtered.map(p => (
+            {!loading && filtered.map(p => (
               <div key={p.id} className="product-card">
-                {p.badge && <span className="product-badge">{badgeLabels[p.badge] || p.badge}</span>}
                 <img src={p.img} alt={p.name} className="product-card__img" />
                 <div className="product-card__body">
                   <p className="product-card__category">{categoryLabels[p.category] || p.category} · {p.sport}</p>
                   <h3 className="product-card__name">{p.name}</h3>
-                  <div className="product-card__rating">
-                    {'★'.repeat(Math.round(p.rating))} <span>{p.rating} ({p.reviews})</span>
-                  </div>
                   <div className="product-card__footer">
                     <div>
                       {mode === 'rent' && p.rental
-                        ? <span className="product-price">{p.rental.toLocaleString('vi-VN')}₫<small>/ngày</small></span>
-                        : <span className="product-price">{p.price.toLocaleString('vi-VN')}₫</span>
+                        ? <span className="product-price">{Number(p.rental).toLocaleString('vi-VN')}₫<small>/ngày</small></span>
+                        : <span className="product-price">{Number(p.price).toLocaleString('vi-VN')}₫</span>
                       }
                       <span className="product-stock">Còn {p.stock} sản phẩm</span>
                     </div>
-                    <button id={`add-btn-${p.id}`} className="btn-primary product-card__add" onClick={() => addToCart(p)}>
+                    <button id={`add-btn-${p.id}`} className="btn-primary product-card__add" onClick={() => addToCart(p)} disabled={p.stock <= 0}>
                       + Thêm
                     </button>
                   </div>
                 </div>
               </div>
             ))}
-            {filtered.length === 0 && (
+            {!loading && filtered.length === 0 && (
               <div className="shop-empty">
                 <span>🛍️</span>
                 <p>Không có sản phẩm cho thuê trong danh mục này.</p>
