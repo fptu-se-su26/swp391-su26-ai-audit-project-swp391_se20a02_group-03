@@ -2,10 +2,10 @@ import { useState } from 'react'
 import ProSportDashLayout from '../../layouts/ProSportDashLayout'
 
 const topics = [
-  { id: 'bookings', emoji: '📅', iconBg: '#6366f1', label: 'Court Bookings',    desc: 'Confirmations, cancellations, and upcoming reservation reminders.', push: true,  email: true,  sms: false },
-  { id: 'matches',  emoji: '🎾', iconBg: '#22c55e', label: 'Social Matches',    desc: 'Invites, match results, and partner availability alerts.',         push: true,  email: false, sms: false },
-  { id: 'rentals',  emoji: '📦', iconBg: '#64748b', label: 'Equipment Rentals', desc: 'Pickup times, return deadlines, and overdue notices.',             push: false, email: true,  sms: true  },
-  { id: 'payments', emoji: '💳', iconBg: '#ef4444', label: 'Payments & Billing',desc: 'Invoices, successful charges, and payment failures.',             push: true,  email: true,  sms: false },
+  { id: 'bookings', emoji: '📅', iconBg: '#6366f1', label: 'Đặt sân',    desc: 'Xác nhận, hủy và nhắc lịch đặt sân sắp tới.', push: true,  email: true,  sms: false },
+  { id: 'matches',  emoji: '🎾', iconBg: '#22c55e', label: 'Trận xã giao',    desc: 'Lời mời, kết quả trận và cảnh báo đối tác sẵn sàng.',         push: true,  email: false, sms: false },
+  { id: 'rentals',  emoji: '📦', iconBg: '#64748b', label: 'Thuê thiết bị', desc: 'Giờ nhận, hạn trả và thông báo quá hạn.',             push: false, email: true,  sms: true  },
+  { id: 'payments', emoji: '💳', iconBg: '#ef4444', label: 'Thanh toán & hóa đơn',desc: 'Hóa đơn, giao dịch thành công và thanh toán thất bại.',             push: true,  email: true,  sms: false },
 ]
 
 function Toggle({ checked, onChange, id }) {
@@ -31,8 +31,8 @@ export default function DashNotifSettingsPage() {
     <ProSportDashLayout>
       <div>
         <div className="mb-6">
-          <h1 className="font-['Oswald'] text-[1.6rem] font-bold text-foreground">Notifications</h1>
-          <p className="text-[0.85rem] text-slate-500 mt-1 max-w-[520px] leading-relaxed">Configure how and when you want to be alerted about your athletic activities, bookings, and account updates.</p>
+          <h1 className="font-['Oswald'] text-[1.6rem] font-bold text-foreground">Thông báo</h1>
+          <p className="text-[0.85rem] text-slate-500 mt-1 max-w-[520px] leading-relaxed">Cấu hình cách và thời điểm bạn muốn nhận cảnh báo về hoạt động thể thao, đặt sân và cập nhật tài khoản.</p>
         </div>
 
         <div className="grid grid-cols-[1fr_280px] max-[900px]:grid-cols-1 gap-5 items-start">
@@ -44,15 +44,15 @@ export default function DashNotifSettingsPage() {
                 <line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/>
                 <line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
               </svg>
-              Notification Topics
+              Chủ đề thông báo
             </div>
-            <p className="text-[0.78rem] text-[#14B8A6] mb-5">Fine-tune your alerts across different communication channels.</p>
+            <p className="text-[0.78rem] text-[#14B8A6] mb-5">Tùy chỉnh cảnh báo theo từng kênh liên lạc.</p>
 
             <div className="flex items-center justify-between py-2 border-b border-[#f0f5f9] mb-2">
-              <div className="text-[0.68rem] font-bold tracking-[0.1em] text-slate-400 flex-1">TOPIC</div>
+              <div className="text-[0.68rem] font-bold tracking-[0.1em] text-slate-400 flex-1">CHỦ ĐỀ</div>
               <div className="flex gap-5">
-                <span className="text-[0.68rem] font-bold tracking-[0.1em] text-slate-400 w-11 text-center">PUSH</span>
-                <span className="text-[0.68rem] font-bold tracking-[0.1em] text-slate-400 w-11 text-center">EMAIL</span>
+                <span className="text-[0.68rem] font-bold tracking-[0.1em] text-slate-400 w-11 text-center">ĐẨY</span>
+                <span className="text-[0.68rem] font-bold tracking-[0.1em] text-slate-400 w-11 text-center">THƯ</span>
                 <span className="text-[0.68rem] font-bold tracking-[0.1em] text-slate-400 w-11 text-center">SMS</span>
               </div>
             </div>
@@ -79,12 +79,12 @@ export default function DashNotifSettingsPage() {
           <div>
             {/* Master Channels */}
             <div className="bg-white rounded-[14px] p-[22px] border-[1.5px] border-[#e0ecf0]">
-              <p className="text-[0.95rem] font-bold text-foreground mb-1">Master Channels</p>
-              <p className="text-[0.78rem] text-slate-400 mb-3.5 leading-normal">Quickly disable all notifications for a specific medium.</p>
+              <p className="text-[0.95rem] font-bold text-foreground mb-1">Kênh chính</p>
+              <p className="text-[0.78rem] text-slate-400 mb-3.5 leading-normal">Tắt nhanh tất cả thông báo theo từng phương thức.</p>
               {[
-                { label: 'Push Notifications', emoji: '📱', val: masterPush,  set: setMasterPush,  id: 'master-push'  },
-                { label: 'Email Alerts',        emoji: '✉️', val: masterEmail, set: setMasterEmail, id: 'master-email' },
-                { label: 'SMS Text Messages',   emoji: '💬', val: masterSms,   set: setMasterSms,   id: 'master-sms'   },
+                { label: 'Thông báo đẩy', emoji: '📱', val: masterPush,  set: setMasterPush,  id: 'master-push'  },
+                { label: 'Cảnh báo email',        emoji: '✉️', val: masterEmail, set: setMasterEmail, id: 'master-email' },
+                { label: 'Tin nhắn SMS',   emoji: '💬', val: masterSms,   set: setMasterSms,   id: 'master-sms'   },
               ].map(m => (
                 <div key={m.label} className="flex items-center gap-2.5 py-2.5 border-b border-[#f0f5f9] last:border-b-0">
                   <span className="text-base w-7 text-center">{m.emoji}</span>
@@ -97,24 +97,24 @@ export default function DashNotifSettingsPage() {
             {/* Quiet Hours */}
             <div className="bg-white rounded-[14px] p-[22px] border-[1.5px] border-[#e0ecf0] mt-4">
               <div className="flex items-center justify-between mb-1.5">
-                <p className="text-[0.95rem] font-bold text-foreground">🌙 Quiet Hours</p>
+                <p className="text-[0.95rem] font-bold text-foreground">🌙 Giờ yên lặng</p>
                 <Toggle checked={quietHours} onChange={() => setQuietHours(!quietHours)} id="quiet-hours" />
               </div>
-              <p className="text-[0.78rem] text-slate-400 mb-3.5 leading-normal">Mute all non-critical notifications during these hours.</p>
+              <p className="text-[0.78rem] text-slate-400 mb-3.5 leading-normal">Tắt tiếng mọi thông báo không khẩn cấp trong khung giờ này.</p>
               <div className="grid grid-cols-2 gap-3 mt-2.5">
                 <div>
-                  <p className="text-[0.68rem] font-bold tracking-[0.1em] uppercase text-slate-400 mb-1.5">FROM</p>
+                  <p className="text-[0.68rem] font-bold tracking-[0.1em] uppercase text-slate-400 mb-1.5">TỪ</p>
                   <div className="flex items-center gap-1.5 border-[1.5px] border-[#e0ecf0] rounded-lg px-2.5 py-2 text-[0.82rem] text-foreground font-medium cursor-pointer">
-                    10:00 PM
+                    22:00
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
                     </svg>
                   </div>
                 </div>
                 <div>
-                  <p className="text-[0.68rem] font-bold tracking-[0.1em] uppercase text-slate-400 mb-1.5">TO</p>
+                  <p className="text-[0.68rem] font-bold tracking-[0.1em] uppercase text-slate-400 mb-1.5">ĐẾN</p>
                   <div className="flex items-center gap-1.5 border-[1.5px] border-[#e0ecf0] rounded-lg px-2.5 py-2 text-[0.82rem] text-foreground font-medium cursor-pointer">
-                    07:00 AM
+                    07:00
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
                     </svg>
@@ -122,23 +122,23 @@ export default function DashNotifSettingsPage() {
                 </div>
               </div>
               <div className="mt-3">
-                <p className="text-[0.68rem] font-bold tracking-[0.1em] uppercase text-slate-400 mb-1.5">TIMEZONE</p>
+                <p className="text-[0.68rem] font-bold tracking-[0.1em] uppercase text-slate-400 mb-1.5">MÚI GIỜ</p>
                 <select id="tz-select" className="w-full border-[1.5px] border-[#e0ecf0] rounded-lg px-2.5 py-2 text-[0.82rem] text-foreground outline-none font-['Inter'] cursor-pointer">
-                  <option>Pacific Time (US & Canada)</option>
-                  <option>Eastern Time (US & Canada)</option>
-                  <option>UTC+7 (Ho Chi Minh)</option>
+                  <option>Giờ Thái Bình Dương (Mỹ & Canada)</option>
+                  <option>Giờ miền Đông (Mỹ & Canada)</option>
+                  <option>UTC+7 (Hồ Chí Minh)</option>
                 </select>
               </div>
             </div>
 
             {/* Desktop Preview */}
             <div className="bg-[#f0f7fa] rounded-xl p-4 border border-[#e0ecf0] mt-4">
-              <p className="text-[0.68rem] font-bold tracking-[0.1em] uppercase text-slate-400 mb-3">DESKTOP PREVIEW</p>
+              <p className="text-[0.68rem] font-bold tracking-[0.1em] uppercase text-slate-400 mb-3">XEM TRƯỚC DESKTOP</p>
               <div className="flex items-start gap-2.5 bg-white rounded-[10px] p-3 border border-[#e0ecf0] shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
                 <span className="text-[1.2rem] shrink-0">🏟️</span>
                 <div>
-                  <p className="text-[0.82rem] font-bold text-foreground">Booking Confirmed</p>
-                  <p className="text-[0.75rem] text-slate-400 mt-0.5">Court 4 is reserved for Tuesday at 18:00.</p>
+                  <p className="text-[0.82rem] font-bold text-foreground">Đặt sân thành công</p>
+                  <p className="text-[0.75rem] text-slate-400 mt-0.5">Sân 4 đã được giữ vào thứ Ba lúc 18:00.</p>
                 </div>
                 <button className="bg-transparent border-none cursor-pointer text-slate-400 text-base ml-auto shrink-0 leading-none">&times;</button>
               </div>
@@ -147,8 +147,8 @@ export default function DashNotifSettingsPage() {
         </div>
 
         <div className="flex justify-end gap-3 mt-6 pt-5 border-t border-[#e0ecf0]">
-          <button className="btn-outline">Discard Changes</button>
-          <button className="btn-primary">Save Preferences</button>
+          <button className="btn-outline">Hủy thay đổi</button>
+          <button className="btn-primary">Lưu tùy chọn</button>
         </div>
       </div>
     </ProSportDashLayout>

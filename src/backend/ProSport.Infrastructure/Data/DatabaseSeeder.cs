@@ -5,8 +5,6 @@ namespace ProSport.Infrastructure.Data;
 
 public static class DatabaseSeeder
 {
-    private const int MinDiverseEquipmentCount = 20;
-
     public static async Task EnsureEquipmentRentalSchemaAsync(ProSportDbContext context)
     {
         // Only run if the legacy table exists; EF migrations may have replaced it
@@ -79,12 +77,11 @@ public static class DatabaseSeeder
             await context.SaveChangesAsync();
         }
 
-        if (await IsSeedUpToDateAsync(context))
+        // Idempotent: chỉ seed khi bảng trống — không xóa dữ liệu admin đã thêm
+        if (await context.Equipments.AnyAsync(e => !e.IsDeleted))
         {
             return;
         }
-
-        await ClearEquipmentDataAsync(context);
 
         // Get the default category id
         var defaultCategoryId = await context.EquipmentCategories
@@ -108,49 +105,6 @@ public static class DatabaseSeeder
                     CONSTRAINT [DF_Equipments_Category] DEFAULT ('Racket');
             END
             """);
-    }
-
-    private static async Task<bool> IsSeedUpToDateAsync(ProSportDbContext context)
-    {
-        var count = await context.Equipments.CountAsync(e => !e.IsDeleted);
-        if (count < MinDiverseEquipmentCount)
-        {
-            return false;
-        }
-
-        var categories = await context.Equipments
-            .Where(e => !e.IsDeleted)
-            .Select(e => e.Category)
-            .Distinct()
-            .ToListAsync();
-
-        var requiredCategories = new[]
-        {
-            "Racket",
-            "Footwear",
-            "Apparel",
-            "Ball / Birdie",
-            "Accessories",
-            "Protection"
-        };
-
-        return requiredCategories.All(categories.Contains);
-    }
-
-    private static async Task ClearEquipmentDataAsync(ProSportDbContext context)
-    {
-        // Delete from legacy table only if it still exists
-        await context.Database.ExecuteSqlRawAsync("""
-            IF OBJECT_ID('dbo.BookingDetails_Equipments', 'U') IS NOT NULL
-                DELETE FROM [dbo].[BookingDetails_Equipments];
-            """);
-
-        await context.Database.ExecuteSqlRawAsync("""
-            IF OBJECT_ID('dbo.EquipmentUnits', 'U') IS NOT NULL
-                DELETE FROM [dbo].[EquipmentUnits];
-            """);
-
-        await context.Database.ExecuteSqlRawAsync("DELETE FROM [dbo].[Equipments]");
     }
 
     private static List<Equipment> BuildEquipmentCatalog(int categoryId = 1) => new()

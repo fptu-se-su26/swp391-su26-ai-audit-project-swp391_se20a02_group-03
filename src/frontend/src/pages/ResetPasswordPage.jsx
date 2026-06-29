@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import PasswordStrengthMeter from '../components/PasswordStrengthMeter'
 import { useToast } from '../components/Toast'
 import authApi from '../api/authApi'
+import ProSportLogo from '../components/ui/ProSportLogo'
 
 export default function ResetPasswordPage() {
   const navigate = useNavigate()
@@ -153,11 +154,7 @@ export default function ResetPasswordPage() {
 
         <div className="relative z-10 flex flex-col items-start max-w-[480px] px-14" key={step}>
           {/* Logo */}
-          <Link to="/" className="font-heading text-3xl font-bold tracking-tight mb-16 flex items-center gap-0.5">
-            <span className="text-[var(--theme-primary)]">PRO</span>
-            <span className="text-accent">-</span>
-            <span className="text-[var(--theme-primary)]">SPORT</span>
-          </Link>
+          <ProSportLogo size="lg" className="mb-16" />
 
           <div className="auth-animate-in">
             {/* Icon */}
@@ -199,7 +196,7 @@ export default function ResetPasswordPage() {
         </div>
 
         <p className="absolute bottom-8 left-14 text-brand-600 text-xs font-medium tracking-wider">
-          © 2024 PRO-SPORT COMPLEX
+          © {new Date().getFullYear()} PRO-SPORT COMPLEX
         </p>
       </div>
 
@@ -207,11 +204,7 @@ export default function ResetPasswordPage() {
       <section className="auth-form">
         {/* Mobile logo */}
         <div className="lg:hidden absolute top-6 left-6">
-          <Link to="/" className="font-heading text-xl font-bold tracking-tight flex items-center gap-0.5">
-            <span className="text-brand-900">PRO</span>
-            <span className="text-accent">-</span>
-            <span className="text-brand-900">SPORT</span>
-          </Link>
+          <ProSportLogo size="sm" variant="dark" />
         </div>
 
         <div className="auth-form-inner auth-animate-in-delayed">
@@ -244,10 +237,10 @@ export default function ResetPasswordPage() {
             {/* Step 0: Email */}
             {step === 0 && (
               <div className="flex flex-col gap-2 auth-animate-slide">
-                <label htmlFor="reset-email" className="text-sm font-semibold text-brand-900">Địa chỉ Email</label>
+                <label htmlFor="reset-email" className="text-sm font-semibold text-brand-900">Thư điện tử</label>
                 <div className="relative group">
                   <svg className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none text-brand-400 group-focus-within:text-accent transition-colors duration-300" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-                  <input id="reset-email" type="email" value={email} onChange={e => setEmail(e.target.value)} required placeholder="athlete@example.com" className="auth-input pl-11" />
+                  <input id="reset-email" type="email" value={email} onChange={e => setEmail(e.target.value)} required placeholder="email@example.com" className="auth-input pl-11" />
                 </div>
               </div>
             )}
@@ -287,7 +280,7 @@ export default function ResetPasswordPage() {
                 <div className="relative group">
                   <svg className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none text-brand-400 group-focus-within:text-accent transition-colors duration-300" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                   <input id="reset-new-password" type={showPass ? 'text' : 'password'} value={newPassword} onChange={e => setNewPassword(e.target.value)} required placeholder="••••••••" className="auth-input pl-11 pr-11" />
-                  <button type="button" className="absolute right-4 top-1/2 -translate-y-1/2 text-brand-400 hover:text-accent transition-colors duration-300" onClick={() => setShowPass(!showPass)} aria-label="Toggle password visibility">
+                  <button type="button" className="absolute right-4 top-1/2 -translate-y-1/2 text-brand-400 hover:text-accent transition-colors duration-300" onClick={() => setShowPass(!showPass)} aria-label="Hiện/ẩn mật khẩu">
                     {showPass
                       ? <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="1" y1="1" x2="23" y2="23"/><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/></svg>
                       : <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
@@ -305,7 +298,7 @@ export default function ResetPasswordPage() {
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-              ) : step === 0 ? 'Send OTP' : step === 1 ? 'Verify OTP' : 'Reset Password'}
+              ) : step === 0 ? 'Gửi mã OTP' : step === 1 ? 'Xác thực OTP' : 'Đặt lại mật khẩu'}
             </button>
           </form>
 

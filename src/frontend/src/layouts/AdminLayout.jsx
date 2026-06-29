@@ -1,89 +1,103 @@
-import { Link, useLocation } from 'react-router-dom'
+import { useState } from 'react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
+import ProSportLogo from '../components/ui/ProSportLogo'
 
 const navLinks = [
-  { path: '/admin/dashboard', label: 'Dashboard', icon: 'M4 4h6v6H4zm10 0h6v6h-6zM4 14h6v6H4zm10 0h6v6h-6z' },
-  { path: '/admin/users', label: 'Users', icon: 'M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z' },
-  { path: '/admin/courts', label: 'Courts', icon: 'M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z' },
-  { path: '/admin/bookings', label: 'Bookings', icon: 'M19 3h-1V1h-2v2H8V1H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z' },
+  { path: '/admin/dashboard', label: 'Tổng quan', icon: 'M4 4h6v6H4zm10 0h6v6h-6zM4 14h6v6H4zm10 0h6v6h-6z' },
+  { path: '/admin/bookings', label: 'Đặt sân', icon: 'M19 3h-1V1h-2v2H8V1H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z' },
+  { path: '/admin/users', label: 'Người dùng', icon: 'M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z' },
+  { path: '/admin/courts', label: 'Sân', icon: 'M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z' },
+  { path: '/admin/kyc', label: 'E-KYC', icon: 'M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z' },
+  { path: '/admin/pricing', label: 'Bảng giá', icon: 'M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z' },
+  { path: '/admin/inventory', label: 'Kho thiết bị', icon: 'M20 2H4c-1 0-2 .9-2 2v3.01c0 .72.43 1.34 1 1.69V20c0 1.1 1.1 2 2 2h14c.9 0 2-1.1 2-2V8.7c.57-.35 1-.97 1-1.69V4c0-1.1-1-2-2-2zm-5 12H9v-2h6v2zm5-7H4V4h16v3z' },
+  { path: '/admin/complaints', label: 'Khiếu nại', icon: 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z' },
 ]
 
 export default function AdminLayout({ children }) {
   const location = useLocation()
+  const navigate = useNavigate()
+  const { user } = useAuth()
+  const [sidebarOpen, setSidebarOpen] = useState(false)
   const isActive = (path) => location.pathname.startsWith(path)
+
+  const displayName = user?.fullName || user?.name || 'Quản trị viên'
+  const displayEmail = user?.email || 'admin@pro-sport.com'
+  const initials = displayName.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()
 
   return (
     <div className="flex min-h-screen bg-[#f8fafc] font-['Inter',sans-serif]">
-      {/* Sidebar */}
-      <aside className="w-[240px] bg-white border-r border-slate-200 flex flex-col fixed left-0 top-0 bottom-0 z-[100]">
+      {sidebarOpen && (
+        <button
+          type="button"
+          className="fixed inset-0 bg-black/40 z-[90] lg:hidden border-none cursor-pointer"
+          onClick={() => setSidebarOpen(false)}
+          aria-label="Đóng menu"
+        />
+      )}
+
+      <aside className={`w-[240px] bg-white border-r border-slate-200 flex flex-col fixed left-0 top-0 bottom-0 z-[100] transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
         <div className="flex items-center gap-3 px-5 py-6">
-          <div className="w-8 h-8 rounded-lg bg-[#00c2ff] flex items-center justify-center">
-            <svg viewBox="0 0 24 24" fill="white" width="18" height="18"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-          </div>
-          <div>
-            <h2 className="font-['Oswald',sans-serif] text-[1.25rem] font-bold text-foreground leading-[1.1] tracking-[0.5px]">PRO-SPORT</h2>
-            <p className="text-[0.6rem] font-semibold text-slate-500 tracking-[0.5px]">MANAGEMENT PORTAL</p>
-          </div>
+          <ProSportLogo size="sm" variant="dark" subtitle="Cổng quản trị" />
         </div>
 
         <div className="px-5 pb-5">
-          <button className="w-full bg-[#14B8A6] hover:bg-[#0b7373] text-[var(--theme-primary)] border-none rounded-md py-2.5 text-[0.9rem] font-semibold cursor-pointer flex items-center justify-center gap-2 transition-all">+ New Booking</button>
+          <button
+            type="button"
+            onClick={() => navigate('/admin/bookings')}
+            className="w-full bg-[#5E6AD2] hover:bg-[#4e5bc4] text-white border-none rounded-md py-2.5 text-[0.9rem] font-semibold cursor-pointer flex items-center justify-center gap-2 transition-all"
+          >
+            + Đặt sân mới
+          </button>
         </div>
 
-        <nav className="flex-1 overflow-y-auto pb-5 flex flex-col [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-slate-300 [&::-webkit-scrollbar-thumb]:rounded">
+        <nav className="flex-1 overflow-y-auto pb-5 flex flex-col">
           {navLinks.map(link => (
             <Link
               key={link.path}
               to={link.path}
+              onClick={() => setSidebarOpen(false)}
               className={`flex items-center gap-3 py-3 px-5 text-[0.875rem] font-medium no-underline border-l-4 transition-all ${
                 isActive(link.path)
-                  ? 'bg-[#e6f4f4] text-[#14B8A6] border-l-[#14B8A6] font-semibold'
+                  ? 'bg-[#5E6AD2]/10 text-[#5E6AD2] border-l-[#5E6AD2] font-semibold'
                   : 'text-slate-500 border-l-transparent hover:bg-slate-100 hover:text-slate-900'
               }`}
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                <path d={link.icon} />
-              </svg>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d={link.icon} /></svg>
               <span>{link.label}</span>
             </Link>
           ))}
         </nav>
 
         <div className="flex items-center gap-3 p-5 border-t border-slate-200">
-          <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&q=80" alt="Admin" className="w-9 h-9 rounded-full object-cover" />
-          <div className="flex flex-col">
-            <p className="text-[0.875rem] font-semibold text-slate-900">Admin User</p>
-            <p className="text-xs text-slate-500">admin@pro-sport.com</p>
+          <div className="w-9 h-9 rounded-full bg-[#5E6AD2]/15 text-[#5E6AD2] flex items-center justify-center text-xs font-bold">{initials}</div>
+          <div className="flex flex-col min-w-0">
+            <p className="text-[0.875rem] font-semibold text-slate-900 truncate">{displayName}</p>
+            <p className="text-xs text-slate-500 truncate">{displayEmail}</p>
           </div>
         </div>
       </aside>
 
-      {/* Main Content */}
-      <div className="ml-[240px] flex-1 flex flex-col">
-        <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 sticky top-0 z-50">
-          <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-full py-2 px-4 w-[360px] transition-all focus-within:border-[#14B8A6] focus-within:shadow-[0_0_0_2px_rgba(13,138,138,0.1)]">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-slate-400"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input type="text" placeholder="Search users, courts, bookings..." className="border-none outline-none bg-transparent w-full font-['Inter',sans-serif] text-[0.875rem] text-slate-900 placeholder:text-slate-400" />
-          </div>
-          <div className="flex items-center gap-4">
-            <button className="bg-transparent border-none cursor-pointer text-slate-500 flex items-center justify-center relative transition-all hover:text-[#14B8A6]" aria-label="Help">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <div className="flex-1 flex flex-col lg:ml-[240px] w-full">
+        <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 md:px-8 sticky top-0 z-50">
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              className="lg:hidden w-10 h-10 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 cursor-pointer"
+              onClick={() => setSidebarOpen(true)}
+              aria-label="Mở menu quản trị"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="18" x2="21" y2="18" /></svg>
             </button>
-            <button className="bg-transparent border-none cursor-pointer text-slate-500 flex items-center justify-center relative transition-all hover:text-[#14B8A6]" aria-label="Dark Mode">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-            </button>
-            <button className="bg-transparent border-none cursor-pointer text-slate-500 flex items-center justify-center relative transition-all hover:text-[#14B8A6]" aria-label="Notifications">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-              <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
-            </button>
-            <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center ml-2 cursor-pointer">
-              <span className="text-xs font-bold text-slate-600">AD</span>
+            <div className="hidden sm:flex items-center gap-2 bg-white border border-slate-200 rounded-full py-2 px-4 w-[280px] md:w-[360px] focus-within:border-[#5E6AD2] focus-within:shadow-[0_0_0_2px_rgba(94,106,210,0.1)]">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-slate-400 shrink-0"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="search" aria-label="Tìm kiếm" placeholder="Tìm người dùng, sân, đặt sân..." className="border-none outline-none bg-transparent w-full text-[0.875rem] text-slate-900 placeholder:text-slate-400" />
             </div>
           </div>
+          <Link to="/" className="text-sm font-medium text-slate-500 hover:text-[#5E6AD2] no-underline">← Về trang chủ</Link>
         </header>
 
-        <main className="p-8 flex-1 overflow-x-hidden">
-          {children}
-        </main>
+        <main className="flex-1 p-4 md:p-8">{children}</main>
       </div>
     </div>
   )

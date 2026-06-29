@@ -50,14 +50,14 @@ const team = [
 const partners = ['APEXGEAR', 'NEXUSCOURTS', 'VELOCITYATHLETICS', 'PRIMEFIT', 'ELITEPRO', 'SPORTZONE']
 
 const journey = [
-  { label: 'Cơ sở vật chất Đẳng cấp', tag: 'VENUES', image: 'https://images.unsplash.com/photo-1544919982-b61976f0ba43?w=800&q=80', large: true },
-  { label: 'Sự xuất sắc từ Dữ liệu', tag: 'TECH', image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&q=80', large: false },
-  { label: 'Giải đấu Toàn cầu', tag: 'EVENTS', image: 'https://images.unsplash.com/photo-1540747913346-19212a4f5db4?w=600&q=80', large: false },
+  { label: 'Cơ sở vật chất đẳng cấp', tag: 'CƠ SỞ', image: 'https://images.unsplash.com/photo-1544919982-b61976f0ba43?w=800&q=80', large: true },
+  { label: 'Sự xuất sắc từ dữ liệu', tag: 'CÔNG NGHỆ', image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&q=80', large: false },
+  { label: 'Giải đấu toàn cầu', tag: 'SỰ KIỆN', image: 'https://images.unsplash.com/photo-1540747913346-19212a4f5db4?w=600&q=80', large: false },
 ]
 
 const stats = [
   { value: '200+', label: 'Cơ sở đối tác' },
-  { value: '500K', label: 'Active Athletes' },
+  { value: '500K', label: 'Vận động viên hoạt động' },
   { value: '2M+', label: 'Trận đấu diễn ra' },
   { value: '14', label: 'Thành phố phủ sóng' },
 ]
@@ -148,10 +148,10 @@ export default function AboutPage() {
           </p>
           <div className="flex gap-3 justify-center flex-wrap">
             <Link to="/courts" className="bg-[#14B8A6] hover:bg-[#0D9488] hover:shadow-[0_0_24px_rgba(0,200,170,0.25)] hover:-translate-y-[1px] text-[var(--theme-primary)] rounded-full font-semibold tracking-[0.03em] transition-all inline-flex items-center gap-2 px-[26px] py-[13px] text-[0.95rem]">
-              Explore Facilities →
+              Khám phá cơ sở →
             </Link>
             <Link to="/contact" className="bg-transparent text-[var(--theme-primary)] border-[1.5px] border-white/25 rounded-full font-medium transition-all hover:border-[#14B8A6] hover:text-[#14B8A6] hover:bg-[#14B8A6]/5 inline-flex items-center gap-2 px-[22px] py-[13px] text-[0.95rem]">
-              Contact Us
+              Liên hệ
             </Link>
           </div>
         </div>
@@ -193,7 +193,7 @@ export default function AboutPage() {
             </div>
           </div>
           <div className="relative">
-            <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=700&q=80" alt="Athletic training" className="w-full h-[420px] object-cover rounded-[20px] shadow-[0_8px_32px_rgba(0,0,0,0.12)]" />
+            <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=700&q=80" alt="Huấn luyện thể thao" className="w-full h-[420px] object-cover rounded-[20px] shadow-[0_8px_32px_rgba(0,0,0,0.12)]" />
             <div className="absolute -bottom-5 -left-5 bg-[#0a0e1a] text-[var(--theme-primary)] rounded-xl px-6 py-4 shadow-lg max-w-[220px]">
               <p className="font-['Oswald'] text-[2rem] font-bold text-[#14B8A6] leading-none">5+</p>
               <p className="text-[0.82rem] text-[var(--theme-primary)]/60 mt-1">Năm xuất sắc trong Công nghệ Thể thao</p>
@@ -313,7 +313,7 @@ export default function AboutPage() {
       {/* ── Partners ── */}
       <section className="py-14 bg-white border-y border-slate-200">
         <div className="container">
-          <p className="text-center text-[0.72rem] font-bold tracking-[0.15em] text-slate-400 uppercase mb-8">Trusted Partners & Brvàs</p>
+          <p className="text-center text-[0.72rem] font-bold tracking-[0.15em] text-slate-400 uppercase mb-8">Đối tác & thương hiệu tin cậy</p>
           <div className="flex justify-center items-center gap-[52px] flex-wrap">
             {partners.map(b => (
               <span key={b} className="font-['Oswald'] text-[1.1rem] font-bold tracking-[0.08em] text-slate-400 transition-colors hover:text-[#14B8A6] cursor-default">{b}</span>
@@ -327,7 +327,7 @@ export default function AboutPage() {
         <div className="container">
           <span className="text-[0.72rem] font-bold tracking-[0.15em] uppercase text-[#14B8A6] mb-4 block">Hiện diện Toàn cầu</span>
           <h2 className="font-['Oswald'] text-[2rem] font-bold mb-3">Hoạt động Toàn cầu</h2>
-          <p className="text-[0.9rem] text-[var(--theme-primary)]/55 max-w-[500px] mx-auto mb-[52px] leading-[1.65]">Operating across 14 cities, delivering consistent, elite-tier athletic infrastructure throughout Southeast Asia và beyond.</p>
+          <p className="text-[0.9rem] text-[var(--theme-primary)]/55 max-w-[500px] mx-auto mb-[52px] leading-[1.65]">Hoạt động tại 14 thành phố, mang hạ tầng thể thao đẳng cấp nhất quán khắp Đông Nam Á và xa hơn nữa.</p>
           <div className="relative flex items-center justify-center min-h-[160px]">
             <div className="font-['Oswald'] text-[clamp(2rem,6vw,5rem)] font-bold tracking-[0.15em] text-[#14B8A6] opacity-25 select-none">MẠNG LƯỚI ĐANG HOẠT ĐỘNG</div>
             <div className="absolute inset-0 flex flex-wrap gap-[18px] justify-center items-center pointer-events-none">
@@ -343,17 +343,17 @@ export default function AboutPage() {
       <section className="py-20 bg-gradient-to-br from-[#f0f7f6] via-[#e8f4f8] to-[#dceef8]">
         <div className="container text-center">
           <h2 className="font-['Oswald'] text-[clamp(1.6rem,3vw,2.4rem)] font-bold text-slate-900 leading-[1.15] mb-4">
-            Ready to Elevate Your Game?
+            Sẵn sàng nâng tầm trận đấu?
           </h2>
           <p className="text-[0.95rem] text-slate-500 max-w-[480px] mx-auto leading-[1.7] mb-8">
-            Join 500,000+ vận động viên who trust PRO-SPORT for their training, matches và competitive journey.
+            Tham gia cùng hơn 500.000 vận động viên tin tưởng PRO-SPORT cho tập luyện, kèo đấu và hành trình thi đấu.
           </p>
           <div className="flex gap-3 justify-center flex-wrap">
             <Link to="/register" className="bg-[#14B8A6] hover:bg-[#0D9488] hover:shadow-[0_0_24px_rgba(0,200,170,0.25)] hover:-translate-y-[1px] text-[var(--theme-primary)] rounded-full font-semibold tracking-[0.03em] transition-all inline-flex items-center gap-2 px-[28px] py-[14px] text-[0.95rem]">
-              Start Free Journey →
+              Bắt đầu miễn phí →
             </Link>
             <Link to="/contact" className="bg-transparent text-slate-900 border-[1.5px] border-slate-200 rounded-full font-medium transition-all hover:border-[#14B8A6] hover:text-[#14B8A6] hover:bg-[#14B8A6]/5 inline-flex items-center gap-2 px-[24px] py-[14px] text-[0.95rem]">
-              Talk to Sales
+              Liên hệ kinh doanh
             </Link>
           </div>
         </div>

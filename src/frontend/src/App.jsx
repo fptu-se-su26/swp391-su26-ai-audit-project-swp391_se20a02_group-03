@@ -1,6 +1,6 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
-import { GoogleOAuthProvider } from '@react-oauth/google'
+import { BrowserRouter as Router, Routes, Route, Navigate, useParams } from 'react-router-dom'
 import { ToastProvider } from './components/Toast'
+import { ConfirmProvider } from './components/ui/ConfirmDialog'
 import { ThemeProvider } from './context/ThemeContext'
 import { useAuth } from './context/AuthContext'
 
@@ -27,11 +27,10 @@ import GearDetailPage from './pages/gear/GearDetailPage'
 import GearMaintenancePage from './pages/gear/GearMaintenancePage'
 import GearSupportPage from './pages/gear/GearSupportPage'
 import GearPrivacyPage from './pages/gear/GearPrivacyPage'
-import BookingHistoryPage from './pages/customer/BookingHistoryPage'
 import ReportDisputePage from './pages/customer/ReportDisputePage'
 
 import AIChatbot from './components/AIChatbot'
-import { CartProvider } from './context/CartContext'
+import PageLoader from './components/ui/PageLoader'
 import CartPage from './pages/gear/CartPage'
 import CartCheckoutPage from './pages/gear/CartCheckoutPage'
 
@@ -60,6 +59,7 @@ const AdminKycPage          = lazy(() => import('./pages/admin/AdminKycPage'))
 const AdminPricingPage      = lazy(() => import('./pages/admin/AdminPricingPage'))
 const AdminInventoryPage    = lazy(() => import('./pages/admin/AdminInventoryPage'))
 const AdminComplaintsPage   = lazy(() => import('./pages/admin/AdminComplaintsPage'))
+const AdminBookingsPage     = lazy(() => import('./pages/admin/AdminBookingsPage'))
 
 // PRO-SPORT Elite Staff — lazy loaded
 const ElitePosWalkInPage  = lazy(() => import('./pages/elite/ElitePosWalkInPage'))
@@ -84,63 +84,58 @@ import RestrictedPage from './pages/status/RestrictedPage'
 import MaintenancePage from './pages/status/MaintenancePage'
 import PaymentReturnPage from './pages/status/PaymentReturnPage'
 
-// Loading fallback for lazy routes
-const PageLoader = () => (
-  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', background: '#f8fafc' }}>
-    <div style={{ textAlign: 'center' }}>
-      <div style={{ width: 40, height: 40, border: '3px solid #e2e8f0', borderTopColor: '#14B8A6', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 12px' }} />
-      <p style={{ color: '#64748b', fontSize: 14, fontFamily: 'Inter, sans-serif' }}>Loading...</p>
-    </div>
-    <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+const RouteLoader = () => (
+  <div className="flex items-center justify-center min-h-screen bg-[#f8fafc]">
+    <PageLoader message="Đang tải trang..." />
   </div>
 )
+
+const routerBasename = (import.meta.env.BASE_URL ?? '/').replace(/\/$/, '')
+
+function ShopProductRedirect() {
+    const { id } = useParams()
+    return <Navigate to={`/gear/catalog/${id}`} replace />
+}
 
 // CRITICAL FIX: Route guards now use AuthContext instead of direct localStorage reads
 // This ensures guards react to context-driven login/logout actions
 function GuestRoute({ children }) {
     const { isAuthenticated, loading } = useAuth()
-    if (loading) return null // Wait for auth state to initialize before rendering
+    if (loading) return <RouteLoader />
     if (isAuthenticated) return <Navigate to="/" replace />
     return children
 }
 
 function ProtectedRoute({ children }) {
     const { isAuthenticated, loading } = useAuth()
-    if (loading) return null // Wait for auth state to initialize before rendering
+    if (loading) return <RouteLoader />
     if (!isAuthenticated) return <Navigate to="/login" replace />
     return children
 }
 
-// HIGH FIX: Role-based route guard for Admin and Elite Staff portals
 function AdminRoute({ children }) {
     const { isAuthenticated, isAdmin, loading } = useAuth()
-    if (loading) return null
+    if (loading) return <RouteLoader />
     if (!isAuthenticated) return <Navigate to="/login" replace />
-    if (!isAdmin) return <Navigate to="/restricted" replace />
+    if (!isAdmin) return <Navigate to="/403" replace />
     return children
 }
 
 function EliteRoute({ children }) {
     const { isAuthenticated, isStaff, isAdmin, loading } = useAuth()
-    if (loading) return null
+    if (loading) return <RouteLoader />
     if (!isAuthenticated) return <Navigate to="/login" replace />
-    if (!isStaff && !isAdmin) return <Navigate to="/restricted" replace />
+    if (!isStaff && !isAdmin) return <Navigate to="/403" replace />
     return children
 }
 
 function App() {
-    // HIGH FIX: Remove hardcoded Google OAuth client ID fallback — fail loudly if env var is missing
-    const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID
-    if (!googleClientId) {
-        console.error('VITE_GOOGLE_CLIENT_ID is not set. Google OAuth will not function.')
-    }
     return (
-        <GoogleOAuthProvider clientId={googleClientId || ''}>
         <ThemeProvider>
         <ToastProvider>
-        <CartProvider>
-            <Router basename="/swp391-su26-ai-audit-project-swp391_se20a02_group-03">
-                <Suspense fallback={<PageLoader />}>
+        <ConfirmProvider>
+            <Router basename={routerBasename || undefined}>
+                <Suspense fallback={<RouteLoader />}>
                 <Routes>
                     {/* Public Routes */}
                     <Route path="/" element={<HomePage />} />
@@ -185,6 +180,14 @@ function App() {
                     <Route path="/gear/support" element={<GearSupportPage />} />
                     <Route path="/gear/privacy" element={<GearPrivacyPage />} />
 
+                    {/* Shop legacy routes → Gear */}
+                    <Route path="/shop" element={<Navigate to="/gear/catalog" replace />} />
+                    <Route path="/shop/cart" element={<Navigate to="/gear/cart" replace />} />
+                    <Route path="/shop/checkout" element={<Navigate to="/gear/cart/checkout" replace />} />
+                    <Route path="/shop/product/:id" element={<ShopProductRedirect />} />
+                    <Route path="/shop/wishlist" element={<Navigate to="/gear/catalog" replace />} />
+                    <Route path="/shop/*" element={<Navigate to="/gear/catalog" replace />} />
+
                     {/* Apex Portal Routes */}
                     <Route path="/apex" element={<ProtectedRoute><ApexHomePage /></ProtectedRoute>} />
                     <Route path="/apex/booking" element={<ProtectedRoute><ApexBookingPage /></ProtectedRoute>} />
@@ -205,6 +208,8 @@ function App() {
                     <Route path="/admin/pricing" element={<AdminRoute><AdminPricingPage /></AdminRoute>} />
                     <Route path="/admin/inventory" element={<AdminRoute><AdminInventoryPage /></AdminRoute>} />
                     <Route path="/admin/complaints" element={<AdminRoute><AdminComplaintsPage /></AdminRoute>} />
+                    <Route path="/admin/bookings" element={<AdminRoute><AdminBookingsPage /></AdminRoute>} />
+                    <Route path="/restricted" element={<Navigate to="/403" replace />} />
 
                     {/* Elite Staff Portal Routes — protected + role-restricted (Staff/Admin) */}
                     <Route path="/elite" element={<Navigate to="/elite/pos" replace />} />
@@ -235,10 +240,9 @@ function App() {
                 </Suspense>
                 <AIChatbot />
             </Router>
-        </CartProvider>
+        </ConfirmProvider>
         </ToastProvider>
         </ThemeProvider>
-        </GoogleOAuthProvider>
     )
 }
 

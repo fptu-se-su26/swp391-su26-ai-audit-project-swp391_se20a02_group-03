@@ -1,8 +1,12 @@
 import { useState, useEffect } from 'react'
 import MobileLayout from '../../layouts/MobileLayout'
 import { paymentApi } from '../../api/paymentApi'
+import { useAuth } from '../../context/AuthContext'
+import { translateTransactionType, translateStatus } from '../../utils/labels'
 
 export default function MobileWalletPage() {
+  const { user } = useAuth()
+  const displayName = user?.fullName || 'Người dùng'
   const [wallet, setWallet] = useState(null)
   const [transactions, setTransactions] = useState([])
   const [isLoading, setIsLoading] = useState(true)
@@ -21,8 +25,8 @@ export default function MobileWalletPage() {
         if (walletRes.data) setWallet(walletRes.data);
         if (transRes.data) setTransactions(transRes.data);
       } catch (err) {
-        console.error('Lỗi tải ví Escrow:', err);
-        setError(typeof err === 'string' ? err : 'Unable to load wallet. Please try again.');
+        console.error('Lỗi tải ví ký quỹ:', err);
+        setError(typeof err === 'string' ? err : 'Không tải được ví. Vui lòng thử lại.');
       } finally {
         setIsLoading(false);
       }
@@ -86,7 +90,7 @@ export default function MobileWalletPage() {
         {/* Balance */}
         <div className="bg-[#006070] text-[var(--theme-primary)] p-6 rounded-b-[24px] flex justify-between items-center shadow-sm">
           <div>
-            <p className="text-[0.62rem] font-bold tracking-wider opacity-60">AVAILABLE BALANCE (VNĐ)</p>
+            <p className="text-[0.62rem] font-bold tracking-wider opacity-60">SỐ DƯ KHẢ DỤNG (VNĐ)</p>
             <h1 className="font-['Oswald'] text-3xl font-bold mt-1 text-[var(--theme-primary)]">
               {isLoading ? "..." : (wallet?.balance?.toLocaleString('vi-VN') || "0")} đ
             </h1>
@@ -104,16 +108,16 @@ export default function MobileWalletPage() {
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M8.56 2.75c4.37 6.03 6.02 9.42 8.03 17.72"/></svg>
             </div>
             <div>
-              <p className="text-[0.55rem] font-bold tracking-wider opacity-50">CARD NUMBER</p>
+              <p className="text-[0.55rem] font-bold tracking-wider opacity-50">SỐ THẺ</p>
               <p className="text-sm font-semibold tracking-[0.1em] mt-1">**** **** **** 4928</p>
             </div>
             <div className="flex justify-between items-center mt-2">
               <div>
-                <p className="text-[0.55rem] font-bold tracking-wider opacity-50">CARDHOLDER</p>
-                <p className="text-xs font-bold">Alex Mercer</p>
+                <p className="text-[0.55rem] font-bold tracking-wider opacity-50">CHỦ THẺ</p>
+                <p className="text-xs font-bold">{displayName}</p>
               </div>
               <div>
-                <p className="text-[0.55rem] font-bold tracking-wider opacity-50">EXP</p>
+                <p className="text-[0.55rem] font-bold tracking-wider opacity-50">HSD</p>
                 <p className="text-xs font-bold">12/28</p>
               </div>
             </div>
@@ -131,7 +135,7 @@ export default function MobileWalletPage() {
         {/* Transactions */}
         <div className="px-5 mb-6">
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-sm font-bold text-slate-900">Recent Transactions</h3>
+            <h3 className="text-sm font-bold text-slate-900">Giao dịch gần đây</h3>
             <span className="text-xs font-semibold text-[#008ba3] cursor-pointer">Xem tất cả</span>
           </div>
 
@@ -155,7 +159,7 @@ export default function MobileWalletPage() {
                       {Icon}
                     </div>
                     <div className="flex-1 ml-3 min-w-0">
-                      <h4 className="text-xs font-bold text-slate-800 truncate">{t.description || t.type}</h4>
+                      <h4 className="text-xs font-bold text-slate-800 truncate">{t.description || translateTransactionType(t.type)}</h4>
                       <p className="text-[0.72rem] text-slate-400 mt-0.5">{new Date(t.createdAt).toLocaleString('vi-VN')}</p>
                     </div>
                     <div className="text-right shrink-0">
@@ -163,7 +167,7 @@ export default function MobileWalletPage() {
                         {isPositive ? '+' : '-'}{t.amount.toLocaleString('vi-VN')} đ
                       </p>
                       <span className={`inline-block text-[0.6rem] font-bold px-1.5 py-0.5 rounded mt-1 ${(t.status || '') === 'Completed' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
-                        {(t.status ?? 'UNKNOWN').toUpperCase()}
+                        {(translateStatus(t.status, 'Không rõ')).toUpperCase()}
                       </span>
                     </div>
                   </div>

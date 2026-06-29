@@ -12,5 +12,9 @@ dotnet8sdk.exe
 
 ## Local secrets — NEVER commit these
 appsettings.Development.json
-appsettings.*.json
+appsettings.Production.json
+appsettings.Staging.json
+appsettings.Local.json
+!appsettings.Development.example.json
+!appsettings.Production.example.json
 

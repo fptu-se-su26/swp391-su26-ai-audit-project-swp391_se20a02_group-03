@@ -3,7 +3,22 @@ import { gsap } from 'gsap'
 import ApexLayout from '../../layouts/ApexLayout'
 import './ApexShopPage.css'
 
-const categories = ['All', 'Rackets', 'Shoes', 'Apparel', 'Balls', 'Accessories']
+const categories = [
+  { key: 'All', label: 'Tất cả' },
+  { key: 'Rackets', label: 'Vợt' },
+  { key: 'Shoes', label: 'Giày' },
+  { key: 'Apparel', label: 'Trang phục' },
+  { key: 'Balls', label: 'Cầu / Bóng' },
+  { key: 'Accessories', label: 'Phụ kiện' },
+]
+
+const categoryLabels = Object.fromEntries(categories.map(c => [c.key, c.label]))
+
+const badgeLabels = {
+  'PRO PICK': 'LỰA CHỌN PRO',
+  NEW: 'MỚI',
+  BESTSELLER: 'BÁN CHẠY',
+}
 
 const products = [
   { id: 1, name: 'Vợt Cầu lông Yonex Astrox 99', category: 'Rackets', sport: 'Badminton', price: 189, rental: 12, stock: 8, rating: 4.9, reviews: 124, img: 'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=400&q=80', badge: 'PRO PICK' },
@@ -19,7 +34,7 @@ const products = [
 export default function ApexShopPage() {
   const [category, setCategory] = useState('All')
   const [cart, setCart] = useState([])
-  const [mode, setMode] = useState('buy') // 'buy' | 'rent'
+  const [mode, setMode] = useState('buy')
   const [showCart, setShowCart] = useState(false)
   const pageRef = useRef(null)
 
@@ -51,42 +66,38 @@ export default function ApexShopPage() {
   const cartCount = cart.reduce((s, i) => s + i.qty, 0)
 
   return (
-    <ApexLayout title="Shop">
+    <ApexLayout title="Cửa hàng">
       <div className="apex-shop" ref={pageRef}>
-        {/* Hero */}
         <div className="shop-hero">
           <div>
-            <h1 className="shop-hero__title">Pro Gear Shop</h1>
-            <p className="shop-hero__sub">Buy or rent premium equipment for your next match.</p>
+            <h1 className="shop-hero__title">Cửa hàng Pro Gear</h1>
+            <p className="shop-hero__sub">Mua hoặc thuê thiết bị cao cấp cho trận đấu tiếp theo của bạn.</p>
           </div>
           <button className="cart-btn btn-outline" onClick={() => setShowCart(!showCart)}>
-            🛒 Cart
+            🛒 Giỏ hàng
             {cartCount > 0 && <span className="cart-count">{cartCount}</span>}
           </button>
         </div>
 
-        {/* Mode toggle */}
         <div className="shop-mode-toggle">
-          <button className={`mode-btn ${mode === 'buy' ? 'active' : ''}`} onClick={() => setMode('buy')}>🛍️ Buy</button>
-          <button className={`mode-btn ${mode === 'rent' ? 'active' : ''}`} onClick={() => setMode('rent')}>🔄 Rent</button>
+          <button className={`mode-btn ${mode === 'buy' ? 'active' : ''}`} onClick={() => setMode('buy')}>🛍️ Mua</button>
+          <button className={`mode-btn ${mode === 'rent' ? 'active' : ''}`} onClick={() => setMode('rent')}>🔄 Thuê</button>
         </div>
 
-        {/* Categories */}
         <div className="shop-categories">
           {categories.map(c => (
-            <button key={c} className={`shop-cat-btn ${category === c ? 'active' : ''}`} onClick={() => setCategory(c)}>{c}</button>
+            <button key={c.key} className={`shop-cat-btn ${category === c.key ? 'active' : ''}`} onClick={() => setCategory(c.key)}>{c.label}</button>
           ))}
         </div>
 
         <div className="shop-layout">
-          {/* Products Grid */}
           <div className="products-grid">
             {filtered.map(p => (
               <div key={p.id} className="product-card">
-                {p.badge && <span className="product-badge">{p.badge}</span>}
+                {p.badge && <span className="product-badge">{badgeLabels[p.badge] || p.badge}</span>}
                 <img src={p.img} alt={p.name} className="product-card__img" />
                 <div className="product-card__body">
-                  <p className="product-card__category">{p.category} · {p.sport}</p>
+                  <p className="product-card__category">{categoryLabels[p.category] || p.category} · {p.sport}</p>
                   <h3 className="product-card__name">{p.name}</h3>
                   <div className="product-card__rating">
                     {'★'.repeat(Math.round(p.rating))} <span>{p.rating} ({p.reviews})</span>
@@ -94,13 +105,13 @@ export default function ApexShopPage() {
                   <div className="product-card__footer">
                     <div>
                       {mode === 'rent' && p.rental
-                        ? <span className="product-price">${p.rental}<small>/day</small></span>
-                        : <span className="product-price">${p.price}</span>
+                        ? <span className="product-price">{p.rental.toLocaleString('vi-VN')}₫<small>/ngày</small></span>
+                        : <span className="product-price">{p.price.toLocaleString('vi-VN')}₫</span>
                       }
-                      <span className="product-stock">{p.stock} in stock</span>
+                      <span className="product-stock">Còn {p.stock} sản phẩm</span>
                     </div>
                     <button id={`add-btn-${p.id}`} className="btn-primary product-card__add" onClick={() => addToCart(p)}>
-                      + Add
+                      + Thêm
                     </button>
                   </div>
                 </div>
@@ -109,17 +120,16 @@ export default function ApexShopPage() {
             {filtered.length === 0 && (
               <div className="shop-empty">
                 <span>🛍️</span>
-                <p>No rentable items match this category.</p>
+                <p>Không có sản phẩm cho thuê trong danh mục này.</p>
               </div>
             )}
           </div>
 
-          {/* Cart Panel */}
           {showCart && (
             <div className="cart-panel">
-              <h3 className="cart-panel__title">🛒 Your Cart</h3>
+              <h3 className="cart-panel__title">🛒 Giỏ hàng</h3>
               {cart.length === 0 ? (
-                <div className="cart-empty"><p>Cart is empty</p></div>
+                <div className="cart-empty"><p>Giỏ hàng trống</p></div>
               ) : (
                 <>
                   <div className="cart-items">
@@ -128,7 +138,7 @@ export default function ApexShopPage() {
                         <div className="cart-item__info">
                           <p className="cart-item__name">{item.name}</p>
                           <p className="cart-item__price">
-                            {mode === 'rent' && item.rental ? `$${item.rental}/day` : `$${item.price}`} × {item.qty}
+                            {mode === 'rent' && item.rental ? `${item.rental.toLocaleString('vi-VN')}₫/ngày` : `${item.price.toLocaleString('vi-VN')}₫`} × {item.qty}
                           </p>
                         </div>
                         <button className="cart-item__remove" onClick={() => removeFromCart(item.id)}>✕</button>
@@ -136,7 +146,7 @@ export default function ApexShopPage() {
                     ))}
                   </div>
                   <div className="cart-panel__total">
-                    <span>Tổng cộng</span><strong>${cartTotal.toFixed(2)}</strong>
+                    <span>Tổng cộng</span><strong>{cartTotal.toLocaleString('vi-VN')}₫</strong>
                   </div>
                   <button className="btn-primary cart-panel__checkout">Thanh toán</button>
                 </>

@@ -19,8 +19,14 @@ public class EmailService : IEmailService
         var smtpServer = _configuration["EmailSettings:SmtpServer"];
         var port = int.Parse(_configuration["EmailSettings:Port"]!);
         var senderName = _configuration["EmailSettings:SenderName"];
-        var senderEmail = _configuration["EmailSettings:SenderEmail"];
-        var senderPassword = _configuration["EmailSettings:SenderPassword"];
+        var senderEmail = _configuration["EmailSettings:SenderEmail"]
+            ?? Environment.GetEnvironmentVariable("EMAIL_SMTP_USER");
+        var senderPassword = _configuration["EmailSettings:SenderPassword"]
+            ?? Environment.GetEnvironmentVariable("EMAIL_SMTP_PASSWORD");
+
+        if (string.IsNullOrWhiteSpace(smtpServer) || string.IsNullOrWhiteSpace(senderEmail) || string.IsNullOrWhiteSpace(senderPassword))
+            throw new InvalidOperationException(
+                "Email chưa được cấu hình. Đặt EmailSettings trong appsettings.Development.json hoặc biến môi trường EMAIL_SMTP_USER / EMAIL_SMTP_PASSWORD.");
 
         using var client = new SmtpClient(smtpServer, port)
         {

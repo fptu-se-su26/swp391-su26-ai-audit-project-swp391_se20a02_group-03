@@ -5,8 +5,15 @@ import { matchApi } from '../../api/matchApi'
 import authApi from '../../api/authApi'
 import { Search, ClipboardList, History } from 'lucide-react'
 import dayjs from 'dayjs'
+import 'dayjs/locale/vi'
 import StatusBadge from '../../components/ui/StatusBadge'
 import EmptyState from '../../components/ui/EmptyState'
+import {
+  translateSport,
+  translateLevel,
+  translateMatchFormat,
+  translateStatus,
+} from '../../utils/labels'
 
 // History data is now fetched from the server.
 
@@ -41,13 +48,13 @@ export default function ApexMatchesPage() {
           const matchList = Array.isArray(matchesRes.data) ? matchesRes.data : []
           const formatted = matchList.map(m => ({
             id: m.matchId,
-            sport: m.sportType === 'Badminton' ? 'Cầu lông' : m.sportType,
-            type: m.isCompetitive ? 'Cạnh tranh' : 'Giao hữu',
-            level: m.levelRequirement || m.skillLevel,
+            sport: translateSport(m.sportType) || 'Thể thao',
+            type: translateMatchFormat(m.isCompetitive),
+            level: translateLevel(m.levelRequirement || m.skillLevel, 'Trung bình'),
             host: m.hostName,
             hostImg: m.hostAvatarUrl || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(m.hostName || 'Host'),
             court: m.location || m.notes,
-            date: dayjs(m.matchDate || m.startTime).format('ddd, MMM D'),
+            date: dayjs(m.matchDate || m.startTime).locale('vi').format('dddd, DD/MM'),
             time: dayjs(m.matchDate || m.startTime).format('HH:mm'),
             slots: (m.maxParticipants || 0) - (m.currentParticipants || 0),
             maxSlots: m.maxParticipants || 0,
@@ -68,9 +75,9 @@ export default function ApexMatchesPage() {
           const historyList = Array.isArray(historyRes.data) ? historyRes.data : []
           const formattedHistory = historyList.map(m => ({
             id: m.matchId,
-            sport: m.sportType || 'Sport',
-            court: m.location || m.notes || 'No location',
-            date: dayjs(m.matchDate || m.startTime).format('ddd, MMM D'),
+            sport: translateSport(m.sportType) || 'Thể thao',
+            court: m.location || m.notes || 'Chưa có địa điểm',
+            date: dayjs(m.matchDate || m.startTime).locale('vi').format('dddd, DD/MM'),
             time: dayjs(m.matchDate || m.startTime).format('HH:mm'),
             icon: (m.sportType || '').toLowerCase().includes('pickleball') ? '🏓' : '🏸',
             status: m.status,
@@ -115,7 +122,7 @@ export default function ApexMatchesPage() {
         m.id === id ? { ...m, slots: Math.max(0, m.slots - 1) } : m
       ))
     } catch (err) {
-      const msg = typeof err === 'string' ? err : 'Failed to join match'
+      const msg = typeof err === 'string' ? err : 'Không thể tham gia kèo'
       setToastMsg(msg)
       setTimeout(() => setToastMsg(null), 3000)
     }
@@ -312,7 +319,7 @@ export default function ApexMatchesPage() {
                         <div className="flex items-center gap-2">
                           <span className="w-8 h-8 rounded-lg bg-[var(--theme-surface)] border border-border-default flex items-center justify-center shrink-0">{m.icon}</span>
                           <div>
-                            <p className="text-[15px] font-semibold text-[var(--theme-primary)] leading-tight">{m.sport} Match</p>
+                            <p className="text-[15px] font-semibold text-[var(--theme-primary)] leading-tight">Trận {m.sport}</p>
                           </div>
                         </div>
                         <span className={`px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider rounded-md border ${
@@ -320,7 +327,7 @@ export default function ApexMatchesPage() {
                           m.status === 'Cancelled' ? 'bg-red-500/10 text-red-500 border-red-500/20' : 
                           'bg-[var(--theme-surface)] text-foreground-muted border-border-default'
                         }`}>
-                          {m.status || 'Finished'}
+                          {translateStatus(m.status, 'Đã kết thúc')}
                         </span>
                       </div>
 

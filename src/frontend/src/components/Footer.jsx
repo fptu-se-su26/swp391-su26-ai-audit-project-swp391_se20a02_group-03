@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import ProSportLogo from './ui/ProSportLogo'
 
 export default function Footer() {
   return (
@@ -9,10 +10,7 @@ export default function Footer() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-12 px-8 py-16 max-w-7xl mx-auto">
         {/* Brand */}
         <div className="flex flex-col gap-6">
-          <div className="font-heading text-sm text-neo-ink flex items-center gap-2">
-             <span className="text-neo-accent" style={{ textShadow: '1px 1px 0px var(--color-neo-danger)' }}>❖</span> 
-             <span style={{ textShadow: '2px 2px 0px var(--color-neo-danger)' }}>PRO-SPORT</span>
-          </div>
+          <ProSportLogo size="sm" variant="dark" className="font-heading" />
           <p className="leading-relaxed font-bold" style={{ textShadow: '1px 1px 0px var(--color-neo-danger)' }}>
             Hệ thống nhà thi đấu và trang bị chất lượng cao, đồng hành cùng bạn trên mọi đấu trường.
           </p>

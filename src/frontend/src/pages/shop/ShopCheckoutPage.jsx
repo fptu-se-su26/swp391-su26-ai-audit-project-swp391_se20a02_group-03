@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
+import ProSportLogo from '../../components/ui/ProSportLogo'
 import { Loader2, Lock } from 'lucide-react'
 import { cartApi } from '../../api/cartApi'
 import { useToast } from '../../components/Toast'
 
 const FALLBACK_IMG = 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=100&q=80'
-const payMethods = ['VNPay', 'Tiền mặt', 'Ví Escrow']
+const payMethods = ['VNPay', 'Tiền mặt', 'Ví ký quỹ']
 
 export default function ShopCheckoutPage() {
   const navigate = useNavigate()
@@ -58,7 +59,7 @@ export default function ShopCheckoutPage() {
   return (
     <div className="min-h-screen flex flex-col bg-[#f5f9fc]">
       <header className="h-14 bg-white border-b border-[#e0ecf0] flex items-center justify-center">
-        <Link to="/shop" className="font-oswald text-xl font-bold text-foreground tracking-wider no-underline">PRO-SPORT</Link>
+        <ProSportLogo size="sm" variant="shop" />
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-[1fr_380px] gap-7 max-w-[1100px] my-8 mx-auto px-6 flex-1 items-start w-full">
@@ -136,8 +137,8 @@ export default function ShopCheckoutPage() {
       </div>
 
       <footer className="bg-[#0d1a24] text-white/55 flex flex-col md:flex-row items-center justify-between p-4 px-10 text-xs gap-5 mt-auto">
-        <span className="font-oswald text-base font-bold text-white">PRO-SPORT</span>
-        <p>© 2026 PRO-SPORT. Engineered for Elite Performance.</p>
+        <ProSportLogo size="sm" variant="light" />
+        <p>© 2026 PRO-SPORT. Thiết kế cho hiệu suất đỉnh cao.</p>
       </footer>
     </div>
   )

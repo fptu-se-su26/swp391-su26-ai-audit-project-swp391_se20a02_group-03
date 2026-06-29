@@ -182,7 +182,7 @@ export default function BookingPage() {
             <div className="text-neo-accent text-6xl mb-6" style={{ textShadow: '4px 4px 0px var(--color-neo-danger)' }}>📜</div>
             <h1 className="font-heading text-2xl font-bold text-neo-ink tracking-tight mb-4" style={{ textShadow: '2px 2px 0px var(--color-neo-danger)' }}>Lập Khế Ước Thành Công!</h1>
             <p className="text-neo-ink text-xl font-bold mb-8 leading-relaxed">
-              Cảm ơn Đạo hữu. Bí Cảnh {court.name} lúc {slot} đã được giữ chỗ. Mã Khế Ước của Đạo hữu là <b className="text-neo-accent" style={{ textShadow: '1px 1px 0px var(--color-neo-danger)' }}>#{bookingResult?.bookingId || 'N/A'}</b>.
+              Cảm ơn Đạo hữu. Bí Cảnh {court.name} lúc {slot} đã được giữ chỗ. Mã Khế Ước của Đạo hữu là <b className="text-neo-accent" style={{ textShadow: '1px 1px 0px var(--color-neo-danger)' }}>#{bookingResult?.bookingId || '—'}</b>.
             </p>
             <div className="flex gap-4">
               <Link to="/customer/bookings" className="btn-outline flex-1">Sổ Lưu Khế Ước</Link>
@@ -218,11 +218,11 @@ export default function BookingPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div className="flex flex-col gap-2">
                   <label className="text-xl font-bold text-neo-ink tracking-wide uppercase">Đạo Hiệu (Họ Tên)</label>
-                  <input type="text" value={currentUser?.fullName || 'N/A'} readOnly className="w-full bg-neo-bg border-4 border-neo-muted rounded-sm px-4 py-3 text-xl text-neo-ink font-bold outline-none shadow-[inset_2px_2px_0_rgba(0,0,0,0.1)]" />
+                  <input type="text" value={currentUser?.fullName || 'Không có'} readOnly className="w-full bg-neo-bg border-4 border-neo-muted rounded-sm px-4 py-3 text-xl text-neo-ink font-bold outline-none shadow-[inset_2px_2px_0_rgba(0,0,0,0.1)]" />
                 </div>
                 <div className="flex flex-col gap-2">
                   <label className="text-xl font-bold text-neo-ink tracking-wide uppercase">Truyền Âm Phù (SĐT)</label>
-                  <input type="text" value={currentUser?.phone || 'N/A'} readOnly className="w-full bg-neo-bg border-4 border-neo-muted rounded-sm px-4 py-3 text-xl text-neo-ink font-bold outline-none shadow-[inset_2px_2px_0_rgba(0,0,0,0.1)]" />
+                  <input type="text" value={currentUser?.phone || 'Không có'} readOnly className="w-full bg-neo-bg border-4 border-neo-muted rounded-sm px-4 py-3 text-xl text-neo-ink font-bold outline-none shadow-[inset_2px_2px_0_rgba(0,0,0,0.1)]" />
                 </div>
               </div>
             </div>
@@ -235,7 +235,7 @@ export default function BookingPage() {
                 <label className={`group flex items-start gap-4 p-5 border-4 cursor-pointer transition-all duration-75 rounded-sm ${paymentMethod === 'escrow' ? 'border-neo-muted bg-neo-accent shadow-[4px_4px_0_var(--color-neo-danger)]' : 'border-neo-muted bg-white hover:bg-neo-secondary'}`}>
                   <input type="radio" name="payment" value="escrow" checked={paymentMethod === 'escrow'} onChange={() => setPaymentMethod('escrow')} className="mt-1 w-5 h-5 accent-neo-danger" />
                   <div>
-                    <p className={`font-bold text-xl ${paymentMethod === 'escrow' ? 'text-neo-secondary' : 'text-neo-ink'}`}>Túi Càn Khôn (Ví Escrow)</p>
+                    <p className={`font-bold text-xl ${paymentMethod === 'escrow' ? 'text-neo-secondary' : 'text-neo-ink'}`}>Túi Càn Khôn (Ví ký quỹ)</p>
                     <p className={`text-xl mt-1.5 font-bold ${paymentMethod === 'escrow' ? 'text-neo-secondary' : 'text-neo-ink'}`}>Linh Thạch hiện có: <b className="text-[var(--theme-primary)] bg-neo-secondary px-2 py-0.5 border-2 border-neo-muted">{escrowBalance.toLocaleString('vi-VN')} LT</b></p>
                   </div>
                 </label>

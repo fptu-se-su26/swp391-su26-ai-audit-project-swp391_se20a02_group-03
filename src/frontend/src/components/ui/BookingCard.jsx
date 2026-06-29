@@ -1,10 +1,11 @@
 import StatusBadge from './StatusBadge'
 import dayjs from 'dayjs'
+import 'dayjs/locale/vi'
 
 export default function BookingCard({ booking }) {
   const { name, date, startTime, endTime, status, icon } = booking
-  const formattedDate = dayjs(date).format('MMM DD')
-  const dayName = dayjs(date).format('ddd')
+  const formattedDate = dayjs(date).locale('vi').format('DD MMM')
+  const dayName = dayjs(date).locale('vi').format('ddd')
 
   return (
     <div className="flex items-center gap-4 p-4 bg-white border border-[#E2E8F0] rounded-xl transition-all duration-200 hover:shadow-sm hover:border-[#CBD5E1]">

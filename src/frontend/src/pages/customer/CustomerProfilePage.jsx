@@ -63,7 +63,7 @@ export default function CustomerProfilePage() {
                     <input type="tel" defaultValue="0901234567" className="w-full border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-[#14B8A6]" />
                   </div>
                   <div className="col-span-full">
-                    <label className="block text-sm font-semibold text-slate-700 mb-2">Email</label>
+                    <label className="block text-sm font-semibold text-slate-700 mb-2">Địa chỉ email</label>
                     <input type="email" defaultValue="alex.mercer@example.com" disabled className="w-full border border-slate-200 rounded-xl px-4 py-3 bg-slate-50 text-slate-500" />
                   </div>
                 </div>
@@ -82,7 +82,7 @@ export default function CustomerProfilePage() {
                 <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 flex gap-3 mb-8">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2" className="shrink-0 mt-0.5"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
                   <p className="text-sm text-blue-800 leading-relaxed">
-                    Xác thực E-KYC là bắt buộc để bạn có thể <b>Tạo kèo</b> và <b>Sử dụng ví Escrow</b>. Thông tin của bạn được mã hóa an toàn.
+                    Xác thực E-KYC là bắt buộc để bạn có thể <b>Tạo kèo</b> và <b>Sử dụng ví ký quỹ</b>. Thông tin của bạn được mã hóa an toàn.
                   </p>
                 </div>
 
@@ -91,14 +91,14 @@ export default function CustomerProfilePage() {
                     <label className="block text-sm font-semibold text-slate-700 mb-2">Mặt trước CMND / CCCD</label>
                     <div className="border-2 border-dashed border-slate-300 rounded-2xl h-40 flex flex-col items-center justify-center text-slate-500 hover:border-[#14B8A6] hover:bg-[#14B8A6]/5 cursor-pointer transition-colors">
                       <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="mb-2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-                      <span className="text-sm font-medium">Click để tải ảnh lên</span>
+                      <span className="text-sm font-medium">Nhấn để tải ảnh lên</span>
                     </div>
                   </div>
                   <div>
                     <label className="block text-sm font-semibold text-slate-700 mb-2">Mặt sau CMND / CCCD</label>
                     <div className="border-2 border-dashed border-slate-300 rounded-2xl h-40 flex flex-col items-center justify-center text-slate-500 hover:border-[#14B8A6] hover:bg-[#14B8A6]/5 cursor-pointer transition-colors">
                       <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="mb-2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-                      <span className="text-sm font-medium">Click để tải ảnh lên</span>
+                      <span className="text-sm font-medium">Nhấn để tải ảnh lên</span>
                     </div>
                   </div>
                 </div>

@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import EliteLayout from '../../layouts/EliteLayout'
 import { voucherApi } from '../../api/voucherApi'
 import { useToast } from '../../components/Toast'
+import { useConfirm } from '../../components/ui/ConfirmDialog'
 import { Loader2, Trash2, Ticket } from 'lucide-react'
 
 function todayStr() {
@@ -31,6 +32,7 @@ function randomCode() {
 
 export default function EliteVouchersPage() {
   const { addToast } = useToast()
+  const confirm = useConfirm()
   const [form, setForm] = useState(emptyForm())
   const [vouchers, setVouchers] = useState([])
   const [loading, setLoading] = useState(true)
@@ -88,7 +90,14 @@ export default function EliteVouchersPage() {
   }
 
   async function handleDelete(id) {
-    if (!window.confirm('Xóa voucher này?')) return
+    const ok = await confirm({
+      title: 'Xóa voucher',
+      message: 'Xóa voucher này?',
+      confirmLabel: 'Xóa',
+      cancelLabel: 'Hủy',
+      variant: 'danger',
+    })
+    if (!ok) return
     try {
       const res = await voucherApi.remove(id)
       if (res.statusCode === 200) {
@@ -125,7 +134,7 @@ export default function EliteVouchersPage() {
             <h2 className="text-lg font-bold text-slate-800 mb-4">Tạo Voucher Mới</h2>
             <form className="space-y-4" onSubmit={handleSubmit}>
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1">Mã Voucher (Code)</label>
+                <label className="block text-sm font-semibold text-slate-700 mb-1">Mã voucher</label>
                 <div className="flex gap-2">
                   <input
                     type="text"
@@ -134,7 +143,7 @@ export default function EliteVouchersPage() {
                     placeholder="VD: SALE50"
                     className="flex-1 border border-slate-300 rounded-md px-3 py-2 outline-none focus:border-[#00c2ff] uppercase"
                   />
-                  <button type="button" onClick={() => setField('code', randomCode())} className="bg-slate-100 px-3 py-2 border border-slate-300 rounded-md text-sm hover:bg-slate-200">Random</button>
+                  <button type="button" onClick={() => setField('code', randomCode())} className="bg-slate-100 px-3 py-2 border border-slate-300 rounded-md text-sm hover:bg-slate-200">Ngẫu nhiên</button>
                 </div>
               </div>
 

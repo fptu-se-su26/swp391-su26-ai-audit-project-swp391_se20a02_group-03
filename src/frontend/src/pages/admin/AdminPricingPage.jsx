@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import AdminLayout from '../../layouts/AdminLayout'
 import { courtApi } from '../../api/courtApi'
 import { useToast } from '../../components/Toast'
+import { useConfirm } from '../../components/ui/ConfirmDialog'
 import { Loader2, Trash2, Plus, ShieldAlert } from 'lucide-react'
 
 function hhmm(timeStr) {
@@ -12,6 +13,7 @@ function hhmm(timeStr) {
 
 export default function AdminPricingPage() {
   const { addToast } = useToast()
+  const confirm = useConfirm()
   const [courts, setCourts] = useState([])
   const [selectedCourt, setSelectedCourt] = useState('')
   const [rules, setRules] = useState([])
@@ -103,7 +105,14 @@ export default function AdminPricingPage() {
   }
 
   async function handleDeleteRule(ruleId) {
-    if (!window.confirm('Xóa khung giá này?')) return
+    const ok = await confirm({
+      title: 'Xóa khung giá',
+      message: 'Xóa khung giá này?',
+      confirmLabel: 'Xóa',
+      cancelLabel: 'Hủy',
+      variant: 'danger',
+    })
+    if (!ok) return
     try {
       setDeletingId(ruleId)
       const res = await courtApi.deletePricingRule(selectedCourt, ruleId)

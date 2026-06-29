@@ -1,10 +1,11 @@
 import { Link } from 'react-router-dom'
+import ProSportLogo from '../components/ui/ProSportLogo'
 
 export default function RoleSelectionPage() {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-green-50 to-sky-100 font-sans">
-      <header className="p-6 text-center">
-        <h1 className="font-oswald text-2xl font-bold text-[#006070] tracking-tight italic">PRO-SPORT</h1>
+      <header className="p-6 flex justify-center">
+        <ProSportLogo size="md" variant="dark" />
       </header>
 
       <main className="flex-1 flex items-center justify-center p-6">
@@ -42,7 +43,7 @@ export default function RoleSelectionPage() {
               </div>
             </Link>
 
-            <Link to="/elite/dashboard" style={{ textDecoration: 'none' }}>
+            <Link to="/elite/pos" style={{ textDecoration: 'none' }}>
               <div style={{
                 background: '#f8fafc', border: '2px solid #e2e8f0', borderRadius: '12px',
                 padding: '20px', display: 'flex', alignItems: 'center', gap: '16px', cursor: 'pointer',

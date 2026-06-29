@@ -39,7 +39,7 @@ export default function CartPage() {
                             onClick={() => navigate('/gear/catalog')} 
                             className="btn-primary w-full py-4 text-base"
                         >
-                            Khám phá Catalog
+                            Khám phá danh mục
                         </button>
                     </div>
                 </div>
@@ -57,7 +57,7 @@ export default function CartPage() {
                     <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
                         <div>
                             <div className="flex items-center gap-2 text-xs font-bold text-brand-400 uppercase tracking-widest mb-2">
-                                <Link to="/gear/catalog" className="hover:text-accent transition-colors">Catalog</Link>
+                                <Link to="/gear/catalog" className="hover:text-accent transition-colors">Danh mục</Link>
                                 <span>/</span>
                                 <span className="text-brand-900">Giỏ hàng</span>
                             </div>
@@ -86,7 +86,7 @@ export default function CartPage() {
 
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-center gap-2 mb-1">
-                                            <span className="text-[10px] font-bold uppercase tracking-widest text-accent bg-accent/5 px-2 py-0.5 rounded">Sale</span>
+                                            <span className="text-[10px] font-bold uppercase tracking-widest text-accent bg-accent/5 px-2 py-0.5 rounded">Giảm giá</span>
                                         </div>
                                         <h3 className="text-lg font-bold text-brand-900 truncate mb-1 group-hover:text-accent transition-colors">{item.equipmentName}</h3>
                                         <p className="text-brand-400 text-sm font-medium">{formatVND(item.unitPrice)}</p>
@@ -128,7 +128,7 @@ export default function CartPage() {
 
                             <Link to="/gear/catalog" className="inline-flex items-center gap-2 text-brand-500 hover:text-accent font-bold text-sm mt-4 transition-colors group">
                                 <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-1" />
-                                Quay lại Catalog
+                                Quay lại danh mục
                             </Link>
                         </div>
 

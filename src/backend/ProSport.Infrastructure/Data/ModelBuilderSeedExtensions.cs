@@ -19,8 +19,8 @@ public static class ModelBuilderSeedExtensions
     // Ngày seed cố định để migration ổn định, không bị churn mỗi lần build.
     private static readonly DateTime SeedDate = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
-    // BCrypt hash tĩnh của mật khẩu "Admin@123456" (dùng chung cho toàn bộ tài khoản mẫu).
-    private const string SamplePasswordHash = "$2a$11$8wyDirTdDhyqTcM3BAde4uiu1da5NulhpGioT7g4ONIT3RcG6f5a2";
+    // BCrypt hash tĩnh của mật khẩu mẫu (xem SampleAccountDefaults.Password).
+    private const string SamplePasswordHash = SampleAccountDefaults.PasswordHash;
 
     public static void SeedInitialData(this ModelBuilder modelBuilder)
     {

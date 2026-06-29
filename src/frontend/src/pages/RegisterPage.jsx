@@ -1,11 +1,20 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { GoogleLogin } from '@react-oauth/google'
 import PasswordStrengthMeter from '../components/PasswordStrengthMeter'
 import { useToast } from '../components/Toast'
 import authApi from '../api/authApi'
+import { useAuth } from '../context/AuthContext'
+import ProSportLogo from '../components/ui/ProSportLogo'
+import GoogleSignInButton from '../components/auth/GoogleSignInButton'
+import { extractAuthPayload, mapGoogleAuthError } from '../utils/googleAuth'
 
 const steps = ['Chi tiết', 'Sở thích', 'Xác thực']
+
+function isDuplicateEmailError(message) {
+  if (!message || typeof message !== 'string') return false
+  const m = message.toLowerCase()
+  return m.includes('email already exists') || (m.includes('email') && m.includes('already'))
+}
 
 export default function RegisterPage() {
   const navigate = useNavigate()
@@ -28,6 +37,7 @@ export default function RegisterPage() {
   const [error, setError] = useState(null)
   const [sportPreferences, setSportPreferences] = useState([])
   const toast = useToast()
+  const { login } = useAuth()
   
   // Real-time Field Errors
   const [fieldErrors, setFieldErrors] = useState({})
@@ -136,9 +146,9 @@ export default function RegisterPage() {
     setLoading(true)
     try {
       await authApi.resendOtp({ email, type: 'Register' })
-      toast("Một OTP mới đã được gửi đến email của bạn.", 'info')
+      toast("Một mã OTP mới đã được gửi đến email của bạn.", 'info')
     } catch (err) {
-      setError(typeof err === 'string' ? err : 'Gửi lại OTP thất bại.')
+      setError(typeof err === 'string' ? err : 'Gửi lại mã OTP thất bại.')
     } finally {
       setLoading(false)
     }
@@ -148,11 +158,21 @@ export default function RegisterPage() {
     setError(null)
     setLoading(true)
     try {
+      if (!credentialResponse?.credential) {
+        setError('Không nhận được token từ Google.')
+        return
+      }
       const response = await authApi.googleLogin({ googleIdToken: credentialResponse.credential })
-      const token = response.data?.accessToken || response.accessToken || response.data?.token || response.token
-      if (token) {
-        localStorage.setItem('token', token)
-        if (response.data?.isProfileComplete === false) {
+      const auth = extractAuthPayload(response)
+      if (auth.token) {
+        login(auth.token, {
+          userId: auth.userId,
+          fullName: auth.fullName,
+          email: auth.email,
+          role: auth.role,
+          avatarUrl: auth.avatarUrl,
+        }, true)
+        if (auth.isProfileComplete === false) {
           navigate('/complete-profile')
         } else {
           navigate('/')
@@ -161,7 +181,7 @@ export default function RegisterPage() {
         setError('Đăng nhập Google thất bại. Không nhận được token.')
       }
     } catch (err) {
-      setError(typeof err === 'string' ? err : 'Đăng nhập Google thất bại.')
+      setError(mapGoogleAuthError(err))
     } finally {
       setLoading(false)
     }
@@ -255,11 +275,7 @@ export default function RegisterPage() {
 
         <div className="relative z-10 flex flex-col items-start max-w-[480px] px-14" key={step}>
           {/* Logo */}
-          <Link to="/" className="font-heading text-3xl font-bold tracking-tight mb-16 flex items-center gap-0.5">
-            <span className="text-[var(--theme-primary)]">PRO</span>
-            <span className="text-accent">-</span>
-            <span className="text-[var(--theme-primary)]">SPORT</span>
-          </Link>
+          <ProSportLogo size="lg" className="mb-16" />
 
           {/* Step-based tagline */}
           <div className="auth-animate-in">
@@ -297,7 +313,7 @@ export default function RegisterPage() {
         </div>
 
         <p className="absolute bottom-8 left-14 text-brand-600 text-xs font-medium tracking-wider">
-          © 2024 PRO-SPORT COMPLEX
+          © {new Date().getFullYear()} PRO-SPORT COMPLEX
         </p>
       </div>
 
@@ -305,11 +321,7 @@ export default function RegisterPage() {
       <section className="auth-form">
         {/* Mobile logo */}
         <div className="lg:hidden absolute top-6 left-6">
-          <Link to="/" className="font-heading text-xl font-bold tracking-tight flex items-center gap-0.5">
-            <span className="text-brand-900">PRO</span>
-            <span className="text-accent">-</span>
-            <span className="text-brand-900">SPORT</span>
-          </Link>
+          <ProSportLogo size="sm" variant="dark" />
         </div>
 
         <div className="auth-form-inner auth-animate-in-delayed">
@@ -342,7 +354,7 @@ export default function RegisterPage() {
           </header>
 
           {/* Error */}
-          {error && error.includes('Email already exists') ? (
+          {error && isDuplicateEmailError(error) ? (
             <div className="bg-amber-50 p-4 rounded-xl border border-amber-200 mb-6 flex flex-col items-center text-center auth-animate-fade">
               <span className="text-amber-800 text-sm font-semibold mb-3">
                 Email này đã được đăng ký.
@@ -391,7 +403,7 @@ export default function RegisterPage() {
 
                 {/* Email */}
                 <div className="flex flex-col gap-2 relative">
-                  <label htmlFor="reg-email" className="text-sm font-semibold text-brand-900">Địa chỉ Email</label>
+                  <label htmlFor="reg-email" className="text-sm font-semibold text-brand-900">Thư điện tử</label>
                   <div className="relative group">
                     <svg className={`absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none transition-colors duration-300 ${fieldErrors.email ? 'text-red-400' : 'text-brand-400 group-focus-within:text-accent'}`} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
                     <input id="reg-email" name="email" type="email" value={email} onBlur={handleBlur} onChange={e => { setEmail(e.target.value); if (fieldErrors.email) validateField('email', e.target.value) }} required placeholder="nguyenvana@example.com" className={`auth-input pl-11 ${fieldErrors.email ? 'border-red-400 focus:border-red-500 focus:ring-red-400/20' : ''}`} />
@@ -406,7 +418,7 @@ export default function RegisterPage() {
                     <div className="relative group">
                       <svg className={`absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none transition-colors duration-300 ${fieldErrors.password ? 'text-red-400' : 'text-brand-400 group-focus-within:text-accent'}`} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                       <input id="reg-password" name="password" type={showPass ? 'text' : 'password'} value={password} onBlur={handleBlur} onChange={e => { setPassword(e.target.value); if (fieldErrors.password) validateField('password', e.target.value); if (confirmPassword) validateField('confirmPassword', confirmPassword) }} required placeholder="••••••••" className={`auth-input pl-11 pr-11 ${fieldErrors.password ? 'border-red-400 focus:border-red-500 focus:ring-red-400/20' : ''}`} />
-                      <button type="button" className="absolute right-4 top-1/2 -translate-y-1/2 text-brand-400 hover:text-accent transition-colors duration-300" onClick={() => setShowPass(!showPass)} aria-label="Toggle">
+                      <button type="button" className="absolute right-4 top-1/2 -translate-y-1/2 text-brand-400 hover:text-accent transition-colors duration-300" onClick={() => setShowPass(!showPass)} aria-label="Hiện/ẩn mật khẩu">
                         {showPass
                           ? <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="1" y1="1" x2="23" y2="23"/><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/></svg>
                           : <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
@@ -422,7 +434,7 @@ export default function RegisterPage() {
                     <div className="relative group">
                       <svg className={`absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none transition-colors duration-300 ${fieldErrors.confirmPassword ? 'text-red-400' : 'text-brand-400 group-focus-within:text-accent'}`} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                       <input id="reg-confirm" name="confirmPassword" type={showConfirm ? 'text' : 'password'} value={confirmPassword} onBlur={handleBlur} onChange={e => { setConfirmPassword(e.target.value); if (fieldErrors.confirmPassword) validateField('confirmPassword', e.target.value) }} required placeholder="••••••••" className={`auth-input pl-11 pr-11 ${fieldErrors.confirmPassword ? 'border-red-400 focus:border-red-500 focus:ring-red-400/20' : ''}`} />
-                      <button type="button" className="absolute right-4 top-1/2 -translate-y-1/2 text-brand-400 hover:text-accent transition-colors duration-300" onClick={() => setShowConfirm(!showConfirm)} aria-label="Toggle">
+                      <button type="button" className="absolute right-4 top-1/2 -translate-y-1/2 text-brand-400 hover:text-accent transition-colors duration-300" onClick={() => setShowConfirm(!showConfirm)} aria-label="Hiện/ẩn mật khẩu">
                         {showConfirm
                           ? <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="1" y1="1" x2="23" y2="23"/><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/></svg>
                           : <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
@@ -439,7 +451,7 @@ export default function RegisterPage() {
                   <span className={`w-[18px] h-[18px] border-[1.5px] rounded flex items-center justify-center transition-all duration-200 shrink-0 mt-0.5 ${agreed ? 'bg-accent border-accent' : 'border-brand-300 group-hover:border-accent'}`}>
                     {agreed && <span className="w-2 h-1.5 border-l-2 border-b-2 border-white -rotate-45 -translate-y-px" />}
                   </span>
-                  <span className="leading-relaxed">Tôi đồng ý với <Link to="#" className="text-accent font-semibold hover:underline">Điều khoản &amp; Điều kiện</Link> và <Link to="#" className="text-accent font-semibold hover:underline">Chính sách bảo mật</Link></span>
+                  <span className="leading-relaxed">Tôi đồng ý với <Link to="/terms" className="text-accent font-semibold hover:underline">Điều khoản dịch vụ</Link> và <Link to="/privacy" className="text-accent font-semibold hover:underline">Chính sách bảo mật</Link></span>
                 </label>
               </div>
             )}
@@ -520,7 +532,7 @@ export default function RegisterPage() {
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-              ) : step < steps.length - 1 ? 'Continue' : 'Tạo tài khoản'}
+              ) : step < steps.length - 1 ? 'Tiếp tục' : 'Tạo tài khoản'}
             </button>
 
             {step === 1 && (
@@ -529,14 +541,14 @@ export default function RegisterPage() {
                 onClick={() => setStep(2)} 
                 className="w-full py-3 text-sm font-semibold text-brand-500 hover:text-brand-900 transition-colors duration-200"
               >
-                Skip for now
+                Bỏ qua bước này
               </button>
             )}
           </form>
 
           {step === 2 && (
             <button onClick={handleResendOtp} disabled={loading} className="mt-6 text-sm font-semibold text-brand-500 hover:text-accent transition-colors duration-200 self-center">
-              Không nhận được mã? <span className="text-accent">Gửi lại OTP</span>
+              Không nhận được mã? <span className="text-accent">Gửi lại mã OTP</span>
             </button>
           )}
 
@@ -549,15 +561,12 @@ export default function RegisterPage() {
                 <div className="flex-1 h-px bg-brand-200" />
               </div>
 
-              <div className="w-full flex justify-center mb-8">
-                <GoogleLogin
+              <div className="w-full mb-8">
+                <GoogleSignInButton
                   onSuccess={handleGoogleSuccess}
-                  onError={() => setError('Google Login Failed')}
-                  theme="outline"
-                  size="large"
+                  onError={setError}
                   text="signup_with"
-                  shape="rectangular"
-                  width="400"
+                  disabled={loading}
                 />
               </div>
 

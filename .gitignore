@@ -35,7 +35,8 @@ artifacts/
 .env.local
 .env.*.local
 !**/.env.example
-!**/appsettings.Development.json.example
+!**/appsettings.Development.example.json
+!**/appsettings.Production.example.json
 
 # IDE / OS
 .vs/
@@ -70,3 +71,7 @@ build_output*.txt
 *.log 
 vite.config.js.timestamp-*.mjs 
 src/backend/ProSport.Infrastructure/errors.json 
+
+# Root-level local scripts & docs (audit/tooling — không commit)
+/*.py
+/*.docx

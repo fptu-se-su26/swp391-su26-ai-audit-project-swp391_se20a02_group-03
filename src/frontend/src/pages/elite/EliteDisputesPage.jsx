@@ -50,7 +50,7 @@ export default function EliteDisputesPage() {
       setActing(true)
       const res = await reportApi.resolve(selected.reportId, { status: 'Investigating', adminNote: `[Staff đối chứng] ${note.trim()}` })
       if (res.statusCode === 200) {
-        addToast('Đã gửi báo cáo đối chứng lên Admin.', 'success')
+        addToast('Đã gửi báo cáo đối chứng lên quản trị viên.', 'success')
         load()
       } else {
         addToast(res.message || 'Gửi thất bại.', 'error')
@@ -125,7 +125,7 @@ export default function EliteDisputesPage() {
                 </div>
 
                 <button onClick={submitToAdmin} disabled={acting} className="self-start mt-4 bg-[#00c2ff] text-white font-bold px-6 py-2 rounded-md hover:bg-[#00ace6] flex items-center gap-2 disabled:opacity-60">
-                  {acting && <Loader2 size={16} className="animate-spin" />} Gửi báo cáo lên Admin
+                  {acting && <Loader2 size={16} className="animate-spin" />} Gửi báo cáo lên quản trị viên
                 </button>
               </>
             )}

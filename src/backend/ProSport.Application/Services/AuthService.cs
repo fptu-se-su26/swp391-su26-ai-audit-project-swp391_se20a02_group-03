@@ -181,16 +181,23 @@ public class AuthService : IAuthService
         }
     }
 
+    private static bool IsGoogleClientIdConfigured(string? clientId) =>
+        !string.IsNullOrWhiteSpace(clientId)
+        && !clientId.Contains("YOUR_GOOGLE", StringComparison.OrdinalIgnoreCase);
+
+    private string? ResolveGoogleClientId() =>
+        _configuration["GoogleAuth:ClientId"]
+        ?? Environment.GetEnvironmentVariable("GOOGLE_CLIENT_ID");
+
     public async Task<ApiResponseDto<AuthResponseDto>> GoogleLoginAsync(GoogleLoginRequestDto request)
     {
         try
         {
-            // BUG-09 FIX: Validate Google Client ID is configured before use
-            var clientId = _configuration["GoogleAuth:ClientId"];
-            if (string.IsNullOrEmpty(clientId))
+            var clientId = ResolveGoogleClientId();
+            if (!IsGoogleClientIdConfigured(clientId))
             {
                 _logger.LogError("GoogleAuth:ClientId is not configured.");
-                return new ApiResponseDto<AuthResponseDto>(500, "Google authentication is not configured.");
+                return new ApiResponseDto<AuthResponseDto>(503, "Đăng nhập Google chưa được cấu hình trên hệ thống.");
             }
             var settings = new GoogleJsonWebSignature.ValidationSettings()
             {
@@ -202,9 +209,15 @@ public class AuthService : IAuthService
             {
                 payload = await GoogleJsonWebSignature.ValidateAsync(request.GoogleIdToken, settings);
             }
-            catch (InvalidJwtException)
+            catch (InvalidJwtException ex)
             {
-                return new ApiResponseDto<AuthResponseDto>(401, "Invalid Google token.");
+                _logger.LogWarning(ex, "Google token validation failed.");
+                return new ApiResponseDto<AuthResponseDto>(401, "Token Google không hợp lệ. Kiểm tra Client ID backend trùng với frontend.");
+            }
+
+            if (string.IsNullOrWhiteSpace(payload.Email))
+            {
+                return new ApiResponseDto<AuthResponseDto>(400, "Tài khoản Google không cung cấp email. Vui lòng dùng tài khoản Google có email.");
             }
 
             var user = await _userRepository.GetByGoogleIdAsync(payload.Subject) ?? await _userRepository.GetByEmailAsync(payload.Email);
@@ -421,7 +434,8 @@ public class AuthService : IAuthService
     {
         // C1 FIX: Validate JWT secret key at method entry to fail fast with a clear error instead of NullReferenceException
         var secretKey = _configuration["JwtSettings:SecretKey"]
-            ?? throw new InvalidOperationException("JwtSettings:SecretKey is not configured. Application cannot generate tokens.");
+            ?? Environment.GetEnvironmentVariable("JWT_SECRET_KEY")
+            ?? throw new InvalidOperationException("JwtSettings:SecretKey or JWT_SECRET_KEY must be configured.");
         var expiryMinutesStr = _configuration["JwtSettings:ExpiryInMinutes"]
             ?? throw new InvalidOperationException("JwtSettings:ExpiryInMinutes is not configured.");
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));

@@ -2,10 +2,10 @@ import React from 'react'
 
 export default function PasswordStrengthMeter({ password }) {
   const requirements = [
-    { id: 'length', text: 'At least 8 characters', regex: /.{8,}/ },
-    { id: 'number', text: 'Contains a number', regex: /[0-9]/ },
-    { id: 'uppercase', text: 'Contains an uppercase letter', regex: /[A-Z]/ },
-    { id: 'special', text: 'Contains a special character', regex: /[^A-Za-z0-9]/ },
+    { id: 'length', text: 'Ít nhất 8 ký tự', regex: /.{8,}/ },
+    { id: 'number', text: 'Có ít nhất một số', regex: /[0-9]/ },
+    { id: 'uppercase', text: 'Có chữ in hoa', regex: /[A-Z]/ },
+    { id: 'special', text: 'Có ký tự đặc biệt', regex: /[^A-Za-z0-9]/ },
   ]
 
   const strength = requirements.filter(req => req.regex.test(password)).length
@@ -26,9 +26,9 @@ export default function PasswordStrengthMeter({ password }) {
 
   function getStrengthText() {
     if (strength === 0) return ''
-    if (strength <= 2) return 'Weak'
-    if (strength === 3) return 'Good'
-    return 'Strong'
+    if (strength <= 2) return 'Yếu'
+    if (strength === 3) return 'Khá'
+    return 'Mạnh'
   }
 
   return (

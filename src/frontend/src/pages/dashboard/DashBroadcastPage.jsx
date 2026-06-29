@@ -2,23 +2,23 @@ import { useState } from 'react'
 import ProSportDashLayout from '../../layouts/ProSportDashLayout'
 
 const stats = [
-  { label: 'TOTAL SENT',          value: '248.5k', trend: '↑ +12.4% this month', trendUp: true  },
-  { label: 'DELIVERY RATE',       value: '99.2%',  bar: true                                    },
-  { label: 'AVG. OPEN RATE',      value: '42.8%',  bars: [30,50,40,55,70,65,80]                 },
-  { label: 'CLICK-THROUGH (CTR)', value: '8.4%',   trend: '→ Stable vs last week', trendUp: null },
+  { label: 'TỔNG ĐÃ GỬI',          value: '248.5k', trend: '↑ +12,4% tháng này', trendUp: true  },
+  { label: 'TỶ LỆ GIAO',       value: '99,2%',  bar: true                                    },
+  { label: 'TỶ LỆ MỞ TB.',      value: '42,8%',  bars: [30,50,40,55,70,65,80]                 },
+  { label: 'TỶ LỆ NHẤP (CTR)', value: '8,4%',   trend: '→ Ổn định so với tuần trước', trendUp: null },
 ]
 
-const audiences = ['Tất cả', 'Cầu lông', 'Pickleball', 'Lapsed Users', '+ Custom Segment']
+const audiences = ['Tất cả', 'Cầu lông', 'Pickleball', 'Người dùng không hoạt động', '+ Phân khúc tùy chỉnh']
 
 const recentBroadcasts = [
-  { status: 'SCHEDULED', statusColor: '#f59e0b', date: 'Tomorrow, 09:00', title: 'Weekend Tournament Reminder', meta: 'Target: Tournament Participants' },
-  { status: 'SENT', statusColor: '#22c55e', date: 'Yesterday', title: 'Sân Pickleball Mới!', open: '68%', click: '12%' },
-  { status: 'SENT', statusColor: '#22c55e', date: 'Mon, 14:30', title: 'App Update: Version 2.4 is live', open: '45%', click: '3%' },
+  { status: 'ĐÃ LÊN LỊCH', statusColor: '#f59e0b', date: 'Ngày mai, 09:00', title: 'Nhắc giải đấu cuối tuần', meta: 'Đối tượng: Người tham gia giải' },
+  { status: 'ĐÃ GỬI', statusColor: '#22c55e', date: 'Hôm qua', title: 'Sân Pickleball Mới!', open: '68%', click: '12%' },
+  { status: 'ĐÃ GỬI', statusColor: '#22c55e', date: 'T2, 14:30', title: 'Cập nhật ứng dụng: Phiên bản 2.4', open: '45%', click: '3%' },
 ]
 
 export default function DashBroadcastPage() {
   const [msgBody, setMsgBody] = useState('')
-  const [selectedAud, setSelectedAud] = useState(['All Active Members'])
+  const [selectedAud, setSelectedAud] = useState(['Tất cả'])
   const [msgType, setMsgType] = useState('push')
 
   const toggleAud = (a) =>
@@ -29,14 +29,14 @@ export default function DashBroadcastPage() {
       <div>
         <div className="flex items-start justify-between mb-6">
           <div>
-            <h1 className="dash-page-title">Broadcast Management</h1>
-            <p className="dash-page-sub">Design, schedule, and analyze targeted communications.</p>
+            <h1 className="dash-page-title">Quản lý phát sóng</h1>
+            <p className="dash-page-sub">Thiết kế, lên lịch và phân tích thông điệp theo đối tượng.</p>
           </div>
           <button className="btn-primary flex items-center gap-2 px-[18px] py-2.5">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
             </svg>
-            New Broadcast
+            Phát sóng mới
           </button>
         </div>
 
@@ -62,15 +62,15 @@ export default function DashBroadcastPage() {
         <div className="grid grid-cols-[1fr_280px] max-[1000px]:grid-cols-1 gap-5 items-start">
           {/* Create Campaign */}
           <div className="bg-white rounded-[14px] p-6 border-[1.5px] border-[#e0ecf0]">
-            <h2 className="text-base font-bold text-foreground mb-5">Create Campaign</h2>
+            <h2 className="text-base font-bold text-foreground mb-5">Tạo chiến dịch</h2>
 
             <div className="mb-[18px]">
-              <label className="text-[0.78rem] font-semibold text-slate-500 block mb-2" htmlFor="camp-name">Campaign Internal Name</label>
-              <input id="camp-name" type="text" placeholder="e.g., Summer Badminton League Promo" className="w-full border-[1.5px] border-[#e0ecf0] rounded-lg px-3.5 py-2.5 font-['Inter'] text-sm text-foreground outline-none transition-colors focus:border-[#14B8A6] placeholder:text-slate-400 box-border" />
+              <label className="text-[0.78rem] font-semibold text-slate-500 block mb-2" htmlFor="camp-name">Tên nội bộ chiến dịch</label>
+              <input id="camp-name" type="text" placeholder="VD: Khuyến mãi giải cầu lông mùa hè" className="w-full border-[1.5px] border-[#e0ecf0] rounded-lg px-3.5 py-2.5 font-['Inter'] text-sm text-foreground outline-none transition-colors focus:border-[#14B8A6] placeholder:text-slate-400 box-border" />
             </div>
 
             <div className="mb-[18px]">
-              <label className="text-[0.78rem] font-semibold text-slate-500 block mb-2">Target Audience</label>
+              <label className="text-[0.78rem] font-semibold text-slate-500 block mb-2">Đối tượng nhận</label>
               <div className="flex flex-wrap gap-2">
                 {audiences.map(a => (
                   <button key={a} className={`px-3.5 py-1.5 rounded-full border-[1.5px] text-[0.8rem] font-medium cursor-pointer font-['Inter'] transition-all hover:border-[#14B8A6] hover:text-[#14B8A6] ${selectedAud.includes(a) ? 'bg-[#14B8A6] border-[#14B8A6] text-[var(--theme-primary)]' : 'bg-white border-[#e0ecf0] text-slate-500'}`} onClick={() => toggleAud(a)}>{a}</button>
@@ -86,8 +86,8 @@ export default function DashBroadcastPage() {
                     <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
                   </svg>
                   <div>
-                    <p className="text-[0.85rem] font-bold text-foreground">Push Notification</p>
-                    <p className="text-[0.75rem] text-slate-400 mt-0.5">High urgency, instant delivery</p>
+                    <p className="text-[0.85rem] font-bold text-foreground">Thông báo đẩy</p>
+                    <p className="text-[0.75rem] text-slate-400 mt-0.5">Ưu tiên cao, gửi tức thì</p>
                   </div>
                 </button>
                 <button className={`flex items-start gap-2.5 p-3.5 rounded-[10px] border-[1.5px] bg-white cursor-pointer text-left font-['Inter'] transition-all hover:border-[#14B8A6] ${msgType === 'email' ? 'border-[#14B8A6] bg-[rgba(13,138,138,0.05)]' : 'border-[#e0ecf0]'}`} onClick={() => setMsgType('email')}>
@@ -96,29 +96,29 @@ export default function DashBroadcastPage() {
                     <polyline points="22,6 12,13 2,6"/>
                   </svg>
                   <div>
-                    <p className="text-[0.85rem] font-bold text-foreground">Email Newsletter</p>
-                    <p className="text-[0.75rem] text-slate-400 mt-0.5">Rich content, detailed updates</p>
+                    <p className="text-[0.85rem] font-bold text-foreground">Bản tin email</p>
+                    <p className="text-[0.75rem] text-slate-400 mt-0.5">Nội dung phong phú, cập nhật chi tiết</p>
                   </div>
                 </button>
               </div>
             </div>
 
             <div className="mb-[18px]">
-              <label className="text-[0.78rem] font-semibold text-slate-500 block mb-2" htmlFor="msg-body">Message Body</label>
+              <label className="text-[0.78rem] font-semibold text-slate-500 block mb-2" htmlFor="msg-body">Nội dung tin nhắn</label>
               <div className="flex gap-1.5 bg-[#f5f9fc] border-[1.5px] border-[#e0ecf0] rounded-t-lg px-2.5 py-1.5">
                 <button className="bg-transparent border-none cursor-pointer text-[0.85rem] text-slate-500 px-2 py-[3px] rounded font-['Inter'] transition-colors hover:bg-[rgba(13,138,138,0.1)] hover:text-[#14B8A6]"><strong>B</strong></button>
                 <button className="bg-transparent border-none cursor-pointer text-[0.85rem] text-slate-500 px-2 py-[3px] rounded font-['Inter'] transition-colors hover:bg-[rgba(13,138,138,0.1)] hover:text-[#14B8A6]"><em>I</em></button>
-                <button className="bg-transparent border-none cursor-pointer text-[0.75rem] text-slate-500 px-2 py-[3px] rounded font-['Inter'] transition-colors hover:bg-[rgba(13,138,138,0.1)] hover:text-[#14B8A6]">⟵⟶ Insert Variable</button>
+                <button className="bg-transparent border-none cursor-pointer text-[0.75rem] text-slate-500 px-2 py-[3px] rounded font-['Inter'] transition-colors hover:bg-[rgba(13,138,138,0.1)] hover:text-[#14B8A6]">⟵⟶ Chèn biến</button>
               </div>
               <textarea
                 id="msg-body"
                 value={msgBody}
                 onChange={e => setMsgBody(e.target.value.slice(0, 250))}
-                placeholder="Enter your message here... Use {first_name} to personalize."
+                placeholder="Nhập nội dung tin nhắn... Dùng {first_name} để cá nhân hóa."
                 className="w-full border-[1.5px] border-[#e0ecf0] border-t-0 rounded-b-lg px-3.5 py-3 font-['Inter'] text-sm text-foreground outline-none resize-y transition-colors focus:border-[#14B8A6] placeholder:text-slate-400 box-border"
                 rows={5}
               />
-              <p className="text-[0.75rem] text-slate-400 text-right mt-1">{msgBody.length} / 250 chars</p>
+              <p className="text-[0.75rem] text-slate-400 text-right mt-1">{msgBody.length} / 250 ký tự</p>
             </div>
 
             <div className="flex items-center justify-between mt-1">
@@ -126,11 +126,11 @@ export default function DashBroadcastPage() {
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
                 </svg>
-                Schedule for later
+                Lên lịch gửi sau
               </button>
               <div className="flex gap-2.5">
-                <button className="btn-outline py-[9px] px-[18px] text-[0.85rem]">Save Draft</button>
-                <button className="btn-primary py-[9px] px-[18px] text-[0.85rem]">Send Now</button>
+                <button className="btn-outline py-[9px] px-[18px] text-[0.85rem]">Lưu nháp</button>
+                <button className="btn-primary py-[9px] px-[18px] text-[0.85rem]">Gửi ngay</button>
               </div>
             </div>
           </div>
@@ -138,10 +138,10 @@ export default function DashBroadcastPage() {
           {/* Recent Broadcasts */}
           <div className="bg-white rounded-[14px] p-5 border-[1.5px] border-[#e0ecf0]">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-[0.95rem] font-bold text-foreground">Recent Broadcasts</h2>
+              <h2 className="text-[0.95rem] font-bold text-foreground">Phát sóng gần đây</h2>
               <button className="bg-transparent border-none cursor-pointer text-slate-400 text-base">···</button>
             </div>
-            {recentBroadcasts.map((b, i) => (
+            {recentBroadcasts.map((b) => (
               <div key={b.title} className="py-3.5 border-b border-[#f0f5f9] last:border-b-0">
                 <div className="flex items-center justify-between mb-1.5">
                   <span className="text-[0.65rem] font-bold tracking-[0.06em] px-2 py-[3px] rounded-full" style={{ background: b.statusColor + '20', color: b.statusColor }}>{b.status}</span>
@@ -152,7 +152,7 @@ export default function DashBroadcastPage() {
                 {b.open  && <div className="flex gap-2.5 text-[0.75rem] text-slate-500 mt-1.5"><span>👁 {b.open}</span><span>🔗 {b.click}</span></div>}
               </div>
             ))}
-            <a href="#" className="block text-center text-[0.82rem] text-[#14B8A6] font-semibold mt-3.5 no-underline hover:underline">View All History</a>
+            <a href="#" className="block text-center text-[0.82rem] text-[#14B8A6] font-semibold mt-3.5 no-underline hover:underline">Xem toàn bộ lịch sử</a>
           </div>
         </div>
       </div>

@@ -8,9 +8,7 @@ using System.Text;
 namespace ProSport.Infrastructure.Services;
 
 /// <summary>
-/// TK-030 + TK-031:
-/// - Gọi OpenAI ChatCompletion API
-/// - Tự động bổ sung dữ liệu sân trống thực tế từ DB vào System Prompt
+/// TK-030 + TK-031: OpenAI ChatCompletion với fallback offline khi không có/không gọi được API key.
 /// </summary>
 public class ChatbotService : IChatbotService
 {
@@ -33,59 +31,25 @@ public class ChatbotService : IChatbotService
 
     public async Task<ApiResponseDto<ChatResponseDto>> ChatAsync(ChatRequestDto request)
     {
+        var lastUserMessage = request.Messages.LastOrDefault(m => m.Role == "user")?.Content?.Trim() ?? "";
+        if (string.IsNullOrWhiteSpace(lastUserMessage))
+            return new ApiResponseDto<ChatResponseDto>(400, "Nội dung tin nhắn không được để trống.");
+
+        var dbContext = await BuildDbContextAsync();
+        var apiKey = ResolveOpenAiApiKey();
+
+        if (string.IsNullOrWhiteSpace(apiKey))
+        {
+            return OfflineResponse(lastUserMessage, dbContext,
+                "Chatbot đang ở chế độ offline (chưa cấu hình OPENAI_API_KEY).");
+        }
+
         try
         {
-            var apiKey = _config["OpenAI:ApiKey"];
-            if (string.IsNullOrWhiteSpace(apiKey))
-                return new ApiResponseDto<ChatResponseDto>(500, "OpenAI API key chưa được cấu hình.");
-
-            // === TK-031: Query dữ liệu thực tế từ DB để nhồi vào System Prompt ===
-            var allCourts = await _courtRepository.GetAllAsync();
-            var openMatches = await _matchRepository.GetMatchesByStatusAsync("Open");
-
-            var courtContext = new StringBuilder();
-            courtContext.AppendLine("=== DANH SÁCH SÂN HIỆN CÓ TẠI HỆ THỐNG ===");
-            foreach (var c in allCourts)
-            {
-                courtContext.AppendLine($"- Sân #{c.CourtId}: {c.Name} | Loại: {c.CourtType?.Name ?? "N/A"} | Trạng thái: {c.Status}");
-            }
-
-            var matchContext = new StringBuilder();
-            matchContext.AppendLine($"=== KÈOS GIAO LƯU ĐANG MỞ ({openMatches.Count()} kèo) ===");
-            foreach (var m in openMatches.Take(5))
-            {
-                var slots = m.MaxParticipants - m.CurrentParticipants;
-                matchContext.AppendLine($"- Kèo #{m.MatchId}: Sân #{m.CourtId} | Ngày: {m.MatchDate:dd/MM/yyyy} | Giờ: {m.StartTime:hh\\:mm}-{m.EndTime:hh\\:mm} | Còn {slots} chỗ | Cọc: {m.EscrowAmount:N0}đ | Trình độ: {m.LevelRequirement ?? "Tất cả"}");
-            }
-
-            var systemPrompt = $"""
-                Bạn là một trợ lý AI thông minh và đa năng (tương tự như Gemini hay ChatGPT), được tích hợp trong hệ thống đặt sân thể thao Pro-Sport Complex.
-                
-                Nhiệm vụ của bạn bao gồm:
-                1. Trả lời MỌI CÂU HỎI của người dùng về tất cả các lĩnh vực (kiến thức chung, khoa học, lập trình, dịch thuật, tính toán, lên kế hoạch, v.v.) một cách thông minh, tự nhiên và chi tiết giống như một AI đa nhiệm thực thụ. Không từ chối các câu hỏi ngoài lề thể thao.
-                2. ĐỒNG THỜI, bạn am hiểu sâu sắc về hệ thống Pro-Sport Complex và xuất sắc trong việc hỗ trợ khách hàng:
-                   - Tìm sân phù hợp theo thời gian, loại sân, ngân sách.
-                   - Gợi ý các kèo giao lưu đang mở để tham gia.
-                   - Giải thích quy trình đặt sân, thanh toán VNPay, hệ thống ký quỹ Escrow.
-
-                Luôn trả lời bằng tiếng Việt, thân thiện và chuyên nghiệp.
-                Chỉ khi người dùng hỏi về sân hoặc kèo, hãy dùng dữ liệu THỰC TẾ dưới đây.
-                Nếu người dùng muốn đặt sân, hướng dẫn họ vào trang /courts để xem lịch. Nếu muốn tham gia kèo, hướng dẫn vào /matches.
-
-                {courtContext}
-
-                {matchContext}
-                """;
-
-            // === TK-030: Gọi OpenAI ChatCompletion ===
+            var systemPrompt = BuildSystemPrompt(dbContext);
             var client = new ChatClient(model: "gpt-4o-mini", apiKey: apiKey);
 
-            var chatMessages = new List<ChatMessage>
-            {
-                ChatMessage.CreateSystemMessage(systemPrompt)
-            };
-
-            // Map lịch sử hội thoại
+            var chatMessages = new List<ChatMessage> { ChatMessage.CreateSystemMessage(systemPrompt) };
             foreach (var msg in request.Messages)
             {
                 if (msg.Role == "user")
@@ -96,13 +60,97 @@ public class ChatbotService : IChatbotService
 
             var completion = await client.CompleteChatAsync(chatMessages);
             var reply = completion.Value.Content[0].Text;
-
             return new ApiResponseDto<ChatResponseDto>(200, "Success", new ChatResponseDto { Reply = reply });
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Lỗi khi gọi OpenAI Chatbot");
-            return new ApiResponseDto<ChatResponseDto>(500, $"Lỗi AI: {ex.Message}");
+            _logger.LogWarning(ex, "OpenAI unavailable — falling back to offline chatbot");
+            return OfflineResponse(lastUserMessage, dbContext,
+                "Không kết nối được OpenAI. Đang trả lời bằng dữ liệu hệ thống.");
         }
     }
+
+    private string? ResolveOpenAiApiKey() =>
+        _config["OpenAI:ApiKey"] ?? Environment.GetEnvironmentVariable("OPENAI_API_KEY");
+
+    private async Task<(StringBuilder Courts, StringBuilder Matches, int OpenMatchCount)> BuildDbContextAsync()
+    {
+        var allCourts = await _courtRepository.GetAllAsync();
+        var openMatches = (await _matchRepository.GetMatchesByStatusAsync("Open")).ToList();
+
+        var courtContext = new StringBuilder();
+        courtContext.AppendLine("=== DANH SÁCH SÂN HIỆN CÓ TẠI HỆ THỐNG ===");
+        foreach (var c in allCourts)
+            courtContext.AppendLine($"- Sân #{c.CourtId}: {c.Name} | Loại: {c.CourtType?.Name ?? "N/A"} | Trạng thái: {c.Status}");
+
+        var matchContext = new StringBuilder();
+        matchContext.AppendLine($"=== KÈO GIAO LƯU ĐANG MỞ ({openMatches.Count} kèo) ===");
+        foreach (var m in openMatches.Take(5))
+        {
+            var slots = m.MaxParticipants - m.CurrentParticipants;
+            matchContext.AppendLine(
+                $"- Kèo #{m.MatchId}: Sân #{m.CourtId} | Ngày: {m.MatchDate:dd/MM/yyyy} | " +
+                $"Giờ: {m.StartTime:hh\\:mm}-{m.EndTime:hh\\:mm} | Còn {slots} chỗ | Cọc: {m.EscrowAmount:N0}đ");
+        }
+
+        return (courtContext, matchContext, openMatches.Count);
+    }
+
+    private static string BuildSystemPrompt((StringBuilder Courts, StringBuilder Matches, int OpenMatchCount) dbContext)
+    {
+        return $"""
+            Bạn là trợ lý AI của Pro-Sport Complex (đặt sân, kèo giao lưu, VNPay, ví Escrow).
+            Trả lời bằng tiếng Việt, thân thiện. Khi hỏi về sân/kèo, dùng dữ liệu thực tế bên dưới.
+            Hướng dẫn đặt sân: /courts · tham gia kèo: /matches
+
+            {dbContext.Courts}
+
+            {dbContext.Matches}
+            """;
+    }
+
+    private static ApiResponseDto<ChatResponseDto> OfflineResponse(
+        string userMessage,
+        (StringBuilder Courts, StringBuilder Matches, int OpenMatchCount) dbContext,
+        string notice)
+    {
+        var lower = userMessage.ToLowerInvariant();
+        var reply = new StringBuilder();
+        reply.AppendLine(notice);
+        reply.AppendLine();
+
+        if (ContainsAny(lower, "sân", "court", "đặt sân", "booking"))
+        {
+            reply.AppendLine("**Thông tin sân hiện có:**");
+            reply.AppendLine(dbContext.Courts.ToString().TrimEnd());
+            reply.AppendLine("Bạn có thể xem lịch trống và đặt sân tại trang **/courts**.");
+        }
+        else if (ContainsAny(lower, "kèo", "match", "giao lưu", "chơi cùng"))
+        {
+            reply.AppendLine(dbContext.OpenMatchCount > 0
+                ? "**Kèo đang mở:**"
+                : "Hiện chưa có kèo giao lưu nào đang mở.");
+            reply.AppendLine(dbContext.Matches.ToString().TrimEnd());
+            reply.AppendLine("Xem và tham gia kèo tại **/matches**.");
+        }
+        else if (ContainsAny(lower, "thanh toán", "vnpay", "nạp", "ví", "escrow"))
+        {
+            reply.AppendLine(
+                "Pro-Sport hỗ trợ thanh toán qua **VNPay** và ví **Escrow** (ký quỹ). " +
+                "Sau khi đặt sân, bạn có thể thanh toán trong mục booking hoặc nạp ví tại trang ví cá nhân.");
+        }
+        else
+        {
+            reply.AppendLine(
+                "Tôi có thể hỗ trợ bạn về: đặt sân, kèo giao lưu, thanh toán VNPay/ví Escrow. " +
+                "Hãy thử hỏi \"có sân nào trống?\" hoặc \"có kèo nào đang mở?\".");
+            reply.AppendLine();
+            reply.AppendLine(dbContext.Courts.ToString().TrimEnd());
+        }
+
+        return new ApiResponseDto<ChatResponseDto>(200, "Offline mode", new ChatResponseDto { Reply = reply.ToString().Trim() });
+    }
+
+    private static bool ContainsAny(string text, params string[] keywords) =>
+        keywords.Any(k => text.Contains(k, StringComparison.OrdinalIgnoreCase));
 }

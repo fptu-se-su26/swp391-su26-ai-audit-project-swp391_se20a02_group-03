@@ -36,6 +36,27 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
+    },
+    "Staging": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "launchBrowser": true,
+      "launchUrl": "swagger",
+      "applicationUrl": "http://localhost:5138",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Staging",
+        "JWT_SECRET_KEY": "ProSport-Staging-Local-JWT-Secret-Key-256bits-DevOnly!!"
+      }
+    },
+    "Production": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "launchBrowser": false,
+      "applicationUrl": "http://localhost:5139",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Production",
+        "JWT_SECRET_KEY": "ProSport-Production-Local-Test-JWT-Secret-256bits-DevOnly!!"
+      }
     }
   }
 }

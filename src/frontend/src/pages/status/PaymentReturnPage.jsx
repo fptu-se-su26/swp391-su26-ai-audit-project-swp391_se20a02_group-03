@@ -36,7 +36,7 @@ export default function PaymentReturnPage() {
             if (parts[0] === 'Booking') {
                 parsedInfo = `Thanh toán đặt sân mã #${parts[1]}`;
             } else if (parts[0] === 'Deposit') {
-                parsedInfo = `Nạp tiền ví Escrow (Mã GD: ${parts[1]})`;
+                parsedInfo = `Nạp tiền ví ký quỹ (Mã GD: ${parts[1]})`;
             }
         }
 
@@ -101,7 +101,7 @@ export default function PaymentReturnPage() {
               <div className="w-16 h-16 border-4 border-brand-200 border-t-accent rounded-full animate-spin mx-auto mb-6"></div>
               <h1 className="font-heading text-2xl font-bold text-brand-900 mb-2">Đang xử lý</h1>
               <p className="text-brand-500 text-sm">Vui lòng đợi trong giây lát, không tắt trình duyệt...</p>
-              <p className="text-brand-400 text-xs mt-2">Tự động timeout sau {countdown}s</p>
+              <p className="text-brand-400 text-xs mt-2">Tự động hết hạn sau {countdown} giây</p>
             </div>
           )}
 
@@ -146,7 +146,7 @@ export default function PaymentReturnPage() {
                   {/* Hiển thị mã Check-in */}
                   {bookingData.checkInCode && (
                     <div className="mt-4 p-3 bg-white rounded-xl border border-accent/20 text-center">
-                      <p className="text-xs text-brand-500 mb-1">Mã Check-in (QR đã gửi qua Email)</p>
+                      <p className="text-xs text-brand-500 mb-1">Mã vào sân (QR đã gửi qua email)</p>
                       <p className="font-mono text-lg font-bold text-accent tracking-wider">{bookingData.checkInCode}</p>
                     </div>
                   )}

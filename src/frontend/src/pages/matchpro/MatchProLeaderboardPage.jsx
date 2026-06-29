@@ -1,18 +1,26 @@
 import { useState, useEffect, useRef } from 'react'
 import { gsap } from 'gsap'
 import MatchProLayout from '../../layouts/MatchProLayout'
+import { useAuth } from '../../context/AuthContext'
 import './MatchProLeaderboardPage.css'
 
-const periods = ['This Week', 'This Month', 'All Time']
-const sports = ['All Sports', 'Badminton', 'Pickleball']
+const periods = ['Tuần này', 'Tháng này', 'Mọi thời đại']
+const sports = ['Tất cả', 'Cầu lông', 'Pickleball']
+
+const levelLabels = {
+  Pro: 'Chuyên nghiệp',
+  Advanced: 'Nâng cao',
+  Intermediate: 'Trung bình',
+  Beginner: 'Người mới',
+}
 
 const players = [
-  { rank: 1, name: 'David K.', pts: 2450, wins: 34, matches: 40, sport: 'Badminton', level: 'Pro', img: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&q=80', change: 0 },
-  { rank: 2, name: 'Jessica W.', pts: 2100, wins: 28, matches: 35, sport: 'Pickleball', level: 'Advanced', img: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=80&q=80', change: 1 },
-  { rank: 3, name: 'Marcus T.', pts: 1980, wins: 25, matches: 33, sport: 'Badminton', level: 'Advanced', img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&q=80', change: -1 },
-  { rank: 4, name: 'Sarah J.', pts: 1750, wins: 22, matches: 30, sport: 'Pickleball', level: 'Intermediate', img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&q=80', change: 2 },
+  { rank: 1, name: 'Đức K.', pts: 2450, wins: 34, matches: 40, sport: 'Badminton', level: 'Pro', img: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&q=80', change: 0 },
+  { rank: 2, name: 'Hương W.', pts: 2100, wins: 28, matches: 35, sport: 'Pickleball', level: 'Advanced', img: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=80&q=80', change: 1 },
+  { rank: 3, name: 'Minh T.', pts: 1980, wins: 25, matches: 33, sport: 'Badminton', level: 'Advanced', img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&q=80', change: -1 },
+  { rank: 4, name: 'Lan P.', pts: 1750, wins: 22, matches: 30, sport: 'Pickleball', level: 'Intermediate', img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&q=80', change: 2 },
   { rank: 5, name: 'Jae Kim', pts: 1620, wins: 20, matches: 28, sport: 'Badminton', level: 'Advanced', img: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=80&q=80', change: 0 },
-  { rank: 6, name: 'Alex M.', pts: 1540, wins: 19, matches: 27, sport: 'Pickleball', level: 'Intermediate', img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&q=80', change: -2 },
+  { rank: 6, name: 'Hùng M.', pts: 1540, wins: 19, matches: 27, sport: 'Pickleball', level: 'Intermediate', img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&q=80', change: -2 },
   { rank: 7, name: 'Elena R.', pts: 1420, wins: 17, matches: 25, sport: 'Badminton', level: 'Advanced', img: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&q=80', change: 1 },
   { rank: 8, name: 'Chris N.', pts: 1380, wins: 16, matches: 24, sport: 'Pickleball', level: 'Intermediate', img: 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=80&q=80', change: 0 },
   { rank: 9, name: 'Mia S.', pts: 1250, wins: 14, matches: 22, sport: 'Badminton', level: 'Intermediate', img: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=80&q=80', change: 3 },
@@ -22,8 +30,9 @@ const players = [
 const sportColors = { Badminton: '#22c55e', Pickleball: '#6366f1', All: '#5E6AD2' }
 
 export default function MatchProLeaderboardPage() {
-  const [period, setPeriod] = useState('This Week')
-  const [sport, setSport] = useState('All Sports')
+  const { user } = useAuth()
+  const [period, setPeriod] = useState('Tuần này')
+  const [sport, setSport] = useState('Tất cả')
   const pageRef = useRef(null)
 
   useEffect(() => {
@@ -35,7 +44,7 @@ export default function MatchProLeaderboardPage() {
     return () => ctx.revert()
   }, [period, sport])
 
-  const filtered = players.filter(p => sport === 'All Sports' || p.sport === sport)
+  const filtered = players.filter(p => sport === 'Tất cả' || (sport === 'Cầu lông' && p.sport === 'Badminton') || (sport === 'Pickleball' && p.sport === 'Pickleball'))
   const top3 = filtered.slice(0, 3)
   const rest = filtered.slice(3)
 
@@ -45,8 +54,9 @@ export default function MatchProLeaderboardPage() {
         {/* Hero */}
         <div className="lb-hero">
           <div>
-            <h1 className="lb-hero__title"> Leaderboard</h1>
-            <p className="lb-hero__sub">Top-ranked players across all sports this week.</p>
+            <p className="text-xs text-[#5E6AD2] font-semibold mb-2">Bản thử nghiệm — dữ liệu minh họa</p>
+            <h1 className="lb-hero__title">Bảng xếp hạng</h1>
+            <p className="lb-hero__sub">Top người chơi xuất sắc trong tuần.</p>
           </div>
           <div className="lb-filters">
             {periods.map(p => (
@@ -100,11 +110,11 @@ export default function MatchProLeaderboardPage() {
         {/* Full table */}
         <div className="lb-table">
           <div className="lb-table__header">
-            <span className="lb-col-rank">Rank</span>
-            <span className="lb-col-player">Player</span>
-            <span className="lb-col-sport">Sport</span>
-            <span className="lb-col-wins">Wins</span>
-            <span className="lb-col-pts">Points</span>
+            <span className="lb-col-rank">Hạng</span>
+            <span className="lb-col-player">Người chơi</span>
+            <span className="lb-col-sport">Môn</span>
+            <span className="lb-col-wins">Thắng</span>
+            <span className="lb-col-pts">Điểm</span>
             <span className="lb-col-change">±</span>
           </div>
           {rest.map((p, i) => (
@@ -114,12 +124,12 @@ export default function MatchProLeaderboardPage() {
                 <img src={p.img} alt={p.name} className="lb-player__avatar" />
                 <div>
                   <p className="lb-player__name">{p.name}</p>
-                  <p className="lb-player__level">{p.level}</p>
+                  <p className="lb-player__level">{levelLabels[p.level] || p.level}</p>
                 </div>
               </div>
               <span className="lb-col-sport">
                 <span className="lb-sport-dot" style={{ background: sportColors[p.sport] || '#94a3b8' }} />
-                {p.sport}
+                {p.sport === 'Badminton' ? 'Cầu lông' : 'Pickleball'}
               </span>
               <span className="lb-col-wins">{p.wins}/{p.matches}</span>
               <span className="lb-col-pts lb-pts">{p.pts.toLocaleString()}</span>
@@ -133,16 +143,22 @@ export default function MatchProLeaderboardPage() {
         {/* My rank card */}
         <div className="lb-my-rank">
           <div className="lb-my-rank__left">
-            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&q=80" alt="You" className="lb-player__avatar" />
+            <img
+              src={user?.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.fullName || 'Ban')}&background=5E6AD2&color=fff`}
+              alt={user?.fullName || 'Bạn'}
+              className="lb-player__avatar"
+            />
             <div>
-              <p className="lb-player__name">Alex Johnson <span className="lb-you-badge">YOU</span></p>
-              <p className="lb-player__level">Rank #6 · 1,540 pts</p>
+              <p className="lb-player__name">
+                {user?.fullName || 'Bạn'} <span className="lb-you-badge">BẠN</span>
+              </p>
+              <p className="lb-player__level">Tham gia kèo để xuất hiện trên bảng xếp hạng</p>
             </div>
           </div>
           <div className="lb-my-rank__progress">
-            <p className="lb-my-rank__label">260 pts to reach #5</p>
+            <p className="lb-my-rank__label">Dữ liệu xếp hạng cá nhân đang phát triển</p>
             <div className="lb-my-rank__bar">
-              <div className="lb-my-rank__fill" style={{ width: '74%' }} />
+              <div className="lb-my-rank__fill" style={{ width: '0%' }} />
             </div>
           </div>
         </div>

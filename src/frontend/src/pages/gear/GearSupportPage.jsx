@@ -2,19 +2,19 @@ import { useState } from 'react'
 import GearLayout from '../../layouts/GearLayout'
 
 const faqs = [
-  { q: 'How do I extend my rental period?', a: 'Visit the Rentals page and click "Extend" on your active rental. Extensions can be made up to 30 minutes before the scheduled end time. You can also call our support line for immediate assistance.' },
-  { q: 'What happens if I return equipment damaged?', a: 'If damage occurs beyond normal wear, the cost of repair or replacement will be deducted from your security deposit. For serious damage, you may be billed the difference. All damage is assessed by our technician team within 24 hours.' },
-  { q: 'Can I cancel or modify a booking?', a: 'Cancellations made 24+ hours in advance receive a full refund. Within 2–24 hours receive 50% refund. Modifications (time change, extension) are free up to 2 hours before the rental start.' },
-  { q: 'How are deposits refunded?', a: 'Security deposits are refunded within 24 hours of verified equipment return. Refunds are processed to your original payment method and may take 3–5 business days to appear.' },
-  { q: 'What if the equipment is defective during my rental?', a: 'Contact us immediately at the support line. We will replace the equipment at no charge if a defect is confirmed. Do not continue to use defective equipment.' },
-  { q: 'Is equipment sanitized between rentals?', a: 'Yes. All equipment goes through our standard cleaning and sanitization protocol before every rental. High-touch items (rackets, grips, gloves) receive additional disinfection.' },
-  { q: 'Can I reserve a specific item?', a: 'Yes! In the Catalog, click any item and use "Add to Rental" — this reserves that specific unit for your time slot. Reservations are held for 15 minutes while you complete checkout.' },
+  { q: 'Làm sao để gia hạn thời gian thuê?', a: 'Vào trang Thuê thiết bị và nhấn "Gia hạn" trên đơn đang hoạt động. Có thể gia hạn tối đa 30 phút trước giờ kết thúc dự kiến. Bạn cũng có thể gọi hotline để được hỗ trợ ngay.' },
+  { q: 'Trả thiết bị bị hỏng thì sao?', a: 'Nếu hư hỏng vượt mức hao mòn bình thường, chi phí sửa chữa hoặc thay thế sẽ trừ từ tiền cọc. Trường hợp nghiêm trọng, bạn có thể phải thanh toán phần chênh lệch. Kỹ thuật viên đánh giá trong vòng 24 giờ.' },
+  { q: 'Có thể hủy hoặc đổi lịch thuê không?', a: 'Hủy trước 24 giờ: hoàn tiền 100%. Trong 2–24 giờ: hoàn 50%. Đổi giờ hoặc gia hạn miễn phí nếu thực hiện trước giờ bắt đầu thuê ít nhất 2 giờ.' },
+  { q: 'Tiền cọc hoàn lại như thế nào?', a: 'Cọc được hoàn trong 24 giờ sau khi xác nhận đã trả thiết bị. Hoàn về phương thức thanh toán ban đầu; có thể mất 3–5 ngày làm việc để hiển thị.' },
+  { q: 'Thiết bị lỗi trong lúc thuê thì làm gì?', a: 'Liên hệ ngay hotline. Nếu xác nhận lỗi, chúng tôi thay thiết bị miễn phí. Không tiếp tục dùng thiết bị bị lỗi.' },
+  { q: 'Thiết bị có được khử trùng giữa các lượt thuê không?', a: 'Có. Mọi thiết bị đều qua quy trình vệ sinh chuẩn trước mỗi lượt thuê. Vợt, quấn cán, găng tay được khử trùng thêm.' },
+  { q: 'Có thể đặt trước một món cụ thể không?', a: 'Có! Trong Danh mục, chọn món và nhấn "Thêm vào thuê" — giữ đúng đơn vị đó trong khung giờ của bạn. Giữ chỗ 15 phút trong khi thanh toán.' },
 ]
 
 const contactMethods = [
-  { icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.12 6.12l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>, label: 'Phone', value: '+84 28 3456 7890', sub: 'Mon – Sun, 8:00 – 22:00', action: 'tel:+84283456789', actionLabel: 'Call Now', color: '#14B8A6' },
-  { icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>, label: 'Email', value: 'gear@prosport.vn', sub: 'Response within 2 hours', action: 'mailto:gear@prosport.vn', actionLabel: 'Send Email', color: '#6366f1' },
-  { icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>, label: 'Live Chat', value: 'Chat with us', sub: 'Avg. response: 3 min', action: '#', actionLabel: 'Start Chat', color: '#f59e0b' },
+  { icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.12 6.12l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>, label: 'Điện thoại', value: '+84 28 3456 7890', sub: 'T2 – CN, 8:00 – 22:00', action: 'tel:+84283456789', actionLabel: 'Gọi ngay', color: '#14B8A6' },
+  { icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>, label: 'Email', value: 'gear@prosport.vn', sub: 'Phản hồi trong 2 giờ', action: 'mailto:gear@prosport.vn', actionLabel: 'Gửi email', color: '#6366f1' },
+  { icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>, label: 'Chat trực tiếp', value: 'Trò chuyện với chúng tôi', sub: 'Phản hồi trung bình: 3 phút', action: '#', actionLabel: 'Bắt đầu chat', color: '#f59e0b' },
 ]
 
 export default function GearSupportPage() {
@@ -36,8 +36,8 @@ export default function GearSupportPage() {
           <div className="w-14 h-14 bg-[#14B8A6]/10 rounded-2xl flex items-center justify-center mx-auto mb-4 text-[#14B8A6]">
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
           </div>
-          <h1 className="font-['Oswald'] text-3xl font-bold text-foreground mb-2">Support Hub</h1>
-          <p className="text-slate-400 text-sm max-w-md mx-auto">Get help with rentals, returns, maintenance, and more. We're here 7 days a week.</p>
+          <h1 className="font-['Oswald'] text-3xl font-bold text-foreground mb-2">Trung tâm hỗ trợ</h1>
+          <p className="text-slate-400 text-sm max-w-md mx-auto">Hỗ trợ thuê, trả, bảo trì thiết bị và các vấn đề khác. Chúng tôi phục vụ 7 ngày/tuần.</p>
         </div>
 
         {/* Contact Methods */}
@@ -59,7 +59,7 @@ export default function GearSupportPage() {
 
           {/* FAQ */}
           <div>
-            <h2 className="font-['Oswald'] text-xl font-bold text-foreground mb-4">Frequently Asked Questions</h2>
+            <h2 className="font-['Oswald'] text-xl font-bold text-foreground mb-4">Câu hỏi thường gặp</h2>
             <div className="flex flex-col gap-2">
               {faqs.map((faq, i) => (
                 <div key={i} className="bg-white rounded-xl border border-[#e0ecf0] overflow-hidden">
@@ -84,22 +84,22 @@ export default function GearSupportPage() {
 
           {/* Contact Form */}
           <div>
-            <h2 className="font-['Oswald'] text-xl font-bold text-foreground mb-4">Send a Message</h2>
+            <h2 className="font-['Oswald'] text-xl font-bold text-foreground mb-4">Gửi tin nhắn</h2>
             {sent ? (
               <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-8 text-center">
                 <div className="w-14 h-14 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4 text-emerald-600">
                   <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
                 </div>
-                <p className="font-semibold text-emerald-800 mb-1">Message Sent!</p>
-                <p className="text-sm text-emerald-600">We'll get back to you within 2 hours.</p>
-                <button onClick={() => setSent(false)} className="mt-4 text-sm text-emerald-700 underline bg-transparent border-none cursor-pointer">Send another</button>
+                <p className="font-semibold text-emerald-800 mb-1">Đã gửi tin nhắn!</p>
+                <p className="text-sm text-emerald-600">Chúng tôi sẽ phản hồi trong vòng 2 giờ.</p>
+                <button onClick={() => setSent(false)} className="mt-4 text-sm text-emerald-700 underline bg-transparent border-none cursor-pointer">Gửi tin khác</button>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="bg-white rounded-2xl border border-[#e0ecf0] p-6 flex flex-col gap-4">
                 {[
-                  { id: 'name', label: 'Your Name', placeholder: 'Full name', type: 'text' },
-                  { id: 'email', label: 'Email Address', placeholder: 'your@email.com', type: 'email' },
-                  { id: 'subject', label: 'Subject', placeholder: 'e.g. Damaged equipment return', type: 'text' },
+                  { id: 'name', label: 'Họ và tên', placeholder: 'Họ tên đầy đủ', type: 'text' },
+                  { id: 'email', label: 'Email', placeholder: 'email@example.com', type: 'email' },
+                  { id: 'subject', label: 'Chủ đề', placeholder: 'VD: Trả thiết bị bị hỏng', type: 'text' },
                 ].map(f => (
                   <div key={f.id}>
                     <label htmlFor={`support-${f.id}`} className="text-[0.75rem] font-semibold text-slate-500 uppercase tracking-wider block mb-1.5">{f.label}</label>
@@ -109,12 +109,12 @@ export default function GearSupportPage() {
                   </div>
                 ))}
                 <div>
-                  <label htmlFor="support-message" className="text-[0.75rem] font-semibold text-slate-500 uppercase tracking-wider block mb-1.5">Message</label>
-                  <textarea id="support-message" required rows={5} placeholder="Describe your issue in detail..."
+                  <label htmlFor="support-message" className="text-[0.75rem] font-semibold text-slate-500 uppercase tracking-wider block mb-1.5">Nội dung</label>
+                  <textarea id="support-message" required rows={5} placeholder="Mô tả chi tiết vấn đề của bạn..."
                     value={form.message} onChange={e => setForm({...form, message: e.target.value})}
                     className="w-full border border-[#e0ecf0] rounded-xl px-4 py-2.5 text-sm text-foreground outline-none focus:border-[#14B8A6] transition-colors resize-none" />
                 </div>
-                <button type="submit" className="btn-primary w-full justify-center">Submit Request</button>
+                <button type="submit" className="btn-primary w-full justify-center">Gửi yêu cầu</button>
               </form>
             )}
           </div>

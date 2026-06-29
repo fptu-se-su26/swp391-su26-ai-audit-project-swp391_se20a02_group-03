@@ -8,7 +8,7 @@ import { Loader2 } from 'lucide-react'
 
 const REASONS = [
   'Người chơi bùng kèo (Không đến)',
-  'Host hủy kèo không báo trước',
+  'Chủ kèo hủy kèo không báo trước',
   'Người chơi có hành vi thiếu văn hóa',
 ]
 

@@ -4,6 +4,7 @@ import ApexLayout from '../../layouts/ApexLayout'
 import { equipmentApi } from '../../api/equipmentApi'
 import { useCart } from '../../context/CartContext'
 import { useToast } from '../../components/Toast'
+import { translateItemType, translateSport } from '../../utils/labels'
 
 export default function GearDetailPage() {
   const { id } = useParams()
@@ -110,7 +111,7 @@ export default function GearDetailPage() {
               )}
 
               <p className="text-lg text-neo-accent mb-2 uppercase tracking-wide font-bold" style={{ textShadow: '1px 1px 0px var(--color-neo-danger)' }}>
-                ✦ {gear.type} {gear.category ? `• ${gear.category}` : ''}
+                ✦ {translateSport(gear.type)} {gear.category ? `• ${translateItemType(gear.category)}` : ''}
               </p>
               
               <h1 className="text-4xl text-neo-ink mb-6 leading-tight font-bold" style={{ textShadow: '2px 2px 0px var(--color-neo-danger)' }}>

@@ -154,7 +154,7 @@ export default function CartCheckoutPage() {
                                         <MapPin size={18} className="text-brand-400 shrink-0 mt-0.5" />
                                         <div>
                                             <p className="text-[10px] font-bold uppercase tracking-widest text-brand-900 mb-1">Địa điểm nhận</p>
-                                            <p className="text-xs text-brand-500 font-medium">Quầy Support - ProSport Arena (Tầng 1)</p>
+                                            <p className="text-xs text-brand-500 font-medium">Quầy hỗ trợ - ProSport Arena (Tầng 1)</p>
                                         </div>
                                     </div>
                                     <p className="text-[10px] text-center text-brand-400 font-bold leading-relaxed px-4">

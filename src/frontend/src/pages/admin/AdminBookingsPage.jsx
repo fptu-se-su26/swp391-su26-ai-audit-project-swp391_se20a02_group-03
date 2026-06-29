@@ -1,20 +1,8 @@
 import { useState, useEffect, useMemo } from 'react'
 import AdminLayout from '../../layouts/AdminLayout'
+import StatusBadge from '../../components/ui/StatusBadge'
 import { bookingApi } from '../../api/bookingApi'
 import { Search, Loader2, ShieldAlert, CalendarDays } from 'lucide-react'
-
-const PAYMENT_STYLE = {
-  Paid: 'bg-[#38bdf8] text-white',
-  Pending: 'bg-amber-500 text-white',
-  Refunded: 'bg-red-300 text-white',
-}
-
-const STATUS_STYLE = {
-  Confirmed: 'bg-indigo-100 text-indigo-600',
-  Pending: 'bg-amber-100 text-amber-700',
-  Completed: 'bg-[#14B8A6] text-white',
-  Cancelled: 'bg-slate-200 text-slate-500',
-}
 
 const STATUS_TABS = [
   { key: '', label: 'Tất cả' },
@@ -107,7 +95,7 @@ export default function AdminBookingsPage() {
                 type="text"
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                placeholder="Tìm mã đặt / sân / user..."
+                placeholder="Tìm mã đặt / sân / người dùng..."
                 className="border-none outline-none text-sm text-slate-900 w-full bg-transparent"
               />
             </div>
@@ -177,14 +165,10 @@ export default function AdminBookingsPage() {
                         {Number(b.totalAmount).toLocaleString('vi-VN')} ₫
                       </td>
                       <td className="px-5 py-4 whitespace-nowrap">
-                        <span className={`inline-block py-1 px-3 rounded-full text-xs font-bold ${PAYMENT_STYLE[b.paymentStatus] || 'bg-slate-100 text-slate-500'}`}>
-                          {b.paymentStatus || 'N/A'}
-                        </span>
+                        <StatusBadge status={b.paymentStatus || 'Unpaid'} />
                       </td>
                       <td className="px-5 py-4 whitespace-nowrap">
-                        <span className={`inline-block py-1 px-3 rounded text-xs font-bold ${STATUS_STYLE[b.status] || 'bg-slate-100 text-slate-500'}`}>
-                          {b.status}
-                        </span>
+                        <StatusBadge status={b.status} />
                       </td>
                     </tr>
                   )

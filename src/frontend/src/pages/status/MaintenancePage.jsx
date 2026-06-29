@@ -1,3 +1,5 @@
+import ProSportLogo from '../../components/ui/ProSportLogo'
+
 export default function MaintenancePage() {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-green-50 to-sky-100 font-sans">
@@ -6,10 +8,10 @@ export default function MaintenancePage() {
           {/* Left Side */}
           <div className="flex-1 p-8 bg-slate-50 flex flex-col">
             <div className="flex-1 rounded-xl overflow-hidden relative mb-6">
-              <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&q=80" alt="Server Maintenance" className="w-full h-full object-cover min-h-[240px]" />
+              <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&q=80" alt="Bảo trì máy chủ" className="w-full h-full object-cover min-h-[240px]" />
               <div className="absolute bottom-4 right-4 bg-[#006070] text-[var(--theme-primary)] p-2 px-4 rounded-full text-[0.8125rem] font-bold flex items-center gap-1.5">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-                System Tune-up
+                Tinh chỉnh hệ thống
               </div>
             </div>
             
@@ -33,7 +35,9 @@ export default function MaintenancePage() {
 
           {/* Right Side */}
           <div className="flex-1 p-12 flex flex-col justify-center">
-            <h1 className="font-oswald text-2xl font-bold text-[#006070] tracking-tight italic text-left mb-6">PRO-SPORT</h1>
+            <div className="mb-6">
+              <ProSportLogo size="md" variant="shop" />
+            </div>
             <h2 className="text-[2.25rem] font-bold text-slate-900 leading-tight mb-4">Chúng tôi đang nâng cấp hiệu suất.</h2>
             <p className="text-base text-slate-600 leading-relaxed mb-8">
               PRO-SPORT hiện đang trong quá trình bảo trì định kỳ để mang đến cho bạn những tính năng tinh hoa mới. Đội ngũ của chúng tôi đang tích cực tinh chỉnh hệ thống.

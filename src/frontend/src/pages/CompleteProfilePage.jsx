@@ -4,9 +4,11 @@ import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import { useToast } from '../components/Toast'
 import authApi from '../api/authApi'
+import { useAuth } from '../context/AuthContext'
 
 export default function CompleteProfilePage() {
   const navigate = useNavigate()
+  const { logout } = useAuth()
   
   const [phoneNumber, setPhoneNumber] = useState('')
   const [loading, setLoading] = useState(false)
@@ -56,8 +58,7 @@ export default function CompleteProfilePage() {
     } catch (err) {
       // BUG #14 FIX: Handle 401 specifically
       if (err === 'Unauthorized' || err?.includes?.('401')) {
-        localStorage.removeItem('token')
-        sessionStorage.removeItem('token')
+        logout()
         toast('Phiên làm việc đã hết hạn. Vui lòng đăng nhập lại.', 'error')
         navigate('/login')
         return

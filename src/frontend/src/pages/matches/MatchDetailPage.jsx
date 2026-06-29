@@ -91,7 +91,7 @@ export default function MatchDetailPage() {
     try {
       const res = await matchApi.joinMatch(id)
       if (res.statusCode === 200 || res.statusCode === 201) {
-        addToast('Tham gia thành công, đã khóa tiền Escrow!', 'success')
+        addToast('Tham gia thành công, đã khóa tiền ký quỹ!', 'success')
         setJoined(true)
         loadMatch()
       } else {
@@ -180,8 +180,8 @@ export default function MatchDetailPage() {
               </div>
 
               <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
-                <p className="text-sm font-semibold text-slate-900 mb-2">Ghi chú của Host</p>
-                <p className="text-sm text-slate-600 leading-relaxed">{match.notes || `Booking ID: ${match.bookingId}`}</p>
+                <p className="text-sm font-semibold text-slate-900 mb-2">Ghi chú của chủ kèo</p>
+                <p className="text-sm text-slate-600 leading-relaxed">{match.notes || `Mã đặt sân: ${match.bookingId}`}</p>
               </div>
             </div>
 
@@ -216,7 +216,7 @@ export default function MatchDetailPage() {
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center font-bold text-[#14B8A6]">{pl.userId}</div>
                           <div>
-                            <p className="font-semibold text-slate-900 text-sm">Người chơi #{pl.userId} {pl.isHost && <span className="text-[#14B8A6] text-xs">(Host)</span>}</p>
+                            <p className="font-semibold text-slate-900 text-sm">Người chơi #{pl.userId} {pl.isHost && <span className="text-[#14B8A6] text-xs">(Chủ kèo)</span>}</p>
                             <TrustBadge score={trustScores[pl.userId]} />
                           </div>
                         </div>
@@ -276,7 +276,7 @@ export default function MatchDetailPage() {
                   {match.hostId}
                 </div>
                 <div>
-                  <p className="text-xs text-slate-400 mb-0.5">Host kèo</p>
+                  <p className="text-xs text-slate-400 mb-0.5">Chủ kèo</p>
                   <p className="font-bold text-slate-900">Người chơi #{match.hostId}</p>
                   <div className="mt-0.5"><TrustBadge score={trustScores[match.hostId]} /></div>
                 </div>
@@ -284,13 +284,13 @@ export default function MatchDetailPage() {
 
               <div className="flex justify-between items-center mb-6">
                 <div>
-                  <p className="text-slate-400 text-sm mb-1">Chi phí / Slot</p>
+                  <p className="text-slate-400 text-sm mb-1">Chi phí / chỗ</p>
                   <p className="font-['Oswald'] text-2xl font-bold text-[#14B8A6]">
                     {match.escrowAmount.toLocaleString('vi-VN')} <span className="text-sm font-normal text-slate-400">VNĐ</span>
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="text-slate-400 text-sm mb-1">Slot còn trống</p>
+                  <p className="text-slate-400 text-sm mb-1">Chỗ còn trống</p>
                   <p className="font-['Oswald'] text-2xl font-bold text-slate-900">{match.maxParticipants - match.currentParticipants}</p>
                 </div>
               </div>
@@ -301,7 +301,7 @@ export default function MatchDetailPage() {
                     {isLoading ? 'Đang xử lý...' : 'Tham gia & Ký quỹ'}
                   </button>
                   <p className="text-xs text-slate-400 text-center leading-relaxed">
-                    Hệ thống sẽ trừ <b>{match.escrowAmount.toLocaleString('vi-VN')} VNĐ</b> từ ví Escrow. Sẽ hoàn lại 100% nếu bạn hủy trước 24h.
+                    Hệ thống sẽ trừ <b>{match.escrowAmount.toLocaleString('vi-VN')} VNĐ</b> từ ví ký quỹ. Sẽ hoàn lại 100% nếu bạn hủy trước 24h.
                   </p>
                 </>
               ) : (
