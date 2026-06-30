@@ -17,22 +17,21 @@ export default function GearDetailPage() {
   const [isAdding, setIsAdding] = useState(false)
 
   useEffect(() => {
+    async function fetchGearDetails() {
+      try {
+        setLoading(true)
+        const response = await equipmentApi.getById(id)
+        if (response.statusCode === 200) {
+          setGear(response.data)
+        }
+      } catch (error) {
+        console.error('Error fetching gear details:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
     fetchGearDetails()
   }, [id])
-
-  async function fetchGearDetails() {
-    try {
-      setLoading(true)
-      const response = await equipmentApi.getById(id)
-      if (response.statusCode === 200) {
-        setGear(response.data)
-      }
-    } catch (error) {
-      console.error('Error fetching gear details:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
 
   async function handleAddToCart() {
     setIsAdding(true)

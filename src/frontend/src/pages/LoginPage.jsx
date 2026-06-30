@@ -76,12 +76,7 @@ export default function LoginPage() {
       const response = await authApi.login({ email, password })
       const token = response.data?.accessToken || response.accessToken || response.data?.token || response.token
       if (token) {
-         const userData = {
-        userId:   response.data?.userId   || response.userId,
-        fullName: response.data?.fullName || response.fullName,
-        email:    response.data?.email    || response.email,
-        role:     response.data?.role     || response.role || 'Customer',
-        avatarUrl: response.data?.avatarUrl || response.avatarUrl || null,
+
         const userData = {
           userId:   response.data?.userId   || response.userId,
           fullName: response.data?.fullName || response.fullName,
@@ -129,17 +124,7 @@ export default function LoginPage() {
         if (auth.isProfileComplete === false) {
           navigate('/complete-profile')
         } else {
-<<<<<<< HEAD
-          if (auth.role === 'Admin') {
-            navigate('/admin')
-          } else if (auth.role === 'Staff') {
-            navigate('/elite')
-          } else {
-            navigate('/')
-          }
-=======
           navigate(resolveRedirect(auth.role, redirectParam))
->>>>>>> a753538a74660d67af58b19179ce839a4a63a4b1
         }
       } else {
         setError('Đăng nhập Google thất bại. Không nhận được token.')
