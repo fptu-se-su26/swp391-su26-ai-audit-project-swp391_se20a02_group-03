@@ -55,7 +55,7 @@ export default function EliteScannerPage() {
     return () => {
       try { scanner.clear() } catch (_) { /* noop */ }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [])
 
   function resetScanner() {

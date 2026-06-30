@@ -67,9 +67,14 @@ export default function LoginPage() {
       if (response.data?.isProfileComplete === false) {
         navigate('/complete-profile')
       } else {
-        navigate('/')
-  }
-      } else {
+        if (userData.role === 'Admin') {
+          navigate('/admin')
+        } else if (userData.role === 'Staff') {
+          navigate('/elite')
+        } else {
+          navigate('/')
+        }
+      }
         setError('Đăng nhập thất bại. Không nhận được token.')
       }
     } catch (err) {
@@ -102,7 +107,13 @@ export default function LoginPage() {
         if (auth.isProfileComplete === false) {
           navigate('/complete-profile')
         } else {
-          navigate('/')
+          if (auth.role === 'Admin') {
+            navigate('/admin')
+          } else if (auth.role === 'Staff') {
+            navigate('/elite')
+          } else {
+            navigate('/')
+          }
         }
       } else {
         setError('Đăng nhập Google thất bại. Không nhận được token.')

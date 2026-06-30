@@ -6,7 +6,7 @@ import ProSportLogo from './ui/ProSportLogo'
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false)
-  const { isAuthenticated, logout } = useAuth()
+  const { isAuthenticated, logout, user } = useAuth()
   const location = useLocation()
   const navigate = useNavigate()
   const navRef = useNavbarEntrance()
@@ -50,12 +50,23 @@ export default function Navbar() {
           ))}
           <li className="w-full lg:hidden pt-2 border-t border-border-default mt-2">
             {isAuthenticated ? (
-              <button
-                onClick={() => { handleLogout(); setMenuOpen(false) }}
-                className="w-full text-left px-4 py-2 text-foreground-muted hover:text-[var(--theme-primary)] font-medium text-sm"
-              >
-                Đăng xuất
-              </button>
+              <div className="flex flex-col gap-2">
+                {user?.role === 'Admin' ? (
+                  <Link to="/admin" onClick={() => setMenuOpen(false)} className="w-full text-left px-4 py-2 text-foreground-muted hover:text-[var(--theme-primary)] font-medium text-sm">
+                    Quản trị viên
+                  </Link>
+                ) : (
+                  <Link to="/apex" onClick={() => setMenuOpen(false)} className="w-full text-left px-4 py-2 text-foreground-muted hover:text-[var(--theme-primary)] font-medium text-sm">
+                    Cổng Apex
+                  </Link>
+                )}
+                <button
+                  onClick={() => { handleLogout(); setMenuOpen(false) }}
+                  className="w-full text-left px-4 py-2 text-foreground-muted hover:text-[var(--theme-primary)] font-medium text-sm"
+                >
+                  Đăng xuất
+                </button>
+              </div>
             ) : (
               <div className="flex flex-col gap-2 px-4">
                 <Link to="/login" onClick={() => setMenuOpen(false)} className="text-foreground-muted font-medium text-sm">Đăng nhập</Link>
@@ -68,9 +79,15 @@ export default function Navbar() {
         <div className="hidden lg:flex items-center gap-4 shrink-0 ml-2">
           {isAuthenticated ? (
             <>
-              <Link to="/apex" className="text-foreground-muted hover:text-[var(--theme-primary)] transition-colors font-medium text-sm px-2">
-                Cổng Apex
-              </Link>
+              {user?.role === 'Admin' ? (
+                <Link to="/admin" className="text-foreground-muted hover:text-[var(--theme-primary)] transition-colors font-medium text-sm px-2">
+                  Quản trị viên
+                </Link>
+              ) : (
+                <Link to="/apex" className="text-foreground-muted hover:text-[var(--theme-primary)] transition-colors font-medium text-sm px-2">
+                  Cổng Apex
+                </Link>
+              )}
               <button
                 onClick={handleLogout}
                 className="text-foreground-muted hover:text-[var(--theme-primary)] transition-colors font-medium text-sm px-2"

@@ -17,9 +17,14 @@ const navLinks = [
 export default function AdminLayout({ children }) {
   const location = useLocation()
   const navigate = useNavigate()
-  const { user } = useAuth()
+  const { user, logout } = useAuth()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const isActive = (path) => location.pathname.startsWith(path)
+
+  function handleLogout() {
+    logout()
+    navigate('/')
+  }
 
   const displayName = user?.fullName || user?.name || 'Quản trị viên'
   const displayEmail = user?.email || 'admin@pro-sport.com'
@@ -94,7 +99,15 @@ export default function AdminLayout({ children }) {
               <input type="search" aria-label="Tìm kiếm" placeholder="Tìm người dùng, sân, đặt sân..." className="border-none outline-none bg-transparent w-full text-[0.875rem] text-slate-900 placeholder:text-slate-400" />
             </div>
           </div>
-          <Link to="/" className="text-sm font-medium text-slate-500 hover:text-[#5E6AD2] no-underline">← Về trang chủ</Link>
+          <div className="flex items-center gap-4">
+            <Link to="/" className="text-sm font-medium text-slate-500 hover:text-[#5E6AD2] no-underline">← Về trang chủ</Link>
+            <button 
+              onClick={handleLogout}
+              className="text-sm font-medium text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-md transition-colors cursor-pointer border-none"
+            >
+              Đăng xuất
+            </button>
+          </div>
         </header>
 
         <main className="flex-1 p-4 md:p-8">{children}</main>

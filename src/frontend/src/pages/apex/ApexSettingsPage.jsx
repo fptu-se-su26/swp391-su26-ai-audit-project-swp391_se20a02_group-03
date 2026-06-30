@@ -3,6 +3,23 @@ import ApexLayout from '../../layouts/ApexLayout'
 import { useTheme } from '../../context/ThemeContext'
 import authApi from '../../api/authApi'
 
+function Toggle({ checked, onChange }) {
+  return (
+    <button
+      className={`relative w-11 h-6 rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--theme-bg)] focus:ring-accent ${
+        checked ? 'bg-accent' : 'bg-gray-400/20'
+      }`}
+      onClick={onChange}
+    >
+      <span
+        className={`absolute top-1 left-1 bg-white w-4 h-4 rounded-full transition-transform duration-200 shadow-sm ${
+          checked ? 'translate-x-5' : 'translate-x-0'
+        }`}
+      />
+    </button>
+  )
+}
+
 const sections = [
   { id: 'Tài khoản', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> },
   { id: 'Xác thực E-KYC', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> },
@@ -37,23 +54,6 @@ export default function ApexSettingsPage() {
   function handleSave() {
     setSaved(true)
     setTimeout(() => setSaved(false), 2000)
-  }
-
-  function Toggle({ checked, onChange }) {
-    return (
-      <button
-        className={`relative w-11 h-6 rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#0A0A0B] focus:ring-accent ${
-          checked ? 'bg-accent' : 'bg-white/20'
-        }`}
-        onClick={onChange}
-      >
-        <span
-          className={`absolute top-1 left-1 bg-white w-4 h-4 rounded-full transition-transform duration-200 shadow-sm ${
-            checked ? 'translate-x-5' : 'translate-x-0'
-          }`}
-        />
-      </button>
-    )
   }
 
   return (
