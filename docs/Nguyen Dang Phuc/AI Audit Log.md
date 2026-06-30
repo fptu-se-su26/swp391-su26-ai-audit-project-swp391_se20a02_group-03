@@ -1,71 +1,151 @@
-# AI Audit Log
+BÁO CÁO NHẬT KÝ TÍCH HỢP AI & ĐÓNG GÓP CÁ NHÂN (AI AUDIT LOG & INDIVIDUAL CONTRIBUTION)
+Thành viên thực hiện: Nguyễn Đăng Phúc (MSSV: DE190130)
+Dự án: Pro-Sport Complex Management System
+Vai trò: UI/UX Design, Backend API Architecture, System Audit
 
-// LOG01
+Giai đoạn 1: Nghiên cứu nghiệp vụ & Hoạch định cấu trúc màn hình UI/UX
 Thời gian: 2026-05-20
 
-Thành viên đảm nhiệm: Nguyễn Đăng Phúc (MSSV: DE190130)
-Hệ thống AI: Gemini
-Mục tiêu: Xây dựng câu lệnh (prompt) tối ưu nhằm định hình giao diện Web UI trên nền tảng thiết kế Stitch.
-Nội dung Prompt gốc: "Như là một DESIGNER, bạn hãy cho tôi prompt để hướng dẫn Stitch làm phần thiết kế UI tĩnh cho dự án Pro-Sport Complex Management System của tôi..."
+Công cụ AI hỗ trợ: Google Gemini, Stitch by Google
 
-Giải pháp do AI đề xuất
-AI đã hóa thân thành chuyên gia thiết kế (Designer), bóc tách các thành phần giao diện thiết yếu và cung cấp hệ thống prompt bằng tiếng Anh chuẩn hóa cho Stitch.
-Đưa ra định hướng về phối màu đậm chất thể thao, bố cục trực quan cho trang chủ, giao diện hiển thị danh sách sân bãi, cùng với khu vực bảng điều khiển (dashboard) tích hợp các biểu đồ phân tích số liệu cơ bản.
-Đánh giá và Chỉnh sửa từ phía thành viên
-Nội dung tiếp thu: Áp dụng toàn bộ khung cấu trúc prompt tiếng Anh cùng các phương án tổ chức, sắp xếp các cấu phần giao diện do AI hoạch định.
-Tinh chỉnh thực tế: Trực tiếp sửa đổi lại thông số màu sắc trong prompt để đảm bảo tính đồng bộ với bộ nhận diện thương hiệu của nhóm. Đồng thời, chủ động bổ sung thêm yêu cầu thiết kế giao diện hóa đơn/thanh toán (Payment UI) – tính năng mà ban đầu AI chưa đề cập tới.
-Khai thác thực tế
-Sử dụng làm dữ liệu đầu vào (Input prompt) trực tiếp cho bộ công cụ Stitch By Google.
+Mục tiêu: Xây dựng câu lệnh (meta-prompt) tối ưu nhằm định hình giao diện Web UI tĩnh trên nền tảng thiết kế Stitch.
 
-Kết quả thẩm định
-Kiểm tra trực quan sản phẩm prompt đầu ra. Định hướng bố cục tổng thể có độ tương thích cao với yêu cầu, dù vẫn cần căn chỉnh thủ công một số chi tiết nhỏ để các thành phần (components) ăn khớp hoàn toàn với kịch bản trải nghiệm của người dùng (User Flow).
+1. Chi tiết Prompt gốc (Input):
 
-//LOG02
+"Như là một DESIGNER, bạn hãy cho tôi prompt để hướng dẫn Stitch làm phần thiết kế UI tĩnh cho dự án Pro-Sport Complex Management System của tôi. Hệ thống bao gồm các phân hệ: trang chủ, màn hình danh sách sân, giao diện Dashboard với biểu đồ thống kê và form thanh toán chi tiết (Payment UI). Bảng màu cần mang phong cách thể thao, năng động và khớp với nhận diện thương hiệu của nhóm."
+
+2. Giải pháp từ AI & Đánh giá:
+
+Đề xuất của AI: Gemini đóng vai trò chuyên gia thiết kế, phân rã các module và xuất bản bộ từ khóa tiếng Anh chuẩn xác, cung cấp định hướng bố cục trực quan cho các trang cốt lõi.
+
+Quyết định & Can thiệp của con người (Human Action):
+
+Thêm mới (Added): Chủ động bổ sung yêu cầu thiết kế giao diện hóa đơn/thanh toán (Payment UI) vào luồng nghiệp vụ – phần việc mà công cụ thiết kế ban đầu chưa nhận diện được.
+
+Thay đổi (Changed): Cơ cấu lại số lượng màn hình (khoảng 55–60 screens) để tối ưu hóa phạm vi dự án. Trực tiếp thay đổi thông số bảng mã màu trong prompt để đồng bộ tuyệt đối với bộ nhận diện thương hiệu đã chốt của nhóm, thay vì dùng màu mặc định AI gợi ý.
+
+Kết quả: Định hướng bố cục tổng thể có độ tương thích cao, tạo ra Input prompt hoàn chỉnh cho bộ công cụ Stitch.
+
+Giai đoạn 2: Thiết kế giao diện Dashboard & Phân hệ quản trị (SaaS Admin)
 Thời gian: 2026-05-22
-Thành viên đảm nhiệm: Nguyễn Đăng Phúc (MSSVL:DE190130)
-Hệ thống AI: Stitch By Google
-Mục tiêu: Hiện thực hóa giao diện và xây dựng mã nguồn Frontend tĩnh từ bộ câu lệnh đã thiết lập.
-Nội dung Prompt gốc: "Design a clean and modern dashboard for a sports complex management system. Include a sidebar for navigation..."
 
-Giải pháp do AI đề xuất
-Tự động khởi tạo bộ mã nguồn (HTML/CSS/JS) hoàn chỉnh cho một giao diện web trực quan, hiện đại.
-Thiết lập bố cục tổng thể cho trang điều khiển trung tâm (Dashboard), thanh menu điều hướng (Navbar/Sidebar) và các cấu phần (components) hiển thị trực quan trạng thái vận hành của sân bãi (sân trống, đã có lịch, hoặc đang sửa chữa).
+Công cụ AI hỗ trợ: Stitch By Google, ChatGPT
 
-Đánh giá và Chỉnh sửa từ phía thành viên
-Nội dung tiếp thu: Khai thác toàn bộ giải pháp phân bổ sơ đồ giao diện (Layout), hệ thống lưới (Grid/Flexbox) cùng bảng mã màu CSS cho các trang giao diện cốt lõi.
-Tinh chỉnh kỹ thuật 1 (Cấu trúc lại mã nguồn): Thực hiện bóc tách file HTML nguyên khối ban đầu thành các tệp tin .jsp độc lập (Header, Footer, Menu) nhằm tối ưu hóa khả năng tái sử dụng mã nguồn theo kiến trúc Java Web.
-Tinh chỉnh kỹ thuật 2 (Tích hợp dữ liệu và Tối ưu hiển thị): Nhúng thêm các biểu thức thẻ JSTL để thay thế toàn bộ dữ liệu mẫu (mock data) của Stitch bằng nguồn dữ liệu động được đổ về từ Model/Controller, đồng thời hiệu chỉnh lại các lớp CSS nhằm nâng cao khả năng hiển thị linh hoạt (Responsive) trên màn hình thiết bị di động.
-Khai thác thực tế
-Tích hợp trực tiếp vào các file thành phần .jsx (Header, Footer, Menu).
-Áp dụng vào hệ thống giao diện Frontend của dự án.
+Mục tiêu: Hiện thực hóa giao diện, xây dựng mã nguồn Frontend tĩnh (HTML/CSS/JS) cho phân hệ Admin dựa trên bộ câu lệnh đã thiết lập.
 
-Kết quả thẩm định
-Tiến hành so sánh đối chiếu trực tiếp giữa giao diện thực tế sau khi xử lý với bản thiết kế thô từ Stitch để bảo đảm tính thống nhất về mặt mỹ thuật và bố cục.
-Sử dụng bộ công cụ DevTools trên trình duyệt để kiểm thử kỹ năng hiển thị tương thích trên cả môi trường máy tính (PC) lẫn điện thoại (Mobile).
+1. Chi tiết Prompt gốc (Input):
 
-//LOG03
+"Design a clean and modern dashboard for a sports complex management system. Include a sidebar for navigation with links to: Admin Dashboard, Court Management, Booking Overviews, Inventory, Pricing Matrix, and System Administration. The main content area should display real-time court cluster status with comprehensive metrics. Use a dynamic enterprise SaaS color palette, optimizing space for dense operational workflows."
+
+2. Giải pháp từ AI & Đánh giá:
+
+Đề xuất của AI: Tự động khởi tạo bộ mã nguồn hoàn chỉnh (Mockup), thiết lập bố cục tổng thể cho trang điều khiển trung tâm, Navbar/Sidebar và các thẻ trạng thái sân bãi theo phong cách Enterprise SaaS.
+
+Quyết định & Can thiệp của con người (Human Action):
+
+Cấu trúc lại mã nguồn: Bóc tách file HTML nguyên khối thành các tệp .jsx hoặc .jsp độc lập (Header, Footer, Menu) nhằm tối ưu hóa khả năng tái sử dụng.
+
+Tinh chỉnh kỹ thuật: Nhúng thêm biểu thức thẻ (JSTL) thay thế dữ liệu mẫu (mock data) bằng dữ liệu động. Hiệu chỉnh lại lớp CSS để nâng cao khả năng Responsive.
+
+Tối ưu UX (Changed): Do giao diện tự động sinh ra bị lặp khuôn, người thực hiện đã tự tay căn chỉnh lại layout, khoảng cách (spacing) và card layout nhằm cắt giảm thao tác thừa cho Admin, làm nổi bật các thông số nghiệp vụ quan trọng.
+
+Giai đoạn 3: Thiết kế kiến trúc API RESTful cho module Admin quản lý sân
 Thời gian: 2026-06-02
-Thành viên đảm nhiệm: Nguyễn Đăng Phúc (MSSV: DE190130)
 
-Hệ thống AI: ChatGPT / Claude
+Công cụ AI hỗ trợ: ChatGPT, Claude
 
-Mục tiêu: Thiết lập cấu trúc hệ thống API RESTful dành cho phân hệ Admin quản lý sân bãi dựa trên tài liệu đặc tả và quy định dự án.
-Nội dung Prompt gốc: "Bạn là 1 backend developer xuất sắc với 10 năm kinh nghiệm, hãy đọc kĩ đặc tả @SRS.md để hiểu dự án và công nghệ sử dụng, đọc kĩ 2 file @AGENT.md để biết rule cho AI... hãy làm cho tôi API quản lý sân dành cho admin"
+Mục tiêu: Thiết lập cấu trúc hệ thống API RESTful dành cho phân hệ Admin quản lý sân bãi dựa trên tài liệu đặc tả dự án.
 
-Giải pháp do AI đề xuất
-Đóng vai trò Chuyên gia lập trình Backend cấp cao, phân tích sâu tài liệu nghiệp vụ công nghệ để xuất bản tài liệu đặc tả API RESTful hoàn chỉnh cho module Admin quản lý sân.
-Định hình toàn bộ cấu trúc các đường dẫn (endpoints) bao gồm đầy đủ phương thức (GET, POST, PUT, DELETE) cho các tính năng: Thêm sân mới, Cập nhật thông tin, Xóa sân, Chuyển đổi trạng thái vận hành, và Tìm kiếm kèm bộ lọc theo loại sân (Badminton/Pickleball).
-Cung cấp khuôn mẫu dữ liệu đầu vào/đầu ra (Request/Response Body) dưới dạng JSON chuẩn hóa, chứa đầy đủ các trường thông tin cốt lõi (id, courtName, courtType, status, pricePerHour).
+1. Chi tiết Prompt gốc (Input):
 
-Đánh giá và Chỉnh sửa từ phía thành viên
-Nội dung tiếp thu: Áp dụng toàn bộ tư duy thiết kế luồng API chuẩn RESTful, kiến trúc đặt tên endpoint ngắn gọn và cấu trúc JSON mẫu do AI hoạch định.
-Tinh chỉnh kỹ thuật (Xử lý ràng buộc nghiệp vụ thực tế): * Trực tiếp can thiệp và bổ sung các trường dữ liệu thực tế của nhóm vào cấu trúc JSON (như vị trí cụm sân locationCluster và cờ kiểm tra khả dụng isAvailable).
-Chủ động tái cấu trúc logic cho API Xóa (DELETE) và API Cập nhật trạng thái sân (PUT status): Thêm điều kiện kiểm tra nghiêm ngặt dưới database, nếu sân đang có lịch đặt chỗ còn hiệu lực (Active Booking) thì hệ thống sẽ từ chối xử lý và trả về mã lỗi 400 Bad Request kèm thông báo cảnh báo, thay vì cho phép xóa trực tiếp như AI gợi ý ban đầu.
+"Bạn là 1 backend developer xuất sắc với 10 năm kinh nghiệm, hãy đọc kĩ đặc tả @SRS.md để hiểu dự án và công nghệ sử dụng, đọc kĩ 2 file @AGENT.md để biết rule cho AI... hãy làm cho tôi API quản lý sân dành cho admin"
 
-Khai thác thực tế
-Sử dụng làm bộ tài liệu đặc tả API chuẩn (API Specification) để bàn giao cho các thành viên phụ trách Database và Frontend phối hợp đóng gói mã nguồn.
+2. Giải pháp từ AI & Đánh giá:
 
-Kết quả thẩm định
-Kiểm tra tính hợp lệ về mặt cú pháp của chuỗi JSON mẫu và chạy thử nghiệm giả lập các luồng request/response để đảm bảo không bị xung đột logic nghiệp vụ.
+Đề xuất của AI: Cung cấp tài liệu API Specification bài bản, kiến trúc endpoint ngắn gọn và khuôn mẫu Request/Response JSON chuẩn hóa cho các phương thức GET, POST, PUT, DELETE.
 
-Đối chiếu các endpoint với sơ đồ thực thể database của nhóm nhằm đảm bảo tính đồng bộ dữ liệu hoàn toàn trước khi tiến hành code Backend thực tế.
+Quyết định & Can thiệp của con người (Human Action):
+
+Bổ sung nghiệp vụ (Added): Trực tiếp can thiệp vào cấu trúc JSON để thêm các trường dữ liệu thực tế của dự án như vị trí cụm sân (locationCluster) và cờ khả dụng (isAvailable).
+
+Xử lý lỗi logic nghiêm trọng (Fixed): Phát hiện AI sinh lệnh xóa sân (DELETE) mà không có ràng buộc an toàn. Đã tự tay tái cấu trúc lại logic: Bổ sung điều kiện kiểm tra dưới database; bắt buộc nếu sân đang có lịch đặt chỗ còn hiệu lực (Active Booking) thì Backend phải từ chối xử lý, chặn hành động và trả về mã lỗi 400 Bad Request kèm cảnh báo hệ thống.
+
+Giai đoạn 4: Rà soát kiến trúc Backend & Kiểm tra tính tương thích Database
+Thời gian: 2026-06-10
+
+Công cụ AI hỗ trợ: ChatGPT, AntiGravity
+
+Mục tiêu: Kiểm tra toàn diện kiến trúc Backend (Controller – Service – Repository) và đối chiếu mô hình EF Core với SQL Server.
+
+1. Chi tiết Prompt gốc (Input):
+
+"I need a complete progress audit of the Admin Court Management API. Objective: Determine exactly how much of the module is completed... Compare the EF Core model against the SQL schema and identify all mismatches. Do not modify code. Audit only."
+
+2. Giải pháp từ AI & Đánh giá:
+
+Đề xuất của AI: Rà soát các tầng xử lý và phát hiện điểm bất thường trong luồng xử lý API, đề xuất quy trình Audit theo chuẩn Enterprise.
+
+Quyết định & Can thiệp của con người (Human Action):
+
+Thay đổi phương pháp (Changed): Quyết định điều chỉnh phương pháp kiểm thử từ Code-First sang Database-First để đồng nhất với CSDL đã xây dựng trước đó.
+
+Kiểm soát AI: Chủ động giới hạn quyền của AI, cấm tự động tạo Migration/Seeder mới. Yêu cầu AI chỉ sử dụng SQL Schema hiện tại làm Source of Truth và phải cung cấp bằng chứng kỹ thuật cụ thể thay vì suy đoán.
+
+Giai đoạn 5: Đánh giá phân hệ Admin Court Management API & Xử lý lỗi Schema
+Thời gian: 2026-06-12
+
+Công cụ AI hỗ trợ: AntiGravity, ChatGPT
+
+Mục tiêu: Thẩm định sâu các Endpoint và lấy bằng chứng kỹ thuật (Evidence-Based Audit) cho các lỗi không tương thích.
+
+1. Chi tiết Prompt gốc (Input):
+
+"The audit report identifies a fatal schema mismatch. Now provide evidence. For every mismatch generate a comparison table... Include SQL definition, EF Core definition, Source file path... Do not summarize. Show actual evidence."
+
+2. Giải pháp từ AI & Đánh giá:
+
+Đề xuất của AI: Xây dựng bảng đối chiếu chi tiết giữa SQL Schema và EF Core Models, chỉ ra các cột không khớp.
+
+Quyết định & Can thiệp của con người (Human Action):
+
+Bắt lỗi & Tối ưu logic (Fixed): Không chấp nhận kết luận tổng quát của AI. Thông qua đối chiếu, phát hiện nguyên nhân cốt lõi gây lỗi HTTP 500 Internal Server Error không nằm ở API Controller mà do sự không đồng bộ giữa tên cột/quan hệ dữ liệu trong Entity Models và Database. Kiến nghị nhóm chuyển hướng ưu tiên sang đồng bộ Schema Mapping trước khi code thêm tính năng.
+
+Giai đoạn 6: Quản lý mã nguồn Git và Triển khai nhánh chức năng
+Thời gian: 2026-06-14
+
+Công cụ AI hỗ trợ: ChatGPT
+
+Mục tiêu: Thiết lập, đồng bộ nhánh cá nhân feat/DE190130_API_Quan_Ly_San và đẩy mã nguồn an toàn lên GitHub Repository.
+
+1. Chi tiết Prompt gốc (Input):
+
+"Tôi đang phát triển chức năng Admin Court Management trên nhánh cá nhân. Hãy kiểm tra trạng thái Git hiện tại và hướng dẫn tôi: Xác định branch, kiểm tra remote, đồng bộ, stage thay đổi, commit chuẩn Git Flow và push... Ưu tiên đảm bảo an toàn dữ liệu."
+
+2. Giải pháp từ AI & Đánh giá:
+
+Đề xuất của AI: Phân tích trạng thái Git, hướng dẫn từng bước xử lý các lệnh Branch, Remote Tracking và khôi phục xung đột nhánh.
+
+Quyết định & Can thiệp của con người (Human Action):
+
+Quản lý rủi ro (Changed): Tự đánh giá độc lập từng lệnh Git trước khi thực thi. Quá trình làm việc phát hiện có file SQL rác không cần thiết, đã chủ động loại bỏ (unstage) các tệp này khỏi quá trình đồng bộ để bảo đảm môi trường mã nguồn sạch sẽ và tuân thủ chặt chẽ Git Flow.
+
+Giai đoạn 7: Kiểm tra dữ liệu Seed và Xác thực hệ thống đăng nhập
+Thời gian: 2026-06-15
+
+Công cụ AI hỗ trợ: AntiGravity, ChatGPT
+
+Mục tiêu: Kiểm tra dữ liệu khởi tạo (Seed Data), xác minh hợp lệ của Roles và Password Hash trước khi tích hợp.
+
+1. Chi tiết Prompt gốc (Input):
+
+"Verify the existing SQL seed data and authentication flow. Requirements: Use existing SQL seed files. Do not create new seeders/migrations. Validate BCrypt password hashes. Report all inconsistencies..."
+
+2. Giải pháp từ AI & Đánh giá:
+
+Đề xuất của AI: Phân tích dữ liệu khởi tạo và phát hiện thành công các bất thường trong chuỗi mã hóa mật khẩu BCrypt.
+
+Quyết định & Can thiệp của con người (Human Action):
+
+Ngăn chặn xung đột (Fixed): Nghiêm cấm AI tự động sinh tài khoản Admin mới hoặc tạo lại Seeder. Trực tiếp định hướng quá trình xác minh bám sát bộ SQL Schema và dữ liệu chính thức của dự án.
+
+Kết quả: Khoanh vùng thành công các rủi ro tiềm ẩn trong luồng Authentication, đảm bảo tính nhất quán tuyệt đối giữa môi trường phát triển (Development) và môi trường triển khai (Production).
