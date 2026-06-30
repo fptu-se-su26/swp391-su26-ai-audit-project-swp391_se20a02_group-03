@@ -18,7 +18,7 @@ public class VoucherController : ControllerBase
         _service = service;
     }
 
-    [Authorize(Roles = "Admin,Staff,EliteStaff")]
+    [Authorize(Roles = "Admin,Staff")]
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
@@ -33,7 +33,7 @@ public class VoucherController : ControllerBase
         return StatusCode(result.StatusCode, result);
     }
 
-    [Authorize(Roles = "Admin,Staff,EliteStaff")]
+    [Authorize(Roles = "Admin,Staff")]
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
     {
@@ -41,7 +41,7 @@ public class VoucherController : ControllerBase
         return StatusCode(result.StatusCode, result);
     }
 
-    [Authorize(Roles = "Admin,Staff,EliteStaff")]
+    [Authorize(Roles = "Admin,Staff")]
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateVoucherDto dto)
     {
@@ -50,7 +50,7 @@ public class VoucherController : ControllerBase
         return StatusCode(result.StatusCode, result);
     }
 
-    [Authorize(Roles = "Admin,Staff,EliteStaff")]
+    [Authorize(Roles = "Admin,Staff")]
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, [FromBody] UpdateVoucherDto dto)
     {
@@ -58,7 +58,7 @@ public class VoucherController : ControllerBase
         return StatusCode(result.StatusCode, result);
     }
 
-    [Authorize(Roles = "Admin,Staff,EliteStaff")]
+    [Authorize(Roles = "Admin,Staff")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {

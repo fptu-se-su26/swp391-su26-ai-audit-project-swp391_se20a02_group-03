@@ -54,3 +54,21 @@ public class CheckInRequestDto
     [Required(ErrorMessage = "Mã Check-in là bắt buộc")]
     public string CheckInCode { get; set; } = null!;
 }
+
+/// <summary>Đặt sân trực tiếp tại quầy (Staff) — thanh toán tiền mặt, xác nhận ngay.</summary>
+public class WalkInBookingDto
+{
+    /// <summary>Email khách đã đăng ký (ưu tiên). Nếu không có, dùng CustomerName cho khách lẻ.</summary>
+    public string? CustomerEmail { get; set; }
+
+    /// <summary>Tên khách lẻ khi không có email/tài khoản.</summary>
+    public string? CustomerName { get; set; }
+
+    public string? CustomerPhone { get; set; }
+
+    public string? Notes { get; set; }
+
+    [Required(ErrorMessage = "Phải có ít nhất 1 chi tiết đặt sân")]
+    [MinLength(1, ErrorMessage = "Phải có ít nhất 1 chi tiết đặt sân")]
+    public List<CreateBookingDetailDto> Details { get; set; } = new List<CreateBookingDetailDto>();
+}

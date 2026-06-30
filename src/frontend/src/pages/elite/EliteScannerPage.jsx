@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { Html5QrcodeScanner } from 'html5-qrcode'
 import EliteLayout from '../../layouts/EliteLayout'
 import { bookingApi } from '../../api/bookingApi'
@@ -6,10 +7,12 @@ import { gsap } from 'gsap'
 import './EliteScannerPage.css'
 
 export default function EliteScannerPage() {
+  const [searchParams] = useSearchParams()
+  const prefillCode = searchParams.get('code')
   const [scanResult, setScanResult] = useState(null)
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(false)
-  const [manualCode, setManualCode] = useState('')
+  const [manualCode, setManualCode] = useState(prefillCode || '')
   const [scanKey, setScanKey] = useState(0)
   const scannerRef = useRef(null)
 
@@ -41,6 +44,13 @@ export default function EliteScannerPage() {
   }
 
   useEffect(() => {
+    if (prefillCode?.trim()) {
+      doCheckIn(prefillCode.trim())
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [prefillCode])
+
+  useEffect(() => {
     const scanner = new Html5QrcodeScanner('reader', {
       qrbox: { width: 250, height: 250 },
       fps: 5,
@@ -55,8 +65,8 @@ export default function EliteScannerPage() {
     return () => {
       try { scanner.clear() } catch (_) { /* noop */ }
     }
-     
-  }, [])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scanKey])
 
   function resetScanner() {
     setScanResult(null)

@@ -8,9 +8,12 @@ namespace ProSport.Application.Services;
 
 public class BookingService : IBookingService
 {
+    private const string WalkInGuestEmail = "walkin@prosport.vn";
+
     private readonly IBookingRepository _bookingRepository;
     private readonly ICourtRepository _courtRepository;
     private readonly IEscrowRepository _escrowRepository;
+    private readonly IUserRepository _userRepository;
     private readonly IEmailService _emailService;
     private readonly ILogger<BookingService> _logger;
 
@@ -23,12 +26,14 @@ public class BookingService : IBookingService
         IBookingRepository bookingRepository,
         ICourtRepository courtRepository,
         IEscrowRepository escrowRepository,
+        IUserRepository userRepository,
         IEmailService emailService,
         ILogger<BookingService> logger)
     {
         _bookingRepository = bookingRepository;
         _courtRepository = courtRepository;
         _escrowRepository = escrowRepository;
+        _userRepository = userRepository;
         _emailService = emailService;
         _logger = logger;
     }
@@ -176,6 +181,141 @@ public class BookingService : IBookingService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error creating booking for user: {UserId}", dto.UserId);
+            return new ApiResponseDto<BookingDto>(500, "An unexpected error occurred.");
+        }
+    }
+
+    public async Task<ApiResponseDto<BookingDto>> CreateWalkInBookingAsync(WalkInBookingDto dto, int staffId)
+    {
+        try
+        {
+            if (dto.Details == null || !dto.Details.Any())
+                return new ApiResponseDto<BookingDto>(400, "Phải có ít nhất 1 chi tiết đặt sân.");
+
+            var customerEmail = dto.CustomerEmail?.Trim();
+            var customerName = dto.CustomerName?.Trim();
+            User? customer;
+
+            if (!string.IsNullOrEmpty(customerEmail))
+            {
+                customer = await _userRepository.GetByEmailAsync(customerEmail);
+                if (customer == null)
+                    return new ApiResponseDto<BookingDto>(404, $"Không tìm thấy tài khoản với email {customerEmail}. Dùng tên khách lẻ nếu chưa đăng ký.");
+                if (customer.IsLocked)
+                    return new ApiResponseDto<BookingDto>(400, "Tài khoản khách đang bị khóa.");
+            }
+            else if (!string.IsNullOrEmpty(customerName))
+            {
+                customer = await _userRepository.GetByEmailAsync(WalkInGuestEmail);
+                if (customer == null)
+                    return new ApiResponseDto<BookingDto>(500, "Chưa cấu hình tài khoản khách lẻ walkin@prosport.vn. Liên hệ quản trị.");
+            }
+            else
+            {
+                return new ApiResponseDto<BookingDto>(400, "Nhập email khách hoặc tên khách lẻ.");
+            }
+
+            decimal totalAmount = 0;
+            var details = new List<BookingDetail>();
+
+            TimeZoneInfo vnTz;
+            try { vnTz = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"); }
+            catch { vnTz = TimeZoneInfo.FindSystemTimeZoneById("Asia/Ho_Chi_Minh"); }
+            var vnNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vnTz);
+            var courtCache = new Dictionary<int, Court>();
+
+            foreach (var d in dto.Details)
+            {
+                if (d.BookingDate.Date < vnNow.Date)
+                    return new ApiResponseDto<BookingDto>(400, "Không thể đặt sân cho ngày trong quá khứ.");
+
+                if (d.EndTime <= d.StartTime)
+                    return new ApiResponseDto<BookingDto>(400, "Giờ kết thúc phải sau giờ bắt đầu.");
+
+                var duration = d.EndTime - d.StartTime;
+                if (duration < TimeSpan.FromHours(1))
+                    return new ApiResponseDto<BookingDto>(400, "Thời lượng đặt sân tối thiểu là 1 giờ.");
+                if (duration > TimeSpan.FromHours(4))
+                    return new ApiResponseDto<BookingDto>(400, "Thời lượng đặt sân tối đa là 4 giờ.");
+
+                if (d.BookingDate.Date == vnNow.Date && d.EndTime <= vnNow.TimeOfDay)
+                    return new ApiResponseDto<BookingDto>(400, "Khung giờ đã qua, vui lòng chọn slot khác.");
+
+                if (!courtCache.TryGetValue(d.CourtId, out var court))
+                {
+                    court = await _courtRepository.GetByIdAsync(d.CourtId);
+                    if (court != null) courtCache[d.CourtId] = court;
+                }
+
+                if (court == null || court.Status != "Available")
+                    return new ApiResponseDto<BookingDto>(400, $"Sân {d.CourtId} không khả dụng.");
+
+                var price = CalculatePrice(court, d.BookingDate, d.StartTime, d.EndTime);
+                totalAmount += price;
+
+                details.Add(new BookingDetail
+                {
+                    CourtId = d.CourtId,
+                    BookingDate = d.BookingDate,
+                    StartTime = d.StartTime,
+                    EndTime = d.EndTime,
+                    Price = price
+                });
+            }
+
+            var booking = new Booking
+            {
+                UserId = customer!.UserId,
+                TotalAmount = totalAmount,
+                Status = BookingStatus.Confirmed,
+                PaymentMethod = PaymentMethod.Cash,
+                PaymentStatus = PaymentStatus.Paid,
+                PaymentDeadline = null,
+                BookingDetails = details
+            };
+
+            var created = await _bookingRepository.CreateWithTransactionAsync(booking);
+            created.CheckInCode = $"QR-{created.BookingId}-{Guid.NewGuid().ToString()[..8]}";
+            await _bookingRepository.UpdateAsync(created);
+
+            var guestLabel = !string.IsNullOrEmpty(customerEmail)
+                ? customerEmail
+                : $"{customerName}{(string.IsNullOrEmpty(dto.CustomerPhone) ? "" : $" / {dto.CustomerPhone}")}";
+            await CreateCashPaymentTransactionAsync(created, staffId, guestLabel, dto.Notes);
+
+            if (!string.IsNullOrEmpty(customerEmail) && customer!.Email != WalkInGuestEmail
+                && !string.IsNullOrEmpty(customer.Email))
+            {
+                var firstDetail = created.BookingDetails.FirstOrDefault();
+                var courtNames = string.Join(", ", created.BookingDetails.Select(bd => bd.Court?.Name ?? $"Court {bd.CourtId}"));
+                var detailsHtml = $@"
+                    <p><b>Booking ID:</b> #{created.BookingId}</p>
+                    <p><b>Courts:</b> {courtNames}</p>
+                    <p><b>Date:</b> {firstDetail?.BookingDate:dd/MM/yyyy}</p>
+                    <p><b>Time:</b> {firstDetail?.StartTime:HH\\:mm} - {firstDetail?.EndTime:HH\\:mm}</p>
+                    <p><b>Total Paid (Cash):</b> {created.TotalAmount:N0} VND</p>";
+
+                try
+                {
+                    await _emailService.SendBookingConfirmationEmailAsync(
+                        customer.Email, customer.FullName, detailsHtml, created.CheckInCode);
+                }
+                catch (Exception emailEx)
+                {
+                    _logger.LogError(emailEx, "Failed to send walk-in confirmation email to {Email}", customer.Email);
+                }
+            }
+
+            var reloaded = await _bookingRepository.GetByIdAsync(created.BookingId);
+            return new ApiResponseDto<BookingDto>(201, "Đặt sân tại quầy thành công. Thanh toán tiền mặt đã xác nhận.", MapToDto(reloaded ?? created));
+        }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("đã được đặt"))
+        {
+            return new ApiResponseDto<BookingDto>(409, ex.Message);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error creating walk-in booking by staff {StaffId}", staffId);
             return new ApiResponseDto<BookingDto>(500, "An unexpected error occurred.");
         }
     }
@@ -352,6 +492,42 @@ public class BookingService : IBookingService
         }
     }
 
+    private async Task CreateCashPaymentTransactionAsync(Booking booking, int staffId, string guestLabel, string? notes)
+    {
+        try
+        {
+            var wallet = await _escrowRepository.GetWalletByUserIdAsync(booking.UserId);
+            if (wallet == null)
+            {
+                wallet = new EscrowWallet { UserId = booking.UserId, Balance = 0, LockedBalance = 0 };
+                await _escrowRepository.CreateWalletAsync(wallet);
+            }
+
+            var referenceId = $"CASH-{booking.BookingId}-{staffId}";
+            var existingTransactions = await _escrowRepository.GetTransactionsByWalletIdAsync(wallet.EscrowWalletId);
+            if (existingTransactions.Any(t => t.ReferenceId == referenceId))
+                return;
+
+            var noteSuffix = string.IsNullOrWhiteSpace(notes) ? "" : $" | {notes.Trim()}";
+            var transaction = new Transaction
+            {
+                EscrowWalletId = wallet.EscrowWalletId,
+                BookingId = booking.BookingId,
+                Amount = booking.TotalAmount,
+                Type = TransactionType.Payment,
+                Status = TransactionStatus.Completed,
+                ReferenceId = referenceId,
+                Description = $"Thanh toán tiền mặt tại quầy #{booking.BookingId} — {guestLabel}{noteSuffix}"
+            };
+
+            await _escrowRepository.AddTransactionAsync(transaction);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to create cash transaction for walk-in booking {BookingId}", booking.BookingId);
+        }
+    }
+
     public async Task<ApiResponseDto<bool>> CancelBookingAsync(int userId, int bookingId)
     {
         try
@@ -466,6 +642,7 @@ public class BookingService : IBookingService
                 CheckInTime = DateTime.UtcNow,
                 Notes = "Checked in via QR Code Scanner"
             };
+            booking.Status = BookingStatus.Completed;
 
             await _bookingRepository.UpdateAsync(booking);
 

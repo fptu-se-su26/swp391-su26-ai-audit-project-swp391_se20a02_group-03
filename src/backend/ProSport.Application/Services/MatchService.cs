@@ -335,6 +335,9 @@ public class MatchService : IMatchService
         EscrowAmount = m.EscrowAmount,
         Status = m.Status,
         LevelRequirement = m.LevelRequirement,
-        Notes = m.Notes
+        Notes = m.Notes,
+        HostName = m.Host?.FullName,
+        CourtName = m.Court?.Name,
+        SportType = m.Court?.CourtType?.Name
     };
 }

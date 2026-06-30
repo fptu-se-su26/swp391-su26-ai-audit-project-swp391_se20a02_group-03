@@ -14,6 +14,8 @@ public class ReportDto
     public string Status { get; set; } = null!;
     public string? AdminNote { get; set; }
     public int? ResolvedByAdminId { get; set; }
+    public string? ReporterName { get; set; }
+    public string? ReportedUserName { get; set; }
     public DateTime CreatedAt { get; set; }
 }
 

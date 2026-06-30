@@ -414,30 +414,41 @@
 - **Ngày:** 2026-06-29
 - **Người thực hiện:** Phạm Nguyễn Tiến Đạt
 - **Công cụ AI:** Cursor (Claude Opus)
-- **Mục đích:** Hoàn thiện luồng xác thực Google OAuth end-to-end, làm mới nhận diện thương hiệu PRO-SPORT, rà soát Việt hóa toàn hệ thống và chuẩn hóa cấu hình môi trường phát triển an toàn.
-- **Tham chiếu Prompt:** *"Đóng vai trò là Kỹ sư Full-stack Senior, hãy triển khai và khắc phục sự cố luồng xác thực người dùng theo ba trụ cột sau. (1) Google OAuth: tích hợp `@react-oauth/google` tại Frontend (Login/Register), bọc `GoogleOAuthProvider` đúng vị trí trong cây component, validate `googleIdToken` tại Backend (`AuthService.GoogleLoginAsync`) với audience khớp Client ID; chuẩn hóa biến môi trường `VITE_GOOGLE_CLIENT_ID` / `GoogleAuth:ClientId` và tài liệu hóa Authorized JavaScript Origins (`localhost` và `127.0.0.1`). (2) Nhận diện thương hiệu: thiết kế lại logo PRO-SPORT (mark + wordmark), áp dụng thống nhất trên Navbar, Footer, layouts và trang auth; logo click về trang chủ trên mọi route. (3) Chất lượng sản phẩm: rà soát và Việt hóa các chuỗi UI còn sót tiếng Anh, sửa lỗi auth/logout/status mapping, tách utility `labels.js`/`googleAuth.js`, bổ sung `setup-local.ps1` cùng file cấu hình mẫu (`.example`) — tuyệt đối không commit secret thật vào Git."*
+- **Mục đích:** Hoàn thiện hai hướng song song: (1) xác thực Google OAuth end-to-end, nhận diện thương hiệu PRO-SPORT, Việt hóa và cấu hình dev an toàn; (2) phân hệ vận hành Staff (EliteSport OS + ProSport Dash) — thay mock bằng API thật, luồng quầy walk-in/check-in/thuê thiết bị và chuẩn hóa đăng nhập theo vai trò.
+- **Tham chiếu Prompt:** *"Với vai trò Kỹ sư Full-stack Senior, triển khai song song hai hướng theo thứ tự ưu tiên nghiệp vụ. Hướng A — Auth & chất lượng sản phẩm: tích hợp Google OAuth (`@react-oauth/google` + `AuthService.GoogleLoginAsync`, audience khớp Client ID); chuẩn hóa `VITE_GOOGLE_CLIENT_ID` / `GoogleAuth:ClientId` và Authorized JavaScript Origins; thiết kế lại logo PRO-SPORT áp dụng thống nhất; rà soát Việt hóa, sửa auth/logout/status mapping; bổ sung `setup-local.ps1` và file `.example`, không commit secret. Hướng B — Staff vận hành (P0→P3): walk-in booking, check-in QR, thuê/trả thiết bị, lịch sân realtime 06:00–22:00 (UTC+7), dashboard Elite/Staff, seeder demo; wiring `/elite/*`, `/dashboard/*`, `/mobile/scanner`; RoleSelection + guard route; logout layout Staff; mobile QR scanner; gắn nhãn tính năng demo (Broadcast/Settings). Tuân thủ kiến trúc phân tầng, `[Authorize(Roles)]` và envelope `ApiResponseDto`; chạy build/test trước push."*
 
 ### Tóm tắt kết quả AI
-- **Google OAuth (Frontend):** Tạo `GoogleSignInButton.jsx`, `googleAuth.js`; bọc `GoogleOAuthProvider` tại `main.jsx`; tích hợp nút Google vào `LoginPage`/`RegisterPage` với xử lý lỗi và mapping payload qua `AuthContext.login()`.
-- **Google OAuth (Backend):** Mở rộng `AuthService.cs` — validate JWT Google, từ chối placeholder Client ID, trả message tiếng Việt khi cấu hình sai; endpoint `POST /api/auth/google-login`.
-- **Nhận diện thương hiệu:** Sinh `ProSportLogoMark.jsx`, `ProSportLogo.jsx`, `public/logo.svg`, cập nhật favicon; áp dụng đồng bộ trên 10+ layout và trang public/auth/status.
-- **Việt hóa & UX:** Quét và chuyển hàng loạt chuỗi EN → VI trên 80+ trang/component; chuẩn hóa `StatusBadge`, `labels.js`; sửa logout, orphan routes và trạng thái Loading/Error.
-- **DevOps cục bộ:** Thêm `setup-local.ps1`, `appsettings.Development.example.json`, cập nhật `.env.example`; loại `appsettings.Development.json` khỏi Git, bổ sung rule `.gitignore` bảo vệ secret.
+
+**A. Google OAuth & nhận diện thương hiệu**
+- **Frontend OAuth:** `GoogleSignInButton.jsx`, `googleAuth.js`; bọc `GoogleOAuthProvider` tại `main.jsx`; tích hợp Login/Register qua `AuthContext.login()`.
+- **Backend OAuth:** `AuthService.GoogleLoginAsync` validate JWT Google, từ chối placeholder Client ID; endpoint `POST /api/auth/google-login`.
+- **Branding:** `ProSportLogoMark.jsx`, `ProSportLogo.jsx`, `public/logo.svg`, favicon; đồng bộ 10+ layout và trang public/auth/status.
+- **Việt hóa & UX:** EN → VI trên 80+ file; chuẩn hóa `labels.js`, `StatusBadge`, Loading/Error; sửa logout và orphan routes.
+- **DevOps cục bộ:** `setup-local.ps1`, `appsettings.Development.example.json`, `.env.example`; loại secret khỏi Git qua `.gitignore`.
+
+**B. Phân hệ Staff (EliteSport OS + ProSport Dash)**
+- **Backend — luồng quầy:** `CreateWalkInBookingAsync`, `ProcessCheckInAsync` (cập nhật `Booking.Status = Completed` sau check-in), `EquipmentRentalService` + `BookingDetailEquipment`; mở rộng `ScheduleSlotDto`.
+- **Backend — dashboard & dữ liệu:** `DashboardService` lịch 06:00–22:00; thống kê «hôm nay» qua `VnTimeHelper` (UTC+7); `StaffDemoSeeder` (booking, khiếu nại, kèo, thuê thiết bị demo).
+- **Backend — phân quyền:** Staff chỉ chuyển dispute sang `Investigating`; Admin mới `Resolved`/`Rejected`; bổ sung `ReporterName`/`ReportedUserName` trên `ReportDto`.
+- **Frontend — Elite:** POS walk-in, lịch sân, booking, thuê/trả thiết bị, scanner desktop, disputes, vouchers; prefill POS/Scanner qua query string.
+- **Frontend — Dash:** Inbox, Broadcast (demo localStorage), Bookings/Matches/Rentals/Payments wire API; nav chéo Elite ↔ Dash.
+- **Frontend — route & UX:** `EliteRoute` trên `/dashboard/*`, `/mobile/scanner`, `/gear/maintenance`; `RoleSelectionPage` → `/403`; logout trên `EliteLayout`/`ProSportDashLayout`; mobile scanner `html5-qrcode`.
 
 ### Quyết định & Can thiệp của con người
-- **Chấp nhận:** Kiến trúc OAuth end-to-end, component logo, utility auth và cấu trúc file cấu hình mẫu.
-- **Can thiệp kỹ thuật 1 (Google Cloud Console):** Tự tạo OAuth Web Client trên GCP, thêm origins `http://localhost:5173` và `http://127.0.0.1:5173`, bổ sung Test Users khi app chưa publish — khắc phục lỗi `The given origin is not allowed for the given client ID`.
-- **Can thiệp kỹ thuật 2 (Sửa Client ID):** Phát hiện typo 1 ký tự trong Client ID (`...ubquh...` → `...u5quh...`) gây lỗi `client ID is not found`; đồng bộ lại `.env` và `appsettings.Development.json` cục bộ.
-- **Can thiệp kỹ thuật 3 (Định hướng thiết kế logo):** Yêu cầu tinh giản logo qua nhiều vòng (tối giản, tránh giống thương hiệu đối thủ); chốt phương án lục giác + sân nhìn từ trên.
-- **Can thiệp kỹ thuật 4 (Version Control):** Chỉ đạo commit gọn 121 file, `pull --rebase` trước push để tránh conflict; loại trừ file tạm (`scratch/`, tài liệu audit cục bộ) khỏi commit.
+- **Chấp nhận:** Kiến trúc OAuth end-to-end, logo, utility auth, toàn bộ API/wiring Staff và seeder demo; giữ Broadcast/Settings ở chế độ demo có ghi chú rõ.
+- **Can thiệp kỹ thuật 1 (Google Cloud Console):** Tạo OAuth Web Client, thêm origins `localhost:5173` / `127.0.0.1:5173`, Test Users — khắc phục `origin is not allowed`.
+- **Can thiệp kỹ thuật 2 (Client ID):** Sửa typo 1 ký tự Client ID; đồng bộ `.env` và `appsettings.Development.json` cục bộ.
+- **Can thiệp kỹ thuật 3 (Logo):** Tinh giản qua nhiều vòng; chốt lục giác + sân nhìn từ trên.
+- **Can thiệp kỹ thuật 4 (Staff — chất lượng):** Sửa format giờ `hh` → `HH` trên lịch sân; guard chống check-in trùng trên mobile; bọc `StaffDemoSeeder` try/catch.
+- **Can thiệp kỹ thuật 5 (Version Control):** Commit OAuth/branding (`fed44de`, 121 file); commit Staff (`a5939b6`, 74 file); loại `scratch/` và tài liệu tạm; `pull --rebase` trước push lên `DE190147/audit-module`.
 
 ### Áp dụng cho
-- **Auth:** `GoogleSignInButton.jsx`, `googleAuth.js`, `AuthService.cs`, `AuthContext.jsx`, `LoginPage.jsx`, `RegisterPage.jsx`, `main.jsx`
-- **Branding:** `ProSportLogo.jsx`, `ProSportLogoMark.jsx`, `public/logo.svg`, `index.css`, toàn bộ `layouts/` và `Navbar`/`Footer`
-- **i18n/UX:** 80+ file `.jsx`, `labels.js`, `StatusBadge.jsx`, `ConfirmDialog.jsx`, `PageLoader.jsx`
-- **Cấu hình:** `setup-local.ps1`, `.env.example`, `appsettings.Development.example.json`, `.gitignore`
+- **Auth & branding:** `GoogleSignInButton.jsx`, `googleAuth.js`, `AuthService.cs`, `AuthContext.jsx`, `LoginPage.jsx`, `RegisterPage.jsx`, `main.jsx`, `ProSportLogo*.jsx`, `public/logo.svg`, `labels.js`, `StatusBadge.jsx`, `setup-local.ps1`, `.env.example`, `appsettings.Development.example.json`
+- **Staff backend:** `BookingService.cs`, `DashboardService.cs`, `VnTimeHelper.cs`, `StaffDemoSeeder.cs`, `EquipmentRentalService.cs`, `ReportService.cs`, `Program.cs`, controllers Booking/Equipment/Dashboard/Report
+- **Staff frontend:** `App.jsx`, `EliteLayout.jsx`, `ProSportDashLayout.jsx`, `RoleSelectionPage.jsx`, `pages/elite/*`, `pages/dashboard/*`, `MobileScannerPage.jsx`, `bookingApi.js`, `dashboardApi.js`, `equipmentApi.js`
 
 ### Kiểm chứng
-- Đăng nhập Google thành công trên `localhost:5173` và `127.0.0.1:5173` sau khi cấu hình GCP.
-- `npm run build` và `dotnet build` pass; không commit file chứa secret thật.
-- Push thành công lên nhánh `DE190147/audit-module` với commit `fed44de`.
+- Google login thành công trên `localhost:5173` và `127.0.0.1:5173` sau cấu hình GCP.
+- `npm run build` và `dotnet build` pass; `dotnet test` 10/10 pass; không commit secret thật.
+- Push thành công lên `origin/DE190147/audit-module` (commit `fed44de`, `a5939b6`).
+- Smoke test Staff: login Staff → `/elite/schedule` → POS walk-in → check-in QR (trong khung slot) → disputes/rentals trên Dash.

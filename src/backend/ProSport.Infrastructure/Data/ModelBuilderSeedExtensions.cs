@@ -67,7 +67,8 @@ public static class ModelBuilderSeedExtensions
             new User { UserId = 7, FullName = "Võ Thị Phượng", Email = "customer4@prosport.vn", PasswordHash = SamplePasswordHash, PhoneNumber = "0900000007", Role = "Customer", EKycStatus = "Verified", IsPhoneVerified = true, IsLocked = false, IsDeleted = false, CreatedAt = SeedDate },
             new User { UserId = 8, FullName = "Đặng Văn Giang", Email = "customer5@prosport.vn", PasswordHash = SamplePasswordHash, PhoneNumber = "0900000008", Role = "Customer", EKycStatus = "Unverified", IsPhoneVerified = false, IsLocked = false, IsDeleted = false, CreatedAt = SeedDate },
             new User { UserId = 9, FullName = "Bùi Thị Hoa", Email = "customer6@prosport.vn", PasswordHash = SamplePasswordHash, PhoneNumber = "0900000009", Role = "Customer", EKycStatus = "Verified", IsPhoneVerified = true, IsLocked = true, IsDeleted = false, CreatedAt = SeedDate },
-            new User { UserId = 10, FullName = "Đỗ Văn Inh", Email = "customer7@prosport.vn", PasswordHash = SamplePasswordHash, PhoneNumber = "0900000010", Role = "Customer", EKycStatus = "Verified", IsPhoneVerified = true, IsLocked = false, IsDeleted = false, CreatedAt = SeedDate }
+            new User { UserId = 10, FullName = "Đỗ Văn Inh", Email = "customer7@prosport.vn", PasswordHash = SamplePasswordHash, PhoneNumber = "0900000010", Role = "Customer", EKycStatus = "Verified", IsPhoneVerified = true, IsLocked = false, IsDeleted = false, CreatedAt = SeedDate },
+            new User { UserId = 11, FullName = "Khách lẻ Walk-in", Email = "walkin@prosport.vn", PasswordHash = SamplePasswordHash, PhoneNumber = "0900000099", Role = "Customer", EKycStatus = "Unverified", IsPhoneVerified = false, IsLocked = false, IsDeleted = false, CreatedAt = SeedDate }
         );
     }
 

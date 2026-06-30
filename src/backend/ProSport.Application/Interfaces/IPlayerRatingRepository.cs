@@ -1,3 +1,4 @@
+using ProSport.Application.DTOs;
 using ProSport.Domain.Entities;
 
 namespace ProSport.Application.Interfaces;
@@ -12,4 +13,6 @@ public interface IPlayerRatingRepository
 
     // Trả về (điểm trung bình, tổng số lượt đánh giá) của 1 người được đánh giá.
     Task<(double Average, int Count)> GetTrustScoreAsync(int ratedUserId);
+
+    Task<IReadOnlyList<LeaderboardEntryDto>> GetLeaderboardAsync(int limit);
 }

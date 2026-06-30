@@ -7,4 +7,5 @@ public interface IRatingService
 {
     Task<ApiResponseDto<RatingDto>> CreateRatingAsync(int raterId, CreateRatingDto dto);
     Task<ApiResponseDto<TrustScoreDto>> GetTrustScoreAsync(int userId);
+    Task<ApiResponseDto<IEnumerable<LeaderboardEntryDto>>> GetLeaderboardAsync(int limit = 20);
 }

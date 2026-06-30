@@ -100,6 +100,11 @@ public class AuthService : IAuthService
 
             return new ApiResponseDto<int>(200, "Registration successful.", userToProcess.UserId);
         }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("Email chưa được cấu hình", StringComparison.Ordinal))
+        {
+            _logger.LogWarning(ex, "Email not configured during registration for {Email}", request.Email);
+            return new ApiResponseDto<int>(503, "Dịch vụ email chưa được cấu hình trên server. Vui lòng cấu hình EMAIL_SMTP_USER / EMAIL_SMTP_PASSWORD hoặc liên hệ quản trị viên.");
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error during registration for email: {Email}", request.Email);
@@ -138,6 +143,11 @@ public class AuthService : IAuthService
             await _emailService.SendEmailAsync(user.Email, "PRO-SPORT: Mã Xác Nhận Mới", emailBody);
 
             return new ApiResponseDto<bool>(200, "OTP resent successfully.", true);
+        }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("Email chưa được cấu hình", StringComparison.Ordinal))
+        {
+            _logger.LogWarning(ex, "Email not configured during OTP resend for {Email}", request.Email);
+            return new ApiResponseDto<bool>(503, "Dịch vụ email chưa được cấu hình trên server. Vui lòng cấu hình EMAIL_SMTP_USER / EMAIL_SMTP_PASSWORD.", false);
         }
         catch (Exception ex)
         {
@@ -396,6 +406,11 @@ public class AuthService : IAuthService
             await _emailService.SendEmailAsync(user.Email, "PRO-SPORT: Mã Khôi Phục Mật Khẩu", emailBody);
 
             return new ApiResponseDto<bool>(200, "OTP sent successfully.", true);
+        }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("Email chưa được cấu hình", StringComparison.Ordinal))
+        {
+            _logger.LogWarning(ex, "Email not configured during forgot password for {Email}", request.Email);
+            return new ApiResponseDto<bool>(503, "Dịch vụ email chưa được cấu hình trên server. Vui lòng cấu hình EMAIL_SMTP_USER / EMAIL_SMTP_PASSWORD.", false);
         }
         catch (Exception ex)
         {

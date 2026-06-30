@@ -1,14 +1,46 @@
-import { useState } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import GearLayout from '../../layouts/GearLayout'
+import { equipmentApi } from '../../api/equipmentApi'
+import PageLoader from '../../components/ui/PageLoader'
 
-const maintenanceItems = [
-  { id: 'MT-001', name: 'Wilson Pro Staff RF97', type: 'Racket', issue: 'Kiểm tra & căng lại dây vợt', technician: 'Tuấn T.', submitted: '2026-05-30', expected: '2026-06-02', status: 'in-progress', priority: 'medium', img: 'https://images.unsplash.com/photo-1617083934551-1af7da84de49?w=80&q=80' },
-  { id: 'MT-002', name: 'TaylorMade P790 Iron Set', type: 'Golf Club', issue: 'Thay quấn cán — toàn bộ gậy', technician: 'Lan K.', submitted: '2026-05-29', expected: '2026-06-01', status: 'overdue', priority: 'high', img: 'https://images.unsplash.com/photo-1622979135225-d2ba269cf1ac?w=80&q=80' },
-  { id: 'MT-003', name: 'Nike Court Lite 3 (x4)', type: 'Footwear', issue: 'Vệ sinh sâu & kiểm tra đế giày', technician: 'Minh R.', submitted: '2026-06-01', expected: '2026-06-03', status: 'scheduled', priority: 'low', img: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=80&q=80' },
-  { id: 'MT-004', name: 'Yonex Astrox 100 ZZ', type: 'Racket', issue: 'Kiểm tra nứt khung vợt', technician: 'Tuấn T.', submitted: '2026-05-28', expected: '2026-05-31', status: 'completed', priority: 'high', img: 'https://images.unsplash.com/photo-1617083934551-1af7da84de49?w=80&q=80' },
-  { id: 'MT-005', name: 'Badminton Net Assembly', type: 'Accessories', issue: 'Căng lưới & căn chỉnh cột', technician: 'Hà M.', submitted: '2026-06-01', expected: '2026-06-04', status: 'scheduled', priority: 'medium', img: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=80&q=80' },
-  { id: 'MT-006', name: 'Elbow Support Sleeve (x6)', type: 'Protection', issue: 'Kiểm tra độ đàn hồi & khử khuẩn', technician: 'Lan K.', submitted: '2026-05-31', expected: '2026-06-02', status: 'completed', priority: 'low', img: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=80&q=80' },
-]
+const FALLBACK_IMG = 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=80&q=80'
+
+function mapEquipmentToMaintenance(e) {
+  let status = 'scheduled'
+  let priority = 'medium'
+  let issue = 'Kiểm tra định kỳ thiết bị'
+
+  if (e.status === 'Out of Stock') {
+    status = 'in-progress'
+    priority = 'high'
+    issue = 'Hết hàng — cần bổ sung / bảo trì'
+  } else if (e.status === 'Discontinued') {
+    status = 'overdue'
+    priority = 'high'
+    issue = 'Ngừng kinh doanh — cần thay thế'
+  } else if (e.stockQuantity <= 3) {
+    status = 'scheduled'
+    priority = 'medium'
+    issue = `Tồn kho thấp (${e.stockQuantity}) — kiểm tra sớm`
+  } else {
+    status = 'completed'
+    priority = 'low'
+    issue = 'Tình trạng tốt — không cần xử lý'
+  }
+
+  return {
+    id: `EQ-${e.equipmentId}`,
+    name: e.name,
+    type: e.category,
+    issue,
+    technician: 'Đội Gear',
+    submitted: new Date().toISOString().slice(0, 10),
+    expected: new Date(Date.now() + 3 * 86400000).toISOString().slice(0, 10),
+    status,
+    priority,
+    img: e.imageUrl || FALLBACK_IMG,
+  }
+}
 
 const statusConfig = {
   'in-progress': { label: 'Đang xử lý', bg: 'bg-blue-50', text: 'text-blue-700', dot: 'bg-blue-500', border: 'border-blue-200' },
@@ -41,15 +73,44 @@ const tabs = ['all', 'scheduled', 'in-progress', 'overdue', 'completed']
 
 export default function GearMaintenancePage() {
   const [activeTab, setActiveTab] = useState('all')
+  const [maintenanceItems, setMaintenanceItems] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
-  const filtered = activeTab === 'all' ? maintenanceItems : maintenanceItems.filter(i => i.status === activeTab)
+  useEffect(() => {
+    let active = true
+    async function load() {
+      try {
+        setLoading(true)
+        setError(null)
+        const res = await equipmentApi.getAll()
+        if (!active) return
+        if (res.statusCode === 200 && Array.isArray(res.data)) {
+          setMaintenanceItems(res.data.map(mapEquipmentToMaintenance))
+        } else {
+          setError(res.message || 'Không tải được danh sách thiết bị.')
+        }
+      } catch (err) {
+        if (active) setError(typeof err === 'string' ? err : 'Không tải được danh sách thiết bị.')
+      } finally {
+        if (active) setLoading(false)
+      }
+    }
+    load()
+    return () => { active = false }
+  }, [])
 
-  const stats = [
+  const filtered = useMemo(
+    () => (activeTab === 'all' ? maintenanceItems : maintenanceItems.filter(i => i.status === activeTab)),
+    [activeTab, maintenanceItems]
+  )
+
+  const stats = useMemo(() => [
     { label: 'Đang bảo trì', value: maintenanceItems.filter(i => i.status === 'in-progress').length, color: '#3b82f6' },
     { label: 'Quá hạn', value: maintenanceItems.filter(i => i.status === 'overdue').length, color: '#ef4444' },
     { label: 'Đã lên lịch', value: maintenanceItems.filter(i => i.status === 'scheduled').length, color: '#f59e0b' },
-    { label: 'Hoàn tất tháng này', value: maintenanceItems.filter(i => i.status === 'completed').length, color: '#10b981' },
-  ]
+    { label: 'Hoàn tất', value: maintenanceItems.filter(i => i.status === 'completed').length, color: '#10b981' },
+  ], [maintenanceItems])
 
   return (
     <GearLayout>
@@ -65,6 +126,12 @@ export default function GearMaintenancePage() {
             Ghi nhận bảo trì
           </button>
         </div>
+
+        {error && (
+          <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>
+        )}
+
+        {loading && <PageLoader label="Đang tải thiết bị..." />}
 
         {/* Stats */}
         <div className="grid grid-cols-4 max-[800px]:grid-cols-2 gap-4 mb-7">
@@ -150,22 +217,9 @@ export default function GearMaintenancePage() {
 
             {/* Technicians */}
             <div className="bg-white rounded-2xl border border-[#e0ecf0] p-5">
-              <h2 className="font-['Oswald'] text-base font-bold text-foreground mb-3">Kỹ thuật viên trực</h2>
-              {[
-                { name: 'Tuấn T.', role: 'Chuyên vợt', tasks: 2, avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&q=80' },
-                { name: 'Lan K.', role: 'Thiết bị chung', tasks: 2, avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=40&q=80' },
-                { name: 'Minh R.', role: 'Giày & trang phục', tasks: 1, avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=40&q=80' },
-                { name: 'Hà M.', role: 'Phụ kiện sân', tasks: 1, avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=40&q=80' },
-              ].map((tech, i) => (
-                <div key={i} className="flex items-center gap-3 py-2.5 border-b border-[#f0f4f8] last:border-0">
-                  <img src={tech.avatar} alt="" className="w-8 h-8 rounded-full object-cover" />
-                  <div className="flex-1">
-                    <p className="text-[0.82rem] font-semibold text-foreground">{tech.name}</p>
-                    <p className="text-[0.68rem] text-slate-400">{tech.role}</p>
-                  </div>
-                  <span className="text-[0.72rem] bg-[#14B8A6]/10 text-[#14B8A6] font-bold px-2 py-0.5 rounded-full">{tech.tasks} việc</span>
-                </div>
-              ))}
+              <h2 className="font-['Oswald'] text-base font-bold text-foreground mb-3">Tóm tắt</h2>
+              <p className="text-sm text-slate-500">Dữ liệu bảo trì được suy ra từ trạng thái và tồn kho thiết bị thực tế trong hệ thống.</p>
+              <p className="text-sm font-semibold text-[#14B8A6] mt-3">{maintenanceItems.length} thiết bị đang theo dõi</p>
             </div>
           </div>
         </div>

@@ -28,6 +28,7 @@ public static class SampleUserSeeder
         new("customer5@prosport.vn", "Đặng Văn Giang", "Customer", "0900000008", "Unverified", false, false),
         new("customer6@prosport.vn", "Bùi Thị Hoa", "Customer", "0900000009", "Verified", true, true),
         new("customer7@prosport.vn", "Đỗ Văn Inh", "Customer", "0900000010", "Verified", true, false),
+        new("walkin@prosport.vn", "Khách lẻ Walk-in", "Customer", "0900000099", "Unverified", false, false),
     ];
 
     public static async Task SeedAsync(

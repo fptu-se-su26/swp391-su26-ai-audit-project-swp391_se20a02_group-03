@@ -1,10 +1,15 @@
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 import ProSportLogo from '../components/ui/ProSportLogo'
 
 const navLinks = [
   {
     path: '/dashboard/inbox', label: 'Hộp thư',
     icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><polyline points="3 9 12 15 21 9"/></svg>
+  },
+  {
+    path: '/dashboard/broadcast', label: 'Phát sóng',
+    icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 2 11 13"/><path d="M22 2 15 22 11 13 2 9 22 2z"/></svg>
   },
   {
     path: '/dashboard/bookings', label: 'Đặt sân',
@@ -30,6 +35,8 @@ const navLinks = [
 
 export default function ProSportDashLayout({ children }) {
   const location = useLocation()
+  const navigate = useNavigate()
+  const { user, logout } = useAuth()
   const isActive = (path) => location.pathname.startsWith(path)
 
   return (
@@ -56,8 +63,21 @@ export default function ProSportDashLayout({ children }) {
           ))}
         </nav>
 
-        <div className="pt-4 border-t border-[#e0ecf0] mt-4">
-          <button className="w-full bg-[var(--theme-primary)] hover:bg-[#14B8A6] text-[var(--theme-primary)] border-none rounded-[10px] py-[11px] px-2 font-['Inter',sans-serif] text-[0.78rem] font-bold cursor-pointer transition-all">Nâng cấp PRO</button>
+        <div className="pt-4 border-t border-[#e0ecf0] mt-4 space-y-2">
+          <Link
+            to="/elite/dashboard"
+            className="block w-full text-center rounded-[10px] py-2.5 text-[0.78rem] font-semibold no-underline border border-[#e0ecf0] text-slate-600 hover:border-[#14B8A6] hover:text-[#14B8A6] transition-colors"
+          >
+            EliteSport OS →
+          </Link>
+          <button
+            type="button"
+            onClick={() => { logout(); navigate('/login') }}
+            className="block w-full text-center rounded-[10px] py-2 text-[0.78rem] font-semibold border border-red-200 text-red-600 bg-red-50/50 hover:bg-red-50 cursor-pointer"
+          >
+            Đăng xuất
+          </button>
+          <p className="text-[0.65rem] text-slate-400 text-center truncate px-1">{user?.fullName || 'Staff'}</p>
         </div>
       </aside>
 
@@ -70,17 +90,15 @@ export default function ProSportDashLayout({ children }) {
             <input type="text" placeholder="Tìm kiếm..." id="psd-search" className="border-none bg-transparent font-['Inter',sans-serif] text-[0.85rem] text-foreground w-full outline-none placeholder:text-slate-400" />
           </div>
           <div className="flex items-center gap-2 ml-auto">
-            <button className="w-9 h-9 rounded-full bg-transparent border-none cursor-pointer flex items-center justify-center text-slate-500 relative transition-all hover:bg-[rgba(13,138,138,0.08)] hover:text-[#14B8A6]" aria-label="Thông báo">
+            <Link to="/dashboard/inbox" className="w-9 h-9 rounded-full bg-transparent border-none cursor-pointer flex items-center justify-center text-slate-500 relative transition-all hover:bg-[rgba(13,138,138,0.08)] hover:text-[#14B8A6] no-underline" aria-label="Hộp thư">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
                 <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
               </svg>
-              <span className="absolute top-0.5 right-0.5 w-[15px] h-[15px] rounded-full bg-red-500 text-white text-[0.58rem] font-bold flex items-center justify-center">3</span>
-            </button>
-            <button className="w-9 h-9 rounded-full bg-transparent border-none cursor-pointer flex items-center justify-center text-slate-500 relative transition-all hover:bg-[rgba(13,138,138,0.08)] hover:text-[#14B8A6]" aria-label="Tài khoản">
+            </Link>
+            <button type="button" onClick={() => { logout(); navigate('/login') }} className="w-9 h-9 rounded-full bg-transparent border-none cursor-pointer flex items-center justify-center text-slate-500 relative transition-all hover:bg-[rgba(13,138,138,0.08)] hover:text-[#14B8A6]" aria-label="Đăng xuất" title="Đăng xuất">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                <circle cx="12" cy="7" r="4"/>
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
               </svg>
             </button>
           </div>
