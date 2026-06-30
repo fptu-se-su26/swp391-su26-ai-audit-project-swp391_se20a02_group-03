@@ -374,3 +374,67 @@ Antigravity AI sinh toàn bộ cấu trúc JSX, CSS và hệ thống routing ban
 ## Hỗ trợ từ AI (AI-assisted)
 
 Cursor (Claude Opus) triển khai song song: (A) Google OAuth end-to-end, logo PRO-SPORT, Việt hóa và chuẩn hóa cấu hình dev; (B) API Staff P0→P3, wiring Frontend Elite/Dash, seeder demo và luồng đăng nhập theo vai trò. Người thực hiện cấu hình GCP, sửa Client ID, tinh chỉnh logo, rà soát chất lượng Staff (format giờ, guard check-in, phạm vi commit), chạy `npm run build` và `dotnet test` (10/10 pass), commit và push lên `DE190147/audit-module` (commit `fed44de`, `a5939b6`).
+
+
+
+
+---
+
+## [2026-06-30] - Giai đoạn: Owner Portal (Court Owner), Player Features, Audit & Hardening toàn cổng Owner
+
+**Người thực hiện:** Phạm Nguyễn Tiến Đạt
+
+## Thêm mới (Added)
+
+### Owner Portal — Backend
+- **Kiến trúc & phân quyền:** 14+ controller dưới `Controllers/Owner/`, `OwnerApiAuthorizationFilter`, `OwnerAccessService`, `StaffOperationGuard`, `CurrentUserContext`.
+- **Domain & Migration:** Entity/migration cho `Complex`, `ComplexOwner`, `StaffAssignment`, operating hours, cancellation policy, inventory, rental, audit log (`20260630170056` → `20260630191246`).
+- **Nghiệp vụ vận hành:** Dashboard metrics, court CRUD/pricing, booking list/calendar/walk-in/check-in/cancel/confirm, finance & revenue report, products/vouchers/rentals/reviews/staff/membership APIs.
+- **Seeder demo:** `OwnerDemoSeeder` cho tài khoản Court Owner (`courtowner@prosport.vn`).
+
+### Owner Portal — Frontend
+- **Layout & routing:** `OwnerLayout`, `OwnerSidebar`, `OwnerContext`, `ownerApi.js`; hệ thống route `/owner/*` (20+ trang).
+- **Trang vận hành:** Dashboard, courts (list/create/detail), bookings (list/calendar/walk-in/detail), finance, reports, products, rentals, staff, vouchers, reviews, settings, audit logs.
+- **Trang cấu hình (audit):** `/owner/operating-hours`, `/owner/cancellation-policy`, `/owner/memberships`.
+
+### Player Features
+- **Tournament:** `TournamentService` — đăng ký giải trừ `EntryFee` từ Escrow (transaction Serializable).
+- **ELO:** Luồng Pending → confirm/dispute; endpoint `POST /api/elo/match-results/{matchId}/confirm|dispute`.
+- **Membership:** `BookingPriceCalculator` áp dụng giảm giá hội viên cho booking, split payment và recurring booking.
+- **Bổ sung:** Split payment, recurring booking, SignalR `NotificationHub`, `PlayerFeaturesBackgroundService`.
+
+### Dev workflow
+- **Superpowers:** Submodule `.superpowers`, `docs/SUPERPOWERS.md`, `AGENTS.md`, script `setup-superpowers.ps1`.
+- **Kiểm thử:** Mở rộng suite Owner + Player Features; thêm test Staff → 403 trên `OwnerApiAuthorizationFilter`.
+
+## Thay đổi (Changed)
+
+### Owner Portal
+- **Đăng nhập CourtOwner:** Redirect sau login → `/owner/dashboard` (thay vì `/owner/courts`); bổ sung link Dashboard trên `Navbar`.
+- **Báo cáo doanh thu:** `bookingRevenue` = tổng `BookingDetails.Price` (tránh double-count); `escrowHeld` scoped theo complex; `revenueByDay` group theo múi giờ VN (`VnTimeHelper`).
+- **Hotfixes vận hành:** `CancelAndRefundSystemAsync` khi bảo trì/đóng cửa; hoàn trả escrow; revert role Staff khi gỡ phân công; sửa `productRevenue` trong báo cáo.
+- **UX Owner:** Filter khoảng ngày trên Finance/Reports; xử lý lỗi export CSV (blob JSON); edit product, toggle voucher, đổi trạng thái rental asset, report review từ UI.
+
+### Dev workflow
+- **Quy trình Agent:** Rule bắt buộc brainstorming + writing-plans trước khi code feature mới (`.cursor/rules/mandatory-planning.mdc`).
+
+## Sửa lỗi (Fixed)
+
+### Nghiệp vụ nghiêm trọng (P0)
+- **[Tournament] Đăng ký miễn phí:** `RegisterAsync` không thu phí — đã trừ `EntryFee` từ Escrow.
+- **[ELO] Tự báo cáo kết quả:** Chuyển sang luồng confirm/dispute, không cập nhật rating ngay khi self-report.
+- **[Membership] Không giảm giá booking:** Áp dụng discount qua `BookingPriceCalculator` / `BookingService`.
+
+### Audit & bảo mật (P0–P1)
+- **[Security - IDOR] Cancellation policy:** `OwnerCancellationPolicyController` thiếu kiểm tra quyền — bổ sung `RequireOwnerOrAdminAccessAsync`.
+- **[Report] Escrow scope:** `escrowHeld` tính sai phạm vi — chỉ tính escrow của booking thuộc sân trong tổ hợp.
+- **[Report] Double-count doanh thu:** Sửa logic `OwnerReportService` tránh cộng trùng `TotalAmount` + service products.
+- **[Dashboard] Format giờ:** Sửa `TimeSpan.ToString(@"hh\:mm")` → `@"HH\:mm"` tại `OwnerDashboardService` — blackbox dashboard 13/14 → **14/14**.
+
+### Frontend & dọn dẹp
+- **[Export CSV] Blob lỗi:** Phát hiện response JSON thay vì file khi export thất bại.
+- **[Dead code]:** Xóa `OwnerInventoryPage.jsx` (không có route).
+
+## Hỗ trợ từ AI (AI-assisted)
+
+Cursor (Composer) triển khai theo thứ tự P0→P2: Owner Portal full-stack (201 files), sửa 3 lỗi nghiệp vụ tournament/ELO/membership, audit toàn cổng Owner và hardening báo cáo/phân quyền, tích hợp Superpowers submodule. Người thực hiện rà soát diff trước commit, ưu tiên bug nghiệp vụ trước UI, yêu cầu sửa toàn bộ findings audit, loại `scratch/`/`.cursor`/tài liệu tạm khỏi staging, hướng dẫn PR đúng (**base `main` ← compare `DE190147/audit-module`**). `dotnet test` **73/73 pass**, `npm run build` OK; merge `origin/main` — Already up to date; commit và push `4e0c435` lên `origin/DE190147/audit-module`.
