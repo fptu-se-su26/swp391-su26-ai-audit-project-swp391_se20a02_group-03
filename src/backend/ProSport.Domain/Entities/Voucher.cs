@@ -13,8 +13,14 @@ public class Voucher : BaseEntity
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
     public bool IsActive { get; set; } = true;
-    public int? CreatedByStaffId { get; set; } // Staff phát hành
+    public int? CreatedByStaffId { get; set; }
+    public int? ApplicableComplexId { get; set; }
+    public int? ApplicableProductId { get; set; }
+    public string VoucherType { get; set; } = "Percent";
+    public string Status { get; set; } = "Active";
 
     // Navigation properties
     public User? CreatedByStaff { get; set; }
+    public Complex? ApplicableComplex { get; set; }
+    public ProductStock? ApplicableProduct { get; set; }
 }

@@ -16,6 +16,12 @@ public interface IEscrowRepository
     /// </summary>
     Task<bool> PayFromWalletAtomicAsync(int userId, decimal amount, int bookingId);
 
+    /// <summary>Thanh toán một phần chia bill — chỉ xác nhận booking khi tất cả shares đã Paid.</summary>
+    Task<bool> PaySplitShareAtomicAsync(int userId, int bookingId, int shareId, decimal amount);
+
+    /// <summary>Hoàn tiền escrow cho một phần chia bill đã thanh toán (khi hủy/expired).</summary>
+    Task<bool> RefundSplitShareAtomicAsync(int userId, int bookingId, int shareId, decimal amount);
+
     /// <summary>
     /// Thực thi delegate trong 1 Database Transaction với Serializable isolation.
     /// </summary>

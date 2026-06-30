@@ -27,6 +27,9 @@ public static class ModelBuilderSeedExtensions
         SeedEquipmentCategories(modelBuilder);
         SeedCourtTypes(modelBuilder);
         SeedUsers(modelBuilder);
+        SeedComplexes(modelBuilder);
+        SeedComplexOwners(modelBuilder);
+        SeedStaffAssignments(modelBuilder);
         SeedCourts(modelBuilder);
         SeedPricingRules(modelBuilder);
         SeedEquipments(modelBuilder);
@@ -54,7 +57,7 @@ public static class ModelBuilderSeedExtensions
         );
     }
 
-    // 10 người dùng (Id 1=Admin, 2-3=Staff, 4-10=Customer). Mật khẩu chung: Admin@123456
+    // 11 người dùng + 1 CourtOwner (Id 12)
     private static void SeedUsers(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<User>().HasData(
@@ -68,19 +71,45 @@ public static class ModelBuilderSeedExtensions
             new User { UserId = 8, FullName = "Đặng Văn Giang", Email = "customer5@prosport.vn", PasswordHash = SamplePasswordHash, PhoneNumber = "0900000008", Role = "Customer", EKycStatus = "Unverified", IsPhoneVerified = false, IsLocked = false, IsDeleted = false, CreatedAt = SeedDate },
             new User { UserId = 9, FullName = "Bùi Thị Hoa", Email = "customer6@prosport.vn", PasswordHash = SamplePasswordHash, PhoneNumber = "0900000009", Role = "Customer", EKycStatus = "Verified", IsPhoneVerified = true, IsLocked = true, IsDeleted = false, CreatedAt = SeedDate },
             new User { UserId = 10, FullName = "Đỗ Văn Inh", Email = "customer7@prosport.vn", PasswordHash = SamplePasswordHash, PhoneNumber = "0900000010", Role = "Customer", EKycStatus = "Verified", IsPhoneVerified = true, IsLocked = false, IsDeleted = false, CreatedAt = SeedDate },
-            new User { UserId = 11, FullName = "Khách lẻ Walk-in", Email = "walkin@prosport.vn", PasswordHash = SamplePasswordHash, PhoneNumber = "0900000099", Role = "Customer", EKycStatus = "Unverified", IsPhoneVerified = false, IsLocked = false, IsDeleted = false, CreatedAt = SeedDate }
+            new User { UserId = 11, FullName = "Khách lẻ Walk-in", Email = "walkin@prosport.vn", PasswordHash = SamplePasswordHash, PhoneNumber = "0900000099", Role = "Customer", EKycStatus = "Unverified", IsPhoneVerified = false, IsLocked = false, IsDeleted = false, CreatedAt = SeedDate },
+            new User { UserId = 12, FullName = "Chủ Sân Demo", Email = "courtowner@prosport.vn", PasswordHash = SamplePasswordHash, PhoneNumber = "0900000012", Role = "CourtOwner", EKycStatus = "Verified", IsPhoneVerified = true, IsLocked = false, IsDeleted = false, CreatedAt = SeedDate }
         );
     }
 
-    // 5 sân (Id 1..5)
+    // 1 Complex mặc định
+    private static void SeedComplexes(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Complex>().HasData(
+            new Complex { ComplexId = 1, Name = "Pro-Sport Complex Quận 7", Address = "123 Nguyễn Văn Linh, Quận 7, TP.HCM", Description = "Tổ hợp thể thao cầu lông và pickleball hiện đại nhất khu vực.", Phone = "0912345678", Email = "contact@prosport-q7.vn", OpeningTime = "05:00", ClosingTime = "23:00", Status = "Active", CreatedAt = SeedDate, IsDeleted = false }
+        );
+    }
+
+    // Gán CourtOwner (Id 12) cho Complex (Id 1)
+    private static void SeedComplexOwners(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<ComplexOwner>().HasData(
+            new ComplexOwner { ComplexOwnerId = 1, UserId = 12, ComplexId = 1, IsPrimary = true, Status = "Active", ApprovedByAdminId = 1, CreatedAt = SeedDate, IsDeleted = false }
+        );
+    }
+
+    // Phân công Staff vào Complex 1
+    private static void SeedStaffAssignments(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<StaffAssignment>().HasData(
+            new StaffAssignment { StaffAssignmentId = 1, StaffUserId = 2, ComplexId = 1, Status = "Active", CanCheckIn = true, CanCreateWalkIn = true, CanManageRental = true, CanApplySurcharge = false, AssignedByUserId = 12, CreatedAt = SeedDate, IsDeleted = false },
+            new StaffAssignment { StaffAssignmentId = 2, StaffUserId = 3, ComplexId = 1, Status = "Active", CanCheckIn = true, CanCreateWalkIn = true, CanManageRental = true, CanApplySurcharge = true, AssignedByUserId = 12, CreatedAt = SeedDate, IsDeleted = false }
+        );
+    }
+
+    // 5 sân (Id 1..5) - Gán vào ComplexId = 1
     private static void SeedCourts(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Court>().HasData(
-            new Court { CourtId = 1, Name = "Sân Cầu Lông A1", CourtTypeId = 1, Status = "Available", Description = "Sân thảm PVC Yonex cao cấp", ImageUrl = "https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=600", CreatedAt = SeedDate, IsDeleted = false },
-            new Court { CourtId = 2, Name = "Sân Cầu Lông A2", CourtTypeId = 1, Status = "Available", Description = "Sân thảm PVC Yonex cao cấp", ImageUrl = "https://images.unsplash.com/photo-1517649763962-0c62306601b7?w=600", CreatedAt = SeedDate, IsDeleted = false },
-            new Court { CourtId = 3, Name = "Sân Cầu Lông A3", CourtTypeId = 1, Status = "Available", Description = "Sân thảm gỗ cao cấp", ImageUrl = "https://images.unsplash.com/photo-1521537634581-227f84850b41?w=600", CreatedAt = SeedDate, IsDeleted = false },
-            new Court { CourtId = 4, Name = "Sân Pickleball P1", CourtTypeId = 2, Status = "Available", Description = "Sân ngoài trời tiêu chuẩn Mỹ", ImageUrl = "https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?w=600", CreatedAt = SeedDate, IsDeleted = false },
-            new Court { CourtId = 5, Name = "Sân Pickleball P2", CourtTypeId = 2, Status = "Available", Description = "Sân ngoài trời tiêu chuẩn Mỹ", ImageUrl = "https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=600", CreatedAt = SeedDate, IsDeleted = false }
+            new Court { CourtId = 1, ComplexId = 1, Name = "Sân Cầu Lông A1", CourtTypeId = 1, Status = "Available", Description = "Sân thảm PVC Yonex cao cấp", ImageUrl = "https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=600", CreatedAt = SeedDate, IsDeleted = false },
+            new Court { CourtId = 2, ComplexId = 1, Name = "Sân Cầu Lông A2", CourtTypeId = 1, Status = "Available", Description = "Sân thảm PVC Yonex cao cấp", ImageUrl = "https://images.unsplash.com/photo-1517649763962-0c62306601b7?w=600", CreatedAt = SeedDate, IsDeleted = false },
+            new Court { CourtId = 3, ComplexId = 1, Name = "Sân Cầu Lông A3", CourtTypeId = 1, Status = "Available", Description = "Sân thảm gỗ cao cấp", ImageUrl = "https://images.unsplash.com/photo-1521537634581-227f84850b41?w=600", CreatedAt = SeedDate, IsDeleted = false },
+            new Court { CourtId = 4, ComplexId = 1, Name = "Sân Pickleball P1", CourtTypeId = 2, Status = "Available", Description = "Sân ngoài trời tiêu chuẩn Mỹ", ImageUrl = "https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?w=600", CreatedAt = SeedDate, IsDeleted = false },
+            new Court { CourtId = 5, ComplexId = 1, Name = "Sân Pickleball P2", CourtTypeId = 2, Status = "Available", Description = "Sân ngoài trời tiêu chuẩn Mỹ", ImageUrl = "https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=600", CreatedAt = SeedDate, IsDeleted = false }
         );
     }
 

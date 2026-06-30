@@ -112,6 +112,136 @@ public class EscrowRepository : IEscrowRepository
         }
     }
 
+    public async Task<bool> PaySplitShareAtomicAsync(int userId, int bookingId, int shareId, decimal amount)
+    {
+        await using var dbTransaction = await _context.Database.BeginTransactionAsync(
+            System.Data.IsolationLevel.Serializable);
+        try
+        {
+            var share = await _context.BookingPaymentShares
+                .FirstOrDefaultAsync(s => s.BookingPaymentShareId == shareId
+                    && s.BookingId == bookingId
+                    && s.UserId == userId
+                    && s.Status == PaymentShareStatus.Pending
+                    && !s.IsDeleted);
+
+            var booking = await _context.Bookings
+                .Include(b => b.PaymentShares)
+                .FirstOrDefaultAsync(b => b.BookingId == bookingId && !b.IsDeleted);
+
+            if (share == null || booking == null || !booking.IsSplitPayment
+                || booking.Status != BookingStatus.Pending
+                || booking.PaymentStatus == PaymentStatus.Paid)
+            {
+                await dbTransaction.RollbackAsync();
+                return false;
+            }
+
+            var deadline = booking.SplitPaymentDeadline ?? booking.PaymentDeadline;
+            if (deadline.HasValue && DateTime.UtcNow > deadline.Value)
+            {
+                await dbTransaction.RollbackAsync();
+                return false;
+            }
+
+            var wallet = await _context.EscrowWallets.FirstOrDefaultAsync(w => w.UserId == userId);
+            if (wallet == null || wallet.Balance < amount)
+            {
+                await dbTransaction.RollbackAsync();
+                return false;
+            }
+
+            wallet.Balance -= amount;
+            share.Status = PaymentShareStatus.Paid;
+            share.PaidAt = DateTime.UtcNow;
+
+            _context.Transactions.Add(new Transaction
+            {
+                EscrowWalletId = wallet.EscrowWalletId,
+                BookingId = bookingId,
+                Amount = amount,
+                Type = TransactionType.Payment,
+                Status = TransactionStatus.Completed,
+                ReferenceId = $"SplitShare_{shareId}",
+                Description = $"Thanh toán phần chia bill #{shareId} — booking #{bookingId}"
+            });
+
+            await _context.SaveChangesAsync();
+
+            var pendingShares = await _context.BookingPaymentShares
+                .CountAsync(s => s.BookingId == bookingId && s.Status == PaymentShareStatus.Pending && !s.IsDeleted);
+
+            if (pendingShares == 0)
+            {
+                booking.PaymentMethod = PaymentMethod.Escrow;
+                booking.PaymentStatus = PaymentStatus.Paid;
+                booking.Status = BookingStatus.Confirmed;
+                booking.CheckInCode = $"QR-{booking.BookingId}-{Guid.NewGuid().ToString()[..8]}";
+                await _context.SaveChangesAsync();
+            }
+
+            await dbTransaction.CommitAsync();
+            return true;
+        }
+        catch
+        {
+            await dbTransaction.RollbackAsync();
+            return false;
+        }
+    }
+
+    public async Task<bool> RefundSplitShareAtomicAsync(int userId, int bookingId, int shareId, decimal amount)
+    {
+        await using var dbTransaction = await _context.Database.BeginTransactionAsync(
+            System.Data.IsolationLevel.Serializable);
+        try
+        {
+            var share = await _context.BookingPaymentShares
+                .FirstOrDefaultAsync(s => s.BookingPaymentShareId == shareId
+                    && s.BookingId == bookingId
+                    && s.UserId == userId
+                    && s.Status == PaymentShareStatus.Paid
+                    && !s.IsDeleted);
+
+            if (share == null)
+            {
+                await dbTransaction.RollbackAsync();
+                return false;
+            }
+
+            var wallet = await _context.EscrowWallets.FirstOrDefaultAsync(w => w.UserId == userId);
+            if (wallet == null)
+            {
+                wallet = new EscrowWallet { UserId = userId, Balance = 0 };
+                _context.EscrowWallets.Add(wallet);
+                await _context.SaveChangesAsync();
+            }
+
+            wallet.Balance += amount;
+            share.Status = PaymentShareStatus.Refunded;
+
+            _context.Transactions.Add(new Transaction
+            {
+                EscrowWalletId = wallet.EscrowWalletId,
+                BookingId = bookingId,
+                Amount = amount,
+                Type = TransactionType.Refund,
+                Status = TransactionStatus.Completed,
+                ReferenceId = $"SplitShareRefund_{shareId}",
+                Description = $"Hoàn tiền phần chia bill #{shareId} — booking #{bookingId}"
+            });
+
+            await _context.SaveChangesAsync();
+            await dbTransaction.CommitAsync();
+            return true;
+        }
+        catch
+        {
+            await dbTransaction.RollbackAsync();
+            return false;
+        }
+    }
+
     public async Task ExecuteInTransactionAsync(Func<Task> action)
     {
         var strategy = _context.Database.CreateExecutionStrategy();

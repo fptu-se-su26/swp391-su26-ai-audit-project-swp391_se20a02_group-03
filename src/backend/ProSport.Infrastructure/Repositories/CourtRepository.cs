@@ -101,6 +101,12 @@ public class CourtRepository : ICourtRepository
             query = query.Where(c => c.Status == parameters.Status);
         }
 
+        if (parameters.ComplexId.HasValue)
+            query = query.Where(c => c.ComplexId == parameters.ComplexId.Value);
+
+        if (parameters.CourtTypeId.HasValue)
+            query = query.Where(c => c.CourtTypeId == parameters.CourtTypeId.Value);
+
         var totalCount = await query.CountAsync();
         var items = await query
             .Skip((parameters.PageNumber - 1) * parameters.PageSize)
@@ -117,8 +123,18 @@ public class CourtRepository : ICourtRepository
             .Include(bd => bd.Booking)
             .AnyAsync(bd => bd.CourtId == courtId 
                          && !bd.Booking.IsDeleted
-                         && (bd.Booking.Status == "Pending" || bd.Booking.Status == "Paid") 
+                         && bd.Booking.Status != "Cancelled"
                          && bd.BookingDate.Date >= now.Date);
+    }
+
+    public async Task<bool> ExistsCodeInComplexAsync(int complexId, string code, int? excludeCourtId)
+    {
+        if (string.IsNullOrWhiteSpace(code)) return false;
+        return await _context.Courts.AnyAsync(c =>
+            c.ComplexId == complexId
+            && !c.IsDeleted
+            && c.Code == code
+            && (!excludeCourtId.HasValue || c.CourtId != excludeCourtId.Value));
     }
 
     // Pricing Rules
@@ -140,6 +156,12 @@ public class CourtRepository : ICourtRepository
         _context.PricingRules.Add(rule);
         await _context.SaveChangesAsync();
         return rule;
+    }
+
+    public async Task UpdatePricingRuleAsync(PricingRule rule)
+    {
+        _context.PricingRules.Update(rule);
+        await _context.SaveChangesAsync();
     }
 
     public async Task DeletePricingRuleAsync(PricingRule rule)

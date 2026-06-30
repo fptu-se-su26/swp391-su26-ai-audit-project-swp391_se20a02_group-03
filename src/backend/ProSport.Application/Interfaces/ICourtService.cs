@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using ProSport.Application.DTOs;
+using ProSport.Application.DTOs.Owner;
 
 namespace ProSport.Application.Interfaces;
 
@@ -16,5 +17,6 @@ public interface ICourtService
     // Pricing Rules
     Task<ApiResponseDto<IEnumerable<PricingRuleDto>>> GetPricingRulesAsync(int courtId);
     Task<ApiResponseDto<PricingRuleDto>> CreatePricingRuleAsync(int courtId, CreatePricingRuleDto dto);
+    Task<ApiResponseDto<PricingRuleDto>> UpdatePricingRuleAsync(int courtId, int ruleId, UpdatePricingRuleDto dto);
     Task<ApiResponseDto<object>> DeletePricingRuleAsync(int courtId, int ruleId);
 }

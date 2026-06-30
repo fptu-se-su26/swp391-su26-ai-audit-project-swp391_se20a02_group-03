@@ -92,7 +92,7 @@ public class BookingController : ControllerBase
         return StatusCode(response.StatusCode, response);
     }
 
-    [Authorize(Roles = "Admin,Staff")]
+    [Authorize(Roles = "Admin,Staff,CourtOwner")]
     [HttpPost("walk-in")]
     public async Task<IActionResult> CreateWalkInBooking([FromBody] WalkInBookingDto dto)
     {

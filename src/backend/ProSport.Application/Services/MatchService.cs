@@ -10,17 +10,23 @@ public class MatchService : IMatchService
     private readonly IMatchRepository _matchRepository;
     private readonly IBookingRepository _bookingRepository;
     private readonly IEscrowService _escrowService;
+    private readonly ICancellationPolicyService _cancellationPolicy;
+    private readonly ICourtRepository _courtRepository;
     private readonly ILogger<MatchService> _logger;
 
     public MatchService(
         IMatchRepository matchRepository, 
         IBookingRepository bookingRepository, 
         IEscrowService escrowService,
+        ICancellationPolicyService cancellationPolicy,
+        ICourtRepository courtRepository,
         ILogger<MatchService> logger)
     {
         _matchRepository = matchRepository;
         _bookingRepository = bookingRepository;
         _escrowService = escrowService;
+        _cancellationPolicy = cancellationPolicy;
+        _courtRepository = courtRepository;
         _logger = logger;
     }
 
@@ -236,16 +242,31 @@ public class MatchService : IMatchService
                     // Do nothing with funds — match already happened
                     returnMessage = "Đã rút khỏi kèo. Tiền cọc sẽ được xử lý khi Host kết thúc kèo.";
                 }
-                else if (timeUntilMatch < TimeSpan.FromHours(12))
-                {
-                    // C-02 FIX: Only penalise when match is in the future but < 12h away
-                    await _escrowService.DeductLockedFundsAsync(userId, match.EscrowAmount, matchId, $"Phạt hủy kèo sát giờ (dưới 12 tiếng) - Mã kèo {matchId}");
-                    returnMessage = "Đã rút khỏi kèo. Tiền cọc bị phạt do hủy trong vòng 12 tiếng trước giờ đá.";
-                }
                 else
                 {
-                    await _escrowService.ReleaseFundsAsync(userId, match.EscrowAmount, matchId, $"Hoàn cọc do rút khỏi kèo trước 12 tiếng - Mã kèo {matchId}");
-                    returnMessage = "Đã rút khỏi kèo và hoàn lại tiền cọc thành công.";
+                    var court = await _courtRepository.GetByIdAsync(match.CourtId);
+                    var complexId = court?.ComplexId ?? 1;
+                    var (releasePct, policyMsg) = await _cancellationPolicy.CalculateMatchLeaveReleaseAsync(complexId, matchTime);
+
+                    if (releasePct >= 100m)
+                    {
+                        await _escrowService.ReleaseFundsAsync(userId, match.EscrowAmount, matchId, $"Hoàn cọc — {policyMsg} - Mã kèo {matchId}");
+                    }
+                    else if (releasePct <= 0m)
+                    {
+                        await _escrowService.DeductLockedFundsAsync(userId, match.EscrowAmount, matchId, $"Phạt cọc — {policyMsg} - Mã kèo {matchId}");
+                    }
+                    else
+                    {
+                        var releaseAmt = match.EscrowAmount * releasePct / 100m;
+                        var deductAmt = match.EscrowAmount - releaseAmt;
+                        if (releaseAmt > 0)
+                            await _escrowService.ReleaseFundsAsync(userId, releaseAmt, matchId, $"Hoàn {releasePct}% cọc - Mã kèo {matchId}");
+                        if (deductAmt > 0)
+                            await _escrowService.DeductLockedFundsAsync(userId, deductAmt, matchId, $"Phạt {100m - releasePct}% cọc - Mã kèo {matchId}");
+                    }
+
+                    returnMessage = $"Đã rút khỏi kèo. {policyMsg}";
                 }
             }
             else

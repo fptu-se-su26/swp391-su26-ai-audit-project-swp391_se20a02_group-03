@@ -47,6 +47,19 @@ export default function RoleSelectionPage() {
     navigate(isAuthenticated ? '/' : '/mobile/home')
   }
 
+  function goOwner() {
+    const target = '/owner/dashboard'
+    if (!isAuthenticated) {
+      navigate(`/login?redirect=${encodeURIComponent(target)}`)
+      return
+    }
+    if (user?.role === 'CourtOwner' || user?.role === 'Admin') {
+      navigate(target)
+      return
+    }
+    navigate('/403', { state: { reason: 'Chỉ tài khoản Chủ sân hoặc Quản trị mới truy cập Owner Portal.' } })
+  }
+
   function goStaff() {
     const target = '/elite/dashboard'
     if (!isAuthenticated) {
@@ -109,6 +122,17 @@ export default function RoleSelectionPage() {
               icon={(
                 <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#e0f2fe', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#008ba3" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </div>
+              )}
+            />
+
+            <RoleCard
+              title="Chủ sân / Chủ tổ hợp"
+              description="Dashboard doanh thu, quản lý sân, giá, nhân viên & booking"
+              onClick={goOwner}
+              icon={(
+                <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#d1fae5', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg>
                 </div>
               )}
             />

@@ -80,6 +80,34 @@ const DashRentalsPage     = lazy(() => import('./pages/dashboard/DashRentalsPage
 const DashPaymentsPage    = lazy(() => import('./pages/dashboard/DashPaymentsPage'))
 const DashNotifSettingsPage = lazy(() => import('./pages/dashboard/DashNotifSettingsPage'))
 
+// PRO-SPORT Court Owner Portal — lazy loaded
+const OwnerDashboardPage = lazy(() => import('./pages/owner/OwnerDashboardPage'))
+const OwnerComplexPage     = lazy(() => import('./pages/owner/OwnerComplexPage'))
+const OwnerCourtsPage      = lazy(() => import('./pages/owner/OwnerCourtsPage'))
+const OwnerCourtCreatePage = lazy(() => import('./pages/owner/OwnerCourtCreatePage'))
+const OwnerCourtDetailPage = lazy(() => import('./pages/owner/OwnerCourtDetailPage'))
+const OwnerPricingPage     = lazy(() => import('./pages/owner/OwnerPricingPage'))
+const OwnerBookingsPage    = lazy(() => import('./pages/owner/OwnerBookingsPage'))
+const OwnerBookingCalendarPage = lazy(() => import('./pages/owner/OwnerBookingCalendarPage'))
+const OwnerBookingDetailPage = lazy(() => import('./pages/owner/OwnerBookingDetailPage'))
+const OwnerWalkInPage = lazy(() => import('./pages/owner/OwnerWalkInPage'))
+const OwnerStaffPage       = lazy(() => import('./pages/owner/OwnerStaffPage'))
+const OwnerProductsPage    = lazy(() => import('./pages/owner/OwnerProductsPage'))
+const OwnerRentalAssetsPage = lazy(() => import('./pages/owner/OwnerRentalAssetsPage'))
+const OwnerRentalsPage     = lazy(() => import('./pages/owner/OwnerRentalsPage'))
+const OwnerRentalDetailPage = lazy(() => import('./pages/owner/OwnerRentalDetailPage'))
+const OwnerVouchersPage    = lazy(() => import('./pages/owner/OwnerVouchersPage'))
+const OwnerFinancePage     = lazy(() => import('./pages/owner/OwnerFinancePage'))
+const OwnerReportsPage     = lazy(() => import('./pages/owner/OwnerReportsPage'))
+const OwnerReviewsPage     = lazy(() => import('./pages/owner/OwnerReviewsPage'))
+const OwnerAuditLogsPage   = lazy(() => import('./pages/owner/OwnerAuditLogsPage'))
+const OwnerSettingsPage    = lazy(() => import('./pages/owner/OwnerSettingsPage'))
+const OwnerOperatingHoursPage = lazy(() => import('./pages/owner/OwnerOperatingHoursPage'))
+const OwnerCancellationPolicyPage = lazy(() => import('./pages/owner/OwnerCancellationPolicyPage'))
+const OwnerMembershipsPage = lazy(() => import('./pages/owner/OwnerMembershipsPage'))
+import OwnerLayout from './layouts/OwnerLayout'
+import { OwnerProvider } from './context/OwnerContext'
+
 // PRO-SPORT Mobile App Pages — lazy loaded
 const MobileHomePage      = lazy(() => import('./pages/mobile/MobileHomePage'))
 const MobileProfilePage   = lazy(() => import('./pages/mobile/MobileProfilePage'))
@@ -138,6 +166,14 @@ function EliteRoute({ children }) {
     if (loading) return <RouteLoader />
     if (!isAuthenticated) return <Navigate to="/login" replace />
     if (!isStaff && !isAdmin) return <Navigate to="/403" replace />
+    return children
+}
+
+function OwnerRoute({ children }) {
+    const { isAuthenticated, isCourtOwner, isAdmin, loading } = useAuth()
+    if (loading) return <RouteLoader />
+    if (!isAuthenticated) return <Navigate to="/login" replace />
+    if (!isCourtOwner && !isAdmin) return <Navigate to="/403" replace state={{ reason: 'Chỉ tài khoản Chủ sân hoặc Quản trị mới truy cập Owner Portal.' }} />
     return children
 }
 
@@ -221,6 +257,36 @@ function App() {
                     <Route path="/admin/inventory" element={<AdminRoute><AdminInventoryPage /></AdminRoute>} />
                     <Route path="/admin/complaints" element={<AdminRoute><AdminComplaintsPage /></AdminRoute>} />
                     <Route path="/admin/bookings" element={<AdminRoute><AdminBookingsPage /></AdminRoute>} />
+
+                    {/* Court Owner Portal */}
+                    <Route path="/owner" element={<OwnerRoute><OwnerProvider><OwnerLayout /></OwnerProvider></OwnerRoute>}>
+                        <Route index element={<Navigate to="/owner/dashboard" replace />} />
+                        <Route path="dashboard" element={<OwnerDashboardPage />} />
+                        <Route path="courts" element={<OwnerCourtsPage />} />
+                        <Route path="courts/create" element={<OwnerCourtCreatePage />} />
+                        <Route path="courts/:courtId" element={<OwnerCourtDetailPage />} />
+                        <Route path="pricing" element={<OwnerPricingPage />} />
+                        <Route path="bookings" element={<OwnerBookingsPage />} />
+                        <Route path="bookings/calendar" element={<OwnerBookingCalendarPage />} />
+                        <Route path="bookings/walk-in" element={<OwnerWalkInPage />} />
+                        <Route path="bookings/:bookingId" element={<OwnerBookingDetailPage />} />
+                        <Route path="staff" element={<OwnerStaffPage />} />
+                        <Route path="inventory/products" element={<OwnerProductsPage />} />
+                        <Route path="inventory/rental-assets" element={<OwnerRentalAssetsPage />} />
+                        <Route path="rentals" element={<OwnerRentalsPage />} />
+                        <Route path="rentals/:rentalId" element={<OwnerRentalDetailPage />} />
+                        <Route path="vouchers" element={<OwnerVouchersPage />} />
+                        <Route path="finance" element={<OwnerFinancePage />} />
+                        <Route path="reports" element={<OwnerReportsPage />} />
+                        <Route path="reviews" element={<OwnerReviewsPage />} />
+                        <Route path="audit-logs" element={<OwnerAuditLogsPage />} />
+                        <Route path="complex" element={<OwnerComplexPage />} />
+                        <Route path="operating-hours" element={<OwnerOperatingHoursPage />} />
+                        <Route path="cancellation-policy" element={<OwnerCancellationPolicyPage />} />
+                        <Route path="memberships" element={<OwnerMembershipsPage />} />
+                        <Route path="settings" element={<OwnerSettingsPage />} />
+                    </Route>
+
                     <Route path="/restricted" element={<Navigate to="/403" replace />} />
 
                     {/* Elite Staff Portal Routes — protected + role-restricted (Staff/Admin) */}

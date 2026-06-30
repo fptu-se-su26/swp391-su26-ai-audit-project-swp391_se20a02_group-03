@@ -6,4 +6,6 @@ public class CourtQueryParameters
     public int PageSize { get; set; } = 10;
     public string? SearchTerm { get; set; }
     public string? Status { get; set; }
+    public int? ComplexId { get; set; }
+    public int? CourtTypeId { get; set; }
 }

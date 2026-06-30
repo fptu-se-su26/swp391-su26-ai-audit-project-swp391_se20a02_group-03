@@ -10,11 +10,20 @@ using ProSport.Application.Services;
 using ProSport.Infrastructure.Data;
 using ProSport.Infrastructure.Repositories;
 using ProSport.Infrastructure.Services;
+using ProSport.API.Filters;
+using ProSport.API.Hubs;
+using ProSport.API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllers();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ICurrentUserContext, CurrentUserContext>();
+builder.Services.AddScoped<OwnerApiAuthorizationFilter>();
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add<OwnerApiAuthorizationFilter>();
+});
 builder.Services.AddEndpointsApiExplorer();
 
 // Configure Swagger with JWT Auth
@@ -66,6 +75,24 @@ builder.Services.AddScoped<IEquipmentCategoryRepository, EquipmentCategoryReposi
 builder.Services.AddScoped<IInventoryRepository, InventoryRepository>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+
+// Owner and Complex Services
+builder.Services.AddScoped<IComplexRepository, ComplexRepository>();
+builder.Services.AddScoped<IComplexOwnerRepository, ComplexOwnerRepository>();
+builder.Services.AddScoped<IStaffAssignmentRepository, StaffAssignmentRepository>();
+builder.Services.AddScoped<IRentalSessionRepository, RentalSessionRepository>();
+builder.Services.AddScoped<IOwnerAccessService, OwnerAccessService>();
+builder.Services.AddScoped<IOwnerDashboardService, OwnerDashboardService>();
+builder.Services.AddScoped<IOwnerStaffService, OwnerStaffService>();
+builder.Services.AddScoped<IOwnerCourtService, OwnerCourtService>();
+builder.Services.AddScoped<IAuditLogService, AuditLogService>();
+builder.Services.AddScoped<IComplexScheduleService, ComplexScheduleService>();
+builder.Services.AddScoped<IStaffOperationGuard, StaffOperationGuard>();
+builder.Services.AddScoped<IOwnerInventoryService, OwnerInventoryService>();
+builder.Services.AddScoped<IOwnerRentalService, OwnerRentalService>();
+builder.Services.AddScoped<IOwnerReportService, OwnerReportService>();
+builder.Services.AddScoped<IOwnerReviewService, OwnerReviewService>();
+builder.Services.AddScoped<IOwnerVoucherService, OwnerVoucherService>();
 builder.Services.AddScoped<ICourtService, CourtService>();
 builder.Services.AddScoped<IBookingService, BookingService>();
 builder.Services.AddScoped<IMatchService, MatchService>();
@@ -96,6 +123,17 @@ builder.Services.AddScoped<IReportService, ReportService>();
 // Phê duyệt E-KYC (Admin)
 builder.Services.AddScoped<IEkycRepository, EkycRepository>();
 builder.Services.AddScoped<IEkycService, EkycService>();
+
+// Player features roadmap
+builder.Services.AddScoped<ISplitPaymentService, SplitPaymentService>();
+builder.Services.AddScoped<IRecurringBookingService, RecurringBookingService>();
+builder.Services.AddScoped<ICancellationPolicyService, CancellationPolicyService>();
+builder.Services.AddScoped<IEloRatingService, EloRatingService>();
+builder.Services.AddScoped<ITournamentService, TournamentService>();
+builder.Services.AddScoped<IMembershipService, MembershipService>();
+builder.Services.AddScoped<INotificationService, SignalRNotificationService>();
+builder.Services.AddHostedService<PlayerFeaturesBackgroundService>();
+builder.Services.AddSignalR();
 
 // Configure Rate Limiting
 builder.Services.AddRateLimiter(options =>
@@ -137,6 +175,17 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidIssuer = jwtSettings["Issuer"],
             ValidAudience = jwtSettings["Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret))
+        };
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var accessToken = context.Request.Query["access_token"];
+                var path = context.HttpContext.Request.Path;
+                if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hubs"))
+                    context.Token = accessToken;
+                return Task.CompletedTask;
+            }
         };
     });
 builder.Services.AddAuthorization();
@@ -194,6 +243,7 @@ using (var scope = app.Services.CreateScope())
     await DatabaseSeeder.SeedEquipmentAsync(context);
     await DatabaseSeeder.SeedCourtsAsync(context);
     await SampleUserSeeder.SeedAsync(context, scope.ServiceProvider.GetRequiredService<IConfiguration>(), app.Environment.IsDevelopment(), logger);
+    await OwnerDemoSeeder.SeedAsync(context, logger);
     try
     {
         await StaffDemoSeeder.SeedAsync(context, logger);
@@ -205,6 +255,7 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.MapControllers();
+app.MapHub<NotificationHub>("/hubs/notifications");
 
 app.MapGet("/", () => "ProSport API is running. Go to /swagger to view the API documentation.");
 

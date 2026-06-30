@@ -16,10 +16,12 @@ public interface ICourtRepository
     Task UpdateAsync(Court court);
     Task<IEnumerable<string>> GetBookedSlotsAsync(int courtId, DateTime date);
     Task<bool> HasActiveBookingsAsync(int courtId);
+    Task<bool> ExistsCodeInComplexAsync(int complexId, string code, int? excludeCourtId);
     
     // Pricing Rules
     Task<IEnumerable<PricingRule>> GetPricingRulesByCourtIdAsync(int courtId);
     Task<PricingRule?> GetPricingRuleByIdAsync(int ruleId);
     Task<PricingRule> AddPricingRuleAsync(PricingRule rule);
+    Task UpdatePricingRuleAsync(PricingRule rule);
     Task DeletePricingRuleAsync(PricingRule rule);
 }

@@ -1,6 +1,8 @@
 using Microsoft.Extensions.Logging;
 using ProSport.Application.DTOs;
+using ProSport.Application.DTOs.Owner;
 using ProSport.Application.Interfaces;
+using ProSport.Domain.Constants;
 using ProSport.Domain.Entities;
 
 namespace ProSport.Application.Services;
@@ -104,8 +106,10 @@ public class CourtService : ICourtService
         {
             CourtId = court.CourtId,
             Name = court.Name,
+            Code = court.Code,
+            ComplexId = court.ComplexId,
             CourtTypeName = court.CourtType?.Name ?? "",
-            Status = court.Status,
+            Status = CourtStatuses.ToApiStatus(court.Status),
             ImageUrl = court.ImageUrl,
             Description = court.Description,
             PricePerHour = court.PricingRules?.FirstOrDefault()?.PricePerHour ?? 100000
@@ -186,38 +190,69 @@ public class CourtService : ICourtService
     {
         var court = await _courtRepository.GetByIdAsync(courtId);
         if (court == null || court.IsDeleted)
-        {
             return new ApiResponseDto<PricingRuleDto>(404, "Court not found");
-        }
+
+        if (dto.PricePerHour <= 0 || (dto.Multiplier ?? 1) <= 0)
+            return new ApiResponseDto<PricingRuleDto>(400, "Giá và hệ số phải lớn hơn 0.");
+        if (dto.EndTime <= dto.StartTime)
+            return new ApiResponseDto<PricingRuleDto>(400, "Giờ kết thúc phải sau giờ bắt đầu.");
+        if (dto.ValidFrom.HasValue && dto.ValidTo.HasValue && dto.ValidFrom > dto.ValidTo)
+            return new ApiResponseDto<PricingRuleDto>(400, "validFrom phải <= validTo.");
 
         var existingRules = await _courtRepository.GetPricingRulesByCourtIdAsync(courtId);
-
-        // Check time overlap
-        foreach (var rule in existingRules)
-        {
-            bool isDayOverlap = dto.DayOfWeek == null || rule.DayOfWeek == null || dto.DayOfWeek == rule.DayOfWeek;
-            if (isDayOverlap)
-            {
-                bool isTimeOverlap = !(dto.EndTime <= rule.StartTime || dto.StartTime >= rule.EndTime);
-                if (isTimeOverlap)
-                {
-                    return new ApiResponseDto<PricingRuleDto>(400, "Khung giờ này đã bị trùng lặp với một mức giá khác.");
-                }
-            }
-        }
+        if (HasOverlap(existingRules, dto.StartTime, dto.EndTime, dto.DayOfWeek, dto.ValidFrom, dto.ValidTo, null))
+            return new ApiResponseDto<PricingRuleDto>(409, "Quy tắc giá trùng phạm vi với rule hiện có.");
 
         var newRule = new PricingRule
         {
+            ComplexId = court.ComplexId,
             CourtId = courtId,
+            CourtTypeId = court.CourtTypeId,
             StartTime = dto.StartTime,
             EndTime = dto.EndTime,
             PricePerHour = dto.PricePerHour,
+            Multiplier = dto.Multiplier ?? 1m,
             IsWeekend = dto.IsWeekend,
-            DayOfWeek = dto.DayOfWeek
+            DayOfWeek = dto.DayOfWeek,
+            ValidFrom = dto.ValidFrom,
+            ValidTo = dto.ValidTo,
+            RuleType = dto.RuleType,
+            Status = dto.Status
         };
 
         var createdRule = await _courtRepository.AddPricingRuleAsync(newRule);
         return new ApiResponseDto<PricingRuleDto>(201, "Pricing rule created", MapToPricingRuleDto(createdRule));
+    }
+
+    public async Task<ApiResponseDto<PricingRuleDto>> UpdatePricingRuleAsync(int courtId, int ruleId, UpdatePricingRuleDto dto)
+    {
+        var rule = await _courtRepository.GetPricingRuleByIdAsync(ruleId);
+        if (rule == null || rule.CourtId != courtId)
+            return new ApiResponseDto<PricingRuleDto>(404, "Pricing rule not found");
+
+        if (dto.PricePerHour <= 0 || (dto.Multiplier ?? 1) <= 0)
+            return new ApiResponseDto<PricingRuleDto>(400, "Giá và hệ số phải lớn hơn 0.");
+        if (dto.EndTime <= dto.StartTime)
+            return new ApiResponseDto<PricingRuleDto>(400, "Giờ kết thúc phải sau giờ bắt đầu.");
+
+        var existingRules = await _courtRepository.GetPricingRulesByCourtIdAsync(courtId);
+        if (HasOverlap(existingRules, dto.StartTime, dto.EndTime, dto.DayOfWeek, dto.ValidFrom, dto.ValidTo, ruleId))
+            return new ApiResponseDto<PricingRuleDto>(409, "Quy tắc giá trùng phạm vi với rule hiện có.");
+
+        rule.StartTime = dto.StartTime;
+        rule.EndTime = dto.EndTime;
+        rule.PricePerHour = dto.PricePerHour;
+        rule.Multiplier = dto.Multiplier ?? 1m;
+        rule.IsWeekend = dto.IsWeekend;
+        rule.DayOfWeek = dto.DayOfWeek;
+        rule.ValidFrom = dto.ValidFrom;
+        rule.ValidTo = dto.ValidTo;
+        rule.RuleType = dto.RuleType;
+        rule.Status = dto.Status;
+        rule.UpdatedAt = DateTime.UtcNow;
+
+        await _courtRepository.UpdatePricingRuleAsync(rule);
+        return new ApiResponseDto<PricingRuleDto>(200, "Pricing rule updated", MapToPricingRuleDto(rule));
     }
 
     public async Task<ApiResponseDto<object>> DeletePricingRuleAsync(int courtId, int ruleId)
@@ -237,12 +272,39 @@ public class CourtService : ICourtService
         return new PricingRuleDto
         {
             PricingRuleId = rule.PricingRuleId,
+            ComplexId = rule.ComplexId,
             CourtId = rule.CourtId,
             StartTime = rule.StartTime,
             EndTime = rule.EndTime,
             PricePerHour = rule.PricePerHour,
+            Multiplier = rule.Multiplier,
             IsWeekend = rule.IsWeekend,
-            DayOfWeek = rule.DayOfWeek
+            DayOfWeek = rule.DayOfWeek,
+            ValidFrom = rule.ValidFrom,
+            ValidTo = rule.ValidTo,
+            RuleType = rule.RuleType,
+            Status = rule.Status
         };
+    }
+
+    internal static bool HasOverlap(
+        IEnumerable<PricingRule> rules,
+        TimeSpan start,
+        TimeSpan end,
+        int? dayOfWeek,
+        DateTime? validFrom,
+        DateTime? validTo,
+        int? excludeRuleId)
+    {
+        foreach (var rule in rules.Where(r => r.Status != "Inactive" && r.PricingRuleId != excludeRuleId))
+        {
+            var dayOverlap = dayOfWeek == null || rule.DayOfWeek == null || dayOfWeek == rule.DayOfWeek;
+            var timeOverlap = !(end <= rule.StartTime || start >= rule.EndTime);
+            var dateOverlap = !(validTo.HasValue && rule.ValidFrom.HasValue && validTo < rule.ValidFrom)
+                && !(validFrom.HasValue && rule.ValidTo.HasValue && validFrom > rule.ValidTo);
+            if (dayOverlap && timeOverlap && dateOverlap)
+                return true;
+        }
+        return false;
     }
 }

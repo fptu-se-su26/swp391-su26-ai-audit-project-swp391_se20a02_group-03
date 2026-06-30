@@ -69,6 +69,7 @@ export function AuthProvider({ children }) {
       isAuthenticated: !!token,
       isAdmin:  user?.role === 'Admin',
       isStaff:  user?.role === 'Staff',
+      isCourtOwner: user?.role === 'CourtOwner',
       login,
       logout,
     }}>
