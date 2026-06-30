@@ -76,6 +76,7 @@ Kiến nghị chuyển hướng ưu tiên từ việc bổ sung tính năng mớ
 Hỗ trợ từ AI (AI-assisted)
 AntiGravity hỗ trợ phân tích source code, truy vết luồng xử lý API và xây dựng báo cáo đánh giá mức độ hoàn thiện của module.
 ChatGPT hỗ trợ xác minh kết quả Audit, đối chiếu nguyên nhân lỗi và đề xuất phương án xử lý theo hướng Database-Driven Development.
+
 [2026-06-14] - Giai đoạn: Quản lý mã nguồn Git và triển khai nhánh chức năng cá nhân
 
 Người thực hiện: Nguyễn Đăng Phúc
@@ -91,6 +92,7 @@ Chuẩn hóa quy trình Commit và Push theo chuẩn Git Flow của dự án.
 Hỗ trợ từ AI (AI-assisted)
 ChatGPT hỗ trợ xử lý các tình huống liên quan đến Git Branch, Remote Tracking, Push/Pull Repository và xác minh tính toàn vẹn của mã nguồn trước khi đồng bộ lên GitHub.
 AI hỗ trợ phân tích log Git và hướng dẫn khôi phục trạng thái làm việc khi phát sinh xung đột giữa Local Branch và Remote Branch.
+
 [2026-06-15] - Giai đoạn: Kiểm tra dữ liệu Seed và xác thực hệ thống đăng nhập
 
 Người thực hiện: Nguyễn Đăng Phúc
