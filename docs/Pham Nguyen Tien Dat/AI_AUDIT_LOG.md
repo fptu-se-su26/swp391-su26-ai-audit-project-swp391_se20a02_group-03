@@ -513,3 +513,65 @@
 - `git fetch origin main && git merge origin/main` — **Already up to date** với `main`.
 - Push thành công: `origin/DE190147/audit-module` @ commit **`4e0c435`**.
 - Smoke test Owner: đăng nhập `courtowner@prosport.vn` → dashboard → courts CRUD → bookings/calendar → operating hours / cancellation policy / memberships từ sidebar hoặc Settings.
+
+
+
+
+
+---
+
+## Log #17
+- **Ngày:** 2026-07-01
+- **Người thực hiện:** Phạm Nguyễn Tiến Đạt
+- **Công cụ AI:** Cursor (Composer)
+- **Mục đích:** Tổng rà soát Audit module (P0→P3): vá lỗi nghiệp vụ & bảo mật, tối ưu hiệu năng, kiểm thử WhiteBox/BlackBox toàn hệ thống, khắc phục lỗ hổng kế toán checkout thiết bị, và đóng gói phát hành lên nhánh làm việc.
+- **Tham chiếu Prompt:** *"Đóng vai trò Tech Lead phụ trách module Audit, triển khai đợt rà soát và khắc phục toàn diện theo thứ tự ưu tiên P0→P3, tuân thủ kiến trúc phân tầng hiện có và envelope `ApiResponseDto`. **P0 — Nghiệp vụ & bảo mật:** sửa operator cancel (hoàn 100%, không thu phí hủy), equipment damage (chỉ thu phần chênh lệch sau cọc), escrow wallet atomic (tránh race read-modify-write), cart checkout all-or-nothing trong transaction Serializable; bổ sung validate `bookingId` khi checkout giỏ. **P0 — Kế toán:** tích hợp trừ ví Escrow và ghi `Transaction` cho luồng mua/checkout thiết bị (`BuyAsync`, `CheckoutCartAtomicAsync`). **P1 — Kiểm thử:** chạy WhiteBox (`dotnet test`, Vitest, ESLint, build) và BlackBox API (`blackbox-api-test.ps1`); sửa mọi failure theo root cause. **P2 — Hiệu năng & FE:** tối ưu truy vấn EF (`AsNoTracking`, split query, projection), response compression, index DB; lazy loading, ErrorBoundary, debounce tìm kiếm Owner, tách chunk Vite; API availability sân theo lịch vận hành. **P3 — Phát hành:** migration DB, chạy lại toàn bộ test, commit và push lên nhánh `DE190147/audit-module`; loại secret, `scratch/` và tooling cá nhân khỏi staging. Mọi thay đổi phải có bằng chứng kiểm thử trước khi hoàn tất."*
+
+### Tóm tắt kết quả AI
+
+**A. Sửa lỗi nghiệp vụ & bảo mật (Backend)**
+- **Booking/Escrow:** Operator/admin hủy sân hoàn **100%** (`CancellationFee = 0`); hoàn tiền escrow qua `ExecuteUpdate` atomic (`CreditWalletAsync`, `TryDebitWalletAsync`, …); mở rộng `CancelBookingWithRefundAsync`, split payment, tournament, match paths.
+- **Equipment rental:** `AdditionalCharge = max(0, repairCost - deposit)` — loại bỏ double-charge tiền cọc.
+- **Cart checkout:** `CheckoutCartAtomicAsync` — transaction Serializable, validate stock → trừ tồn kho → soft-delete giỏ; hỗ trợ `bookingId` (chỉ checkout item gắn booking, validate ownership); gộp giỏ theo `equipmentId + bookingId`.
+- **Thanh toán thiết bị (P1 kế toán):** `PayEquipmentPurchaseAsync` — trừ ví Escrow + ghi `Transaction` trong cùng luồng checkout/`BuyAsync`.
+- **Court availability:** `GET /api/courts/{id}/availability?date=…` — giờ mở cửa, closure, maintenance, trừ slot đã đặt.
+- **Data design & migrations:** `FixDataDesignAuditIssues`, unique index `Transaction.ReferenceId`, index hiệu năng (`BookingDetails`, `Bookings`, `Matches`, `Courts`).
+
+**B. Blackbox & hotfix vận hành**
+- Sửa **HTTP 500** `/api/courts`: thêm `OrderBy` trước `Skip/Take` trong split-query mode.
+- Sửa **HTTP 400** owner dashboard: `TimeSpan.ToString(@"HH\:mm")` → `@"hh\:mm"` (upcoming + calendar).
+- Sửa **Program.cs:** `UseQuerySplittingBehavior` trong lambda SQL (tránh CS1061).
+- Sửa **StaffDemoSeeder:** `PaymentMethod = "Escrow"` (tuân CHECK constraint).
+- Script **`scratch/blackbox-api-test.ps1`:** **14/14 endpoint PASS**.
+
+**C. Hiệu năng & Frontend hardening**
+- **Backend:** `AsNoTracking`/`AsSplitQuery` trên repository read-only; projection `OwnerDashboardService`; `AddResponseCompression`.
+- **Frontend:** `React.lazy` + `ErrorBoundary` (app + Admin/Owner routes); `manualChunks` (react-vendor, leaflet, gsap); `useDebouncedValue` cho Owner bookings/products; `CartCheckoutPage` truyền `bookingId` từ query/giỏ; ESLint override cho context modules; unit test `authStorage`, `date`.
+
+**D. Kiểm thử & phát hành**
+- **`dotnet test`:** **95 passed**, 4 skipped (`SqlServerIntegrationTests` — cần `PROSPORT_INTEGRATION_CONNECTION_STRING`).
+- **Frontend:** Vitest **6/6**, lint **0 warning**, `npm run build` OK.
+- **Migration:** apply `20260701031053_AddPerformanceQueryIndexes` trên DB local.
+- **Git:** commit **`2a0924b`** (*feat: audit remediation — escrow payments, cart checkout, perf and FE hardening*), push `origin/DE190147/audit-module` (114 files).
+
+### Quyết định & Can thiệp của con người
+- **Chấp nhận:** Toàn bộ bản vá P0–P2, tối ưu hiệu năng, test suite mở rộng (`AuditBusinessLogicTests`, `SqlServerFactAttribute`) và commit phát hành.
+- **Can thiệp kỹ thuật 1 (Phạm vi commit):** Chỉ stage `src/`, `docs/Pham Nguyen Tien Dat/`; loại `.cursor/`, `scratch/`, SRS extract, SVG test khỏi Git.
+- **Can thiệp kỹ thuật 2 (Lỗ hổng kế toán):** Chỉ đạo bắt buộc trừ ví Escrow khi checkout/mua thiết bị — trước đó chỉ trừ stock, không ghi transaction.
+- **Can thiệp kỹ thuật 3 (bookingId end-to-end):** Yêu cầu FE `CartCheckoutPage` gửi `bookingId` và BE tách dòng giỏ theo booking khi gộp cùng equipment.
+- **Can thiệp kỹ thuật 4 (EF warning P3):** Giữ nguyên cảnh báo global query filter (chưa suppress — tên `EventId` EF 8.0.8 không khớp); chấp nhận rủi ro thấp với soft-delete hiện tại.
+- **Can thiệp kỹ thuật 5 (SQL Server integration):** Xác nhận 4 test skip là thiết kế CI đúng — không ép chạy local nếu thiếu DB test riêng.
+
+### Áp dụng cho
+- **Escrow & booking:** `EscrowRepository.cs`, `BookingService.cs`, `EquipmentRentalService.cs`, `SplitPaymentService.cs`, `TournamentService.cs`, `MatchRepository.cs`
+- **Cart & equipment:** `CartRepository.cs`, `CartService.cs`, `EquipmentService.cs`, `EquipmentController.cs`, `CartCheckoutPage.jsx`
+- **Performance:** `Program.cs`, `BookingRepository.cs`, `CourtRepository.cs`, `OwnerDashboardService.cs`, `DashboardService.cs`, migration `20260701031053_*`, `useDebouncedValue.js`, `vite.config.js`
+- **Tests & infra:** `AuditBusinessLogicTests.cs`, `SqlServerIntegrationTests.cs`, `SqlServerFactAttribute.cs`, `ProSport.API/wwwroot/.gitkeep`, `eslint.config.js`, `ErrorBoundary.jsx`
+
+### Kiểm chứng
+- `dotnet test src/backend/ProSport.sln` — **95/99 pass** (4 skip SQL Server).
+- `npm test -- --run` — **6/6**; `npm run lint` — **0 errors**; `npm run build` — OK.
+- `blackbox-api-test.ps1` — **14/14 PASS** (auth, owner context/courts/dashboard, customer 403, tournaments, ELO, bookings, …).
+- `dotnet ef database update` — migration performance indexes applied.
+- Push: `origin/DE190147/audit-module` @ **`2a0924b`** (`4e0c435..2a0924b`).
+- Smoke test: checkout giỏ thiếu số dư ví → message *"Số dư ví không đủ"*; checkout có `bookingId` chỉ trừ item liên kết; operator cancel booking đã paid → hoàn full amount.
