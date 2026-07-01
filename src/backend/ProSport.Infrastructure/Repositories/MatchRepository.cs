@@ -9,15 +9,19 @@ namespace ProSport.Infrastructure.Repositories;
 public class MatchRepository : IMatchRepository
 {
     private readonly ProSportDbContext _context;
+    private readonly IEscrowRepository _escrowRepository;
 
-    public MatchRepository(ProSportDbContext context)
+    public MatchRepository(ProSportDbContext context, IEscrowRepository escrowRepository)
     {
         _context = context;
+        _escrowRepository = escrowRepository;
     }
 
     public async Task<IEnumerable<Match>> GetMatchesByStatusAsync(string status)
     {
         return await _context.Matches
+            .AsNoTracking()
+            .AsSplitQuery()
             .Include(m => m.Participants)
             .Include(m => m.Host)
             .Include(m => m.Court)
@@ -30,6 +34,8 @@ public class MatchRepository : IMatchRepository
     public async Task<IEnumerable<Match>> GetMyMatchHistoryAsync(int userId)
     {
         return await _context.Matches
+            .AsNoTracking()
+            .AsSplitQuery()
             .Include(m => m.Participants)
             .Include(m => m.Host)
             .Include(m => m.Court)
@@ -42,6 +48,8 @@ public class MatchRepository : IMatchRepository
     public async Task<Match?> GetMatchByIdAsync(int matchId)
     {
         return await _context.Matches
+            .AsNoTracking()
+            .AsSplitQuery()
             .Include(m => m.Participants)
             .Include(m => m.Host)
             .Include(m => m.Court)
@@ -96,18 +104,13 @@ public class MatchRepository : IMatchRepository
             if (match.CurrentParticipants >= match.MaxParticipants) throw new System.Exception("Kèo đã đủ người.");
             if (match.Participants.Any(p => p.UserId == joinerId)) throw new System.Exception("Bạn đã tham gia hoặc đang chờ duyệt kèo này.");
 
-            var wallet = await _context.EscrowWallets.FirstOrDefaultAsync(w => w.UserId == joinerId);
+            var wallet = await _context.EscrowWallets.AsNoTracking().FirstOrDefaultAsync(w => w.UserId == joinerId);
             if (wallet == null) throw new System.Exception("Ví trung gian không tồn tại.");
 
-            if (wallet.Balance < match.EscrowAmount)
+            if (!await _escrowRepository.TryLockWalletFundsAsync(joinerId, match.EscrowAmount))
             {
                 throw new System.InvalidOperationException("Số dư không đủ.");
             }
-
-            // Cập nhật Wallet
-            wallet.Balance -= match.EscrowAmount;
-            wallet.LockedBalance += match.EscrowAmount;
-            _context.EscrowWallets.Update(wallet);
 
             // Ghi log Participant — C-01 FIX: Use constants
             var participant = new MatchParticipant
@@ -152,6 +155,7 @@ public class MatchRepository : IMatchRepository
     public async Task<IEnumerable<MatchParticipant>> GetParticipantsByMatchAsync(int matchId, string status)
     {
         return await _context.MatchParticipants
+            .AsNoTracking()
             .Include(p => p.User)
             .Where(p => p.MatchId == matchId && p.Status == status)
             .ToListAsync();
@@ -176,13 +180,12 @@ public class MatchRepository : IMatchRepository
 
             if (participant.HasPaidEscrow && match.EscrowAmount > 0)
             {
-                var wallet = await _context.EscrowWallets.FirstOrDefaultAsync(w => w.UserId == participant.UserId);
+                var wallet = await _context.EscrowWallets.AsNoTracking()
+                    .FirstOrDefaultAsync(w => w.UserId == participant.UserId);
                 if (wallet == null) throw new System.Exception("Không tìm thấy ví để hoàn tiền.");
 
-                // L-03 FIX: Guard LockedBalance before deducting
-                wallet.LockedBalance = Math.Max(0, wallet.LockedBalance - match.EscrowAmount);
-                wallet.Balance += match.EscrowAmount;
-                _context.EscrowWallets.Update(wallet);
+                if (!await _escrowRepository.TryReleaseWalletFundsAsync(participant.UserId, match.EscrowAmount))
+                    throw new System.InvalidOperationException("Không thể hoàn tiền ký quỹ.");
 
                 // C-01 FIX: Use TransactionType constants
                 var escrowTransaction = new Transaction
@@ -297,9 +300,8 @@ public class MatchRepository : IMatchRepository
                 {
                     if (!walletByUserId.TryGetValue(participant.UserId, out var joinerWallet)) continue;
 
-                    // L-03 FIX: Guard LockedBalance before deducting
-                    joinerWallet.LockedBalance = Math.Max(0, joinerWallet.LockedBalance - match.EscrowAmount);
-                    _context.EscrowWallets.Update(joinerWallet);
+                    if (!await _escrowRepository.TryDeductLockedWalletFundsAsync(participant.UserId, match.EscrowAmount))
+                        continue;
 
                     // C-01 FIX: Use constants
                     _context.Transactions.Add(new Transaction
@@ -313,26 +315,13 @@ public class MatchRepository : IMatchRepository
                     });
                 }
 
-                // Cộng tiền vào Balance của Host
-                var hostWallet = await _context.EscrowWallets.FirstOrDefaultAsync(w => w.UserId == hostId);
-                if (hostWallet == null)
-                {
-                    hostWallet = new EscrowWallet { UserId = hostId, Balance = 0, LockedBalance = 0 };
-                    _context.EscrowWallets.Add(hostWallet);
-                    // C7 FIX: Removed mid-transaction SaveChangesAsync
-                }
-
-                hostWallet.Balance += totalAmount;
-                if (hostWallet.EscrowWalletId != 0)
-                {
-                    _context.EscrowWallets.Update(hostWallet);
-                }
+                var hostWallet = await _escrowRepository.CreditWalletAsync(hostId, totalAmount);
 
                 // C-01 FIX: Use constants
                 // C7 FIX: Use EscrowWallet navigation property instead of ID so EF Core can insert it in correct order without mid-transaction flush
                 _context.Transactions.Add(new Transaction
                 {
-                    EscrowWallet = hostWallet,
+                    EscrowWalletId = hostWallet.EscrowWalletId,
                     MatchId = matchId,
                     Amount = totalAmount,
                     Type = TransactionType.EscrowRelease,
@@ -391,14 +380,9 @@ public class MatchRepository : IMatchRepository
 
                 foreach (var participant in participantsToRefund)
                 {
-                    if (refundWalletByUserId.TryGetValue(participant.UserId, out var joinerWallet))
+                    if (refundWalletByUserId.TryGetValue(participant.UserId, out var joinerWallet)
+                        && await _escrowRepository.TryReleaseWalletFundsAsync(participant.UserId, match.EscrowAmount))
                     {
-                        // L-03 FIX: Guard LockedBalance before deducting
-                        joinerWallet.LockedBalance = Math.Max(0, joinerWallet.LockedBalance - match.EscrowAmount);
-                        joinerWallet.Balance += match.EscrowAmount;
-                        _context.EscrowWallets.Update(joinerWallet);
-
-                        // C-01 FIX: Use constants
                         _context.Transactions.Add(new Transaction
                         {
                             EscrowWalletId = joinerWallet.EscrowWalletId,
@@ -409,7 +393,7 @@ public class MatchRepository : IMatchRepository
                             Description = $"Hoàn tiền do Host hủy kèo #{matchId}"
                         });
                     }
-                    // C-01 FIX: Use constant (Cancelled was Rejected before, now explicit)
+
                     participant.Status = MatchParticipantStatus.Rejected;
                     _context.MatchParticipants.Update(participant);
                 }

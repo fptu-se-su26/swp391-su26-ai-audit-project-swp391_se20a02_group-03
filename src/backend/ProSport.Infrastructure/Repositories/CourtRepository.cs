@@ -17,6 +17,8 @@ public class CourtRepository : ICourtRepository
     public async Task<IEnumerable<Court>> GetAllAsync()
     {
         return await _context.Courts
+            .AsNoTracking()
+            .AsSplitQuery()
             .Include(c => c.CourtType)
             .Include(c => c.PricingRules)
             .Where(c => !c.IsDeleted)
@@ -27,6 +29,7 @@ public class CourtRepository : ICourtRepository
     {
         return await _context.Courts
             .Include(c => c.CourtType)
+            .Include(c => c.Complex)
             .Include(c => c.PricingRules)
             .FirstOrDefaultAsync(c => c.CourtId == courtId && !c.IsDeleted);
     }
@@ -36,6 +39,7 @@ public class CourtRepository : ICourtRepository
         // Get all courts that don't have overlapping bookings
         // Bỏ qua: Cancelled bookings + Pending bookings đã hết hạn thanh toán
         return await _context.Courts
+            .AsNoTracking()
             .Include(c => c.CourtType)
             .Where(c => !c.IsDeleted && c.Status == "Available")
             .Where(c => !c.BookingDetails.Any(b => 
@@ -66,6 +70,7 @@ public class CourtRepository : ICourtRepository
     public async Task<IEnumerable<string>> GetBookedSlotsAsync(int courtId, DateTime date)
     {
         var bookedDetails = await _context.BookingDetails
+            .AsNoTracking()
             .Where(bd => bd.CourtId == courtId && bd.BookingDate.Date == date.Date && bd.Booking.Status != "Cancelled")
             .Where(bd => !(bd.Booking.Status == "Pending" && bd.Booking.PaymentDeadline.HasValue && bd.Booking.PaymentDeadline < DateTime.UtcNow) && !bd.Booking.IsDeleted)
             .ToListAsync();
@@ -86,6 +91,8 @@ public class CourtRepository : ICourtRepository
     public async Task<(IEnumerable<Court> Items, int TotalCount)> GetPagedCourtsAsync(ProSport.Application.DTOs.CourtQueryParameters parameters)
     {
         var query = _context.Courts
+            .AsNoTracking()
+            .AsSplitQuery()
             .Include(c => c.CourtType)
             .Include(c => c.PricingRules)
             .Where(c => !c.IsDeleted)
@@ -101,8 +108,15 @@ public class CourtRepository : ICourtRepository
             query = query.Where(c => c.Status == parameters.Status);
         }
 
+        if (parameters.ComplexId.HasValue)
+            query = query.Where(c => c.ComplexId == parameters.ComplexId.Value);
+
+        if (parameters.CourtTypeId.HasValue)
+            query = query.Where(c => c.CourtTypeId == parameters.CourtTypeId.Value);
+
         var totalCount = await query.CountAsync();
         var items = await query
+            .OrderBy(c => c.CourtId)
             .Skip((parameters.PageNumber - 1) * parameters.PageSize)
             .Take(parameters.PageSize)
             .ToListAsync();
@@ -117,14 +131,25 @@ public class CourtRepository : ICourtRepository
             .Include(bd => bd.Booking)
             .AnyAsync(bd => bd.CourtId == courtId 
                          && !bd.Booking.IsDeleted
-                         && (bd.Booking.Status == "Pending" || bd.Booking.Status == "Paid") 
+                         && bd.Booking.Status != "Cancelled"
                          && bd.BookingDate.Date >= now.Date);
+    }
+
+    public async Task<bool> ExistsCodeInComplexAsync(int complexId, string code, int? excludeCourtId)
+    {
+        if (string.IsNullOrWhiteSpace(code)) return false;
+        return await _context.Courts.AnyAsync(c =>
+            c.ComplexId == complexId
+            && !c.IsDeleted
+            && c.Code == code
+            && (!excludeCourtId.HasValue || c.CourtId != excludeCourtId.Value));
     }
 
     // Pricing Rules
     public async Task<IEnumerable<PricingRule>> GetPricingRulesByCourtIdAsync(int courtId)
     {
         return await _context.PricingRules
+            .AsNoTracking()
             .Where(p => p.CourtId == courtId)
             .ToListAsync();
     }
@@ -140,6 +165,12 @@ public class CourtRepository : ICourtRepository
         _context.PricingRules.Add(rule);
         await _context.SaveChangesAsync();
         return rule;
+    }
+
+    public async Task UpdatePricingRuleAsync(PricingRule rule)
+    {
+        _context.PricingRules.Update(rule);
+        await _context.SaveChangesAsync();
     }
 
     public async Task DeletePricingRuleAsync(PricingRule rule)

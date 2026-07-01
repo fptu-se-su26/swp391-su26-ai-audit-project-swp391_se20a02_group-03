@@ -21,4 +21,10 @@ public interface IBookingRepository
     /// Tự động hủy các booking Pending đã quá hạn thanh toán (PaymentDeadline).
     /// </summary>
     Task<int> CancelExpiredBookingsAsync();
+
+    /// <summary>Kiểm tra slot sân còn trống (dùng trước khi tạo booking định kỳ).</summary>
+    Task<bool> IsCourtSlotAvailableAsync(int courtId, DateTime bookingDate, TimeSpan startTime, TimeSpan endTime);
+
+    /// <summary>Booking IDs còn hiệu lực trên sân từ ngày hiện tại trở đi (dùng auto-cancel khi đóng sân/bảo trì).</summary>
+    Task<List<int>> GetActiveFutureBookingIdsByCourtAsync(int courtId);
 }

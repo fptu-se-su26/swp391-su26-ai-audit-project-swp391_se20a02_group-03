@@ -20,12 +20,10 @@ public class ChatController : ControllerBase
     }
 
     /// <summary>
-    /// POST api/chatbot/chat
-    /// Body: { messages: [{ role: "user", content: "..." }, ...] }
-    /// Không yêu cầu đăng nhập để Guest cũng có thể hỏi chatbot.
+    /// POST api/chatbot/chat — requires authentication to limit abuse.
     /// </summary>
+    [Authorize]
     [HttpPost("chat")]
-    [AllowAnonymous]
     public async Task<IActionResult> Chat([FromBody] ChatRequestDto request)
     {
         if (request.Messages == null || request.Messages.Count == 0)

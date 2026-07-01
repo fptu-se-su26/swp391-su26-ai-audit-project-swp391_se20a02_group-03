@@ -8,16 +8,16 @@ public class CartService : ICartService
 {
     private readonly ICartRepository _cartRepository;
     private readonly IEquipmentRepository _equipmentRepository;
-    private readonly IEquipmentService _equipmentService;
+    private readonly IBookingRepository _bookingRepository;
 
     public CartService(
-        ICartRepository cartRepository, 
+        ICartRepository cartRepository,
         IEquipmentRepository equipmentRepository,
-        IEquipmentService equipmentService)
+        IBookingRepository bookingRepository)
     {
         _cartRepository = cartRepository;
         _equipmentRepository = equipmentRepository;
-        _equipmentService = equipmentService;
+        _bookingRepository = bookingRepository;
     }
 
     public async Task<CartItemDto> AddToCartAsync(int userId, int equipmentId, int quantity, int? bookingId = null)
@@ -29,7 +29,7 @@ public class CartService : ICartService
         if (equipment.StockQuantity < quantity)
             throw new Exception($"Chỉ có {equipment.StockQuantity} {equipment.EquipmentName} sẵn sàng");
 
-        var unitPrice = equipment.Price > 0 ? equipment.Price : equipment.RetailPrice;
+        var unitPrice = equipment.RetailPrice;
 
         var cartItem = await _cartRepository.AddItemAsync(userId, equipmentId, quantity, unitPrice, null, bookingId);
         
@@ -101,27 +101,16 @@ public class CartService : ICartService
 
     public async Task<bool> CheckoutAsync(int userId, int? bookingId = null)
     {
-        var items = await _cartRepository.GetUserCartAsync(userId);
-        if (!items.Any())
-            throw new Exception("Giỏ hàng trống");
-
-        foreach (var item in items)
+        if (bookingId.HasValue)
         {
-            var buyRequest = new BuyEquipmentRequest
-            {
-                EquipmentId = item.EquipmentId,
-                Quantity = item.Quantity,
-                BookingId = bookingId ?? item.BookingId
-            };
-
-            var result = await _equipmentService.BuyAsync(userId, buyRequest);
-            if (result.StatusCode != 200)
-            {
-                throw new Exception($"Lỗi khi mua {item.Equipment.EquipmentName}: {result.Message}");
-            }
+            var booking = await _bookingRepository.GetByIdAsync(bookingId.Value);
+            if (booking == null)
+                throw new InvalidOperationException("Không tìm thấy booking.");
+            if (booking.UserId != userId)
+                throw new UnauthorizedAccessException("Bạn không có quyền checkout cho booking này.");
         }
 
-        await _cartRepository.ClearCartAsync(userId);
+        await _cartRepository.CheckoutCartAtomicAsync(userId, bookingId);
         return true;
     }
 }

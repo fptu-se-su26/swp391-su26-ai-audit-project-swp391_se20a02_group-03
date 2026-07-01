@@ -11,4 +11,7 @@ public interface ICartRepository
     Task DeleteItemAsync(int cartItemId);
     Task ClearCartAsync(int userId);
     Task<CartItem?> GetCartItemAsync(int cartItemId);
+
+    /// <summary>Validate stock, trừ tồn kho và xóa giỏ trong một DB transaction. Khi bookingId có giá trị, chỉ checkout item gắn booking đó.</summary>
+    Task CheckoutCartAtomicAsync(int userId, int? bookingId = null);
 }

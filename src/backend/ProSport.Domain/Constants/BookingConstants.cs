@@ -7,9 +7,13 @@ namespace ProSport.Domain.Constants;
 public static class BookingStatus
 {
     public const string Pending = "Pending";
+    public const string PendingPayment = "PendingPayment";
     public const string Confirmed = "Confirmed";
+    public const string CheckedIn = "CheckedIn";
     public const string Cancelled = "Cancelled";
     public const string Completed = "Completed";
+    public const string Expired = "Expired";
+    public const string NoShow = "NoShow";
 }
 
 public static class PaymentStatus
@@ -69,4 +73,19 @@ public static class MatchParticipantStatus
     public const string Pending = "Pending";
     public const string Approved = "Approved";
     public const string Rejected = "Rejected";
+}
+
+public static class PaymentShareStatus
+{
+    public const string Pending = "Pending";
+    public const string Paid = "Paid";
+    public const string Expired = "Expired";
+    public const string Refunded = "Refunded";
+}
+
+public static class MatchResultStatus
+{
+    public const string Pending = "Pending";
+    public const string Confirmed = "Confirmed";
+    public const string Disputed = "Disputed";
 }

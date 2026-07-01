@@ -45,7 +45,6 @@ export default function AdminKycPage() {
     } finally {
       setLoading(false)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter, addToast])
 
   useEffect(() => { load() }, [load])

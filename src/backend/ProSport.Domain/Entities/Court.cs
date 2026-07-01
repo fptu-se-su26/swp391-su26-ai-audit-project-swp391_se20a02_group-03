@@ -14,6 +14,10 @@ public class Court : BaseEntity
 {
     public int CourtId { get; set; }
     public string Name { get; set; } = null!;
+
+    /// <summary>Mã sân duy nhất trong phạm vi Complex.</summary>
+    public string? Code { get; set; }
+
     public int CourtTypeId { get; set; }
 
     /// <summary>
@@ -31,8 +35,15 @@ public class Court : BaseEntity
     /// </summary>
     public string Status { get; set; } = "Available";
 
+    /// <summary>
+    /// FK → Complexes. Nullable để migration an toàn — sân cũ không bị break.
+    /// Sau khi backfill, Admin có thể enforce NOT NULL nếu cần.
+    /// </summary>
+    public int? ComplexId { get; set; }
+
     // Navigation properties
     public CourtType CourtType { get; set; } = null!;
+    public Complex? Complex { get; set; }
     public ICollection<PricingRule> PricingRules { get; set; } = new List<PricingRule>();
     public ICollection<BookingDetail> BookingDetails { get; set; } = new List<BookingDetail>();
 

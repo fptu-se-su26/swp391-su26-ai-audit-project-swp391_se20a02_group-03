@@ -10,6 +10,7 @@ import { extractAuthPayload, mapGoogleAuthError } from '../utils/googleAuth'
 function getPostLoginPath(role) {
   if (role === 'Admin') return '/admin/dashboard'
   if (role === 'Staff') return '/elite/dashboard'
+  if (role === 'CourtOwner') return '/owner/dashboard'
   return '/'
 }
 
@@ -19,10 +20,13 @@ function resolveRedirect(role, redirectParam) {
   }
   const staffPaths = ['/elite', '/dashboard', '/mobile/scanner', '/gear/maintenance']
   const adminPaths = ['/admin']
+  const ownerPaths = ['/owner']
   const isStaffTarget = staffPaths.some(p => redirectParam === p || redirectParam.startsWith(`${p}/`))
   const isAdminTarget = adminPaths.some(p => redirectParam === p || redirectParam.startsWith(`${p}/`))
+  const isOwnerTarget = ownerPaths.some(p => redirectParam === p || redirectParam.startsWith(`${p}/`))
   if (isAdminTarget && role !== 'Admin') return getPostLoginPath(role)
   if (isStaffTarget && role !== 'Staff' && role !== 'Admin') return getPostLoginPath(role)
+  if (isOwnerTarget && role !== 'CourtOwner' && role !== 'Admin') return getPostLoginPath(role)
   return redirectParam
 }
 

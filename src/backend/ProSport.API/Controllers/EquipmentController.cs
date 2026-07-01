@@ -8,8 +8,7 @@ using System.Threading.Tasks;
 namespace ProSport.API.Controllers;
 
 [ApiController]
-[Route("api/equipments")]
-[Route("api/equipment")] // alias: frontend (equipmentApi.js) gọi /api/equipment (số ít) -> chấp nhận cả 2 để tránh 404.
+[Route("api/equipment")]
 public class EquipmentController : ControllerBase
 {
     private readonly IEquipmentService _equipmentService;
@@ -216,6 +215,10 @@ public class EquipmentController : ControllerBase
         {
             await _cartService.CheckoutAsync(userId, request.BookingId);
             return Ok(new { success = true, message = "Thanh toán thành công" });
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return StatusCode(403, new { success = false, message = ex.Message });
         }
         catch (Exception ex)
         {

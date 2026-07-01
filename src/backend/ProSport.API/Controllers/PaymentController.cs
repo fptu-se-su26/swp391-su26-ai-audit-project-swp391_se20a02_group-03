@@ -13,15 +13,24 @@ public class PaymentController : ControllerBase
 {
     private readonly IVnPayService _vnPayService;
     private readonly IEscrowService _escrowService;
+    private readonly IEscrowRepository _escrowRepository;
     private readonly IBookingService _bookingService;
+    private readonly IConfiguration _configuration;
     private readonly ILogger<PaymentController> _logger;
 
-    public PaymentController(IVnPayService vnPayService, IEscrowService escrowService,
-        IBookingService bookingService, ILogger<PaymentController> logger)
+    public PaymentController(
+        IVnPayService vnPayService,
+        IEscrowService escrowService,
+        IEscrowRepository escrowRepository,
+        IBookingService bookingService,
+        IConfiguration configuration,
+        ILogger<PaymentController> logger)
     {
         _vnPayService = vnPayService;
         _escrowService = escrowService;
+        _escrowRepository = escrowRepository;
         _bookingService = bookingService;
+        _configuration = configuration;
         _logger = logger;
     }
 
@@ -115,6 +124,12 @@ public class PaymentController : ControllerBase
     {
         try
         {
+            if (!IsAllowedVnPayIp())
+            {
+                _logger.LogWarning("VNPay IPN rejected from IP {Ip}", HttpContext.Connection.RemoteIpAddress);
+                return Ok(new { RspCode = "97", Message = "Unauthorized IP" });
+            }
+
             var queryDictionary = Request.Query
                 .Select(k => new KeyValuePair<string, string>(k.Key, k.Value.ToString()!))
                 .ToList();
@@ -208,13 +223,17 @@ public class PaymentController : ControllerBase
             return BadRequest(new ApiResponseDto<object>(400, "Thanh toán thất bại hoặc đã bị hủy", response));
         }
 
-        // Fallback: Nếu IPN chưa kịp xử lý (network delay), Return URL sẽ cố gắng xử lý (idempotent)
+        // Return URL is read-only: report status without mutating wallet/booking if already processed.
         if (response.OrderType == "Deposit")
         {
-            if (response.UserId > 0)
+            if (response.UserId > 0 && !string.IsNullOrWhiteSpace(response.VnPayTransactionId))
             {
-                await _escrowService.DepositAsync(
-                    response.UserId, response.Amount, response.VnPayTransactionId, "Nạp tiền VNPAY");
+                var alreadyProcessed = await _escrowRepository.TransactionExistsByReferenceIdAsync(response.VnPayTransactionId);
+                if (!alreadyProcessed)
+                {
+                    await _escrowService.DepositAsync(
+                        response.UserId, response.Amount, response.VnPayTransactionId, "Nạp tiền VNPAY");
+                }
             }
             return Ok(new ApiResponseDto<object>(200, "Nạp tiền ví thành công", response));
         }
@@ -222,16 +241,24 @@ public class PaymentController : ControllerBase
         {
             if (int.TryParse(response.ReferenceId, out int bookingId))
             {
-                // ConfirmBookingPaymentAsync đã idempotent: nếu đã thanh toán sẽ trả 400 "đã thanh toán"
+                var bookingDetail = await _bookingService.GetBookingByIdAsync(bookingId);
+                if (bookingDetail.StatusCode == 200 && bookingDetail.Data?.PaymentStatus == PaymentStatus.Paid)
+                {
+                    return Ok(new ApiResponseDto<object>(200, "Thanh toán sân thành công", new
+                    {
+                        vnpay = response,
+                        booking = bookingDetail.Data
+                    }));
+                }
+
+                // Fallback when IPN has not arrived yet (idempotent confirm).
                 var confirmRes = await _bookingService.ConfirmBookingPaymentAsync(
                     bookingId, response.VnPayTransactionId, response.Amount);
 
-                // Cả 200 (vừa confirm) và 400 "đã thanh toán" đều coi là thành công cho user
                 if (confirmRes.StatusCode == 200 ||
                     (confirmRes.StatusCode == 400 && confirmRes.Message?.Contains("đã được thanh toán") == true))
                 {
-                    // Lấy booking mới nhất để trả về chi tiết cho frontend
-                    var bookingDetail = await _bookingService.GetBookingByIdAsync(bookingId);
+                    bookingDetail = await _bookingService.GetBookingByIdAsync(bookingId);
                     return Ok(new ApiResponseDto<object>(200, "Thanh toán sân thành công", new
                     {
                         vnpay = response,
@@ -244,5 +271,18 @@ public class PaymentController : ControllerBase
         }
 
         return BadRequest(new ApiResponseDto<object>(400, "Loại thanh toán không được hỗ trợ", response));
+    }
+
+    private bool IsAllowedVnPayIp()
+    {
+        var whitelist = _configuration.GetSection("VnPay:AllowedIps").Get<string[]>();
+        if (whitelist == null || whitelist.Length == 0)
+            return true;
+
+        var remoteIp = HttpContext.Connection.RemoteIpAddress?.ToString();
+        if (string.IsNullOrEmpty(remoteIp))
+            return false;
+
+        return whitelist.Any(ip => string.Equals(ip.Trim(), remoteIp, StringComparison.OrdinalIgnoreCase));
     }
 }

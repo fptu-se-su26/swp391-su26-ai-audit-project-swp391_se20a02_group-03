@@ -67,7 +67,6 @@ export default function MobileScannerPage() {
       scanner.stop().catch(() => {})
       scanner.clear().catch(() => {})
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scanKey, scanResult, manualOpen])
 
   function resetScan() {

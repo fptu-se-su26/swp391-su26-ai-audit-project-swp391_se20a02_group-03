@@ -72,6 +72,9 @@ build_output*.txt
 vite.config.js.timestamp-*.mjs 
 src/backend/ProSport.Infrastructure/errors.json 
 
+# Superpowers temp clone
+.superpowers-tmp/
+
 # Root-level local scripts & docs (audit/tooling — không commit)
 /*.py
 /*.docx

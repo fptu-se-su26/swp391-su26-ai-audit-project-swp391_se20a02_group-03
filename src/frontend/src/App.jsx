@@ -1,57 +1,56 @@
+import { lazy, Suspense } from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate, useParams } from 'react-router-dom'
+import ErrorBoundary from './components/ErrorBoundary.jsx'
+import AIChatbot from './components/AIChatbot'
+import PageLoader from './components/ui/PageLoader'
 import { ToastProvider } from './components/Toast'
 import { ConfirmProvider } from './components/ui/ConfirmDialog'
 import { ThemeProvider } from './context/ThemeContext'
 import { useAuth } from './context/AuthContext'
 
-// PRO-SPORT Public Pages
-import HomePage from './pages/HomePage'
-import LoginPage from './pages/LoginPage'
-import RegisterPage from './pages/RegisterPage'
-import CompleteProfilePage from './pages/CompleteProfilePage'
-import RoleSelectionPage from './pages/RoleSelectionPage'
-import ResetPasswordPage from './pages/ResetPasswordPage'
-import AboutPage from './pages/AboutPage'
-import ContactPage from './pages/ContactPage'
-import PrivacyPolicyPage from './pages/legal/PrivacyPolicyPage'
-import TermsOfServicePage from './pages/legal/TermsOfServicePage'
-import SitemapPage from './pages/legal/SitemapPage'
-import BrandMissionPage from './pages/platform/BrandMissionPage'
-import CourtDetailPage from './pages/courts/CourtDetailPage'
-import BookingPage from './pages/courts/BookingPage'
-import MatchDetailPage from './pages/matches/MatchDetailPage'
-import CreateMatchPage from './pages/matches/CreateMatchPage'
-import GearCatalogPage from './pages/gear/GearCatalogPage'
-import GearDetailPage from './pages/gear/GearDetailPage'
+// PRO-SPORT Public Pages — lazy loaded to reduce initial bundle
+const HomePage = lazy(() => import('./pages/HomePage'))
+const LoginPage = lazy(() => import('./pages/LoginPage'))
+const RegisterPage = lazy(() => import('./pages/RegisterPage'))
+const CompleteProfilePage = lazy(() => import('./pages/CompleteProfilePage'))
+const RoleSelectionPage = lazy(() => import('./pages/RoleSelectionPage'))
+const ResetPasswordPage = lazy(() => import('./pages/ResetPasswordPage'))
+const AboutPage = lazy(() => import('./pages/AboutPage'))
+const ContactPage = lazy(() => import('./pages/ContactPage'))
+const PrivacyPolicyPage = lazy(() => import('./pages/legal/PrivacyPolicyPage'))
+const TermsOfServicePage = lazy(() => import('./pages/legal/TermsOfServicePage'))
+const SitemapPage = lazy(() => import('./pages/legal/SitemapPage'))
+const BrandMissionPage = lazy(() => import('./pages/platform/BrandMissionPage'))
+const CourtDetailPage = lazy(() => import('./pages/courts/CourtDetailPage'))
+const BookingPage = lazy(() => import('./pages/courts/BookingPage'))
+const MatchDetailPage = lazy(() => import('./pages/matches/MatchDetailPage'))
+const CreateMatchPage = lazy(() => import('./pages/matches/CreateMatchPage'))
+const GearCatalogPage = lazy(() => import('./pages/gear/GearCatalogPage'))
+const GearDetailPage = lazy(() => import('./pages/gear/GearDetailPage'))
+const GearMaintenancePage = lazy(() => import('./pages/gear/GearMaintenancePage'))
+const GearSupportPage = lazy(() => import('./pages/gear/GearSupportPage'))
+const GearPrivacyPage = lazy(() => import('./pages/gear/GearPrivacyPage'))
+const ReportDisputePage = lazy(() => import('./pages/customer/ReportDisputePage'))
+const CartPage = lazy(() => import('./pages/gear/CartPage'))
+const CartCheckoutPage = lazy(() => import('./pages/gear/CartCheckoutPage'))
 
-import GearMaintenancePage from './pages/gear/GearMaintenancePage'
-import GearSupportPage from './pages/gear/GearSupportPage'
-import GearPrivacyPage from './pages/gear/GearPrivacyPage'
-import ReportDisputePage from './pages/customer/ReportDisputePage'
-
-import AIChatbot from './components/AIChatbot'
-import PageLoader from './components/ui/PageLoader'
-import CartPage from './pages/gear/CartPage'
-import CartCheckoutPage from './pages/gear/CartCheckoutPage'
-
-// PRO-SPORT Apex Portal (Courts & More)
-import ApexHomePage from './pages/apex/ApexHomePage'
-import ApexBookingPage from './pages/apex/ApexBookingPage'
-import ApexMatchesPage from './pages/apex/ApexMatchesPage'
-import ApexProfilePage from './pages/apex/ApexProfilePage'
-import ApexActivityPage from './pages/apex/ApexActivityPage'
-import ApexSettingsPage from './pages/apex/ApexSettingsPage'
-import ApexSupportPage from './pages/apex/ApexSupportPage'
-import ApexBookingsPage from './pages/apex/ApexBookingsPage'
+// PRO-SPORT Apex Portal
+const ApexHomePage = lazy(() => import('./pages/apex/ApexHomePage'))
+const ApexBookingPage = lazy(() => import('./pages/apex/ApexBookingPage'))
+const ApexMatchesPage = lazy(() => import('./pages/apex/ApexMatchesPage'))
+const ApexProfilePage = lazy(() => import('./pages/apex/ApexProfilePage'))
+const ApexActivityPage = lazy(() => import('./pages/apex/ApexActivityPage'))
+const ApexSettingsPage = lazy(() => import('./pages/apex/ApexSettingsPage'))
+const ApexSupportPage = lazy(() => import('./pages/apex/ApexSupportPage'))
+const ApexBookingsPage = lazy(() => import('./pages/apex/ApexBookingsPage'))
 
 // PRO-SPORT MatchPro
-import MatchProFeedPage from './pages/matchpro/MatchProFeedPage'
-import MatchProNearbyPage from './pages/matchpro/MatchProNearbyPage'
-import MatchProCommunityPage from './pages/matchpro/MatchProCommunityPage'
-import MatchProLeaderboardPage from './pages/matchpro/MatchProLeaderboardPage'
+const MatchProFeedPage = lazy(() => import('./pages/matchpro/MatchProFeedPage'))
+const MatchProNearbyPage = lazy(() => import('./pages/matchpro/MatchProNearbyPage'))
+const MatchProCommunityPage = lazy(() => import('./pages/matchpro/MatchProCommunityPage'))
+const MatchProLeaderboardPage = lazy(() => import('./pages/matchpro/MatchProLeaderboardPage'))
 
 // PRO-SPORT Admin Portal — lazy loaded (large portal, not needed on first visit)
-import { lazy, Suspense } from 'react'
 const AdminDashboardPage    = lazy(() => import('./pages/admin/AdminDashboardPage'))
 const AdminUsersPage        = lazy(() => import('./pages/admin/AdminUsersPage'))
 const AdminCourtsPage       = lazy(() => import('./pages/admin/AdminCourtsPage'))
@@ -79,6 +78,34 @@ const DashMatchesPage     = lazy(() => import('./pages/dashboard/DashMatchesPage
 const DashRentalsPage     = lazy(() => import('./pages/dashboard/DashRentalsPage'))
 const DashPaymentsPage    = lazy(() => import('./pages/dashboard/DashPaymentsPage'))
 const DashNotifSettingsPage = lazy(() => import('./pages/dashboard/DashNotifSettingsPage'))
+
+// PRO-SPORT Court Owner Portal — lazy loaded
+const OwnerDashboardPage = lazy(() => import('./pages/owner/OwnerDashboardPage'))
+const OwnerComplexPage     = lazy(() => import('./pages/owner/OwnerComplexPage'))
+const OwnerCourtsPage      = lazy(() => import('./pages/owner/OwnerCourtsPage'))
+const OwnerCourtCreatePage = lazy(() => import('./pages/owner/OwnerCourtCreatePage'))
+const OwnerCourtDetailPage = lazy(() => import('./pages/owner/OwnerCourtDetailPage'))
+const OwnerPricingPage     = lazy(() => import('./pages/owner/OwnerPricingPage'))
+const OwnerBookingsPage    = lazy(() => import('./pages/owner/OwnerBookingsPage'))
+const OwnerBookingCalendarPage = lazy(() => import('./pages/owner/OwnerBookingCalendarPage'))
+const OwnerBookingDetailPage = lazy(() => import('./pages/owner/OwnerBookingDetailPage'))
+const OwnerWalkInPage = lazy(() => import('./pages/owner/OwnerWalkInPage'))
+const OwnerStaffPage       = lazy(() => import('./pages/owner/OwnerStaffPage'))
+const OwnerProductsPage    = lazy(() => import('./pages/owner/OwnerProductsPage'))
+const OwnerRentalAssetsPage = lazy(() => import('./pages/owner/OwnerRentalAssetsPage'))
+const OwnerRentalsPage     = lazy(() => import('./pages/owner/OwnerRentalsPage'))
+const OwnerRentalDetailPage = lazy(() => import('./pages/owner/OwnerRentalDetailPage'))
+const OwnerVouchersPage    = lazy(() => import('./pages/owner/OwnerVouchersPage'))
+const OwnerFinancePage     = lazy(() => import('./pages/owner/OwnerFinancePage'))
+const OwnerReportsPage     = lazy(() => import('./pages/owner/OwnerReportsPage'))
+const OwnerReviewsPage     = lazy(() => import('./pages/owner/OwnerReviewsPage'))
+const OwnerAuditLogsPage   = lazy(() => import('./pages/owner/OwnerAuditLogsPage'))
+const OwnerSettingsPage    = lazy(() => import('./pages/owner/OwnerSettingsPage'))
+const OwnerOperatingHoursPage = lazy(() => import('./pages/owner/OwnerOperatingHoursPage'))
+const OwnerCancellationPolicyPage = lazy(() => import('./pages/owner/OwnerCancellationPolicyPage'))
+const OwnerMembershipsPage = lazy(() => import('./pages/owner/OwnerMembershipsPage'))
+import OwnerLayout from './layouts/OwnerLayout'
+import { OwnerProvider } from './context/OwnerContext'
 
 // PRO-SPORT Mobile App Pages — lazy loaded
 const MobileHomePage      = lazy(() => import('./pages/mobile/MobileHomePage'))
@@ -130,7 +157,11 @@ function AdminRoute({ children }) {
     if (loading) return <RouteLoader />
     if (!isAuthenticated) return <Navigate to="/login" replace />
     if (!isAdmin) return <Navigate to="/403" replace />
-    return children
+    return (
+        <ErrorBoundary homePath="/admin/dashboard" title="Lỗi Admin Portal">
+            {children}
+        </ErrorBoundary>
+    )
 }
 
 function EliteRoute({ children }) {
@@ -141,8 +172,21 @@ function EliteRoute({ children }) {
     return children
 }
 
+function OwnerRoute({ children }) {
+    const { isAuthenticated, isCourtOwner, isAdmin, loading } = useAuth()
+    if (loading) return <RouteLoader />
+    if (!isAuthenticated) return <Navigate to="/login" replace />
+    if (!isCourtOwner && !isAdmin) return <Navigate to="/403" replace state={{ reason: 'Chỉ tài khoản Chủ sân hoặc Quản trị mới truy cập Owner Portal.' }} />
+    return (
+        <ErrorBoundary homePath="/owner/dashboard" title="Lỗi Owner Portal">
+            {children}
+        </ErrorBoundary>
+    )
+}
+
 function App() {
     return (
+        <ErrorBoundary>
         <ThemeProvider>
         <ToastProvider>
         <ConfirmProvider>
@@ -221,6 +265,36 @@ function App() {
                     <Route path="/admin/inventory" element={<AdminRoute><AdminInventoryPage /></AdminRoute>} />
                     <Route path="/admin/complaints" element={<AdminRoute><AdminComplaintsPage /></AdminRoute>} />
                     <Route path="/admin/bookings" element={<AdminRoute><AdminBookingsPage /></AdminRoute>} />
+
+                    {/* Court Owner Portal */}
+                    <Route path="/owner" element={<OwnerRoute><OwnerProvider><OwnerLayout /></OwnerProvider></OwnerRoute>}>
+                        <Route index element={<Navigate to="/owner/dashboard" replace />} />
+                        <Route path="dashboard" element={<OwnerDashboardPage />} />
+                        <Route path="courts" element={<OwnerCourtsPage />} />
+                        <Route path="courts/create" element={<OwnerCourtCreatePage />} />
+                        <Route path="courts/:courtId" element={<OwnerCourtDetailPage />} />
+                        <Route path="pricing" element={<OwnerPricingPage />} />
+                        <Route path="bookings" element={<OwnerBookingsPage />} />
+                        <Route path="bookings/calendar" element={<OwnerBookingCalendarPage />} />
+                        <Route path="bookings/walk-in" element={<OwnerWalkInPage />} />
+                        <Route path="bookings/:bookingId" element={<OwnerBookingDetailPage />} />
+                        <Route path="staff" element={<OwnerStaffPage />} />
+                        <Route path="inventory/products" element={<OwnerProductsPage />} />
+                        <Route path="inventory/rental-assets" element={<OwnerRentalAssetsPage />} />
+                        <Route path="rentals" element={<OwnerRentalsPage />} />
+                        <Route path="rentals/:rentalId" element={<OwnerRentalDetailPage />} />
+                        <Route path="vouchers" element={<OwnerVouchersPage />} />
+                        <Route path="finance" element={<OwnerFinancePage />} />
+                        <Route path="reports" element={<OwnerReportsPage />} />
+                        <Route path="reviews" element={<OwnerReviewsPage />} />
+                        <Route path="audit-logs" element={<OwnerAuditLogsPage />} />
+                        <Route path="complex" element={<OwnerComplexPage />} />
+                        <Route path="operating-hours" element={<OwnerOperatingHoursPage />} />
+                        <Route path="cancellation-policy" element={<OwnerCancellationPolicyPage />} />
+                        <Route path="memberships" element={<OwnerMembershipsPage />} />
+                        <Route path="settings" element={<OwnerSettingsPage />} />
+                    </Route>
+
                     <Route path="/restricted" element={<Navigate to="/403" replace />} />
 
                     {/* Elite Staff Portal Routes — protected + role-restricted (Staff/Admin) */}
@@ -268,6 +342,7 @@ function App() {
         </ConfirmProvider>
         </ToastProvider>
         </ThemeProvider>
+        </ErrorBoundary>
     )
 }
 

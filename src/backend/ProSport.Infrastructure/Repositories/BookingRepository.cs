@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using ProSport.Application.Interfaces;
+using ProSport.Domain.Constants;
 using ProSport.Domain.Entities;
 using ProSport.Infrastructure.Data;
 
@@ -17,6 +18,8 @@ public class BookingRepository : IBookingRepository
     public async Task<IEnumerable<Booking>> GetAllAsync()
     {
         return await _context.Bookings
+            .AsNoTracking()
+            .AsSplitQuery()
             .Include(b => b.BookingDetails)
                 .ThenInclude(bd => bd.Court)
             .Include(b => b.User)
@@ -30,12 +33,15 @@ public class BookingRepository : IBookingRepository
             .Include(b => b.BookingDetails)
                 .ThenInclude(bd => bd.Court)
             .Include(b => b.User)
+            .Include(b => b.PaymentShares)
             .FirstOrDefaultAsync(b => b.BookingId == bookingId && !b.IsDeleted);
     }
 
     public async Task<IEnumerable<Booking>> GetByUserIdAsync(int userId)
     {
         return await _context.Bookings
+            .AsNoTracking()
+            .AsSplitQuery()
             .Include(b => b.BookingDetails)
                 .ThenInclude(bd => bd.Court)
             .Where(b => b.UserId == userId && !b.IsDeleted)
@@ -141,5 +147,38 @@ public class BookingRepository : IBookingRepository
         }
 
         return expiredBookings.Count;
+    }
+
+    public async Task<bool> IsCourtSlotAvailableAsync(int courtId, DateTime bookingDate, TimeSpan startTime, TimeSpan endTime)
+    {
+        var hasConflict = await _context.BookingDetails
+            .AnyAsync(bd =>
+                bd.CourtId == courtId &&
+                bd.BookingDate == bookingDate.Date &&
+                bd.Booking.Status != BookingStatus.Cancelled &&
+                !(bd.Booking.Status == BookingStatus.Pending
+                    && bd.Booking.PaymentDeadline.HasValue
+                    && bd.Booking.PaymentDeadline < DateTime.UtcNow) &&
+                !bd.Booking.IsDeleted &&
+                ((bd.StartTime <= startTime && bd.EndTime > startTime) ||
+                 (bd.StartTime < endTime && bd.EndTime >= endTime) ||
+                 (bd.StartTime >= startTime && bd.EndTime <= endTime)));
+
+        return !hasConflict;
+    }
+
+    public async Task<List<int>> GetActiveFutureBookingIdsByCourtAsync(int courtId)
+    {
+        var today = DateTime.UtcNow.Date;
+        return await _context.BookingDetails
+            .Where(bd => bd.CourtId == courtId
+                && !bd.Booking.IsDeleted
+                && bd.BookingDate.Date >= today
+                && bd.Booking.Status != BookingStatus.Cancelled
+                && bd.Booking.Status != BookingStatus.Completed
+                && bd.Booking.Status != BookingStatus.Expired)
+            .Select(bd => bd.BookingId)
+            .Distinct()
+            .ToListAsync();
     }
 }

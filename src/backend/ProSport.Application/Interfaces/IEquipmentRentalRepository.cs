@@ -7,5 +7,6 @@ public interface IEquipmentRentalRepository
     Task<IEnumerable<BookingDetailEquipment>> GetAllAsync(string? rentalStatus = null);
     Task<BookingDetailEquipment?> GetByIdAsync(int detailId);
     Task<BookingDetailEquipment> CreateAsync(BookingDetailEquipment rental);
+    Task<BookingDetailEquipment> CreateWithStockDecrementAsync(BookingDetailEquipment rental, Equipment equipment);
     Task UpdateAsync(BookingDetailEquipment rental);
 }

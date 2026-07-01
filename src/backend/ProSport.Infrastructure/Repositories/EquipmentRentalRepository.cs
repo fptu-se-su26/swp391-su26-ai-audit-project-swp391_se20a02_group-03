@@ -17,6 +17,8 @@ public class EquipmentRentalRepository : IEquipmentRentalRepository
     public async Task<IEnumerable<BookingDetailEquipment>> GetAllAsync(string? rentalStatus = null)
     {
         var query = _context.BookingDetailEquipments
+            .AsNoTracking()
+            .AsSplitQuery()
             .Include(r => r.Equipment)
             .Include(r => r.User)
             .Include(r => r.Booking)
@@ -43,6 +45,24 @@ public class EquipmentRentalRepository : IEquipmentRentalRepository
         _context.BookingDetailEquipments.Add(rental);
         await _context.SaveChangesAsync();
         return (await GetByIdAsync(rental.DetailId))!;
+    }
+
+    public async Task<BookingDetailEquipment> CreateWithStockDecrementAsync(BookingDetailEquipment rental, Equipment equipment)
+    {
+        await using var transaction = await _context.Database.BeginTransactionAsync();
+        try
+        {
+            _context.Equipments.Update(equipment);
+            _context.BookingDetailEquipments.Add(rental);
+            await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
+            return (await GetByIdAsync(rental.DetailId))!;
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
     }
 
     public async Task UpdateAsync(BookingDetailEquipment rental)

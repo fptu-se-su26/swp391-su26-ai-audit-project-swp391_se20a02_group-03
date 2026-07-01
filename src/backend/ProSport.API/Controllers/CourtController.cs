@@ -48,6 +48,14 @@ public class CourtController : ControllerBase
         return StatusCode(response.StatusCode, response);
     }
 
+    // READ - operating-hour slots minus bookings
+    [HttpGet("{id}/availability")]
+    public async Task<IActionResult> GetCourtAvailability(int id, [FromQuery] DateTime date)
+    {
+        var response = await _courtService.GetCourtAvailabilityAsync(id, date);
+        return StatusCode(response.StatusCode, response);
+    }
+
     // CREATE - new court (admin only)
     [Authorize(Roles = "Admin")]
     [HttpPost]

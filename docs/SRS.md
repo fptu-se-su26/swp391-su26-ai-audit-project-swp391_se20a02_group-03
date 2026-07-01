@@ -163,3 +163,87 @@ Mô hình kinh doanh của hệ thống tập trung vào việc tạo giá trị
 - Cung cấp lịch sân theo thời gian thực.
 - Kết hợp quản lý sân bãi và kết nối cộng đồng trên cùng một nền tảng.
 - Hỗ trợ quản lý dụng cụ và doanh thu cho chủ sân.
+
+---
+
+### 8. Actor Court Owner (Chủ sân) — bổ sung 2026-06
+
+**8.1 Vai trò:** `CourtOwner` (COURT_OWNER) — quản lý dữ liệu thuộc tổ hợp được gán qua bảng `ComplexOwner`. Tách biệt với `Admin` (System Admin toàn hệ thống) và `Staff` (vận hành quầy theo `StaffAssignment`).
+
+**8.2 Ma trận quyền (foundation):**
+
+| Tài nguyên / API | Admin | CourtOwner | Staff | Customer |
+| :--- | :---: | :---: | :---: | :---: |
+| `/api/owner/*` | ✅ toàn bộ | ✅ tổ hợp được gán | ❌ 403 | ❌ 403 |
+| `/owner/*` (UI) | ✅ | ✅ | ❌ 403 | ❌ 403 |
+| Dashboard doanh thu/lấp sân | ✅ mọi complex | ✅ complex được gán | ❌ | ❌ |
+| Sửa thông tin tổ hợp | ✅ | ✅ complex được gán | ❌ | ❌ |
+| Quản lý User toàn hệ thống | ✅ | ❌ | ❌ | ❌ |
+
+**8.3 Onboarding Court Owner:**
+1. Admin tạo tài khoản User với role `CourtOwner` (hoặc chuyển role từ Customer).
+2. Admin gán liên kết `ComplexOwner` (user_id, complex_id, is_primary, status = Active).
+3. Chủ sân đăng nhập JWT → gọi `GET /api/owner/context` → nhận `managedComplexes` và `defaultComplexId`.
+4. Frontend lưu complex đang chọn (localStorage); mọi API dashboard/complex dùng `complexId` query nhưng **quyền kiểm tra server-side** qua `OwnerAccessService`.
+
+**8.4 Mô hình dữ liệu `ComplexOwner`:**
+- `id`, `user_id`, `complex_id`, `is_primary`, `status` (Active / Inactive / Suspended)
+- `approved_by`, `created_at`, `updated_at`
+- UNIQUE (`user_id`, `complex_id`); index `user_id`, `complex_id`
+- FK tới `Users`, `Complexes`
+
+**8.5 Use case Owner Dashboard (UC-O01):**
+- **Actor:** CourtOwner (hoặc Admin xem thay)
+- **Precondition:** JWT hợp lệ; user có quyền trên `complexId`
+- **Flow:** Chọn tổ hợp → `GET /api/owner/dashboard?complexId=&from=&to=` → hiển thị KPI
+- **KPI:** totalRevenue, bookingRevenue, rentalRevenue, productRevenue, surchargeRevenue, refundAmount, bookingCount, pendingBookingCount, occupancyRate, activeRentalCount, damagedAssetCount, lowStockCount, upcomingBookings, revenueByDate, occupancyByCourt
+- **Quy tắc:** Booking `PendingPayment`, `Cancelled`, `Expired` **không** tính vào doanh thu và occupancy
+
+**8.6 Quy tắc bảo mật tenant isolation:**
+- User hiện tại lấy từ JWT (`ICurrentUserContext`), **không tin** `ownerId` từ body/query do client gửi để xác thực.
+- `complexId` trong request chỉ dùng để chọn scope; `OwnerAccessService.RequireComplexAccess` / `RequireOwnerOrAdminAccess` bắt buộc trước mọi truy vấn dữ liệu.
+- Owner A không đọc được Complex của Owner B (403/404).
+- Filter `OwnerApiAuthorizationFilter` chặn Customer/Staff trên mọi `/api/owner/*`.
+- Service layer luôn kiểm tra quyền — không chỉ dựa vào `[Authorize]` ở Controller.
+
+**8.7 API prefix:** `/api/owner/*` — JWT Bearer.
+
+**8.8 Frontend:** `/owner/dashboard`, `/owner/complex`, `/owner/settings` — `OwnerRoute`, `OwnerLayout`, `ComplexSelector`.
+
+**8.9 Tài khoản demo:** `courtowner@prosport.vn` / `Admin@123456` — ComplexId 1.
+
+**8.10 Khác biệt kiến trúc thực tế:** Dự án dùng **ASP.NET Core 8 + EF Core + React/Vite**, không phải Java Servlet/JSP như mô tả ban đầu trong đề bài mẫu.
+
+---
+
+### 9. Court Owner — Task 3 (Inventory, Rental, Finance, Audit) — 2026-06
+
+**9.1 Phạm vi:** Kho sản phẩm theo Complex, Rental Asset/Session, Condition Check, Surcharge, Voucher scoped, Báo cáo tài chính, Review tổ hợp, Audit Log đọc được.
+
+**9.2 Entity mới:** `ProductStock`, `RentalAsset`, `RentalSession`, `RentalSessionAsset`, `ConditionCheck`, `RentalSurcharge`, `ComplexReview`. Voucher mở rộng: `ApplicableComplexId`, `ApplicableProductId`, `VoucherType`, `Status`.
+
+**9.3 API Owner Task 3:**
+| Nhóm | Endpoint |
+|------|----------|
+| Inventory | `GET/POST/PUT /api/owner/inventory/products`, `GET/POST/PUT/PATCH .../rental-assets` |
+| Rentals | `GET/POST /api/owner/rentals`, `GET {id}`, `GET {id}/condition-history`, `POST condition-check`, `POST surcharge` |
+| Voucher | `GET/POST/PUT /api/owner/vouchers`, `PATCH {id}/status` |
+| Reports | `GET /api/owner/reports/revenue|occupancy|inventory|export` |
+| Reviews | `GET /api/owner/reviews`, `POST {id}/reply`, `POST {id}/report` |
+| Audit | `GET /api/owner/audit-logs?complexId=` |
+
+**9.4 Frontend routes:** `/owner/inventory/products`, `/owner/inventory/rental-assets`, `/owner/rentals`, `/owner/rentals/:rentalId`, `/owner/vouchers`, `/owner/finance`, `/owner/reports`, `/owner/reviews`, `/owner/audit-logs`.
+
+**9.5 Quy tắc nghiệp vụ:**
+- Asset `RENTED` không cho thuê lại; `RentCount` tăng khi condition check final (non-damaged).
+- Asset `DAMAGED` → `MAINTENANCE` → `AVAILABLE` (không tự về AVAILABLE).
+- Condition history không sửa sau session `Completed`.
+- Surcharge bắt buộc amount + reason + AuditLog.
+- Owner không sửa PaymentTransaction/Ledger; export report sau authorization.
+- Voucher scoped theo `ApplicableComplexId`; Try-Before-You-Buy qua `VoucherType`.
+
+**9.6 Migration:** `AddOwnerTask3InventoryRental` — chạy `dotnet ef database update`.
+
+**9.7 Deployment:** `vercel.json` rewrite SPA; CORS đọc từ `Cors:AllowedOrigins`; JWT secret từ env (không hard-code production).
+
+**9.8 Test plan:** 43 unit tests (Task 1+2+3); IDOR qua `RequireOwnerOrAdminAccessAsync` + filter `complexId` trên mọi query.

@@ -26,10 +26,20 @@ public class MatchServiceTests
         _escrowServiceMock = new Mock<IEscrowService>();
         _loggerMock = new Mock<ILogger<MatchService>>();
 
+        var cancelPolicyMock = new Mock<ICancellationPolicyService>();
+        cancelPolicyMock.Setup(c => c.CalculateMatchLeaveReleaseAsync(It.IsAny<int>(), It.IsAny<DateTime>()))
+            .ReturnsAsync((0m, "Mất 100% cọc (rút dưới 24h)."));
+
+        var courtRepoMock = new Mock<ICourtRepository>();
+        courtRepoMock.Setup(c => c.GetByIdAsync(It.IsAny<int>()))
+            .ReturnsAsync(new Court { CourtId = 1, ComplexId = 1 });
+
         _matchService = new MatchService(
             _matchRepoMock.Object,
             _bookingRepoMock.Object,
             _escrowServiceMock.Object,
+            cancelPolicyMock.Object,
+            courtRepoMock.Object,
             _loggerMock.Object);
     }
 
@@ -105,7 +115,7 @@ public class MatchServiceTests
 
         // Assert
         result.StatusCode.Should().Be(200);
-        result.Message.Should().Contain("bị phạt");
+        result.Message.Should().Contain("Mất");
         
         // Verify escrow service called DeductLockedFundsAsync
         _escrowServiceMock.Verify(x => x.DeductLockedFundsAsync(userId, escrowAmount, matchId, It.IsAny<string>()), Times.Once);

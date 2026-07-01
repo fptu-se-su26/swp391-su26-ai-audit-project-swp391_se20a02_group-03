@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
 using ProSport.Application.DTOs;
+using ProSport.Application.Exceptions;
 using ProSport.Application.Interfaces;
 using ProSport.Domain.Constants;
 using ProSport.Domain.Entities;
@@ -16,6 +17,10 @@ public class BookingService : IBookingService
     private readonly IUserRepository _userRepository;
     private readonly IEmailService _emailService;
     private readonly ILogger<BookingService> _logger;
+    private readonly IStaffOperationGuard _staffOperationGuard;
+    private readonly ICancellationPolicyService _cancellationPolicy;
+    private readonly IMembershipService _membershipService;
+    private readonly INotificationService _notificationService;
 
     /// <summary>
     /// Thời gian chờ thanh toán tối đa (15 phút). Quá hạn sẽ tự hủy booking.
@@ -28,7 +33,11 @@ public class BookingService : IBookingService
         IEscrowRepository escrowRepository,
         IUserRepository userRepository,
         IEmailService emailService,
-        ILogger<BookingService> logger)
+        ILogger<BookingService> logger,
+        IStaffOperationGuard staffOperationGuard,
+        ICancellationPolicyService cancellationPolicy,
+        IMembershipService membershipService,
+        INotificationService notificationService)
     {
         _bookingRepository = bookingRepository;
         _courtRepository = courtRepository;
@@ -36,6 +45,10 @@ public class BookingService : IBookingService
         _userRepository = userRepository;
         _emailService = emailService;
         _logger = logger;
+        _staffOperationGuard = staffOperationGuard;
+        _cancellationPolicy = cancellationPolicy;
+        _membershipService = membershipService;
+        _notificationService = notificationService;
     }
 
     public async Task<ApiResponseDto<IEnumerable<BookingDto>>> GetAllBookingsAsync()
@@ -136,7 +149,7 @@ public class BookingService : IBookingService
                     if (court != null) courtCache[d.CourtId] = court;
                 }
 
-                if (court == null || court.Status != "Available")
+            if (court == null || !CourtStatuses.IsBookable(court.Status))
                     return new ApiResponseDto<BookingDto>(400, $"Sân {d.CourtId} không khả dụng.");
 
                 // C2 & H3 FIX: Removed N+1 and non-atomic GetAvailableCourtsAsync check.
@@ -144,7 +157,7 @@ public class BookingService : IBookingService
                 // which uses a Serializable transaction to prevent TOCTOU race conditions.
 
                 // Tính giá dựa trên PricingRule (đã fix logic cross-slot)
-                var price = CalculatePrice(court, d.BookingDate, d.StartTime, d.EndTime);
+                var price = await CalculatePriceAsync(dto.UserId, court, d.BookingDate, d.StartTime, d.EndTime);
                 totalAmount += price;
 
                 details.Add(new BookingDetail
@@ -247,10 +260,13 @@ public class BookingService : IBookingService
                     if (court != null) courtCache[d.CourtId] = court;
                 }
 
-                if (court == null || court.Status != "Available")
+            if (court == null || !CourtStatuses.IsBookable(court.Status))
                     return new ApiResponseDto<BookingDto>(400, $"Sân {d.CourtId} không khả dụng.");
 
-                var price = CalculatePrice(court, d.BookingDate, d.StartTime, d.EndTime);
+                if (court.ComplexId.HasValue)
+                    await _staffOperationGuard.EnsureCanCreateWalkInAsync(staffId, court.ComplexId.Value);
+
+                var price = await CalculatePriceAsync(customer!.UserId, court, d.BookingDate, d.StartTime, d.EndTime);
                 totalAmount += price;
 
                 details.Add(new BookingDetail
@@ -313,6 +329,10 @@ public class BookingService : IBookingService
         {
             return new ApiResponseDto<BookingDto>(409, ex.Message);
         }
+        catch (OwnerAccessDeniedException ex)
+        {
+            return new ApiResponseDto<BookingDto>(403, ex.Message);
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error creating walk-in booking by staff {StaffId}", staffId);
@@ -321,100 +341,58 @@ public class BookingService : IBookingService
     }
 
     /// <summary>
-    /// Tính giá sân dựa trên PricingRule. Hỗ trợ booking span giữa 2 khung giá khác nhau.
-    /// Nếu không có rule phù hợp, fallback về 100.000đ/giờ.
+    /// Tính giá sân dựa trên PricingRule và membership discount (nếu có).
     /// </summary>
-    private static decimal CalculatePrice(Court court, DateTime bookingDate, TimeSpan startTime, TimeSpan endTime)
+    private async Task<decimal> CalculatePriceAsync(int userId, Court court, DateTime bookingDate, TimeSpan startTime, TimeSpan endTime)
     {
-        bool isWeekend = bookingDate.DayOfWeek is DayOfWeek.Saturday or DayOfWeek.Sunday;
+        var discountPercent = 0m;
+        if (court.ComplexId.HasValue)
+            discountPercent = await _membershipService.GetActiveDiscountPercentAsync(userId, court.ComplexId.Value, bookingDate);
 
-        var rules = court.PricingRules?
-            .Where(r => r.IsWeekend == isWeekend && !r.IsDeleted)
-            .OrderBy(r => r.StartTime)
-            .ToList();
-
-        if (rules == null || !rules.Any())
-        {
-            // Fallback: 100.000đ/giờ nếu chưa cấu hình PricingRule
-            return (decimal)(endTime - startTime).TotalHours * 100000m;
-        }
-
-        // Tính giá theo từng khung giờ (split calculation)
-        // VD: Book 10:00-12:00, Rule A: 08:00-11:00 (100k/h), Rule B: 11:00-14:00 (150k/h)
-        // → 1h * 100k + 1h * 150k = 250k
-        decimal totalPrice = 0;
-        var current = startTime;
-
-        while (current < endTime)
-        {
-            var rule = rules.FirstOrDefault(r => r.StartTime <= current && r.EndTime > current);
-            var ratePerHour = rule?.PricePerHour ?? 100000m;
-
-            // Xác định điểm kết thúc của segment hiện tại
-            var segmentEnd = endTime;
-            if (rule != null && rule.EndTime < endTime)
-            {
-                segmentEnd = rule.EndTime;
-            }
-
-            // BUG-18 FIX: Guard against zero-length segments (malformed pricing rules) to prevent infinite loop
-            if (segmentEnd <= current) break;
-
-            var hours = (decimal)(segmentEnd - current).TotalHours;
-            totalPrice += hours * ratePerHour;
-            current = segmentEnd;
-        }
-
-        return totalPrice;
+        return BookingPriceCalculator.Calculate(court, bookingDate, startTime, endTime, discountPercent);
     }
 
     public async Task<ApiResponseDto<BookingDto>> ConfirmBookingPaymentAsync(int bookingId, string vnpayTransactionId, decimal paidAmount)
     {
         try
         {
+            var outcome = await _escrowRepository.ConfirmVnPayBookingPaymentAsync(bookingId, vnpayTransactionId, paidAmount);
             var booking = await _bookingRepository.GetByIdAsync(bookingId);
-            if (booking == null) return new ApiResponseDto<BookingDto>(404, "Booking not found");
 
-            if (booking.PaymentStatus == Domain.Constants.PaymentStatus.Paid)
-                return new ApiResponseDto<BookingDto>(400, "Booking đã được thanh toán.");
-
-            // Kiểm tra booking đã hết hạn thanh toán chưa
-            if (booking.PaymentDeadline.HasValue && DateTime.UtcNow > booking.PaymentDeadline.Value)
+            switch (outcome)
             {
-                // C-04 FIX: Set both Status AND PaymentStatus consistently when expired
-                booking.Status = BookingStatus.Cancelled;
-                booking.PaymentStatus = Domain.Constants.PaymentStatus.Cancelled;
-                await _bookingRepository.UpdateAsync(booking);
-                return new ApiResponseDto<BookingDto>(400, "Booking đã hết hạn thanh toán. Vui lòng đặt lại.");
+                case VnPayPaymentConfirmOutcome.NotFound:
+                    return new ApiResponseDto<BookingDto>(404, "Booking not found");
+                case VnPayPaymentConfirmOutcome.Expired:
+                    return new ApiResponseDto<BookingDto>(400, "Booking đã hết hạn thanh toán. Vui lòng đặt lại.");
+                case VnPayPaymentConfirmOutcome.AmountMismatch:
+                    _logger.LogWarning(
+                        "Payment amount mismatch for booking {BookingId}: expected {Expected}, got {Actual}",
+                        bookingId, booking?.TotalAmount, paidAmount);
+                    return new ApiResponseDto<BookingDto>(400,
+                        $"Số tiền thanh toán ({paidAmount:N0}) không khớp với hóa đơn ({booking?.TotalAmount:N0})");
+                case VnPayPaymentConfirmOutcome.DuplicateReference:
+                    return booking?.PaymentStatus == PaymentStatus.Paid
+                        ? new ApiResponseDto<BookingDto>(200, "Thanh toán thành công", MapToDto(booking))
+                        : new ApiResponseDto<BookingDto>(409, "Mã giao dịch VNPay đã được sử dụng.");
+                case VnPayPaymentConfirmOutcome.AlreadyPaid:
+                    return new ApiResponseDto<BookingDto>(400, "Booking đã được thanh toán.");
+                case VnPayPaymentConfirmOutcome.Success:
+                    break;
+                default:
+                    return new ApiResponseDto<BookingDto>(500, "An unexpected error occurred.");
             }
 
-            // Bảo mật: Kiểm tra xem số tiền trả qua VNPay có đúng bằng số tiền hóa đơn không
-            // Dùng tolerance thay vì == để tránh rounding issue khi VNPay parse amount
-            if (Math.Abs(booking.TotalAmount - paidAmount) > 1m) // tolerance 1 VND
-            {
-                _logger.LogWarning(
-                    "Payment amount mismatch for booking {BookingId}: expected {Expected}, got {Actual}",
-                    bookingId, booking.TotalAmount, paidAmount);
-                return new ApiResponseDto<BookingDto>(400, $"Số tiền thanh toán ({paidAmount:N0}) không khớp với hóa đơn ({booking.TotalAmount:N0})");
-            }
+            booking ??= await _bookingRepository.GetByIdAsync(bookingId);
+            if (booking == null)
+                return new ApiResponseDto<BookingDto>(404, "Booking not found");
 
-            booking.PaymentStatus = Domain.Constants.PaymentStatus.Paid;
-            booking.Status = BookingStatus.Confirmed;
-            booking.PaymentMethod = PaymentMethod.VNPay;
-            booking.CheckInCode = $"QR-{booking.BookingId}-{Guid.NewGuid().ToString()[..8]}";
-
-            await _bookingRepository.UpdateAsync(booking);
-
-            // Tạo Transaction record để audit trail
-            await CreatePaymentTransactionAsync(booking, vnpayTransactionId);
-
-            // Gửi Email xác nhận Booking kèm QR code
             if (booking.User != null && !string.IsNullOrEmpty(booking.User.Email))
             {
                 var courtNames = string.Join(", ", booking.BookingDetails.Select(bd => bd.Court?.Name ?? $"Court {bd.CourtId}"));
                 var firstDetail = booking.BookingDetails.FirstOrDefault();
                 var bookingDate = firstDetail?.BookingDate.ToString("dd/MM/yyyy");
-                var timeRange = $"{firstDetail?.StartTime:HH\\:mm} - {firstDetail?.EndTime:HH\\:mm}"; // M-03 FIX: HH = 24h format
+                var timeRange = $"{firstDetail?.StartTime:HH\\:mm} - {firstDetail?.EndTime:HH\\:mm}";
 
                 var detailsHtml = $@"
                     <p><b>Booking ID:</b> #{booking.BookingId}</p>
@@ -448,8 +426,7 @@ public class BookingService : IBookingService
     }
 
     /// <summary>
-    /// Tạo Transaction record cho VNPay payment để giữ audit trail.
-    /// Idempotent: Nếu transaction với vnpayTransactionId đã tồn tại, bỏ qua.
+    /// Legacy helper retained for cash walk-in audit; VNPay uses ConfirmVnPayBookingPaymentAsync.
     /// </summary>
     private async Task CreatePaymentTransactionAsync(Booking booking, string vnpayTransactionId)
     {
@@ -545,19 +522,16 @@ public class BookingService : IBookingService
             // Chỉ tính phí phạt nếu booking ĐÃ THANH TOÁN
             if (booking.PaymentStatus == Domain.Constants.PaymentStatus.Paid)
             {
-                booking.CancellationFee = booking.TotalAmount * 0.2m; // Phạt 20%
-                var refundAmount = booking.TotalAmount - booking.CancellationFee;
+                var preview = await _cancellationPolicy.CalculateBookingRefundAsync(booking);
+                booking.CancellationFee = preview.PenaltyAmount;
+                var refundAmount = preview.RefundAmount;
 
-                // Refund 80% vào ví Escrow
+                // Refund vào ví Escrow theo chính sách complex
                 if (refundAmount > 0)
                 {
                     var refundResult = await _escrowRepository.ExecuteInTransactionAsync(async () =>
                     {
-                        var wallet = await _escrowRepository.GetWalletByUserIdAsync(booking.UserId);
-                        if (wallet == null) return false;
-
-                        wallet.Balance += refundAmount;
-                        await _escrowRepository.UpdateWalletAsync(wallet);
+                        var wallet = await _escrowRepository.CreditWalletAsync(booking.UserId, refundAmount);
 
                         var transaction = new Transaction
                         {
@@ -566,7 +540,7 @@ public class BookingService : IBookingService
                             Amount = refundAmount,
                             Type = TransactionType.Refund,
                             Status = TransactionStatus.Completed,
-                            Description = $"Hoàn tiền hủy sân mã #{booking.BookingId} (trừ 20% phí phạt)"
+                            Description = $"Hoàn tiền hủy sân mã #{booking.BookingId} ({preview.RefundPercent}% — {preview.Message})"
                         };
                         await _escrowRepository.AddTransactionAsync(transaction);
                         return true;
@@ -582,7 +556,7 @@ public class BookingService : IBookingService
                     }
                 }
 
-                cancelMessage = $"Hủy đặt sân thành công. Tiền hoàn {refundAmount:N0} VNĐ (trừ 20% phí phạt) đã được chuyển vào Ví PRO-SPORT của bạn.";
+                cancelMessage = $"Hủy đặt sân thành công. {preview.Message} Tiền hoàn {refundAmount:N0} VNĐ.";
             }
             else
             {
@@ -620,6 +594,10 @@ public class BookingService : IBookingService
             var firstDetail = booking.BookingDetails.FirstOrDefault();
             if (firstDetail != null)
             {
+                var court = await _courtRepository.GetByIdAsync(firstDetail.CourtId);
+                if (court?.ComplexId != null)
+                    await _staffOperationGuard.EnsureCanCheckInAsync(staffId, court.ComplexId.Value);
+
                 // Cross-platform timezone: try Windows ID first, fallback to IANA (Linux/Docker)
                 TimeZoneInfo vnTz2;
                 try { vnTz2 = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"); }
@@ -642,17 +620,210 @@ public class BookingService : IBookingService
                 CheckInTime = DateTime.UtcNow,
                 Notes = "Checked in via QR Code Scanner"
             };
-            booking.Status = BookingStatus.Completed;
+            booking.Status = BookingStatus.CheckedIn;
 
             await _bookingRepository.UpdateAsync(booking);
 
             return new ApiResponseDto<BookingDto>(200, "Check-in thành công!", MapToDto(booking));
+        }
+        catch (OwnerAccessDeniedException ex)
+        {
+            return new ApiResponseDto<BookingDto>(403, ex.Message);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error processing check in for code {CheckInCode}", checkInCode);
             return new ApiResponseDto<BookingDto>(500, "An unexpected error occurred.");
         }
+    }
+
+    public async Task<ApiResponseDto<BookingDto>> ProcessCheckInForBookingAsync(int bookingId, int staffId, string? checkInCode)
+    {
+        var booking = await _bookingRepository.GetByIdAsync(bookingId);
+        if (booking == null)
+            return new ApiResponseDto<BookingDto>(404, "Không tìm thấy booking.");
+
+        if (!string.IsNullOrWhiteSpace(checkInCode) && booking.CheckInCode != checkInCode)
+            return new ApiResponseDto<BookingDto>(400, "Mã check-in không khớp.");
+
+        return await ProcessCheckInAsync(booking.CheckInCode ?? "", staffId);
+    }
+
+    public async Task<ApiResponseDto<bool>> CancelBookingAsOperatorAsync(int operatorUserId, int bookingId)
+    {
+        var booking = await _bookingRepository.GetByIdAsync(bookingId);
+        if (booking == null)
+            return new ApiResponseDto<bool>(404, "Booking not found");
+
+        if (booking.Status == BookingStatus.Cancelled || booking.Status == BookingStatus.Completed)
+            return new ApiResponseDto<bool>(400, $"Không thể hủy booking ở trạng thái {booking.Status}");
+
+        // Operator/owner forced cancel (weather, outage) — customer is not at fault; full refund, no penalty.
+        var cancellationFee = 0m;
+        var refundAmount = booking.PaymentStatus == PaymentStatus.Paid ? booking.TotalAmount : 0m;
+
+        var cancelled = await _escrowRepository.CancelBookingWithRefundAsync(
+            bookingId,
+            cancellationFee,
+            refundAmount,
+            "Hủy bởi operator",
+            $"OperatorCancel_{bookingId}");
+
+        if (!cancelled)
+        {
+            _logger.LogError("Operator cancel failed for booking {BookingId}", bookingId);
+            return new ApiResponseDto<bool>(500, "Không thể hủy booking.");
+        }
+
+        return new ApiResponseDto<bool>(200, "Hủy booking thành công.", true);
+    }
+
+    public async Task<ApiResponseDto<bool>> CancelAndRefundSystemAsync(int bookingId, string reason)
+    {
+        try
+        {
+            var booking = await _bookingRepository.GetByIdAsync(bookingId);
+            if (booking == null)
+                return new ApiResponseDto<bool>(404, "Booking not found");
+
+            if (booking.Status == BookingStatus.Cancelled || booking.Status == BookingStatus.Completed)
+                return new ApiResponseDto<bool>(200, "Booking đã ở trạng thái cuối.", true);
+
+            var refundAmount = booking.PaymentStatus == PaymentStatus.Paid ? booking.TotalAmount : 0;
+            var cancelled = await _escrowRepository.CancelBookingWithRefundAsync(
+                bookingId,
+                cancellationFee: 0,
+                refundAmount,
+                reason,
+                $"SystemCancel_{bookingId}");
+
+            if (!cancelled)
+            {
+                _logger.LogError("System cancel failed for booking {BookingId}", bookingId);
+                return new ApiResponseDto<bool>(500, "Không thể hủy booking.");
+            }
+
+            try
+            {
+                await _notificationService.SendToUserAsync(booking.UserId, new RealtimeNotificationDto
+                {
+                    Type = "booking_system_cancelled",
+                    Title = "Đặt sân bị hủy",
+                    Message = reason,
+                    Data = new { bookingId = booking.BookingId }
+                });
+            }
+            catch (Exception notifyEx)
+            {
+                _logger.LogWarning(notifyEx, "Notification failed for system cancel booking {BookingId}", bookingId);
+            }
+
+            return new ApiResponseDto<bool>(200, "Đã hủy và hoàn tiền booking.", true);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "System cancel failed for booking {BookingId}", bookingId);
+            return new ApiResponseDto<bool>(500, "An unexpected error occurred.");
+        }
+    }
+
+    private async Task<bool> RefundPaidBookingPartialAsync(Booking booking, decimal refundAmount, string reason)
+    {
+        if (refundAmount <= 0)
+            return true;
+
+        if (booking.IsSplitPayment && booking.PaymentShares.Count > 0)
+        {
+            var paidShares = booking.PaymentShares.Where(s => s.Status == PaymentShareStatus.Paid).ToList();
+            var totalPaid = paidShares.Sum(s => s.Amount);
+            if (totalPaid <= 0)
+                return true;
+
+            foreach (var share in paidShares)
+            {
+                var shareRefund = Math.Round(refundAmount * (share.Amount / totalPaid), 2, MidpointRounding.AwayFromZero);
+                if (shareRefund <= 0)
+                    continue;
+
+                var ok = await _escrowRepository.RefundSplitShareAtomicAsync(
+                    share.UserId, booking.BookingId, share.BookingPaymentShareId, shareRefund);
+                if (!ok)
+                    return false;
+            }
+
+            return true;
+        }
+
+        return await _escrowRepository.ExecuteInTransactionAsync(async () =>
+        {
+            var wallet = await _escrowRepository.CreditWalletAsync(booking.UserId, refundAmount);
+
+            await _escrowRepository.AddTransactionAsync(new Transaction
+            {
+                EscrowWalletId = wallet.EscrowWalletId,
+                BookingId = booking.BookingId,
+                Amount = refundAmount,
+                Type = TransactionType.Refund,
+                Status = TransactionStatus.Completed,
+                Description = $"Hoàn {refundAmount:N0} VNĐ do hủy booking #{booking.BookingId}: {reason}"
+            });
+
+            return true;
+        });
+    }
+
+    private async Task<bool> RefundPaidBookingAsync(Booking booking, string reason)
+    {
+        if (booking.IsSplitPayment && booking.PaymentShares.Count > 0)
+        {
+            foreach (var share in booking.PaymentShares.Where(s => s.Status == PaymentShareStatus.Paid))
+            {
+                var ok = await _escrowRepository.RefundSplitShareAtomicAsync(
+                    share.UserId, booking.BookingId, share.BookingPaymentShareId, share.Amount);
+                if (!ok)
+                    return false;
+            }
+
+            return true;
+        }
+
+        var refundAmount = booking.TotalAmount;
+        if (refundAmount <= 0)
+            return true;
+
+        return await _escrowRepository.ExecuteInTransactionAsync(async () =>
+        {
+            var wallet = await _escrowRepository.CreditWalletAsync(booking.UserId, refundAmount);
+
+            await _escrowRepository.AddTransactionAsync(new Transaction
+            {
+                EscrowWalletId = wallet.EscrowWalletId,
+                BookingId = booking.BookingId,
+                Amount = refundAmount,
+                Type = TransactionType.Refund,
+                Status = TransactionStatus.Completed,
+                Description = $"Hoàn 100% do hủy hệ thống #{booking.BookingId}: {reason}"
+            });
+
+            return true;
+        });
+    }
+
+    public async Task<ApiResponseDto<BookingDto>> UpdateBookingStatusAsync(int bookingId, string status, int actorUserId)
+    {
+        var allowed = new[] { BookingStatus.Confirmed, BookingStatus.CheckedIn, BookingStatus.Completed, BookingStatus.Cancelled, BookingStatus.NoShow };
+        if (!allowed.Contains(status, StringComparer.OrdinalIgnoreCase))
+            return new ApiResponseDto<BookingDto>(400, "Trạng thái không hợp lệ.");
+
+        var booking = await _bookingRepository.GetByIdAsync(bookingId);
+        if (booking == null)
+            return new ApiResponseDto<BookingDto>(404, "Booking not found");
+
+        booking.Status = status;
+        booking.UpdatedAt = DateTime.UtcNow;
+        await _bookingRepository.UpdateAsync(booking);
+
+        return new ApiResponseDto<BookingDto>(200, "Cập nhật trạng thái thành công.", MapToDto(booking));
     }
 
     private static IEnumerable<BookingDto> MapToDtos(IEnumerable<Booking> bookings)

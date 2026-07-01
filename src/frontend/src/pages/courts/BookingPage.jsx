@@ -4,15 +4,13 @@ import Navbar from '../../components/Navbar'
 import Footer from '../../components/Footer'
 import { bookingApi } from '../../api/bookingApi'
 import { paymentApi } from '../../api/paymentApi'
+import { playerFeaturesApi } from '../../api/playerFeaturesApi'
 import { useToast } from '../../components/Toast'
 
-/**
- * Helper: decode JWT token từ localStorage để lấy thông tin user.
- * Nếu không có token, trả về null.
- */
+import { getAuthToken } from '../../utils/authStorage'
 function getCurrentUser() {
   try {
-    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+    const token = getAuthToken();
     if (!token) return null;
     const payload = JSON.parse(atob(token.split('.')[1]));
     return {
@@ -34,6 +32,8 @@ export default function BookingPage() {
   const date = searchParams.get('date') || new Date().toISOString().split('T')[0]
   
   const [paymentMethod, setPaymentMethod] = useState('vnpay')
+  const [splitMode, setSplitMode] = useState(false)
+  const [partnerEmail, setPartnerEmail] = useState('')
   const [isSuccess, setIsSuccess] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [escrowBalance, setEscrowBalance] = useState(0)
@@ -112,18 +112,34 @@ export default function BookingPage() {
 
     setIsLoading(true);
     try {
-      const payload = {
-        details: [
-          {
-            courtId: parseInt(courtId),
-            bookingDate: date,
-            startTime: slot.length === 5 ? slot + ':00' : slot,
-            endTime: calculateEndTime(slot).length === 5 ? calculateEndTime(slot) + ':00' : calculateEndTime(slot)
-          }
-        ]
+      const detail = {
+        courtId: parseInt(courtId),
+        bookingDate: date,
+        startTime: slot.length === 5 ? slot + ':00' : slot,
+        endTime: calculateEndTime(slot).length === 5 ? calculateEndTime(slot) + ':00' : calculateEndTime(slot)
       };
 
-      const res = await bookingApi.createBooking(payload);
+      let res;
+      if (splitMode && partnerEmail.trim()) {
+        const half = Math.floor((court.price + court.serviceFee) / 2);
+        const remainder = court.price + court.serviceFee - half;
+        res = await playerFeaturesApi.createSplitBooking({
+          details: [detail],
+          participants: [
+            { amount: half, isHost: true },
+            { email: partnerEmail.trim(), amount: remainder }
+          ],
+          splitDeadlineHours: 24
+        });
+        if (res.statusCode === 201 || res.statusCode === 200) {
+          setBookingResult(res.data);
+          addToast('Đã tạo đơn chia bill. Mời bạn bè thanh toán phần của họ qua ví Escrow.', 'success');
+          setIsSuccess(true);
+          return;
+        }
+      } else {
+        res = await bookingApi.createBooking({ details: [detail] });
+      }
       
       if (res.statusCode === 200 || res.statusCode === 201) {
         const bookingId = res.data?.bookingId;
@@ -230,6 +246,23 @@ export default function BookingPage() {
             {/* Payment Method */}
             <div className="bg-neo-surface border-4 border-neo-muted shadow-[6px_6px_0_var(--color-neo-danger)] rounded-sm p-8">
               <h2 className="font-heading text-xl font-bold text-neo-ink tracking-tight mb-5" style={{ textShadow: '1px 1px 0px var(--color-neo-danger)' }}>Phương Thức Xuất Linh Thạch</h2>
+
+              <label className="flex items-center gap-3 mb-4 cursor-pointer">
+                <input type="checkbox" checked={splitMode} onChange={(e) => setSplitMode(e.target.checked)} className="w-5 h-5" />
+                <span className="font-bold text-neo-ink">Chia bill với bạn bè (Split Payment)</span>
+              </label>
+              {splitMode && (
+                <div className="mb-4">
+                  <label className="text-sm font-bold text-neo-ink block mb-1">Email người chơi cùng</label>
+                  <input
+                    type="email"
+                    value={partnerEmail}
+                    onChange={(e) => setPartnerEmail(e.target.value)}
+                    placeholder="ban@example.com"
+                    className="w-full border-2 border-neo-muted rounded-sm px-3 py-2"
+                  />
+                </div>
+              )}
               
               <div className="flex flex-col gap-4">
                 <label className={`group flex items-start gap-4 p-5 border-4 cursor-pointer transition-all duration-75 rounded-sm ${paymentMethod === 'escrow' ? 'border-neo-muted bg-neo-accent shadow-[4px_4px_0_var(--color-neo-danger)]' : 'border-neo-muted bg-white hover:bg-neo-secondary'}`}>

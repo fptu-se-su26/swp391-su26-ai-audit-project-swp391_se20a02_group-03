@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { clearAuthStorage, getAuthToken } from '../utils/authStorage';
 
 const axiosClient = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5138/api',
@@ -10,7 +11,7 @@ const axiosClient = axios.create({
 // Interceptor for API request
 axiosClient.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+    const token = getAuthToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -31,10 +32,7 @@ axiosClient.interceptors.response.use(
   (error) => {
     // Handle 401 Unauthorized globally — clear tokens AND redirect to login
     if (error.response && error.response.status === 401) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      sessionStorage.removeItem('token');
-      sessionStorage.removeItem('user');
+      clearAuthStorage();
       window.dispatchEvent(new CustomEvent('auth:session-expired'));
       const requestUrl = error.config?.url || '';
       const isProfileProbe = requestUrl.includes('/auth/me');

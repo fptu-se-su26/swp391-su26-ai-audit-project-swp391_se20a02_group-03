@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useNavbarEntrance } from '../hooks/useNavbarEntrance'
 import { useAuth } from '../context/AuthContext'
 import ProSportLogo from './ui/ProSportLogo'
+import NotificationBell from './NotificationBell'
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false)
@@ -26,6 +27,28 @@ export default function Navbar() {
 
   const isActive = (path) =>
     location.pathname === path || (path !== '/' && location.pathname.startsWith(path))
+
+  const portalLinks = (() => {
+    if (user?.role === 'Admin') {
+      return [
+        { to: '/admin', label: 'Quản trị viên' },
+        { to: '/owner/dashboard', label: 'Dashboard' },
+        { to: '/owner/courts', label: 'Quản lý sân' },
+        { to: '/owner/bookings', label: 'Lịch đặt sân' },
+      ]
+    }
+    if (user?.role === 'CourtOwner') {
+      return [
+        { to: '/owner/dashboard', label: 'Dashboard' },
+        { to: '/owner/courts', label: 'Quản lý sân' },
+        { to: '/owner/bookings', label: 'Lịch đặt sân' },
+      ]
+    }
+    if (user?.role === 'Staff') {
+      return [{ to: '/apex', label: 'Cổng Apex' }]
+    }
+    return [{ to: '/apex', label: 'Cổng Apex' }]
+  })()
 
   return (
     <nav ref={navRef} className="fixed top-0 left-0 right-0 z-[100] h-16 bg-background-base/80 backdrop-blur-md border-b border-border-default font-sans">
@@ -51,15 +74,16 @@ export default function Navbar() {
           <li className="w-full lg:hidden pt-2 border-t border-border-default mt-2">
             {isAuthenticated ? (
               <div className="flex flex-col gap-2">
-                {user?.role === 'Admin' ? (
-                  <Link to="/admin" onClick={() => setMenuOpen(false)} className="w-full text-left px-4 py-2 text-foreground-muted hover:text-[var(--theme-primary)] font-medium text-sm">
-                    Quản trị viên
+                {portalLinks.map(link => (
+                  <Link
+                    key={link.to}
+                    to={link.to}
+                    onClick={() => setMenuOpen(false)}
+                    className="w-full text-left px-4 py-2 text-foreground-muted hover:text-[var(--theme-primary)] font-medium text-sm"
+                  >
+                    {link.label}
                   </Link>
-                ) : (
-                  <Link to="/apex" onClick={() => setMenuOpen(false)} className="w-full text-left px-4 py-2 text-foreground-muted hover:text-[var(--theme-primary)] font-medium text-sm">
-                    Cổng Apex
-                  </Link>
-                )}
+                ))}
                 <button
                   onClick={() => { handleLogout(); setMenuOpen(false) }}
                   className="w-full text-left px-4 py-2 text-foreground-muted hover:text-[var(--theme-primary)] font-medium text-sm"
@@ -77,17 +101,18 @@ export default function Navbar() {
         </ul>
 
         <div className="hidden lg:flex items-center gap-4 shrink-0 ml-2">
+          {isAuthenticated && <NotificationBell />}
           {isAuthenticated ? (
             <>
-              {user?.role === 'Admin' ? (
-                <Link to="/admin" className="text-foreground-muted hover:text-[var(--theme-primary)] transition-colors font-medium text-sm px-2">
-                  Quản trị viên
+              {portalLinks.map(link => (
+                <Link
+                  key={link.to}
+                  to={link.to}
+                  className="text-foreground-muted hover:text-[var(--theme-primary)] transition-colors font-medium text-sm px-2"
+                >
+                  {link.label}
                 </Link>
-              ) : (
-                <Link to="/apex" className="text-foreground-muted hover:text-[var(--theme-primary)] transition-colors font-medium text-sm px-2">
-                  Cổng Apex
-                </Link>
-              )}
+              ))}
               <button
                 onClick={handleLogout}
                 className="text-foreground-muted hover:text-[var(--theme-primary)] transition-colors font-medium text-sm px-2"

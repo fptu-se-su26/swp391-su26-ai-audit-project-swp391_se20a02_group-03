@@ -20,14 +20,12 @@ public class InventoryController : ControllerBase
         _service = service;
     }
 
-    private int GetCurrentUserId()
+    private int? TryGetCurrentUserId()
     {
         var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (int.TryParse(userIdStr, out int userId))
-        {
             return userId;
-        }
-        throw new UnauthorizedAccessException("Cannot retrieve UserId from token.");
+        return null;
     }
 
     [HttpPost("stock-in")]
@@ -35,8 +33,11 @@ public class InventoryController : ControllerBase
     {
         try
         {
-            var userId = GetCurrentUserId();
-            await _service.StockInAsync(dto, userId);
+            var userId = TryGetCurrentUserId();
+            if (userId == null)
+                return Unauthorized(new { Message = "Unauthorized" });
+
+            await _service.StockInAsync(dto, userId.Value);
             return Ok(new { Message = "Nhập kho thành công." });
         }
         catch (ArgumentException ex)
@@ -54,8 +55,11 @@ public class InventoryController : ControllerBase
     {
         try
         {
-            var userId = GetCurrentUserId();
-            await _service.StockOutAsync(dto, userId);
+            var userId = TryGetCurrentUserId();
+            if (userId == null)
+                return Unauthorized(new { Message = "Unauthorized" });
+
+            await _service.StockOutAsync(dto, userId.Value);
             return Ok(new { Message = "Xuất kho thành công." });
         }
         catch (InvalidOperationException ex)
