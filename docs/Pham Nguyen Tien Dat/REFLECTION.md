@@ -321,11 +321,13 @@ Sau khi hoàn tất tích hợp Full-stack ở Tuần 6, Tuần 7 chuyển trọ
 
 ---
 
-# Reflection - Tuần 8: Owner Portal (Court Owner), Player Features, Audit & Hardening toàn cổng Owner
+---
+
+# Reflection - Tuần 8: Owner Portal, Player Features, Audit Remediation & Hardening toàn hệ thống
 
 ## Tổng quan quá trình
 
-Sau khi hoàn thiện OAuth và phân hệ Staff ở Tuần 7, Tuần 8 chuyển trọng tâm sang **mở rộng nền tảng cho chủ sân (Court Owner)** và **vá các lỗi nghiệp vụ nghiêm trọng** trước khi mở rộng UI. Công việc được tổ chức theo thứ tự ưu tiên P0 → P2.
+Sau khi hoàn thiện OAuth và phân hệ Staff ở Tuần 7, Tuần 8 chuyển trọng tâm sang **mở rộng nền tảng cho chủ sân (Court Owner)**, **vá các lỗi nghiệp vụ nghiêm trọng**, rồi **củng cố Escrow/Shop và kiểm thử toàn hệ thống** trước merge về `main`. Công việc được tổ chức theo thứ tự ưu tiên P0 → P3 (30–01/07/2026).
 
 **P0 — Owner Portal:** xây dựng full-stack (Domain → Application → Infrastructure → API + Frontend) gồm dashboard, quản lý sân, lịch đặt sân (list/calendar/walk-in/check-in), tài chính, báo cáo, kho/voucher, thuê thiết bị, nhân sự, đánh giá và cấu hình (giờ mở cửa, chính sách hủy, hội viên); áp dụng `OwnerAccessService`, `OwnerApiAuthorizationFilter` và phân quyền theo vai trò.
 
@@ -333,7 +335,9 @@ Sau khi hoàn thiện OAuth và phân hệ Staff ở Tuần 7, Tuần 8 chuyển
 
 **P1 — Audit & hardening:** rà soát toàn cổng Owner, vá IDOR cancellation policy, sửa logic báo cáo doanh thu (double-count, scope escrow, múi giờ VN), bổ sung UI còn thiếu và xử lý export CSV.
 
-**P2 — Tích hợp & phát hành:** đồng bộ `main`, chạy WhiteBox/BlackBox, commit gọn và push lên `DE190147/audit-module` (commit `4e0c435`, 201 files, **73/73** unit test pass).
+**P2 — Tích hợp & phát hành (Owner Portal):** đồng bộ `main`, chạy WhiteBox/BlackBox, commit gọn và push lên `DE190147/audit-module` (commit `4e0c435`, 201 files, **73/73** unit test pass).
+
+**P2→P3 — Audit remediation toàn hệ thống (cùng sprint, ngày 2026-07-01):** sau khi ship Owner Portal, tiếp tục rà soát và vá lỗi nghiệp vụ Escrow/cart/checkout thiết bị, tối ưu hiệu năng và hardening FE trước merge về `main`. Gồm: operator cancel hoàn **100%**; equipment damage không double-charge cọc; ví Escrow atomic (`ExecuteUpdate`); cart checkout **all-or-nothing** (Serializable) + validate `bookingId`; bổ sung trừ ví Escrow và ghi `Transaction` cho `BuyAsync`/`CheckoutCartAtomicAsync`; `AsNoTracking`/split query, compression, index DB; lazy routes, `ErrorBoundary`, debounce Owner; mở rộng `AuditBusinessLogicTests` và blackbox **14/14 PASS**; commit **`2a0924b`** (114 files, **95/99** unit test pass, 4 skip SQL Server).
 
 Song song, nhóm tích hợp **Superpowers** (submodule, quy trình brainstorming + writing-plans) để chuẩn hóa workflow Agent cho các feature sau này.
 
@@ -355,9 +359,20 @@ Song song, nhóm tích hợp **Superpowers** (submodule, quy trình brainstormin
 
 ### Kiểm thử, Git & vận hành
 
-- **Blackbox vs Whitebox:** Unit test pass nhiều nhưng dashboard Owner blackbox **13/14** do format giờ `hh` (12h) thay vì `HH` (24h) tại `OwnerDashboardService` — AI materialize query trước format nhưng chọn sai pattern TimeSpan.
+- **Blackbox vs Whitebox:** Unit test pass nhiều nhưng dashboard Owner blackbox **13/14** do format giờ `hh` (12h) thay vì `HH` (24h) tại `OwnerDashboardService` — AI materialize query trước format nhưng chọn sai pattern TimeSpan. Trong đợt remediation tiếp theo, sửa `HH` → `hh` cho TimeSpan lại gây **HTTP 400** blackbox — minh chứng lỗi format giờ dễ «vá nhầm chiều» nếu không có script API thực.
+- **Whitebox pass ≠ hệ thống an toàn:** **73/73** sau commit Owner Portal không phát hiện gap kế toán checkout (chỉ trừ stock, không trừ ví Escrow), race wallet read-modify-write hay cart partial failure — cần `AuditBusinessLogicTests` và blackbox sau audit nội bộ.
+- **Lỗi vận hành phát hiện muộn:** `/api/courts` HTTP 500 (thiếu `OrderBy` trước pagination split-query); `Program.cs` CS1061 (`UseQuerySplittingBehavior` sai vị trí); `StaffDemoSeeder` vi phạm CHECK `PaymentMethod` — không lộ khi chỉ chạy unit test mock.
 - **Git staging thiếu kỷ luật:** AI dễ stage cả `scratch/`, `.cursor/`, tài liệu Word extract nếu không bị giám sát.
 - **Hướng PR dễ nhầm:** Trên GitHub, đặt base/compare ngược (`main` → feature thay vì feature → `main`) khiến diff hiển thị commit của `main` chứ không phải công việc của nhóm — AI không tự giải thích UX GitHub cho người mới.
+
+### Escrow, Shop & kế toán (phát hiện trong audit remediation)
+
+- **Checkout «thành công» nhưng sai sổ sách:** Cart checkout trả HTTP 200 sau khi trừ stock và xóa giỏ, nhưng bỏ qua trừ ví Escrow và ghi `Transaction` — lỗi kế toán chỉ lộ khi đối chiếu số dư ví.
+- **Partial failure nguy hiểm:** Checkout có thể trừ stock một phần rồi fail giữa chừng nếu không bọc transaction Serializable all-or-nothing.
+- **Race trên ví Escrow:** Read-modify-write trên balance khi tournament/booking/cart chạy song song — AI hay vá từng service mà không thống nhất atomic tại `EscrowRepository`.
+- **Operator cancel thiếu công bằng:** Vẫn tính `CancellationFee` khi admin/operator hủy — sai nghiệp vụ «sân lỗi thì hoàn full».
+- **`bookingId` bị bỏ qua end-to-end:** BE có validate nhưng FE `CartCheckoutPage` gửi `null`; gộp giỏ chỉ theo `equipmentId` gây gộp nhầm item cùng thiết bị khác booking.
+- **Equipment damage double-charge:** `AdditionalCharge` tính trên toàn `repairCost` thay vì `max(0, repairCost - deposit)`.
 
 ---
 
@@ -386,7 +401,19 @@ Song song, nhóm tích hợp **Superpowers** (submodule, quy trình brainstormin
 - **Git hygiene:** Chỉ stage `src/`, docs liên quan, Superpowers setup; loại file tạm và tooling cá nhân.
 - **Hướng dẫn PR:** **base `main` ← compare `DE190147/audit-module`**.
 - **Superpowers:** Submodule + rule bắt buộc brainstorming/plan trước feature mới — giảm «code trước, suy nghĩ sau» ở các tuần tiếp theo.
-- **Kiểm chứng:** Sửa `hh` → `HH` → blackbox dashboard **14/14**; merge `origin/main` Already up to date; push `4e0c435`.
+- **Kiểm chứng Owner Portal:** Sửa `hh` → `HH` → blackbox dashboard **14/14**; merge `origin/main` Already up to date; push `4e0c435`.
+
+### Audit remediation — Escrow, cart & kiểm thử
+
+- **Kế toán trước tính năng mới:** Chỉ đạo bắt buộc trừ ví Escrow + ghi `Transaction` trước khi coi checkout «xong» — không chấp nhận chỉ HTTP 200.
+- **`CheckoutCartAtomicAsync`:** Transaction Serializable — validate stock → trừ tồn → trừ ví → ghi transaction → soft-delete cart; rollback toàn bộ nếu một bước fail.
+- **Atomic wallet:** `CreditWalletAsync`, `TryDebitWalletAsync` qua `ExecuteUpdate` tại `EscrowRepository`.
+- **Operator cancel & equipment:** `CancellationFee = 0`, hoàn full; `AdditionalCharge = max(0, repairCost - deposit)`.
+- **Cart semantics:** Gộp theo `equipmentId + bookingId`; FE truyền `bookingId` từ query hoặc item trong giỏ.
+- **Regression & blackbox:** `AuditBusinessLogicTests`; sửa `CourtRepository.OrderBy`, dashboard TimeSpan, `Program.cs` split query, seeder `"Escrow"` → blackbox **14/14 PASS**.
+- **Hiệu năng & FE:** Migration index; `AddResponseCompression`; lazy routes + `ErrorBoundary` + `manualChunks`; `useDebouncedValue`; `GET /api/courts/{id}/availability`.
+- **Integration test CI:** 4 test SQL Server skip khi thiếu `PROSPORT_INTEGRATION_CONNECTION_STRING` — document thay vì ép chạy local.
+- **Phát hành remediation:** `dotnet test` **95/99**; Vitest **6/6**; push **`2a0924b`** (`4e0c435..2a0924b`).
 
 ---
 
@@ -397,8 +424,10 @@ Song song, nhóm tích hợp **Superpowers** (submodule, quy trình brainstormin
 - **Feature «có API» ≠ feature «có hiệu lực»:** Tournament fee, membership discount, ELO confirm — cần test end-to-end assert thay đổi số dư/trạng thái, không chỉ assert HTTP 200.
 - **Ưu tiên P0 nghiệp vụ trước P1 UI:** Chủ sân tin sản phẩm khi số tiền và quyền đúng; giao diện đầy đủ mà sai tiền phá niềm tin nhanh hơn thiếu vài nút.
 - **Human phải yêu cầu «sửa hết audit»:** AI thường dừng ở fix đầu tiên hoặc critical duy nhất; Product Owner cần chỉ rõ *all findings* để tránh technical debt tích lũy trong cùng sprint.
-- **Format datetime là lỗi kinh điển:** `hh` vs `HH` đã xuất hiện ở Staff (Tuần 7) và Owner dashboard (Tuần 8) — nên quy ước dự án: hiển thị slot/quầy luôn `HH:mm`, timezone VN qua `VnTimeHelper`.
-- **Commit lớn cần staging có chủ đích:** 201 files một commit chấp nhận được nếu *một mục tiêu sprint* (Owner module); vẫn phải loại junk khỏi staging và ghi rõ phạm vi trong Changelog/Audit Log.
-- **Workflow Agent (Superpowers) là đầu tư meta:** Tuần 8 vừa ship feature vừa chuẩn hóa «plan trước code» — phù hợp khi module còn nhiều gap (tournament UI cho Owner, notification bell, E2E) ở các tuần sau.
-- **OAuth đã xong ở Tuần 7; Tuần 8 là multi-tenant Owner:** Bài học Tuần 7 (secret, origin, rebase) vẫn áp dụng; thêm lớp mới là **isolation theo complex** — lesson quan trọng nhất của sprint này.
-
+- **Format datetime là lỗi kinh điển:** `hh` vs `HH` xuất hiện ở Staff (Tuần 7), Owner dashboard (Tuần 8) và lại sai chiều khi remediation — cần utility/format chung và blackbox assert format response, không chỉ sửa tay theo log.
+- **Commit lớn cần staging có chủ đích:** 201 files (`4e0c435`) + 114 files (`2a0924b`) chấp nhận được nếu *một mục tiêu sprint* (Owner + audit remediation); vẫn phải loại junk khỏi staging và ghi rõ phạm vi trong Changelog/Audit Log.
+- **Workflow Agent (Superpowers) là đầu tư meta:** Tuần 8 vừa ship feature vừa chuẩn hóa «plan trước code» — phù hợp khi module còn nhiều gap (tournament UI cho Owner, notification bell, E2E) ở các sprint sau.
+- **OAuth đã xong ở Tuần 7; Tuần 8 là multi-tenant Owner + củng cố tài chính:** Bài học Tuần 7 (secret, origin, rebase) vẫn áp dụng; thêm lớp **isolation theo complex** và **HTTP 200 không chứng minh đúng tiền** — checkout phải assert số dư ví + `Transaction`, cart/tournament cần Serializable + atomic wallet.
+- **Portal lớn cần hai vòng audit:** Vòng 1 (Owner CRUD + IDOR + báo cáo); vòng 2 (Escrow/cart/Shop kế toán + hiệu năng + regression test) — không gộp vào tuần riêng nếu cùng sprint phát hành trên một nhánh.
+- **Blackbox bổ sung whitebox, không thay thế:** Script `blackbox-api-test.ps1` nên chạy trước mọi merge lớn sau feature sprint.
+- **Regression test theo câu chuyện nghiệp vụ:** Scenario kiểu `CartCheckout_RollsBack_WhenWalletInsufficient` hiệu quả hơn assert HTTP mock rời rạc — con người định nghĩa «câu chuyện tiền» cần bảo vệ.
