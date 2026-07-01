@@ -346,3 +346,50 @@
 - Cursor (Composer) Owner Portal full-stack (201 files), audit P0→P2, Superpowers.
 - **`dotnet test` 73/73 pass**, `npm run build` OK; push **`4e0c435`** → `origin/DE190147/audit-module`.
 - PR: **base `main` ← compare `DE190147/audit-module`**.
+
+
+
+
+
+---
+
+## [2026-07-01] - Giai đoạn: Audit remediation toàn hệ thống — Nghiệp vụ, Kế toán, Hiệu năng & Kiểm thử WhiteBox/BlackBox
+
+### Thêm mới (Added)
+
+**Backend**
+- `PayEquipmentPurchaseAsync` — trừ ví Escrow + ghi `Transaction` khi mua/checkout thiết bị.
+- `GET /api/courts/{id}/availability?date=…` — slot sân theo lịch vận hành, closure, maintenance.
+- Migration `20260701013231_FixDataDesignAuditIssues`, `20260701021049_AddTransactionReferenceIdUniqueIndex`, `20260701031053_AddPerformanceQueryIndexes`.
+- `ProSport.API/wwwroot/.gitkeep` — loại cảnh báo static files khi startup.
+
+**Frontend**
+- `ErrorBoundary.jsx`, lazy routes + `manualChunks` (react-vendor, leaflet, gsap).
+- `useDebouncedValue.js` — debounce tìm kiếm Owner bookings/products.
+- Unit test: `authStorage.test.js`, `date.test.js`; ESLint override cho context modules.
+
+**Tests**
+- `AuditBusinessLogicTests.cs` (cart atomic, bookingId, wallet debit, …).
+- `SqlServerIntegrationTests.cs` + `SqlServerFactAttribute` (4 test, skip khi thiếu `PROSPORT_INTEGRATION_CONNECTION_STRING`).
+
+### Thay đổi (Changed)
+- **Escrow atomic:** `CreditWalletAsync`, `TryDebitWalletAsync`, … — `ExecuteUpdate` thay read-modify-write.
+- **Cart checkout:** `CheckoutCartAtomicAsync` (Serializable); validate `bookingId`; gộp giỏ theo `equipmentId + bookingId`.
+- **Hiệu năng:** `AsNoTracking`/`AsSplitQuery`, projection `OwnerDashboardService`, `AddResponseCompression`, split query trong `Program.cs`.
+- **`CartCheckoutPage.jsx`:** truyền `bookingId` từ query string hoặc giỏ hàng.
+
+### Sửa lỗi (Fixed)
+
+| Mức | Nội dung |
+|-----|----------|
+| **P0** | Operator cancel hoàn **100%**; equipment damage không double-charge cọc; race escrow wallet |
+| **P0** | Cart checkout all-or-nothing (không trừ stock một phần khi fail giữa chừng) |
+| **P0** | Checkout/mua thiết bị **không trừ ví** — lỗ hổng kế toán (chỉ trừ tồn kho) |
+| **P1** | Blackbox: `/api/courts` HTTP 500 (thiếu `OrderBy`); dashboard HTTP 400 (`TimeSpan` `HH`→`hh`); `Program.cs` CS1061 split query |
+| **P1** | `StaffDemoSeeder` vi phạm CHECK `PaymentMethod` → `"Escrow"` |
+| **P2** | `bookingId` checkout bị bỏ qua; FE luôn gửi `null` |
+
+### Hỗ trợ từ AI (AI-assisted)
+- Cursor (Composer) rà soát P0→P3, WhiteBox + BlackBox, tối ưu hiệu năng, vá kế toán Escrow.
+- **`dotnet test` 95/99 pass** (4 skip SQL Server); Vitest **6/6**; blackbox **14/14 PASS**.
+- Commit **`2a0924b`**, push **`4e0c435..2a0924b`** → `origin/DE190147/audit-module`.
