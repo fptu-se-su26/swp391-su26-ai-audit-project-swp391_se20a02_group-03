@@ -85,7 +85,7 @@ public class EquipmentRentalService : IEquipmentRentalService
                 userId = guest.UserId;
             }
 
-            var unitPrice = Math.Max(Math.Round(equipment.RetailPrice * 0.05m, 0), 10000m);
+            var unitPrice = EquipmentPricing.GetRentalPricePerHour(equipment.RetailPrice);
             var deposit = unitPrice * request.Quantity;
 
             var rental = new BookingDetailEquipment
@@ -108,8 +108,7 @@ public class EquipmentRentalService : IEquipmentRentalService
                 equipment.Status = "Out of Stock";
             }
 
-            await _equipmentRepository.UpdateAsync(equipment);
-            var created = await _rentalRepository.CreateAsync(rental);
+            var created = await _rentalRepository.CreateWithStockDecrementAsync(rental, equipment);
 
             _logger.LogInformation("Staff {StaffId} rented equipment {EquipmentId} x{Qty} for user {UserId}",
                 staffId, equipment.EquipmentId, request.Quantity, userId);
@@ -139,18 +138,19 @@ public class EquipmentRentalService : IEquipmentRentalService
             rental.DamageNote = request.DamageNote?.Trim();
             rental.DamageFee = request.DamageFee;
 
-            var subtotal = rental.UnitPrice * rental.Quantity;
             if (condition.Equals("Damaged", StringComparison.OrdinalIgnoreCase) || condition.Equals("Lost", StringComparison.OrdinalIgnoreCase))
             {
+                var repairCost = request.DamageFee ?? rental.DepositAmount;
                 rental.DepositStatus = "Forfeited";
                 rental.DepositRefundAmount = 0;
-                rental.AdditionalCharge = request.DamageFee ?? rental.DepositAmount;
+                // Deposit covers up to repairCost; only bill the delta beyond forfeited deposit.
+                rental.AdditionalCharge = Math.Max(0m, repairCost - rental.DepositAmount);
             }
             else
             {
                 rental.DepositStatus = "Refunded";
                 rental.DepositRefundAmount = rental.DepositAmount;
-                rental.AdditionalCharge = subtotal;
+                rental.AdditionalCharge = 0;
             }
 
             var equipment = await _equipmentRepository.GetByIdAsync(rental.EquipmentId);

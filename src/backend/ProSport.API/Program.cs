@@ -16,6 +16,11 @@ using ProSport.API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddResponseCompression(options =>
+{
+    options.EnableForHttps = true;
+});
+
 // Add services to the container.
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUserContext, CurrentUserContext>();
@@ -61,7 +66,11 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddDbContext<ProSportDbContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection"),
-        sql => sql.MigrationsAssembly(typeof(ProSportDbContext).Assembly.GetName().Name)));
+        sql =>
+        {
+            sql.MigrationsAssembly(typeof(ProSportDbContext).Assembly.GetName().Name);
+            sql.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
+        }));
 
 // Configure Dependency Injection
 builder.Services.AddScoped<IUserRepository, UserRepository>();
@@ -222,6 +231,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseResponseCompression();
 app.UseStaticFiles(); // Added for LocalStorageService
 
 // app.UseHttpsRedirection(); // Disabled to avoid redirect issues

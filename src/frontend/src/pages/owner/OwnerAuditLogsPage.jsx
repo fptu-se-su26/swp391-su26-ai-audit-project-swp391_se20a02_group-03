@@ -7,16 +7,23 @@ export default function OwnerAuditLogsPage() {
   const { complexId } = useOutletContext();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     if (!complexId) return;
-    ownerApi.getAuditLogs({ complexId, page: 1, size: 50 }).then(res => {
-      if (res.statusCode === 200) setItems(res.data?.items || []);
-      setLoading(false);
-    }).catch(() => setLoading(false));
+    setLoading(true);
+    setError(null);
+    ownerApi.getAuditLogs({ complexId, page: 1, size: 50 })
+      .then(res => {
+        if (res.statusCode === 200) setItems(res.data?.items || []);
+        else setError(res.message || 'Không tải được audit log.');
+      })
+      .catch(err => setError(typeof err === 'string' ? err : 'Không tải được audit log.'))
+      .finally(() => setLoading(false));
   }, [complexId]);
 
   if (loading) return <PageLoader label="Đang tải audit log..." />;
+  if (error) return <div className="text-sm text-red-600">{error}</div>;
 
   return (
     <div className="space-y-4">

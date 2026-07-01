@@ -319,5 +319,86 @@ Sau khi hoàn tất tích hợp Full-stack ở Tuần 6, Tuần 7 chuyển trọ
 
 
 
+---
 
+# Reflection - Tuần 8: Owner Portal (Court Owner), Player Features, Audit & Hardening toàn cổng Owner
+
+## Tổng quan quá trình
+
+Sau khi hoàn thiện OAuth và phân hệ Staff ở Tuần 7, Tuần 8 chuyển trọng tâm sang **mở rộng nền tảng cho chủ sân (Court Owner)** và **vá các lỗi nghiệp vụ nghiêm trọng** trước khi mở rộng UI. Công việc được tổ chức theo thứ tự ưu tiên P0 → P2.
+
+**P0 — Owner Portal:** xây dựng full-stack (Domain → Application → Infrastructure → API + Frontend) gồm dashboard, quản lý sân, lịch đặt sân (list/calendar/walk-in/check-in), tài chính, báo cáo, kho/voucher, thuê thiết bị, nhân sự, đánh giá và cấu hình (giờ mở cửa, chính sách hủy, hội viên); áp dụng `OwnerAccessService`, `OwnerApiAuthorizationFilter` và phân quyền theo vai trò.
+
+**P0 — Sửa lỗi nghiệp vụ:** khắc phục đăng ký giải không thu phí, ELO tự báo cáo kết quả, membership không áp dụng giảm giá booking.
+
+**P1 — Audit & hardening:** rà soát toàn cổng Owner, vá IDOR cancellation policy, sửa logic báo cáo doanh thu (double-count, scope escrow, múi giờ VN), bổ sung UI còn thiếu và xử lý export CSV.
+
+**P2 — Tích hợp & phát hành:** đồng bộ `main`, chạy WhiteBox/BlackBox, commit gọn và push lên `DE190147/audit-module` (commit `4e0c435`, 201 files, **73/73** unit test pass).
+
+Song song, nhóm tích hợp **Superpowers** (submodule, quy trình brainstorming + writing-plans) để chuẩn hóa workflow Agent cho các feature sau này.
+
+---
+
+## Hạn chế của AI và Khó khăn kỹ thuật
+
+### Owner Portal & phạm vi lớn
+
+- **Phình phạm vi (Scope creep):** AI có xu hướng sinh hàng loạt controller, entity, migration và trang Frontend trong một phiên — dễ tạo cảm giác «hoàn thiện» trong khi còn thiếu trang cấu hình quan trọng (operating hours, cancellation policy, membership) và chưa hardening bảo mật.
+- **Phân quyền «happy path»:** Nhiều endpoint Owner được implement đúng luồng Owner/Admin nhưng bỏ sót kiểm tra quyền trên một số route nhạy cảm — ví dụ **IDOR** trên `OwnerCancellationPolicyController` (Staff hoặc user khác complex có thể đọc/sửa policy nếu biết `complexId`).
+- **Báo cáo doanh thu sai ngữ nghĩa:** AI gộp `TotalAmount` booking với doanh thu sản phẩm/dịch vụ gây **double-count**; `escrowHeld` tính trên toàn hệ thống thay vì scoped theo tổ hợp; `revenueByDay` group theo UTC thay vì giờ Việt Nam — lỗi «âm thầm» chỉ lộ khi đối chiếu số liệu với nghiệp vụ thực tế.
+
+### Player Features & nghiệp vụ tài chính
+
+- **Tournament miễn phí:** `RegisterAsync` không trừ `EntryFee` — lỗi nghiệp vụ nghiêm trọng mà unit test ban đầu không bắt được nếu không assert số dư Escrow.
+- **ELO self-report:** Cho phép người chơi tự báo cáo và cập nhật rating ngay — thiếu luồng xác nhận đối phương (confirm/dispute).
+- **Membership «có entity nhưng không có hiệu lực»:** Gói hội viên tồn tại trong DB nhưng `BookingService` không gọi calculator giảm giá — pattern «backend có, luồng booking không dùng» rất phổ biến khi AI thêm feature theo lớp mà không nối end-to-end.
+
+### Kiểm thử, Git & vận hành
+
+- **Blackbox vs Whitebox:** Unit test pass nhiều nhưng dashboard Owner blackbox **13/14** do format giờ `hh` (12h) thay vì `HH` (24h) tại `OwnerDashboardService` — AI materialize query trước format nhưng chọn sai pattern TimeSpan.
+- **Git staging thiếu kỷ luật:** AI dễ stage cả `scratch/`, `.cursor/`, tài liệu Word extract nếu không bị giám sát.
+- **Hướng PR dễ nhầm:** Trên GitHub, đặt base/compare ngược (`main` → feature thay vì feature → `main`) khiến diff hiển thị commit của `main` chứ không phải công việc của nhóm — AI không tự giải thích UX GitHub cho người mới.
+
+---
+
+## Giải pháp và Can thiệp của con người
+
+### Điều phối ưu tiên & audit
+
+- **Bug nghiệp vụ trước UI:** Chỉ đạo sửa tournament/ELO/membership trước khi mở rộng thêm trang Owner — tránh «portal đẹp nhưng sai tiền».
+- **Audit toàn diện, không dừng ở P0:** Ra lệnh sửa *tất cả* findings (UI thiếu, export CSV, finance filter, edit product/voucher/rental) thay vì chỉ vá IDOR.
+- **Review diff trước commit:** Yêu cầu rà soát thay đổi, chạy `dotnet test` + `npm run build` trước khi stage — không push «cảm tính».
+
+### Bảo mật & báo cáo
+
+- **IDOR:** Bổ sung `RequireOwnerOrAdminAccessAsync` trên cancellation policy; thêm test Staff → 403 trên `OwnerApiAuthorizationFilter`.
+- **Doanh thu:** `bookingRevenue` = tổng `BookingDetails.Price`; scope `escrowHeld` theo booking thuộc sân trong complex; group `revenueByDay` qua `VnTimeHelper`.
+- **Hotfixes vận hành:** `CancelAndRefundSystemAsync` khi bảo trì/đóng cửa; revert role Staff khi gỡ phân công; sửa `productRevenue` trong report.
+
+### Frontend Owner & UX
+
+- **Trang cấu hình:** Bổ sung `/owner/operating-hours`, `/owner/cancellation-policy`, `/owner/memberships`; Settings làm hub link; sidebar đồng bộ.
+- **Login flow:** CourtOwner redirect → `/owner/dashboard`; export CSV phát hiện response JSON lỗi thay vì tải file hỏng.
+- **Dọn dead code:** Xóa `OwnerInventoryPage.jsx` không có route.
+
+### Git, PR & workflow
+
+- **Git hygiene:** Chỉ stage `src/`, docs liên quan, Superpowers setup; loại file tạm và tooling cá nhân.
+- **Hướng dẫn PR:** **base `main` ← compare `DE190147/audit-module`**.
+- **Superpowers:** Submodule + rule bắt buộc brainstorming/plan trước feature mới — giảm «code trước, suy nghĩ sau» ở các tuần tiếp theo.
+- **Kiểm chứng:** Sửa `hh` → `HH` → blackbox dashboard **14/14**; merge `origin/main` Already up to date; push `4e0c435`.
+
+---
+
+## Bài học rút ra
+
+- **Portal lớn cần audit bảo mật riêng:** AI sinh CRUD nhanh nhưng dễ bỏ sót IDOR và scope dữ liệu theo tenant (complex). Mỗi module Owner nên có checklist: *ai được gọi endpoint này với `complexId` của người khác?*
+- **Doanh tho và escrow là vùng «không được đoán»:** Mọi metric phải trace được nguồn field DB và múi giờ hiển thị; blackbox + đối chiếu tay với 1–2 booking mẫu hiệu quả hơn chỉ tin unit test mock.
+- **Feature «có API» ≠ feature «có hiệu lực»:** Tournament fee, membership discount, ELO confirm — cần test end-to-end assert thay đổi số dư/trạng thái, không chỉ assert HTTP 200.
+- **Ưu tiên P0 nghiệp vụ trước P1 UI:** Chủ sân tin sản phẩm khi số tiền và quyền đúng; giao diện đầy đủ mà sai tiền phá niềm tin nhanh hơn thiếu vài nút.
+- **Human phải yêu cầu «sửa hết audit»:** AI thường dừng ở fix đầu tiên hoặc critical duy nhất; Product Owner cần chỉ rõ *all findings* để tránh technical debt tích lũy trong cùng sprint.
+- **Format datetime là lỗi kinh điển:** `hh` vs `HH` đã xuất hiện ở Staff (Tuần 7) và Owner dashboard (Tuần 8) — nên quy ước dự án: hiển thị slot/quầy luôn `HH:mm`, timezone VN qua `VnTimeHelper`.
+- **Commit lớn cần staging có chủ đích:** 201 files một commit chấp nhận được nếu *một mục tiêu sprint* (Owner module); vẫn phải loại junk khỏi staging và ghi rõ phạm vi trong Changelog/Audit Log.
+- **Workflow Agent (Superpowers) là đầu tư meta:** Tuần 8 vừa ship feature vừa chuẩn hóa «plan trước code» — phù hợp khi module còn nhiều gap (tournament UI cho Owner, notification bell, E2E) ở các tuần sau.
+- **OAuth đã xong ở Tuần 7; Tuần 8 là multi-tenant Owner:** Bài học Tuần 7 (secret, origin, rebase) vẫn áp dụng; thêm lớp mới là **isolation theo complex** — lesson quan trọng nhất của sprint này.
 

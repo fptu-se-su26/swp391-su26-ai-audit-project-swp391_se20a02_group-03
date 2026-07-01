@@ -10,6 +10,9 @@ export const bookingApi = {
   // Lấy các giờ đã đặt
   getBookedSlots: (courtId, date) => axiosClient.get(`/courts/${courtId}/booked-slots`, { params: { date } }),
 
+  // Khung giờ theo giờ mở cửa complex (trừ slot đã đặt)
+  getCourtAvailability: (courtId, date) => axiosClient.get(`/courts/${courtId}/availability`, { params: { date } }),
+
   // Đặt sân
   createBooking: (data) => axiosClient.post('/bookings', data),
 

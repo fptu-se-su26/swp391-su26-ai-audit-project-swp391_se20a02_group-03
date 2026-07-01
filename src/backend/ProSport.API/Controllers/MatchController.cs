@@ -17,6 +17,14 @@ public class MatchController : ControllerBase
         _matchService = matchService;
     }
 
+    private int? TryGetUserId()
+    {
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+            return null;
+        return userId;
+    }
+
     [HttpGet("open")]
     public async Task<IActionResult> GetAvailableMatches()
     {
@@ -28,8 +36,11 @@ public class MatchController : ControllerBase
     [HttpGet("my-history")]
     public async Task<IActionResult> GetMyMatchHistory()
     {
-        var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-        var response = await _matchService.GetMyMatchHistoryAsync(userId);
+        var userId = TryGetUserId();
+        if (userId == null)
+            return Unauthorized(new ApiResponseDto<object>(401, "Unauthorized"));
+
+        var response = await _matchService.GetMyMatchHistoryAsync(userId.Value);
         return StatusCode(response.StatusCode, response);
     }
 
@@ -40,12 +51,15 @@ public class MatchController : ControllerBase
         return StatusCode(response.StatusCode, response);
     }
 
-    [Authorize]
+    [Authorize(Roles = "Customer")]
     [HttpPost]
     public async Task<IActionResult> CreateMatch([FromBody] CreateMatchDto dto)
     {
-        var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-        var response = await _matchService.CreateMatchAsync(userId, dto);
+        var userId = TryGetUserId();
+        if (userId == null)
+            return Unauthorized(new ApiResponseDto<object>(401, "Unauthorized"));
+
+        var response = await _matchService.CreateMatchAsync(userId.Value, dto);
         return StatusCode(response.StatusCode, response);
     }
 
@@ -53,8 +67,11 @@ public class MatchController : ControllerBase
     [HttpPost("{id}/join")]
     public async Task<IActionResult> JoinMatch(int id)
     {
-        var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-        var response = await _matchService.JoinMatchAsync(id, userId);
+        var userId = TryGetUserId();
+        if (userId == null)
+            return Unauthorized(new ApiResponseDto<object>(401, "Unauthorized"));
+
+        var response = await _matchService.JoinMatchAsync(id, userId.Value);
         return StatusCode(response.StatusCode, response);
     }
 
@@ -62,8 +79,11 @@ public class MatchController : ControllerBase
     [HttpGet("{id}/participants")]
     public async Task<IActionResult> GetParticipants(int id, [FromQuery] string status = "Pending")
     {
-        var hostId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-        var response = await _matchService.GetParticipantsByMatchAsync(id, hostId, status);
+        var hostId = TryGetUserId();
+        if (hostId == null)
+            return Unauthorized(new ApiResponseDto<object>(401, "Unauthorized"));
+
+        var response = await _matchService.GetParticipantsByMatchAsync(id, hostId.Value, status);
         return StatusCode(response.StatusCode, response);
     }
 
@@ -71,8 +91,11 @@ public class MatchController : ControllerBase
     [HttpPut("{id}/participants/{participantId}/approve")]
     public async Task<IActionResult> ApproveJoiner(int id, int participantId)
     {
-        var hostId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-        var response = await _matchService.ApproveJoinerAsync(id, hostId, participantId);
+        var hostId = TryGetUserId();
+        if (hostId == null)
+            return Unauthorized(new ApiResponseDto<object>(401, "Unauthorized"));
+
+        var response = await _matchService.ApproveJoinerAsync(id, hostId.Value, participantId);
         return StatusCode(response.StatusCode, response);
     }
 
@@ -80,8 +103,11 @@ public class MatchController : ControllerBase
     [HttpPut("{id}/participants/{participantId}/reject")]
     public async Task<IActionResult> RejectJoiner(int id, int participantId)
     {
-        var hostId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-        var response = await _matchService.RejectJoinerAsync(id, hostId, participantId);
+        var hostId = TryGetUserId();
+        if (hostId == null)
+            return Unauthorized(new ApiResponseDto<object>(401, "Unauthorized"));
+
+        var response = await _matchService.RejectJoinerAsync(id, hostId.Value, participantId);
         return StatusCode(response.StatusCode, response);
     }
 
@@ -89,16 +115,23 @@ public class MatchController : ControllerBase
     [HttpPost("{id}/leave")]
     public async Task<IActionResult> LeaveMatch(int id)
     {
-        var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-        var response = await _matchService.LeaveMatchAsync(id, userId);
+        var userId = TryGetUserId();
+        if (userId == null)
+            return Unauthorized(new ApiResponseDto<object>(401, "Unauthorized"));
+
+        var response = await _matchService.LeaveMatchAsync(id, userId.Value);
         return StatusCode(response.StatusCode, response);
     }
+
     [Authorize]
     [HttpPut("{id}/complete")]
     public async Task<IActionResult> CompleteMatch(int id)
     {
-        var hostId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-        var response = await _matchService.CompleteMatchAsync(id, hostId);
+        var hostId = TryGetUserId();
+        if (hostId == null)
+            return Unauthorized(new ApiResponseDto<object>(401, "Unauthorized"));
+
+        var response = await _matchService.CompleteMatchAsync(id, hostId.Value);
         return StatusCode(response.StatusCode, response);
     }
 
@@ -106,8 +139,11 @@ public class MatchController : ControllerBase
     [HttpPut("{id}/cancel")]
     public async Task<IActionResult> CancelMatch(int id)
     {
-        var hostId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-        var response = await _matchService.CancelMatchAsync(id, hostId);
+        var hostId = TryGetUserId();
+        if (hostId == null)
+            return Unauthorized(new ApiResponseDto<object>(401, "Unauthorized"));
+
+        var response = await _matchService.CancelMatchAsync(id, hostId.Value);
         return StatusCode(response.StatusCode, response);
     }
 }

@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
+using ProSport.Domain.Constants;
 using ProSport.Domain.Entities;
 
 namespace ProSport.Infrastructure.Data;
@@ -191,6 +192,7 @@ public class ProSportDbContext : DbContext
             entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
             entity.Property(e => e.Code).HasMaxLength(20);
             entity.HasIndex(e => new { e.ComplexId, e.Code }).IsUnique().HasFilter("[Code] IS NOT NULL AND [IsDeleted] = 0");
+            entity.HasIndex(e => new { e.ComplexId, e.IsDeleted });
             entity.Property(e => e.Status).HasDefaultValue("Available").HasMaxLength(20);
 
             entity.HasOne(e => e.CourtType)
@@ -223,6 +225,15 @@ public class ProSportDbContext : DbContext
         // --- Booking (FIX: thêm CheckInCode, CancellationFee) ---
         modelBuilder.Entity<Booking>(entity =>
         {
+            entity.ToTable(t =>
+            {
+                t.HasCheckConstraint("CK_Bookings_Status",
+                    $"[Status] IN ('{BookingStatus.Pending}','{BookingStatus.PendingPayment}','{BookingStatus.Confirmed}','{BookingStatus.CheckedIn}','{BookingStatus.Cancelled}','{BookingStatus.Completed}','{BookingStatus.Expired}','{BookingStatus.NoShow}')");
+                t.HasCheckConstraint("CK_Bookings_PaymentStatus",
+                    $"[PaymentStatus] IS NULL OR [PaymentStatus] IN ('{PaymentStatus.Pending}','{PaymentStatus.Paid}','{PaymentStatus.Refunded}','{PaymentStatus.Cancelled}')");
+                t.HasCheckConstraint("CK_Bookings_PaymentMethod",
+                    $"[PaymentMethod] IS NULL OR [PaymentMethod] IN ('{PaymentMethod.VNPay}','{PaymentMethod.Escrow}','{PaymentMethod.Cash}')");
+            });
             entity.HasKey(e => e.BookingId);
             entity.Property(e => e.TotalAmount).HasColumnType("decimal(18,2)");
             entity.Property(e => e.Status).HasDefaultValue("Pending").HasMaxLength(20);
@@ -230,6 +241,9 @@ public class ProSportDbContext : DbContext
             entity.Property(e => e.PaymentStatus).HasDefaultValue("Pending").HasMaxLength(20);
             entity.Property(e => e.CheckInCode).HasMaxLength(50);
             entity.HasIndex(e => e.CheckInCode).IsUnique().HasFilter("[CheckInCode] IS NOT NULL");
+            entity.HasIndex(e => e.UserId);
+            entity.HasIndex(e => new { e.Status, e.IsDeleted });
+            entity.HasIndex(e => e.CreatedAt);
             entity.Property(e => e.CancellationFee).HasColumnType("decimal(18,2)").HasDefaultValue(0m);
             entity.Property(e => e.PaymentDeadline);
 
@@ -259,6 +273,8 @@ public class ProSportDbContext : DbContext
                   .WithMany(c => c.BookingDetails)
                   .HasForeignKey(e => e.CourtId)
                   .OnDelete(DeleteBehavior.ClientSetNull);
+
+            entity.HasIndex(e => new { e.CourtId, e.BookingDate });
         });
 
         modelBuilder.Entity<BookingDetailEquipment>(entity =>
@@ -295,7 +311,13 @@ public class ProSportDbContext : DbContext
         // --- Match (FIX: thêm BookingId) ---
         modelBuilder.Entity<Match>(entity =>
         {
+            entity.ToTable(t =>
+            {
+                t.HasCheckConstraint("CK_Matches_Status",
+                    $"[Status] IN ('{MatchStatus.Open}','{MatchStatus.Closed}','{MatchStatus.Completed}','{MatchStatus.Cancelled}')");
+            });
             entity.HasKey(e => e.MatchId);
+            entity.HasIndex(e => e.Status);
             entity.Property(e => e.Status).HasDefaultValue("Open").HasMaxLength(20);
             entity.Property(e => e.EscrowAmount).HasColumnType("decimal(18,2)");
             entity.Property(e => e.LevelRequirement).HasMaxLength(50);
@@ -359,6 +381,9 @@ public class ProSportDbContext : DbContext
             entity.Property(e => e.Type).IsRequired().HasMaxLength(50);
             entity.Property(e => e.Status).HasDefaultValue("Pending").HasMaxLength(20);
             entity.Property(e => e.ReferenceId).HasMaxLength(100);
+            entity.HasIndex(e => e.ReferenceId)
+                .IsUnique()
+                .HasFilter("[ReferenceId] IS NOT NULL");
 
             entity.HasOne(e => e.EscrowWallet)
                   .WithMany(w => w.Transactions)
@@ -388,13 +413,13 @@ public class ProSportDbContext : DbContext
             entity.ToTable("Equipments");
             entity.HasKey(e => e.EquipmentId);
             entity.Property(e => e.Name).HasMaxLength(100);
-            entity.Property(e => e.Price).HasColumnType("decimal(18,2)");
             entity.Property(e => e.Status).HasDefaultValue("Available").HasMaxLength(20);
             entity.Property(e => e.EquipmentName).HasMaxLength(100);
             entity.Property(e => e.Category).HasMaxLength(30).HasDefaultValue("Racket");
             entity.Property(e => e.SportType).HasMaxLength(20);
             entity.Property(e => e.RetailPrice).HasColumnType("decimal(18,2)");
             entity.Property(e => e.ImageUrl).HasMaxLength(500);
+            entity.Ignore(e => e.RentalPricePerHour);
 
             entity.HasOne(e => e.EquipmentCategory)
                   .WithMany(c => c.Equipments)
@@ -435,8 +460,8 @@ public class ProSportDbContext : DbContext
             entity.Property(e => e.Phone).HasMaxLength(20);
             entity.Property(e => e.Email).HasMaxLength(100);
             entity.Property(e => e.LogoUrl).HasMaxLength(500);
-            entity.Property(e => e.OpeningTime).HasMaxLength(5);
-            entity.Property(e => e.ClosingTime).HasMaxLength(5);
+            entity.Property(e => e.OpeningTime).HasColumnType("time");
+            entity.Property(e => e.ClosingTime).HasColumnType("time");
             entity.Property(e => e.Status).HasDefaultValue("Active").HasMaxLength(20);
             entity.Property(e => e.SlotDurationMinutes).HasDefaultValue(60);
         });
@@ -547,6 +572,11 @@ public class ProSportDbContext : DbContext
         // --- Voucher (UC-S06) ---
         modelBuilder.Entity<Voucher>(entity =>
         {
+            entity.ToTable(t =>
+            {
+                t.HasCheckConstraint("CK_Vouchers_Status",
+                    $"[Status] IN ('{VoucherStatus.Active}','{VoucherStatus.Inactive}','{VoucherStatus.Expired}')");
+            });
             entity.HasKey(e => e.VoucherId);
             entity.Property(e => e.Code).IsRequired().HasMaxLength(20);
             entity.HasIndex(e => e.Code).IsUnique();
@@ -554,7 +584,7 @@ public class ProSportDbContext : DbContext
             entity.Property(e => e.DiscountPercent).HasColumnType("decimal(5,2)");
             entity.Property(e => e.MaxDiscountAmount).HasColumnType("decimal(18,2)");
             entity.Property(e => e.MinOrderAmount).HasColumnType("decimal(18,2)");
-            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.Status).HasDefaultValue(VoucherStatus.Active).HasMaxLength(20);
 
             entity.HasOne(e => e.CreatedByStaff)
                   .WithMany()
@@ -602,6 +632,7 @@ public class ProSportDbContext : DbContext
         modelBuilder.Entity<RentalSessionAsset>(entity =>
         {
             entity.HasKey(e => e.RentalSessionAssetId);
+            entity.Property(e => e.RentalPriceAtTime).HasColumnType("decimal(18,2)");
             entity.HasOne(e => e.RentalSession).WithMany(s => s.SessionAssets).HasForeignKey(e => e.RentalSessionId).OnDelete(DeleteBehavior.Cascade);
             entity.HasOne(e => e.RentalAsset).WithMany(a => a.SessionAssets).HasForeignKey(e => e.RentalAssetId).OnDelete(DeleteBehavior.Restrict);
         });
@@ -625,6 +656,7 @@ public class ProSportDbContext : DbContext
         modelBuilder.Entity<ComplexReview>(entity =>
         {
             entity.HasKey(e => e.ComplexReviewId);
+            entity.HasIndex(e => new { e.ComplexId, e.UserId }).IsUnique().HasFilter("[IsDeleted] = 0");
             entity.HasOne(e => e.Complex).WithMany().HasForeignKey(e => e.ComplexId).OnDelete(DeleteBehavior.Cascade);
             entity.HasOne(e => e.User).WithMany().HasForeignKey(e => e.UserId).OnDelete(DeleteBehavior.ClientSetNull);
         });
@@ -715,6 +747,7 @@ public class ProSportDbContext : DbContext
             entity.HasKey(e => e.BookingPaymentShareId);
             entity.Property(e => e.Amount).HasColumnType("decimal(18,2)");
             entity.Property(e => e.Status).HasMaxLength(20);
+            entity.HasIndex(e => new { e.BookingId, e.UserId }).IsUnique();
             entity.HasOne(e => e.Booking).WithMany(b => b.PaymentShares).HasForeignKey(e => e.BookingId);
             entity.HasOne(e => e.User).WithMany().HasForeignKey(e => e.UserId);
         });
@@ -726,7 +759,6 @@ public class ProSportDbContext : DbContext
             entity.Property(e => e.Status).HasMaxLength(20);
             entity.HasOne(e => e.User).WithMany().HasForeignKey(e => e.UserId);
             entity.HasOne(e => e.Court).WithMany().HasForeignKey(e => e.CourtId);
-            entity.HasOne(e => e.Complex).WithMany().HasForeignKey(e => e.ComplexId);
         });
 
         modelBuilder.Entity<ComplexCancellationPolicy>(entity =>
@@ -751,9 +783,11 @@ public class ProSportDbContext : DbContext
             entity.HasKey(e => e.MatchResultId);
             entity.HasIndex(e => e.MatchId).IsUnique();
             entity.Property(e => e.Status).HasMaxLength(20);
+            entity.Property(e => e.DisputeReason).HasMaxLength(500);
             entity.HasOne(e => e.Match).WithMany().HasForeignKey(e => e.MatchId);
             entity.HasOne(e => e.Winner).WithMany().HasForeignKey(e => e.WinnerUserId);
             entity.HasOne(e => e.ReportedBy).WithMany().HasForeignKey(e => e.ReportedByUserId);
+            entity.HasOne(e => e.ConfirmedBy).WithMany().HasForeignKey(e => e.ConfirmedByUserId).OnDelete(DeleteBehavior.ClientSetNull);
         });
 
         modelBuilder.Entity<Membership>(entity =>
@@ -784,6 +818,7 @@ public class ProSportDbContext : DbContext
             entity.Property(e => e.Status).HasMaxLength(20);
             entity.HasOne(e => e.Tournament).WithMany(t => t.Registrations).HasForeignKey(e => e.TournamentId);
             entity.HasOne(e => e.Captain).WithMany().HasForeignKey(e => e.CaptainUserId);
+            entity.HasOne(e => e.PaymentTransaction).WithMany().HasForeignKey(e => e.PaymentTransactionId).OnDelete(DeleteBehavior.ClientSetNull);
         });
 
         // TK-015: Global Query Filter

@@ -49,7 +49,7 @@ public class AuthService : IAuthService
 
             if (existingUser != null)
             {
-                if (existingUser.IsPhoneVerified)
+                if (IsRegisteredAccount(existingUser))
                     return new ApiResponseDto<int>(400, "Email already exists.");
                 
                 // Update existing unverified user
@@ -548,4 +548,10 @@ public class AuthService : IAuthService
             return new ApiResponseDto<AuthResponseDto>(500, "An unexpected error occurred.");
         }
     }
+
+    /// <summary>
+    /// IsPhoneVerified is set after email OTP verification; Google accounts are also fully registered.
+    /// </summary>
+    private static bool IsRegisteredAccount(User user) =>
+        user.IsPhoneVerified || !string.IsNullOrEmpty(user.GoogleId);
 }

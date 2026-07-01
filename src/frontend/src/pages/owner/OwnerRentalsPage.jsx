@@ -8,16 +8,23 @@ export default function OwnerRentalsPage() {
   const { complexId } = useOutletContext();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     if (!complexId) return;
-    ownerApi.getRentals({ complexId, page: 1, size: 50 }).then(res => {
-      if (res.statusCode === 200) setItems(res.data?.items || []);
-      setLoading(false);
-    }).catch(() => setLoading(false));
+    setLoading(true);
+    setError(null);
+    ownerApi.getRentals({ complexId, page: 1, size: 50 })
+      .then(res => {
+        if (res.statusCode === 200) setItems(res.data?.items || []);
+        else setError(res.message || 'Không tải được danh sách phiên thuê.');
+      })
+      .catch(err => setError(typeof err === 'string' ? err : 'Không tải được danh sách phiên thuê.'))
+      .finally(() => setLoading(false));
   }, [complexId]);
 
   if (loading) return <PageLoader label="Đang tải phiên thuê..." />;
+  if (error) return <div className="text-sm text-red-600">{error}</div>;
 
   return (
     <div className="space-y-4">

@@ -11,6 +11,13 @@ namespace ProSport.Infrastructure.Services;
 
 public class RecurringBookingService : IRecurringBookingService
 {
+    private static readonly HashSet<string> ValidFrequencies = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "Weekly",
+        "Biweekly",
+        "Monthly"
+    };
+
     private readonly ProSportDbContext _db;
     private readonly IBookingRepository _bookingRepository;
     private readonly ICourtRepository _courtRepository;
@@ -40,11 +47,13 @@ public class RecurringBookingService : IRecurringBookingService
         if (dto.ValidTo <= dto.ValidFrom)
             return new ApiResponseDto<RecurringBookingRuleDto>(400, "ValidTo phải sau ValidFrom.");
 
+        if (string.IsNullOrWhiteSpace(dto.Frequency) || !ValidFrequencies.Contains(dto.Frequency))
+            return new ApiResponseDto<RecurringBookingRuleDto>(400, "Frequency không hợp lệ. Chọn Weekly, Biweekly hoặc Monthly.");
+
         var rule = new RecurringBookingRule
         {
             UserId = userId,
             CourtId = dto.CourtId,
-            ComplexId = court.ComplexId.Value,
             DayOfWeek = dto.DayOfWeek,
             StartTime = dto.StartTime,
             EndTime = dto.EndTime,
@@ -102,14 +111,14 @@ public class RecurringBookingService : IRecurringBookingService
         var court = rule.Court ?? await _courtRepository.GetByIdAsync(rule.CourtId);
         if (court == null) return 0;
 
-        var startFrom = rule.LastGeneratedDate?.AddDays(GetFrequencyStepDays(rule.Frequency)) ?? rule.ValidFrom;
+        var startFrom = GetNextOccurrenceStart(rule);
         var endDate = DateTime.UtcNow.Date.AddDays(weeksAhead * 7);
         if (endDate > rule.ValidTo) endDate = rule.ValidTo;
 
         var created = 0;
         for (var date = startFrom; date <= endDate; date = date.AddDays(1))
         {
-            if (date.DayOfWeek != rule.DayOfWeek) continue;
+            if (!MatchesFrequency(rule, date)) continue;
             if (date < rule.ValidFrom || date > rule.ValidTo) continue;
 
             var exists = await _db.BookingDetails.AnyAsync(d =>
@@ -176,8 +185,50 @@ public class RecurringBookingService : IRecurringBookingService
         return created;
     }
 
-    private static int GetFrequencyStepDays(string frequency) =>
-        frequency.Equals("Weekly", StringComparison.OrdinalIgnoreCase) ? 7 : 7;
+    private static DateTime GetNextOccurrenceStart(RecurringBookingRule rule)
+    {
+        if (!rule.LastGeneratedDate.HasValue)
+            return rule.ValidFrom.Date;
+
+        if (rule.Frequency.Equals("Monthly", StringComparison.OrdinalIgnoreCase))
+            return rule.LastGeneratedDate.Value.Date.AddMonths(1);
+
+        var stepDays = rule.Frequency.Equals("Biweekly", StringComparison.OrdinalIgnoreCase) ? 14 : 7;
+        return rule.LastGeneratedDate.Value.Date.AddDays(stepDays);
+    }
+
+    private static bool MatchesFrequency(RecurringBookingRule rule, DateTime date)
+    {
+        if (date.DayOfWeek != rule.DayOfWeek)
+            return false;
+
+        if (rule.Frequency.Equals("Monthly", StringComparison.OrdinalIgnoreCase))
+            return IsMonthlyOccurrence(rule.ValidFrom.Date, date);
+
+        var step = rule.Frequency.Equals("Biweekly", StringComparison.OrdinalIgnoreCase) ? 14 : 7;
+        var anchor = GetFirstMatchingWeekday(rule.ValidFrom.Date, rule.DayOfWeek);
+        var daysSinceAnchor = (date.Date - anchor).Days;
+        return daysSinceAnchor >= 0 && daysSinceAnchor % step == 0;
+    }
+
+    private static DateTime GetFirstMatchingWeekday(DateTime from, DayOfWeek dayOfWeek)
+    {
+        var date = from.Date;
+        while (date.DayOfWeek != dayOfWeek)
+            date = date.AddDays(1);
+        return date;
+    }
+
+    private static bool IsMonthlyOccurrence(DateTime anchor, DateTime date)
+    {
+        if (GetWeekdayOccurrenceInMonth(anchor) != GetWeekdayOccurrenceInMonth(date))
+            return false;
+
+        var monthDiff = (date.Year - anchor.Year) * 12 + date.Month - anchor.Month;
+        return monthDiff >= 0;
+    }
+
+    private static int GetWeekdayOccurrenceInMonth(DateTime date) => (date.Day - 1) / 7 + 1;
 
     private static RecurringBookingRuleDto MapRule(RecurringBookingRule r, string courtName) => new()
     {

@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using ProSport.Application.DTOs;
 using ProSport.Application.DTOs.Owner;
 using ProSport.Application.Interfaces;
+using ProSport.Domain.Constants;
 using ProSport.Domain.Entities;
 using ProSport.Infrastructure.Data;
 
@@ -57,8 +58,7 @@ public class OwnerVoucherService : IOwnerVoucherService
             EndDate = dto.EndDate,
             ApplicableComplexId = complexId,
             ApplicableProductId = dto.ApplicableProductId,
-            Status = "Active",
-            IsActive = true,
+            Status = VoucherStatus.Active,
             CreatedByStaffId = actorUserId,
             CreatedAt = DateTime.UtcNow,
             IsDeleted = false
@@ -93,9 +93,11 @@ public class OwnerVoucherService : IOwnerVoucherService
         var voucher = await _db.Vouchers.FirstOrDefaultAsync(v => v.VoucherId == id && v.ApplicableComplexId == complexId && !v.IsDeleted);
         if (voucher == null) return new ApiResponseDto<OwnerVoucherDto>(404, "Không tìm thấy voucher.");
 
+        if (!VoucherStatus.IsValid(dto.Status))
+            return new ApiResponseDto<OwnerVoucherDto>(400, "Trạng thái voucher không hợp lệ. Chọn Active, Inactive hoặc Expired.");
+
         var old = voucher.Status;
         voucher.Status = dto.Status;
-        voucher.IsActive = dto.Status.Equals("Active", StringComparison.OrdinalIgnoreCase);
         voucher.UpdatedAt = DateTime.UtcNow;
         await _db.SaveChangesAsync();
         await _auditLog.LogAsync(actorUserId, "STATUS_CHANGE", "Voucher", id.ToString(), complexId, old, dto.Status);
@@ -118,6 +120,6 @@ public class OwnerVoucherService : IOwnerVoucherService
         ApplicableComplexId = v.ApplicableComplexId,
         ApplicableProductId = v.ApplicableProductId,
         Status = v.Status,
-        IsActive = v.IsActive
+        IsActive = VoucherStatus.IsUsable(v.Status)
     };
 }

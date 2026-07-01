@@ -7,15 +7,15 @@ namespace ProSport.Infrastructure.Data;
 
 /// <summary>
 /// Seed dữ liệu vận hành demo cho Staff (bookings hôm nay, khiếu nại, kèo, thuê thiết bị).
-/// Chỉ chạy một lần — nhận diện qua PaymentMethod = StaffDemo.
+/// Chỉ chạy một lần — nhận diện qua CheckInCode prefix DEMO-QR-.
 /// </summary>
 public static class StaffDemoSeeder
 {
-    private const string DemoMarker = "StaffDemo";
+    private const string DemoCheckInPrefix = "DEMO-QR-";
 
     public static async Task SeedAsync(ProSportDbContext context, ILogger logger)
     {
-        if (await context.Bookings.AnyAsync(b => b.PaymentMethod == DemoMarker))
+        if (await context.Bookings.AnyAsync(b => b.CheckInCode != null && b.CheckInCode.StartsWith(DemoCheckInPrefix)))
         {
             logger.LogInformation("[StaffDemoSeeder] Demo operational data already exists. Skipping.");
             return;
@@ -29,14 +29,14 @@ public static class StaffDemoSeeder
             UserId = 4,
             TotalAmount = 80000m,
             Status = "Confirmed",
-            PaymentMethod = DemoMarker,
+            PaymentMethod = "Escrow",
             PaymentStatus = "Paid",
             CreatedAt = nowUtc,
             IsDeleted = false,
         };
         context.Bookings.Add(booking1);
         await context.SaveChangesAsync();
-        booking1.CheckInCode = $"DEMO-QR-{booking1.BookingId}-AM01";
+        booking1.CheckInCode = $"{DemoCheckInPrefix}{booking1.BookingId}-AM01";
         context.BookingDetails.Add(new BookingDetail
         {
             BookingId = booking1.BookingId,
@@ -54,14 +54,14 @@ public static class StaffDemoSeeder
             UserId = 5,
             TotalAmount = 160000m,
             Status = "Confirmed",
-            PaymentMethod = DemoMarker,
+            PaymentMethod = "Escrow",
             PaymentStatus = "Paid",
             CreatedAt = nowUtc,
             IsDeleted = false,
         };
         context.Bookings.Add(booking2);
         await context.SaveChangesAsync();
-        booking2.CheckInCode = $"DEMO-QR-{booking2.BookingId}-PM01";
+        booking2.CheckInCode = $"{DemoCheckInPrefix}{booking2.BookingId}-PM01";
         context.BookingDetails.Add(new BookingDetail
         {
             BookingId = booking2.BookingId,
@@ -79,14 +79,14 @@ public static class StaffDemoSeeder
             UserId = 7,
             TotalAmount = 240000m,
             Status = "Confirmed",
-            PaymentMethod = DemoMarker,
+            PaymentMethod = "Escrow",
             PaymentStatus = "Paid",
             CreatedAt = nowUtc,
             IsDeleted = false,
         };
         context.Bookings.Add(booking3);
         await context.SaveChangesAsync();
-        booking3.CheckInCode = $"DEMO-QR-{booking3.BookingId}-EV01";
+        booking3.CheckInCode = $"{DemoCheckInPrefix}{booking3.BookingId}-EV01";
         context.BookingDetails.Add(new BookingDetail
         {
             BookingId = booking3.BookingId,
@@ -104,14 +104,14 @@ public static class StaffDemoSeeder
             UserId = 11,
             TotalAmount = 120000m,
             Status = "Completed",
-            PaymentMethod = DemoMarker,
+            PaymentMethod = "Escrow",
             PaymentStatus = "Paid",
             CreatedAt = nowUtc.AddHours(-2),
             IsDeleted = false,
         };
         context.Bookings.Add(booking4);
         await context.SaveChangesAsync();
-        booking4.CheckInCode = $"DEMO-QR-{booking4.BookingId}-CK01";
+        booking4.CheckInCode = $"{DemoCheckInPrefix}{booking4.BookingId}-CK01";
         context.BookingDetails.Add(new BookingDetail
         {
             BookingId = booking4.BookingId,

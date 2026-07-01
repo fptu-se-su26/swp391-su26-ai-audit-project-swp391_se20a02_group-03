@@ -38,8 +38,7 @@ public class OwnerDashboardService : IOwnerDashboardService
         var totalCourts = courtIds.Count;
 
         var bookingDetailsQuery = _db.BookingDetails
-            .Include(d => d.Booking).ThenInclude(b => b!.User)
-            .Include(d => d.Court)
+            .AsNoTracking()
             .Where(d => courtIds.Contains(d.CourtId)
                 && d.Booking.CreatedAt >= fromUtc
                 && d.Booking.CreatedAt <= toUtc
@@ -75,7 +74,7 @@ public class OwnerDashboardService : IOwnerDashboardService
 
         var rentalRevenue = await _db.BookingDetailEquipments
             .Where(r => r.RentalStatus == "Returned" || r.RentalStatus == "Rented")
-            .SumAsync(r => (decimal?)(r.UnitPrice * r.Quantity + (r.AdditionalCharge ?? 0))) ?? 0m;
+            .SumAsync(r => (decimal?)(r.UnitPrice * r.Quantity)) ?? 0m;
 
         var surchargeRevenue = await _db.BookingDetailEquipments
             .Where(r => (r.DamageFee ?? 0) > 0 || (r.AdditionalCharge ?? 0) > 0)
@@ -108,57 +107,63 @@ public class OwnerDashboardService : IOwnerDashboardService
         var totalCourtDays = totalCourts * Math.Max(1, (toDate - fromDate).Days + 1);
         var occupancyRate = totalCourtDays == 0 ? 0m : Math.Round((decimal)occupiedCourtDays / totalCourtDays * 100m, 1);
 
+        var paidBookingRows = await _db.Bookings
+            .Where(b => b.PaymentStatus == "Paid"
+                && b.CreatedAt >= fromUtc && b.CreatedAt <= toUtc
+                && !OwnerDashboardMetrics.ExcludedBookingStatuses.Contains(b.Status)
+                && b.BookingDetails.Any(d => courtIds.Contains(d.CourtId)))
+            .Select(b => new { b.CreatedAt, b.TotalAmount })
+            .ToListAsync();
+
+        var vnTz = VnTimeHelper.GetVnTimeZone();
         var revenueByDate = new List<OwnerRevenuePointDto>();
         for (var day = fromDate; day <= toDate; day = day.AddDays(1))
         {
-            var dayStart = VnTimeHelper.ToUtcStartOfVnDay(day);
-            var dayEnd = VnTimeHelper.ToUtcEndOfVnDay(day);
-            var amount = await _db.Bookings
-                .Where(b => b.PaymentStatus == "Paid"
-                    && b.CreatedAt >= dayStart && b.CreatedAt <= dayEnd
-                    && !OwnerDashboardMetrics.ExcludedBookingStatuses.Contains(b.Status)
-                    && b.BookingDetails.Any(d => courtIds.Contains(d.CourtId)))
-                .SumAsync(b => (decimal?)b.TotalAmount) ?? 0m;
+            var amount = paidBookingRows
+                .Where(b => TimeZoneInfo.ConvertTimeFromUtc(
+                    b.CreatedAt.Kind == DateTimeKind.Utc ? b.CreatedAt : DateTime.SpecifyKind(b.CreatedAt, DateTimeKind.Utc),
+                    vnTz).Date == day)
+                .Sum(b => b.TotalAmount);
             revenueByDate.Add(new OwnerRevenuePointDto { Label = day.ToString("dd/MM"), Amount = amount });
         }
 
-        var occupancyByCourt = new List<OwnerOccupancyByCourtDto>();
-        foreach (var courtId in courtIds)
+        var courtNameMap = await _db.Courts
+            .Where(c => courtIds.Contains(c.CourtId))
+            .ToDictionaryAsync(c => c.CourtId, c => c.Name);
+        var occupancyByCourt = courtIds.Select(courtId =>
         {
-            var courtName = await _db.Courts.Where(c => c.CourtId == courtId).Select(c => c.Name).FirstOrDefaultAsync() ?? "";
+            var courtName = courtNameMap.GetValueOrDefault(courtId, "");
             var booked = validBookings.Count(b => b.CourtId == courtId && OwnerDashboardMetrics.CountsTowardOccupancy(b.Status));
             var rate = SlotsPerDay == 0 ? 0m : Math.Round((decimal)booked / SlotsPerDay * 100m, 1);
-            occupancyByCourt.Add(new OwnerOccupancyByCourtDto
+            return new OwnerOccupancyByCourtDto
             {
                 CourtId = courtId,
                 CourtName = courtName,
                 BookedSlots = booked,
                 TotalSlots = SlotsPerDay,
                 OccupancyRate = Math.Min(rate, 100m)
-            });
-        }
+            };
+        }).ToList();
 
-        var upcomingRows = await _db.BookingDetails
-            .Include(d => d.Booking).ThenInclude(b => b!.User)
-            .Include(d => d.Court)
+        var upcoming = await _db.BookingDetails
+            .AsNoTracking()
             .Where(d => courtIds.Contains(d.CourtId)
                 && d.BookingDate.Date >= vnToday
                 && !OwnerDashboardMetrics.ExcludedBookingStatuses.Contains(d.Booking.Status))
             .OrderBy(d => d.BookingDate).ThenBy(d => d.StartTime)
             .Take(10)
+            .Select(d => new OwnerUpcomingBookingDto
+            {
+                BookingId = d.BookingId,
+                CustomerName = d.Booking.User.FullName,
+                CourtName = d.Court.Name,
+                BookingDate = d.BookingDate,
+                StartTime = d.StartTime.ToString(@"hh\:mm"),
+                EndTime = d.EndTime.ToString(@"hh\:mm"),
+                Status = d.Booking.Status,
+                TotalAmount = d.Booking.TotalAmount
+            })
             .ToListAsync();
-
-        var upcoming = upcomingRows.Select(d => new OwnerUpcomingBookingDto
-        {
-            BookingId = d.BookingId,
-            CustomerName = d.Booking.User.FullName,
-            CourtName = d.Court.Name,
-            BookingDate = d.BookingDate,
-            StartTime = d.StartTime.ToString(@"HH\:mm"),
-            EndTime = d.EndTime.ToString(@"HH\:mm"),
-            Status = d.Booking.Status,
-            TotalAmount = d.Booking.TotalAmount
-        }).ToList();
 
         var dto = new OwnerDashboardDto
         {
@@ -195,8 +200,7 @@ public class OwnerDashboardService : IOwnerDashboardService
         var filteredCourtIds = query.CourtId.HasValue ? new List<int> { query.CourtId.Value } : courtIds;
 
         var q = _db.Bookings
-            .Include(b => b.BookingDetails).ThenInclude(d => d.Court)
-            .Include(b => b.User)
+            .AsNoTracking()
             .Where(b => !b.IsDeleted && b.BookingDetails.Any(d => filteredCourtIds.Contains(d.CourtId)));
 
         if (!string.IsNullOrWhiteSpace(query.Status))
@@ -220,32 +224,31 @@ public class OwnerDashboardService : IOwnerDashboardService
         var page = Math.Max(1, query.Page);
         var size = Math.Clamp(query.Size, 1, 100);
 
-        var items = await q
+        var dtos = await q
             .OrderByDescending(b => b.CreatedAt)
             .Skip((page - 1) * size)
             .Take(size)
-            .ToListAsync();
-
-        var dtos = items.Select(b => new BookingDto
-        {
-            BookingId = b.BookingId,
-            UserId = b.UserId,
-            TotalAmount = b.TotalAmount,
-            Status = b.Status,
-            PaymentMethod = b.PaymentMethod,
-            PaymentStatus = b.PaymentStatus,
-            CheckInCode = b.CheckInCode,
-            PaymentDeadline = b.PaymentDeadline,
-            Details = b.BookingDetails.Select(d => new BookingDetailDto
+            .Select(b => new BookingDto
             {
-                CourtId = d.CourtId,
-                CourtName = d.Court?.Name ?? "",
-                BookingDate = d.BookingDate,
-                StartTime = d.StartTime,
-                EndTime = d.EndTime,
-                Price = d.Price
-            }).ToList()
-        }).ToList();
+                BookingId = b.BookingId,
+                UserId = b.UserId,
+                TotalAmount = b.TotalAmount,
+                Status = b.Status,
+                PaymentMethod = b.PaymentMethod,
+                PaymentStatus = b.PaymentStatus,
+                CheckInCode = b.CheckInCode,
+                PaymentDeadline = b.PaymentDeadline,
+                Details = b.BookingDetails.Select(d => new BookingDetailDto
+                {
+                    CourtId = d.CourtId,
+                    CourtName = d.Court.Name,
+                    BookingDate = d.BookingDate,
+                    StartTime = d.StartTime,
+                    EndTime = d.EndTime,
+                    Price = d.Price
+                }).ToList()
+            })
+            .ToListAsync();
 
         return new ApiResponseDto<PagedResult<BookingDto>>(200, "Success", new PagedResult<BookingDto>
         {
@@ -271,31 +274,31 @@ public class OwnerDashboardService : IOwnerDashboardService
         var from = query.DateFrom?.Date ?? DateTime.UtcNow.Date;
         var to = query.DateTo?.Date ?? from.AddDays(6);
 
-        var details = await _db.BookingDetails
-            .Include(d => d.Booking).ThenInclude(b => b!.User)
-            .Include(d => d.Court)
+        var detailsQuery = _db.BookingDetails
+            .AsNoTracking()
             .Where(d => ids.Contains(d.CourtId)
                 && !d.Booking.IsDeleted
-                && d.BookingDate.Date >= from && d.BookingDate.Date <= to)
-            .OrderBy(d => d.BookingDate).ThenBy(d => d.StartTime)
-            .ToListAsync();
+                && d.BookingDate.Date >= from && d.BookingDate.Date <= to);
 
         if (!string.IsNullOrWhiteSpace(query.Status))
-            details = details.Where(d => d.Booking.Status == query.Status).ToList();
+            detailsQuery = detailsQuery.Where(d => d.Booking.Status == query.Status);
 
-        var result = details.Select(d => new OwnerBookingCalendarDto
-        {
-            BookingId = d.BookingId,
-            CourtId = d.CourtId,
-            CourtName = d.Court?.Name ?? "",
-            CustomerName = d.Booking.User?.FullName ?? "",
-            BookingDate = d.BookingDate,
-            StartTime = d.StartTime.ToString(@"HH\:mm"),
-            EndTime = d.EndTime.ToString(@"HH\:mm"),
-            Status = d.Booking.Status,
-            PaymentStatus = d.Booking.PaymentStatus,
-            TotalAmount = d.Booking.TotalAmount
-        });
+        var result = await detailsQuery
+            .OrderBy(d => d.BookingDate).ThenBy(d => d.StartTime)
+            .Select(d => new OwnerBookingCalendarDto
+            {
+                BookingId = d.BookingId,
+                CourtId = d.CourtId,
+                CourtName = d.Court.Name,
+                CustomerName = d.Booking.User.FullName,
+                BookingDate = d.BookingDate,
+                StartTime = d.StartTime.ToString(@"hh\:mm"),
+                EndTime = d.EndTime.ToString(@"hh\:mm"),
+                Status = d.Booking.Status,
+                PaymentStatus = d.Booking.PaymentStatus ?? "",
+                TotalAmount = d.Booking.TotalAmount
+            })
+            .ToListAsync();
 
         return new ApiResponseDto<IEnumerable<OwnerBookingCalendarDto>>(200, "Success", result);
     }

@@ -452,3 +452,64 @@
 - `npm run build` và `dotnet build` pass; `dotnet test` 10/10 pass; không commit secret thật.
 - Push thành công lên `origin/DE190147/audit-module` (commit `fed44de`, `a5939b6`).
 - Smoke test Staff: login Staff → `/elite/schedule` → POS walk-in → check-in QR (trong khung slot) → disputes/rentals trên Dash.
+
+
+
+
+
+
+---
+
+## Log #16
+- **Ngày:** 2026-06-30
+- **Người thực hiện:** Phạm Nguyễn Tiến Đạt
+- **Công cụ AI:** Cursor (Composer)
+- **Mục đích:** Triển khai toàn diện **Owner Portal** (Court Owner), bổ sung **Player Features** (tournament, ELO, membership, split/recurring booking), tổng rà soát bảo mật/nghiệp vụ (Audit), vá lỗi P0–P3, đồng bộ `main`, kiểm thử WhiteBox/BlackBox và đẩy code lên nhánh làm việc.
+- **Tham chiếu Prompt:** *"Với vai trò Kỹ sư Full-stack Senior và Tech Lead module Audit, triển khai theo thứ tự ưu tiên nghiệp vụ sau. **P0 — Owner Portal:** xây dựng đầy đủ backend (Domain → Application → Infrastructure → API) và frontend cho Court Owner, gồm quản lý tổ hợp/sân, lịch đặt sân (danh sách, calendar, walk-in, check-in, hủy/xác nhận), dashboard, tài chính, báo cáo, kho/voucher, thuê thiết bị, nhân sự, đánh giá và cấu hình (giờ mở cửa, chính sách hủy, hội viên); áp dụng `OwnerAccessService`, `OwnerApiAuthorizationFilter`, phân quyền theo vai trò và envelope `ApiResponseDto`. **P0 — Sửa lỗi nghiệp vụ:** khắc phục đăng ký giải không thu phí, ELO tự báo cáo kết quả, membership không áp dụng giảm giá booking. **P1 — Audit & hardening:** rà soát toàn bộ Owner Portal, vá IDOR, sửa logic báo cáo doanh thu (tránh double-count, scope escrow, múi giờ VN), bổ sung UI còn thiếu và xử lý lỗi export CSV. **P2 — Tích hợp & phát hành:** đồng bộ nhánh `main`, giải quyết conflict nếu có, chạy WhiteBox (`dotnet test`) và BlackBox trước khi commit; loại file tạm/tooling khỏi staging; commit và push lên `DE190147/audit-module`. Mọi thay đổi phải tuân thủ kiến trúc phân tầng hiện có, không hardcode secret, và có bằng chứng kiểm thử trước khi hoàn tất."*
+
+### Tóm tắt kết quả AI
+
+**A. Owner Portal — Backend**
+- **Kiến trúc & phân quyền:** 14+ controller dưới `Controllers/Owner/`, `OwnerApiAuthorizationFilter`, `OwnerAccessService`, `StaffOperationGuard`, `CurrentUserContext`; entity/migration cho `Complex`, `ComplexOwner`, `StaffAssignment`, operating hours, cancellation policy, inventory, rental, audit log.
+- **Nghiệp vụ vận hành:** Dashboard metrics, court CRUD/pricing, booking list/calendar/walk-in/check-in/cancel/confirm, finance & revenue report, products/vouchers/rentals/reviews/staff/membership APIs.
+- **Hotfixes vận hành:** `CancelAndRefundSystemAsync` khi bảo trì/đóng cửa; hoàn trả escrow; revert role Staff khi gỡ phân công; sửa `productRevenue` và double-count doanh thu (`bookingRevenue` = tổng `BookingDetails.Price`); `escrowHeld` scoped theo complex; `revenueByDay` group theo múi giờ VN (`VnTimeHelper`).
+
+**B. Owner Portal — Frontend**
+- **Layout & routing:** `OwnerLayout`, `OwnerSidebar`, `OwnerContext`, `ownerApi.js`; 20+ trang `/owner/*` (dashboard, courts, bookings, calendar, walk-in, finance, reports, products, rentals, staff, vouchers, reviews, settings, audit logs).
+- **Trang cấu hình mới (audit):** `/owner/operating-hours`, `/owner/cancellation-policy`, `/owner/memberships`.
+- **Cải thiện UX:** login CourtOwner → `/owner/dashboard`; export CSV có xử lý lỗi blob; filter ngày finance/reports; edit product, toggle voucher, đổi trạng thái rental asset, report review; xóa dead code `OwnerInventoryPage.jsx`.
+
+**C. Player Features & sửa lỗi nghiệp vụ**
+- **Tournament:** `RegisterAsync` trừ `EntryFee` từ Escrow trong transaction Serializable.
+- **ELO:** luồng Pending → confirm/dispute; endpoint `POST /api/elo/match-results/{matchId}/confirm|dispute`.
+- **Membership:** giảm giá qua `BookingPriceCalculator` / `BookingService` (booking, split payment, recurring).
+- **Bổ sung:** controllers/services cho split payment, recurring booking, SignalR `NotificationHub`, background service player features.
+
+**D. Audit, kiểm thử & Version Control**
+- **Audit P0:** vá IDOR `OwnerCancellationPolicyController` (`RequireOwnerOrAdminAccessAsync`).
+- **Tests:** mở rộng suite Owner + Player Features; thêm test Staff → 403 trên filter; **`dotnet test` 73/73 pass**; `npm run build` OK.
+- **Git:** merge `origin/main` (Already up to date); commit `4e0c435` (201 files, +37k dòng); push `01cc14e..4e0c435` lên `origin/DE190147/audit-module`.
+- **Superpowers:** tích hợp submodule `.superpowers`, `docs/SUPERPOWERS.md`, rule bắt buộc brainstorming + writing-plans trước khi code feature mới.
+
+### Quyết định & Can thiệp của con người
+- **Chấp nhận:** Toàn bộ Owner Portal backend/frontend, player features, bản vá audit và cấu trúc test mới.
+- **Can thiệp kỹ thuật 1 (Review trước commit):** Yêu cầu rà soát diff chưa commit, chỉ merge/push sau khi pass build + test.
+- **Can thiệp kỹ thuật 2 (Ưu tiên bug nghiệp vụ):** Chỉ đạo sửa trước 3 lỗi tournament/ELO/membership trước khi mở rộng UI Owner.
+- **Can thiệp kỹ thuật 3 (Audit toàn cổng Owner):** Ra lệnh sửa *tất cả* findings (không chỉ P0), bao gồm trang cấu hình còn thiếu và export CSV.
+- **Can thiệp kỹ thuật 4 (Git hygiene):** Loại `scratch/`, `.cursor/`, tài liệu Word extract khỏi commit; chỉ stage `src/`, `docs/`, `AGENTS.md`, Superpowers setup.
+- **Can thiệp kỹ thuật 5 (Hướng PR):** Phát hiện GitHub compare đặt ngược (base/compare); hướng dẫn PR đúng: **base `main` ← compare `DE190147/audit-module`**.
+
+### Áp dụng cho
+- **Owner backend:** `Controllers/Owner/*`, `OwnerAccessService.cs`, `OwnerReportService.cs`, `ComplexScheduleService.cs`, `CancellationPolicyService.cs`, migrations `20260630170056` → `20260630191246`, `OwnerDemoSeeder.cs`
+- **Player features:** `TournamentService.cs`, `EloRatingService.cs`, `MembershipService.cs`, `SplitPaymentService.cs`, `RecurringBookingService.cs`, `BookingPriceCalculator.cs`
+- **Owner frontend:** `src/frontend/src/pages/owner/*`, `ownerApi.js`, `OwnerLayout.jsx`, `OwnerSidebar.jsx`, `App.jsx`, `LoginPage.jsx`, `Navbar.jsx`
+- **Tests:** `OwnerAccessServiceTests.cs`, `OwnerApiAuthorizationFilterTests.cs`, `OwnerOperationsTests.cs`, `PlayerFeaturesServiceTests.cs`, …
+- **Dev workflow:** `.gitmodules`, `.superpowers`, `docs/SUPERPOWERS.md`, `AGENTS.md`, `.cursor/rules/mandatory-planning.mdc`
+
+### Kiểm chứng
+- `dotnet test src/backend/ProSport.sln` — **73/73 pass**.
+- `npm run build` (frontend) — **0 lỗi**.
+- Blackbox API script (`scratch/blackbox-api-test.ps1`) — dashboard owner 14/14 sau fix format giờ `hh` → `HH`.
+- `git fetch origin main && git merge origin/main` — **Already up to date** với `main`.
+- Push thành công: `origin/DE190147/audit-module` @ commit **`4e0c435`**.
+- Smoke test Owner: đăng nhập `courtowner@prosport.vn` → dashboard → courts CRUD → bookings/calendar → operating hours / cancellation policy / memberships từ sidebar hoặc Settings.

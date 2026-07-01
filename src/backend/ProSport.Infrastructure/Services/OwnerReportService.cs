@@ -4,6 +4,7 @@ using ProSport.Application.DTOs;
 using ProSport.Application.DTOs.Owner;
 using ProSport.Application.Interfaces;
 using ProSport.Application.Services;
+using ProSport.Domain.Constants;
 using ProSport.Infrastructure.Data;
 
 namespace ProSport.Infrastructure.Services;
@@ -134,8 +135,8 @@ public class OwnerReportService : IOwnerReportService
         }).ToList();
 
         var totalAssets = await _db.RentalAssets.CountAsync(a => a.ComplexId == complexId && !a.IsDeleted);
-        var rentedAssets = await _db.RentalAssets.CountAsync(a => a.ComplexId == complexId && a.Status == "RENTED" && !a.IsDeleted);
-        var damaged = await _db.RentalAssets.CountAsync(a => a.ComplexId == complexId && a.Status == "DAMAGED" && !a.IsDeleted);
+        var rentedAssets = await _db.RentalAssets.CountAsync(a => a.ComplexId == complexId && a.Status == RentalAssetStatuses.Rented && !a.IsDeleted);
+        var damaged = await _db.RentalAssets.CountAsync(a => a.ComplexId == complexId && a.Status == RentalAssetStatuses.Damaged && !a.IsDeleted);
 
         return new ApiResponseDto<OwnerReportOccupancyDto>(200, "Success", new OwnerReportOccupancyDto
         {
@@ -151,10 +152,10 @@ public class OwnerReportService : IOwnerReportService
         {
             TotalProducts = await _db.ProductStocks.CountAsync(p => p.ComplexId == complexId && !p.IsDeleted),
             LowStockCount = await _db.ProductStocks.CountAsync(p => p.ComplexId == complexId && !p.IsDeleted && p.Quantity <= p.LowStockThreshold),
-            AvailableAssets = await _db.RentalAssets.CountAsync(a => a.ComplexId == complexId && a.Status == "AVAILABLE" && !a.IsDeleted),
-            RentedAssets = await _db.RentalAssets.CountAsync(a => a.ComplexId == complexId && a.Status == "RENTED" && !a.IsDeleted),
-            DamagedAssets = await _db.RentalAssets.CountAsync(a => a.ComplexId == complexId && a.Status == "DAMAGED" && !a.IsDeleted),
-            MaintenanceAssets = await _db.RentalAssets.CountAsync(a => a.ComplexId == complexId && a.Status == "MAINTENANCE" && !a.IsDeleted)
+            AvailableAssets = await _db.RentalAssets.CountAsync(a => a.ComplexId == complexId && a.Status == RentalAssetStatuses.Available && !a.IsDeleted),
+            RentedAssets = await _db.RentalAssets.CountAsync(a => a.ComplexId == complexId && a.Status == RentalAssetStatuses.Rented && !a.IsDeleted),
+            DamagedAssets = await _db.RentalAssets.CountAsync(a => a.ComplexId == complexId && a.Status == RentalAssetStatuses.Damaged && !a.IsDeleted),
+            MaintenanceAssets = await _db.RentalAssets.CountAsync(a => a.ComplexId == complexId && a.Status == RentalAssetStatuses.Maintenance && !a.IsDeleted)
         });
     }
 

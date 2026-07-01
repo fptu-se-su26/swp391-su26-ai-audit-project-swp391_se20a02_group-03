@@ -62,8 +62,8 @@ public static class OwnerDemoSeeder
                 Description = "Tổ hợp thể thao cầu lông và pickleball hiện đại nhất khu vực.",
                 Phone = "0912345678",
                 Email = "contact@prosport-q7.vn",
-                OpeningTime = "05:00",
-                ClosingTime = "23:00",
+                OpeningTime = new TimeSpan(5, 0, 0),
+                ClosingTime = new TimeSpan(23, 0, 0),
                 Status = "Active",
                 CreatedAt = DateTime.UtcNow,
                 IsDeleted = false

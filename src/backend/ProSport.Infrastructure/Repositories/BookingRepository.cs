@@ -18,6 +18,8 @@ public class BookingRepository : IBookingRepository
     public async Task<IEnumerable<Booking>> GetAllAsync()
     {
         return await _context.Bookings
+            .AsNoTracking()
+            .AsSplitQuery()
             .Include(b => b.BookingDetails)
                 .ThenInclude(bd => bd.Court)
             .Include(b => b.User)
@@ -38,6 +40,8 @@ public class BookingRepository : IBookingRepository
     public async Task<IEnumerable<Booking>> GetByUserIdAsync(int userId)
     {
         return await _context.Bookings
+            .AsNoTracking()
+            .AsSplitQuery()
             .Include(b => b.BookingDetails)
                 .ThenInclude(bd => bd.Court)
             .Where(b => b.UserId == userId && !b.IsDeleted)

@@ -3,6 +3,7 @@ import { Link, useOutletContext } from 'react-router-dom';
 import { ownerApi } from '../../api/ownerApi';
 import OwnerStatusBadge from '../../components/owner/OwnerStatusBadge';
 import PageLoader from '../../components/ui/PageLoader';
+import { useDebouncedValue } from '../../utils/useDebouncedValue';
 
 const STATUS_OPTIONS = [
   { value: '', label: 'Tất cả trạng thái' },
@@ -29,6 +30,7 @@ export default function OwnerBookingsPage() {
   const [status, setStatus] = useState('');
   const [courtId, setCourtId] = useState('');
   const [keyword, setKeyword] = useState('');
+  const debouncedKeyword = useDebouncedValue(keyword, 400);
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
 
@@ -49,7 +51,7 @@ export default function OwnerBookingsPage() {
         complexId,
         status: status || undefined,
         courtId: courtId ? Number(courtId) : undefined,
-        keyword: keyword.trim() || undefined,
+        keyword: debouncedKeyword.trim() || undefined,
         dateFrom: dateFrom || undefined,
         dateTo: dateTo || undefined,
         page: 1,
@@ -70,7 +72,7 @@ export default function OwnerBookingsPage() {
 
   useEffect(() => {
     if (complexId) load();
-  }, [complexId, status, courtId]);
+  }, [complexId, status, courtId, debouncedKeyword, dateFrom, dateTo]);
 
   if (loading && !items.length) return <PageLoader label="Đang tải booking..." />;
 

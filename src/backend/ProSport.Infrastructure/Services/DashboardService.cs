@@ -43,30 +43,29 @@ public class DashboardService : IDashboardService
     {
 
         var totalRevenue = await _db.Bookings
-
+            .AsNoTracking()
             .Where(b => b.PaymentStatus == "Paid")
-
             .SumAsync(b => (decimal?)b.TotalAmount) ?? 0m;
 
 
 
         var activeBookings = await _db.Bookings
-
+            .AsNoTracking()
             .CountAsync(b => b.Status == "Pending" || b.Status == "Confirmed");
 
 
 
         var ongoingMatches = await _db.Matches
-
+            .AsNoTracking()
             .CountAsync(m => m.Status == "Open" || m.Status == "Closed");
 
 
 
-        var totalEquipment = await _db.Equipments.CountAsync();
+        var totalEquipment = await _db.Equipments.AsNoTracking().CountAsync(e => !e.IsDeleted);
 
-        var totalUsers = await _db.Users.CountAsync();
+        var totalUsers = await _db.Users.AsNoTracking().CountAsync(u => !u.IsDeleted);
 
-        var totalCourts = await _db.Courts.CountAsync();
+        var totalCourts = await _db.Courts.AsNoTracking().CountAsync(c => !c.IsDeleted);
 
 
 
@@ -75,7 +74,7 @@ public class DashboardService : IDashboardService
         var trendStartUtc = VnTimeHelper.ToUtcStartOfVnDay(vnToday.AddDays(-6));
 
         var paidRecent = await _db.Bookings
-
+            .AsNoTracking()
             .Where(b => b.PaymentStatus == "Paid" && b.CreatedAt >= trendStartUtc)
 
             .Select(b => new { b.CreatedAt, b.TotalAmount })
@@ -105,7 +104,7 @@ public class DashboardService : IDashboardService
 
 
         var recent = await _db.Bookings
-
+            .AsNoTracking()
             .OrderByDescending(b => b.CreatedAt)
 
             .Take(6)
@@ -188,10 +187,10 @@ public class DashboardService : IDashboardService
 
 
 
-        var totalCourts = await _db.Courts.CountAsync();
+        var totalCourts = await _db.Courts.AsNoTracking().CountAsync(c => !c.IsDeleted);
 
         var activeCourtIds = await _db.BookingDetails
-
+            .AsNoTracking()
             .Where(d => d.BookingDate.Date == vnToday
 
                 && (d.Booking.Status == "Pending" || d.Booking.Status == "Confirmed" || d.Booking.Status == "Completed"))
@@ -205,13 +204,13 @@ public class DashboardService : IDashboardService
 
 
         var todayBookings = await _db.Bookings
-
+            .AsNoTracking()
             .CountAsync(b => b.CreatedAt >= dayStartUtc && b.CreatedAt <= dayEndUtc);
 
 
 
         var todayRevenue = await _db.Bookings
-
+            .AsNoTracking()
             .Where(b => b.PaymentStatus == "Paid" && b.CreatedAt >= dayStartUtc && b.CreatedAt <= dayEndUtc)
 
             .SumAsync(b => (decimal?)b.TotalAmount) ?? 0m;
@@ -219,13 +218,13 @@ public class DashboardService : IDashboardService
 
 
         var openDisputes = await _db.Reports
-
+            .AsNoTracking()
             .CountAsync(r => r.Status == "Pending" || r.Status == "Investigating");
 
 
 
         var activeMatches = await _db.Matches
-
+            .AsNoTracking()
             .CountAsync(m => m.Status == "Open" || m.Status == "Closed");
 
 
@@ -239,7 +238,7 @@ public class DashboardService : IDashboardService
 
 
         var recent = await _db.Bookings
-
+            .AsNoTracking()
             .OrderByDescending(b => b.CreatedAt)
 
             .Take(6)
@@ -335,7 +334,7 @@ public class DashboardService : IDashboardService
 
 
         var courtsQuery = _db.Courts
-
+            .AsNoTracking()
             .Include(c => c.CourtType)
 
             .AsQueryable();
@@ -357,7 +356,8 @@ public class DashboardService : IDashboardService
 
 
         var details = await _db.BookingDetails
-
+            .AsNoTracking()
+            .AsSplitQuery()
             .Include(d => d.Booking)
 
                 .ThenInclude(b => b.User)
@@ -510,18 +510,18 @@ public class DashboardService : IDashboardService
 
 
 
-        var todayBookings = await _db.Bookings.CountAsync(b => b.CreatedAt >= dayStartUtc && b.CreatedAt <= dayEndUtc);
+        var todayBookings = await _db.Bookings.AsNoTracking().CountAsync(b => b.CreatedAt >= dayStartUtc && b.CreatedAt <= dayEndUtc);
 
-        var pendingReports = await _db.Reports.CountAsync(r => r.Status == "Pending" || r.Status == "Investigating");
+        var pendingReports = await _db.Reports.AsNoTracking().CountAsync(r => r.Status == "Pending" || r.Status == "Investigating");
 
-        var openMatches = await _db.Matches.CountAsync(m => m.Status == "Open");
+        var openMatches = await _db.Matches.AsNoTracking().CountAsync(m => m.Status == "Open");
 
-        var totalUsers = await _db.Users.CountAsync();
+        var totalUsers = await _db.Users.AsNoTracking().CountAsync(u => !u.IsDeleted);
 
 
 
         var recentBookings = await _db.Bookings
-
+            .AsNoTracking()
             .OrderByDescending(b => b.CreatedAt)
 
             .Take(8)
@@ -545,7 +545,7 @@ public class DashboardService : IDashboardService
 
 
         var recentReports = await _db.Reports
-
+            .AsNoTracking()
             .Where(r => r.Status == "Pending" || r.Status == "Investigating")
 
             .OrderByDescending(r => r.CreatedAt)
@@ -575,7 +575,7 @@ public class DashboardService : IDashboardService
 
 
         var recentMatches = await _db.Matches
-
+            .AsNoTracking()
             .Where(m => m.Status == "Open")
 
             .OrderByDescending(m => m.CreatedAt)

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import React, { useMemo, useState } from 'react';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import { cartApi } from '../../api/cartApi';
 import ApexLayout from '../../layouts/ApexLayout';
@@ -15,15 +15,31 @@ function formatVND(amount) {
 
 export default function CartCheckoutPage() {
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
     const { cartItems, cartData, clearCart, loading: cartLoading } = useCart();
     const { addToast } = useToast();
     const [isProcessing, setIsProcessing] = useState(false);
+
+    const checkoutBookingId = useMemo(() => {
+        const fromQuery = searchParams.get('bookingId');
+        if (fromQuery) {
+            const parsed = Number(fromQuery);
+            if (Number.isFinite(parsed) && parsed > 0) return parsed;
+        }
+        const linkedIds = [...new Set(cartItems.map((item) => item.bookingId).filter(Boolean))];
+        return linkedIds.length === 1 ? linkedIds[0] : null;
+    }, [cartItems, searchParams]);
+
+    const itemsToCheckout = useMemo(() => {
+        if (!checkoutBookingId) return cartItems;
+        return cartItems.filter((item) => item.bookingId === checkoutBookingId);
+    }, [cartItems, checkoutBookingId]);
 
     async function handleCheckout() {
         setIsProcessing(true);
         try {
             const payload = {
-                bookingId: null
+                bookingId: checkoutBookingId
             };
             const response = await cartApi.checkout(payload);
             if (response.statusCode === 200) {
@@ -52,7 +68,7 @@ export default function CartCheckoutPage() {
         );
     }
 
-    if (cartItems.length === 0) {
+    if (cartItems.length === 0 || itemsToCheckout.length === 0) {
         return (
             <ApexLayout>
                 <div className="container py-20 text-center">
@@ -66,7 +82,9 @@ export default function CartCheckoutPage() {
         );
     }
 
-    const grandTotal = cartData?.totalAmount || 0;
+    const grandTotal = checkoutBookingId
+        ? itemsToCheckout.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0)
+        : (cartData?.totalAmount || 0);
 
     return (
         <ApexLayout>
@@ -92,10 +110,10 @@ export default function CartCheckoutPage() {
                                     <h3 className="text-sm font-bold text-brand-900 uppercase tracking-widest flex items-center gap-2">
                                         <ShoppingCart size={16} /> Danh sách thiết bị
                                     </h3>
-                                    <span className="text-xs font-bold text-brand-400">{cartItems.length} mục</span>
+                                    <span className="text-xs font-bold text-brand-400">{itemsToCheckout.length} mục</span>
                                 </div>
                                 <div className="divide-y divide-brand-100">
-                                    {cartItems.map((item) => (
+                                    {itemsToCheckout.map((item) => (
                                         <div key={item.cartItemId} className="p-6 flex items-center justify-between hover:bg-brand-50/20 transition-colors">
                                             <div className="flex items-center gap-4">
                                                 <div className="w-12 h-12 bg-brand-50 rounded-lg overflow-hidden border border-brand-100 p-1 flex-shrink-0">

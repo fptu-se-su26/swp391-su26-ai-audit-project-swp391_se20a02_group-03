@@ -1,376 +1,348 @@
 # Nhật ký thay đổi (Changelog)
 
+> **Người thực hiện (tất cả mục):** Phạm Nguyễn Tiến Đạt
+
+---
+
 ## [2026-05-20] - Giai đoạn: Lên ý tưởng & Lập dàn ý thiết kế UI
-**Người thực hiện:** Phạm Nguyễn Tiến Đạt
 
 ### Thêm mới (Added)
-* Chốt bố cục thiết kế tổng thể: trang chủ, màn hình danh sách sân, giao diện Dashboard với biểu đồ thống kê.
-* Bổ sung yêu cầu thiết kế chi tiết hiển thị form thanh toán (Payment UI).
+- Chốt bố cục thiết kế tổng thể: trang chủ, màn hình danh sách sân, giao diện Dashboard với biểu đồ thống kê.
+- Bổ sung yêu cầu thiết kế chi tiết hiển thị form thanh toán (Payment UI).
 
 ### Thay đổi (Changed)
-* Tùy chỉnh lại bảng tone màu thể thao do AI gợi ý để đồng bộ chính xác với nhận diện thương hiệu của nhóm.
+- Tùy chỉnh lại bảng tone màu thể thao do AI gợi ý để đồng bộ chính xác với nhận diện thương hiệu của nhóm.
 
 ### Hỗ trợ từ AI (AI-assisted)
-* Gemini đóng vai trò Designer, phân tích yêu cầu và viết ra bộ meta-prompt tiếng Anh chuẩn xác làm đầu vào cho công cụ thiết kế Stitch.
+- Gemini đóng vai trò Designer, phân tích yêu cầu và viết bộ meta-prompt tiếng Anh làm đầu vào cho công cụ thiết kế Stitch.
 
 ---
 
 ## [2026-05-21] - Giai đoạn: Dựng Mockup UI tĩnh & Cấu trúc Layout
-**Người thực hiện:** Phạm Nguyễn Tiến Đạt
 
 ### Thêm mới (Added)
-* Tạo layout trang Dashboard, thanh điều hướng (Navbar/Sidebar) và các component trạng thái sân.
-* Thêm các thẻ JSTL, tích hợp dữ liệu động truyền từ Model/Controller thay thế cho dữ liệu giả (mock data).
+- Tạo layout trang Dashboard, thanh điều hướng (Navbar/Sidebar) và các component trạng thái sân.
+- Thêm các thẻ JSTL, tích hợp dữ liệu động truyền từ Model/Controller thay thế mock data.
 
 ### Thay đổi (Changed)
-* Bóc tách các file HTML tĩnh nguyên khối thành các file module riêng biệt (Header, Footer, Menu) để tuân thủ cấu trúc dự án.
+- Bóc tách file HTML tĩnh nguyên khối thành module riêng (Header, Footer, Menu) theo cấu trúc dự án.
 
 ### Sửa lỗi (Fixed)
-* Tinh chỉnh lại các class CSS để sửa lỗi vỡ layout, giúp giao diện responsive tốt hơn trên thiết bị di động.
+- Tinh chỉnh class CSS để sửa vỡ layout, responsive tốt hơn trên mobile.
 
 ### Hỗ trợ từ AI (AI-assisted)
-* Stitch By Google hỗ trợ sinh mã nguồn HTML/CSS/JS tĩnh trực quan dựa trên bản thiết kế. Người thực hiện tự bóc tách file và ghép dữ liệu động.
+- Stitch By Google sinh HTML/CSS/JS tĩnh từ bản thiết kế. Người thực hiện tự bóc tách file và ghép dữ liệu động.
 
 ---
 
 ## [2026-05-22] - Giai đoạn: Xây dựng React Components & Logic Form
-**Người thực hiện:** Phạm Nguyễn Tiến Đạt
 
 ### Thêm mới (Added)
-* Xây dựng file `BookingForm.jsx` và `Dashboard.jsx`.
-* Tích hợp thư viện Axios để viết logic gọi dữ liệu sân thực tế từ Java Backend.
-* Thêm logic Validation cho form đặt sân (chặn người dùng chọn ngày trong quá khứ).
+- Xây dựng `BookingForm.jsx` và `Dashboard.jsx`.
+- Tích hợp Axios gọi dữ liệu sân thực tế từ Java Backend.
+- Validation form đặt sân (chặn chọn ngày quá khứ).
 
 ### Thay đổi (Changed)
-* Tách nhỏ đoạn code UI nguyên khối thành các React Component độc lập có thể tái sử dụng (`Button`, `InputField`, `CourtCard`).
+- Tách UI nguyên khối thành component tái sử dụng: `Button`, `InputField`, `CourtCard`.
 
 ### Hỗ trợ từ AI (AI-assisted)
-* Antigravity AI sinh cấu trúc React Functional Component hoàn chỉnh, bao gồm các hook (`useState`) và các class Tailwind CSS. Người thực hiện tự viết logic luồng dữ liệu API và Validation.
+- Antigravity AI sinh React Functional Component, hook `useState`, class Tailwind. Người thực hiện tự viết logic API và Validation.
 
 ---
 
 ## [2026-05-28] - Giai đoạn: Nâng cấp toàn diện Premium UI/UX
-**Người thực hiện:** Phạm Nguyễn Tiến Đạt
 
 ### Thêm mới (Added)
-* **Core:** Cài đặt thư viện `gsap` và `@gsap/react` để tạo hiệu ứng chuyển động.
-* **Core:** Thêm các custom hooks (`useScrollReveal`, `useNavbarEntrance`) để quản lý hiệu ứng.
-* **Phân hệ Apex:** Xây dựng 6 trang UI hoàn chỉnh (Booking, Matches, Shop, Profile, Settings, Support).
-* **Phân hệ MatchPro:** Xây dựng 4 trang mạng xã hội (Trending Feed, Nearby Sports, Community Hub, Leaderboard).
+- **Core:** Cài `gsap`, `@gsap/react`; custom hooks `useScrollReveal`, `useNavbarEntrance`.
+- **Phân hệ Apex (6 trang):** Booking, Matches, Shop, Profile, Settings, Support.
+- **Phân hệ MatchPro (4 trang):** Trending Feed, Nearby Sports, Community Hub, Leaderboard.
 
 ### Thay đổi (Changed)
-* **Tái cấu trúc (Refactoring):** Chuyển logic animation trực tiếp từ các component ra các custom hooks để tái sử dụng và giúp code sạch hơn.
+- Chuyển logic animation từ component ra custom hooks (tái sử dụng, code sạch hơn).
 
 ### Sửa lỗi (Fixed)
-* **Môi trường Vite:** Khắc phục lỗi crash server (lỗi `EBUSY`) bằng cách thêm thư mục `.vs` vào danh sách ignore trong `vite.config.js`.
+- **Vite EBUSY:** Thêm `.vs` vào ignore trong `vite.config.js`.
 
 ### Hỗ trợ từ AI (AI-assisted)
-* Antigravity AI đề xuất thư viện GSAP và tạo sẵn cấu trúc UI, CSS layout ban đầu cho toàn bộ 10 trang mới. Người thực hiện tự tái cấu trúc lại theo chuẩn Component của React.
+- Antigravity AI đề xuất GSAP và sinh cấu trúc UI/CSS cho 10 trang mới. Người thực hiện tái cấu trúc theo chuẩn React Component.
 
-
-
+---
 
 ## [2026-05-29] - Giai đoạn: Xây dựng hệ thống giao diện đa phân hệ
-**Người thực hiện:** Phạm Nguyễn Tiến Đạt
 
 ### Thêm mới (Added)
 
-**Public Pages (7 trang):**
-`HomePage`, `LoginPage`, `RegisterPage`, `RoleSelectionPage`, `ResetPasswordPage`, `AboutPage`, `ContactPage`
+| Phân hệ | Số trang | Trang chính |
+|---------|----------|-------------|
+| Public | 7 | `HomePage`, `LoginPage`, `RegisterPage`, `RoleSelectionPage`, `ResetPasswordPage`, `AboutPage`, `ContactPage` |
+| Admin Portal | 8 | `AdminDashboardPage`, `AdminUsersPage`, `AdminCourtsPage`, `AdminBookingsPage`, `AdminInventoryPage`, `AdminPricingPage`, `AdminKycPage`, `AdminComplaintsPage` |
+| EliteSport OS | 6 | `EliteDashboardPage`, `EliteSchedulePage`, `ElitePosWalkInPage`, `EliteEquipmentPage`, `EliteVouchersPage`, `EliteDisputesPage` |
+| Mobile App | 8 | `MobileHomePage`, `MobileDashboardPage`, `MobileMatchesPage`, `MobileBookingPage`, `MobileChatPage`, `MobileWalletPage`, `MobileProfilePage`, `MobileScannerPage` |
+| Shop | 5 | `ShopPage`, `ShopProductPage`, `ShopCartPage`, `ShopCheckoutPage`, `ShopWishlistPage` |
+| Status | 3 | `NotFoundPage`, `RestrictedPage`, `MaintenancePage` |
 
-**Admin Portal (8 trang):**
-`AdminDashboardPage`, `AdminUsersPage`, `AdminCourtsPage`, `AdminBookingsPage`, `AdminInventoryPage`, `AdminPricingPage`, `AdminKycPage`, `AdminComplaintsPage`
-
-**EliteSport OS (6 trang):**
-`EliteDashboardPage`, `EliteSchedulePage`, `ElitePosWalkInPage`, `EliteEquipmentPage`, `EliteVouchersPage`, `EliteDisputesPage`
-
-**Mobile App (8 trang):**
-`MobileHomePage`, `MobileDashboardPage`, `MobileMatchesPage`, `MobileBookingPage`, `MobileChatPage`, `MobileWalletPage`, `MobileProfilePage`, `MobileScannerPage`
-
-**Shop (5 trang):**
-`ShopPage`, `ShopProductPage`, `ShopCartPage`, `ShopCheckoutPage`, `ShopWishlistPage`
-
-**Status Pages (3 trang):**
-`NotFoundPage` (404), `RestrictedPage` (403), `MaintenancePage`
-
-**Layouts & Infrastructure:**
-- 7 Layout Component: `EliteLayout`, `MobileLayout`, `AdminLayout`, `GearLayout`, `ShopLayout`, `MatchProLayout`, `ProSportDashLayout`.
-- Component `AIChatbot.jsx` tích hợp vào Mobile Layout.
-- Thiết lập toàn bộ hệ thống routing trong `App.jsx` với 40+ routes.
+- **Layouts:** 7 layout — `EliteLayout`, `MobileLayout`, `AdminLayout`, `GearLayout`, `ShopLayout`, `MatchProLayout`, `ProSportDashLayout`.
+- **Routing:** 40+ routes trong `App.jsx`; `AIChatbot.jsx` tích hợp Mobile Layout.
 
 ### Sửa lỗi (Fixed)
-
-- **[Build] Entry Point sai đường dẫn:** `index.html` trỏ tới `/src/main.jsx` nhưng file thực tế nằm ở `/main.jsx`, khiến Vite không thể build. Phát hiện và sửa thủ công.
-- **[Routing] Routes bị comment:** Toàn bộ Public Routes trong `App.jsx` bị comment out, khiến `/`, `/login`, `/register` trả về 404. Uncomment và bổ sung các route còn thiếu (`/about`, `/courts`, `/matches`, `/gear`).
-- **[CSS] Selector `:has()` không tương thích Firefox:** Xóa bỏ, thay bằng cách tiếp cận dùng class thông thường. Gộp các CSS rule bị khai báo trùng lặp.
-- **[Navigation] Dead links trong AdminLayout:** 10 nav link trong sidebar trỏ tới route không được đăng ký, gây lỗi 404 khi click. Xóa toàn bộ.
-- **[Layout Mobile] `position: absolute` gây chồng nội dung:** `MobileChatPage` và `MobileBookingPage` dùng `position: absolute` cho thanh input/nút CTA. Chuyển sang `position: sticky`.
+- **[Build]** `index.html` trỏ sai `/src/main.jsx` → sửa về `/main.jsx`.
+- **[Routing]** Public routes bị comment → uncomment, bổ sung `/about`, `/courts`, `/matches`, `/gear`.
+- **[CSS]** Selector `:has()` không tương thích Firefox → thay bằng class thông thường.
+- **[Navigation]** 10 dead link trong `AdminLayout` sidebar → xóa.
+- **[Layout Mobile]** `position: absolute` gây chồng nội dung → chuyển `sticky` trên `MobileChatPage`, `MobileBookingPage`.
 
 ### Hỗ trợ từ AI (AI-assisted)
+- Antigravity AI sinh JSX, CSS, routing cho 40+ trang. Người thực hiện tự phát hiện và sửa 5 nhóm lỗi build/routing/CSS/layout mà AI không tự phát hiện.
 
-Antigravity AI sinh toàn bộ cấu trúc JSX, CSS và hệ thống routing ban đầu cho 40+ trang UI dựa trên ảnh thiết kế. Người thực hiện tự phát hiện và sửa toàn bộ 5 nhóm lỗi kỹ thuật — bao gồm lỗi build, lỗi routing, lỗi CSS trình duyệt và lỗi layout mà AI không tự phát hiện được.
-
-
-
-
-
+---
 
 ## [2026-06-01] - Giai đoạn: Hoàn thiện phân hệ Gear & Chuẩn hóa đa ngôn ngữ (Tiếng Anh)
-**Người thực hiện:** Phạm Nguyễn Tiến Đạt
+
 ### Thêm mới (Added)
-* **Phân hệ Gear:** Xây dựng mới mã nguồn hoàn chỉnh cho 4 trang phụ trợ bao gồm Equipment Rental Terms (Điều khoản thuê), Maintenance Tracking (Theo dõi bảo trì), Support Hub (Trung tâm hỗ trợ), và Privacy Policy (Chính sách bảo mật).
-* **Định tuyến:** Tích hợp bổ sung các route mới vào `App.jsx` tương ứng với 4 trang phụ trợ vừa tạo.
+- **Phân hệ Gear (4 trang):** Equipment Rental Terms, Maintenance Tracking, Support Hub, Privacy Policy.
+- **Routing:** Bổ sung route tương ứng trong `App.jsx`.
+
 ### Thay đổi (Changed)
-* **Dịch thuật (Localization):** Quét và chuyển đổi đồng bộ các từ khóa, nhãn (label) tiếng Việt còn sót lại trên giao diện sang tiếng Anh nhằm đảm bảo tính nhất quán (Premium UI) cho người dùng.
-* **Định tuyến SPA:** Cập nhật các liên kết tĩnh (`href="#"`) ở khu vực Footer của `GearLayout.jsx` thành component `<Link>` của React Router, giúp giữ vững kiến trúc Single Page Application (không reload trang khi chuyển hướng).
+- **Localization:** Quét và chuyển label tiếng Việt còn sót sang tiếng Anh (Premium UI).
+- **SPA:** Footer `GearLayout.jsx` — `href="#"` → `<Link>` React Router.
+
 ### Sửa lỗi (Fixed)
-* **Sự cố quá tải API (Rate Limit):** Quá trình AI phân luồng (spawn) đa luồng dịch thuật tự động song song gây ra lỗi vượt giới hạn API (Error 429). Đã can thiệp đóng băng luồng dịch toàn dự án, ưu tiên dồn tài nguyên xử lý hoàn thiện các trang chức năng cốt lõi của Gear trước để tránh treo hệ thống.
+- **Rate Limit 429:** Dịch thuật đa luồng vượt giới hạn API → đóng băng luồng dịch toàn dự án, ưu tiên hoàn thiện Gear trước.
+
 ### Hỗ trợ từ AI (AI-assisted)
-* Antigravity AI hỗ trợ rà soát ngôn ngữ, tự động sinh nội dung, CSS layout và cấu trúc React Component cho 4 trang thuộc phân hệ Gear. Người thực hiện can thiệp trực tiếp khi xảy ra lỗi giới hạn API và tự cấu hình lại liên kết React Router để đảm bảo luồng chuyển hướng không bị gián đoạn.
+- Antigravity AI sinh nội dung, CSS, component cho 4 trang Gear. Người thực hiện xử lý lỗi 429 và cấu hình lại React Router.
 
-
+---
 
 ## [2026-06-04] - Giai đoạn: Thiết lập CI/CD & Hoàn thiện nền tảng pháp lý (Platform/Legal)
-**Người thực hiện:** Phạm Nguyễn Tiến Đạt
+
 ### Thêm mới (Added)
-* **Hạ tầng CI/CD:** Thiết lập thành công Harness CI pipeline (`.harness/prosport_ci_pipeline.yaml`) với 3 luồng tự động: Build Frontend (Vite/React), Build Backend (.NET) và tự động kiểm tra Audit Docs.
-* **Trang Chính sách (Legal):** Sinh mới 3 trang pháp lý chuẩn SEO và UI cao cấp bao gồm `PrivacyPolicyPage.jsx`, `TermsOfServicePage.jsx` và `SitemapPage.jsx`.
-* **Trang Nền tảng (Platform):** Khởi tạo trang chuyên đề `BrandMissionPage.jsx` độc lập với giao diện Cinematic, typography cỡ lớn và GSAP animations mượt mà.
-* **Định tuyến:** Bổ sung 4 route mới vào `App.jsx` tương ứng với các trang vừa được tạo.
+- **CI/CD:** Harness pipeline (`.harness/prosport_ci_pipeline.yaml`) — Build FE, Build BE, Audit Docs.
+- **Legal (3 trang):** `PrivacyPolicyPage`, `TermsOfServicePage`, `SitemapPage`.
+- **Platform:** `BrandMissionPage` — giao diện Cinematic + GSAP.
+- **Routing:** 4 route mới trong `App.jsx`.
+
 ### Thay đổi (Changed)
-* **Nâng cấp UI (Overhaul):** Đập đi xây lại toàn bộ trang About (`AboutPage.jsx`) với nội dung thực tế phong phú (Mission, Stats, Journey, Timeline, Leadership Team) tích hợp hiệu ứng cuộn GSAP ScrollTrigger.
-* **Cập nhật Footer:** Điều chỉnh toàn bộ các liên kết tĩnh (`href="#"`) trong `Footer.jsx` sang định tuyến thực tế (chuyển "Country" thành "Facilities" trỏ tới `/courts`, gắn link thực cho các trang Legal).
+- **About overhaul:** Nội dung Mission, Stats, Journey, Timeline, Leadership + GSAP ScrollTrigger.
+- **Footer:** Liên kết tĩnh → route thực (`/courts`, Legal pages).
+
 ### Sửa lỗi (Fixed)
-* **Môi trường Dev:** Xử lý lỗi crash Vite dev server do thiếu thư viện (sau khi merge code mới từ nhánh main) bằng cách chủ động cài đặt bổ sung các dependencies bị thiếu (`@react-oauth/google`, `axios`).
-* **Định tuyến SPA (Base URL):** Khắc phục lỗi 404 khi click vào nút CTA "Join Our Mission" ở trang Brand Mission. Lỗi xảy ra do dùng thẻ HTML tĩnh (`<a href>`) làm ứng dụng thoát khỏi base path của Vite. Đã thay thế triệt để bằng component `<Link>` của React Router.
+- **Dev server:** Thiếu `@react-oauth/google`, `axios` sau merge → cài bổ sung.
+- **SPA base URL:** CTA "Join Our Mission" dùng `<a href>` → `<Link>` React Router.
+
 ### Hỗ trợ từ AI (AI-assisted)
-* Antigravity AI (Gemini) hỗ trợ viết file cấu hình cho Harness CI và sinh toàn bộ mã nguồn React, class Tailwind, logic GSAP animation cho các trang About, Brand Mission, Legal. Người thực hiện trực tiếp chẩn đoán, can thiệp xử lý lỗi sập dev server và fix thành công lỗi điều hướng mất base URL đặc thù của kiến trúc SPA.
+- Antigravity AI viết Harness CI config và sinh React/GSAP cho About, Brand Mission, Legal. Người thực hiện fix dev server crash và lỗi điều hướng base URL.
 
-
-
-
-
-
+---
 
 ## [2026-06-11] - Giai đoạn: Nâng cấp UI/UX, Chuẩn hóa GSAP Animations & Khắc phục lỗi điều hướng
-**Người thực hiện:** Phạm Nguyễn Tiến Đạt
 
 ### Thêm mới (Added)
-* **Animation:** Bổ sung 4 hiệu ứng GSAP ScrollTrigger cao cấp cho trang Contact (fade-in Hero, slide form từ trái, stagger cards từ phải, fade-up FAQ items).
-* **UI State:** Thêm trạng thái thành công (Success State) với hiệu ứng `scale-in` sau khi gửi biểu mẫu liên hệ tại `ContactPage.jsx`.
+- **Contact animations:** 4 hiệu ứng GSAP ScrollTrigger (Hero fade-in, form slide, cards stagger, FAQ fade-up).
+- **Success state:** Hiệu ứng `scale-in` sau gửi form liên hệ.
 
 ### Thay đổi (Changed)
-* **Chuẩn hóa CSS (Refactoring):** Gom toàn bộ các keyframe animation phân tán (`authFadeInUp`, `authFloat`, `authSlideInRight`, `scaleIn`, `fadeInUp`) và các utility class tương ứng vào duy nhất file `index.css` để dễ dàng tái sử dụng và bảo trì.
-* **Đồng bộ UI:** Chỉnh sửa màu sắc các nhãn (label) trong biểu mẫu của trang `ResetPasswordPage.jsx` để đảm bảo tính nhất quán của hệ thống.
+- Gom keyframe animation vào `index.css` (`authFadeInUp`, `authFloat`, `scaleIn`, …).
+- Đồng bộ màu label form `ResetPasswordPage`.
 
 ### Sửa lỗi (Fixed)
-* **Lỗi điều hướng (Routing):** Khắc phục triệt để lỗi không nhảy đến đúng phần "Platform Features" tại trang chủ khi người dùng click vào link "Discover" từ Footer. Đã sửa lại đường dẫn thẻ `<Link>` thành `/#discover` và gắn id tương ứng cho thẻ section tại `HomePage.jsx`.
-* **Lỗi Hash Scroll:** Tích hợp hook `useLocation` kết hợp `useEffect` để bắt sự kiện thay đổi hash trên URL, giúp trang tự động cuộn mượt mà (`scrollIntoView({ behavior: 'smooth' })`) khi người dùng chuyển hướng từ các trang khác về trang chủ.
+- **Hash routing:** Footer "Discover" → `/#discover` + id section trên `HomePage`.
+- **Hash scroll:** Hook `useLocation` + `useEffect` + `scrollIntoView({ behavior: 'smooth' })`.
 
 ### Hỗ trợ từ AI (AI-assisted)
-* Antigravity AI hỗ trợ rà soát cấu trúc code để gỡ lỗi hash-scroll và tự động viết các luồng animation GSAP phức tạp cho trang Contact. Người thực hiện đóng vai trò kiểm soát chất lượng, liên tục đánh giá và trực tiếp yêu cầu AI hoàn tác (revert) các đề xuất nâng cấp màu sắc giao diện (Dark Theme) không phù hợp với định hướng thiết kế cốt lõi ban đầu, chỉ phê duyệt những cải tiến mang tính trải nghiệm (Animation/Routing).
+- Antigravity AI gỡ lỗi hash-scroll và viết animation Contact. Người thực hiện revert đề xuất Dark Theme không phù hợp, chỉ giữ cải tiến Animation/Routing.
 
+---
 
 ## [2026-06-15] - Giai đoạn: Tích hợp AI Chatbot Đa nhiệm & Xử lý sự cố CSDL
-**Người thực hiện:** Phạm Nguyễn Tiến Đạt
+
 ### Thêm mới (Added)
-* **Backend:** Cài đặt package `OpenAI` v2.1.0 cho .NET API. Khởi tạo `ChatbotService` và public endpoint `POST /api/chatbot/chat`.
-* **Frontend:** Thiết kế component `AIChatbot.jsx` dạng Floating Widget với UI cực kỳ trực quan (hiệu ứng đập Pulse ring, 3 chấm gõ phím Typing indicator, Unread badge báo tin nhắn chưa đọc, và gợi ý câu hỏi nhanh Quick prompts).
-* **Kiến trúc dữ liệu:** Khởi tạo cơ chế RAG (Retrieval-Augmented Generation) sơ cấp: Lấy dữ liệu danh sách sân trống (`ICourtRepository`) và kèo thể thao đang mở (`IMatchRepository`) theo thời gian thực để bơm trực tiếp vào *System Prompt* của AI.
-* **Định tuyến:** Mount trực tiếp `<AIChatbot />` vào `App.jsx` bên ngoài thẻ `<Routes>` để Chatbot luôn khả dụng trên toàn bộ trang (Global component).
+- **Backend:** Package `OpenAI` v2.1.0, `ChatbotService`, `POST /api/chatbot/chat`.
+- **Frontend:** `AIChatbot.jsx` — Floating Widget (Pulse, Typing, Unread badge, Quick prompts).
+- **RAG sơ cấp:** Inject dữ liệu sân trống + kèo mở vào System Prompt.
+- **Global mount:** `<AIChatbot />` ngoài `<Routes>` trong `App.jsx`.
+
 ### Thay đổi (Changed)
-* **Mở khóa năng lực AI:** Chỉnh sửa *System Prompt* trong `ChatbotService.cs`, nâng cấp AI từ việc chỉ biết tư vấn sân thể thao trở thành một Trợ lý AI Đa nhiệm (tương tự ChatGPT/Gemini), có khả năng trả lời kiến thức chung, viết code, dịch thuật trong khi vẫn ưu tiên nắm rõ thông tin của Pro-Sport Complex.
-* **Cấu hình:** Cập nhật `appsettings.json` bằng OpenAI API Key thực tế (`sk-proj-...`) để chuyển từ chế độ giả lập (Mocking) sang gọi trực tiếp mô hình `gpt-4o-mini`.
+- Nâng cấp System Prompt → Trợ lý đa nhiệm (kiến thức chung + ưu tiên Pro-Sport).
+- Cấu hình OpenAI API Key thật, model `gpt-4o-mini`.
+
 ### Sửa lỗi (Fixed)
-* **Database Lock (EF Core):** Xử lý dứt điểm lỗi `Build failed` khi chạy lệnh `dotnet ef database update`. Nguyên nhân do tiến trình server Backend vẫn đang chạy ngầm (`dotnet run`) khiến file `.dll` bị khóa không thể ghi đè. Giải pháp: Tạm dừng tiến trình, chạy migration để ánh xạ thành công các bảng mới, sau đó khởi động lại server.
-* **Xử lý ngoại lệ AI Quota:** Khi cấu hình Key OpenAI thật, phát hiện lỗi `HTTP 429 (insufficient_quota)`. Nhanh chóng đọc log phân tích lỗi từ OpenAI trả về, xác định tài khoản hết hạn mức sử dụng (credit) thay vì lỗi do code, từ đó đưa ra hướng khắc phục chuẩn xác cho người dùng.
+- **EF Core lock:** `dotnet ef database update` fail do `dotnet run` khóa `.dll` → dừng process, migrate, restart.
+- **OpenAI 429:** Xác định `insufficient_quota` (hết credit), không phải lỗi code.
+
 ### Hỗ trợ từ AI (AI-assisted)
-* Antigravity AI sinh toàn bộ luồng logic tích hợp OpenAI SDK vào .NET và tạo giao diện React Chatbot mượt mà kèm CSS animations. Người thực hiện đóng vai trò Product Owner (yêu cầu "mở khóa" năng lực đa nhiệm cho AI) và trực tiếp can thiệp gỡ rối (debug) luồng khóa file của Entity Framework, cũng như cấp API Key thực tế để chatbot chính thức đi vào hoạt động.
+- Antigravity AI sinh luồng OpenAI SDK + UI Chatbot. Người thực hiện debug EF lock và cấp API Key.
 
-
-
+---
 
 ## [2026-06-16] - Giai đoạn: Tổng rà soát & Vá lỗi toàn diện (Comprehensive Bug Fix)
-**Người thực hiện:** Phạm Nguyễn Tiến Đạt
 
 ### Thêm mới (Added)
-* **Hiệu suất (Performance):** Tích hợp cơ chế Lazy Loading (`React.lazy` và `Suspense`) cho toàn bộ các route trong ứng dụng React để tối ưu hóa thời gian tải trang ban đầu.
-* **Bảo mật (Security):** Bổ sung thư viện `DOMPurify` để ngăn chặn lỗ hổng XSS (Cross-Site Scripting) khi render nội dung Markdown trong component `ChatbotWidget`.
-* **Cấu hình:** Bổ sung cơ chế đọc danh sách CORS động từ `appsettings.json` thay vì hardcode localhost, giúp backend sẵn sàng triển khai lên môi trường Production.
+- **Performance:** `React.lazy` + `Suspense` cho toàn bộ routes.
+- **Security:** `DOMPurify` chống XSS trong Chatbot Markdown.
+- **CORS:** Đọc danh sách động từ `appsettings.json`.
 
 ### Thay đổi (Changed)
-* **UX/UI Mobile:** Chuyển đổi toàn bộ các hàm gọi thông báo mặc định của hệ thống (`window.prompt`, `window.alert`) trên giao diện Mobile Wallet thành các Modal tĩnh nội bộ, giải quyết triệt để tình trạng bị chặn popup trên trình duyệt iOS PWA.
-* **Chuẩn hóa thời gian:** Đồng bộ định dạng giờ trong email xác nhận đặt sân từ hệ 12h (`hh`) sang hệ 24h (`HH`). Chuẩn hóa chuỗi thời gian slot đặt sân từ `HH:mm:ss` sang `HH:mm` để so sánh và hiển thị chính xác trên UI.
+- Mobile Wallet: `window.prompt`/`alert` → Modal nội bộ (fix iOS PWA popup block).
+- Chuẩn hóa giờ email 12h → 24h; slot `HH:mm:ss` → `HH:mm`.
 
 ### Sửa lỗi (Fixed)
-* **[Security - Auth]** Khóa lỗ hổng đăng nhập: Tài khoản chưa xác thực OTP (Unverified) không còn khả năng đăng nhập thành công. Bọc `ProtectedRoute` để chặn truy cập trái phép vào các cổng Admin/Elite.
-* **[Backend - Database]** Giải quyết dứt điểm lỗi SQL `Error 207 (Invalid column name)` do sự bất đồng bộ giữa biến lưu trữ kiểu String ở tầng Entity (`Booking.cs`) và kiểu Enum (`BookingStatus`) ở tầng Service.
-* **[Backend - Logic]** Vá lỗ hổng lặp vô hạn (Infinite Loop) khiến server treo khi logic tính tiền sân chạm trán bộ quy tắc giá (PricingRule) bất thường. Bổ sung rule bảo vệ: chỉ những đơn đặt sân ở trạng thái `Confirmed` mới được phép Check-in.
-* **[Backend - OS]** Khắc phục lỗi crash ứng dụng khi khởi chạy trên môi trường Linux/Docker do .NET không tìm thấy Timezone `SE Asia Standard Time` chuẩn của Windows (Đã thiết lập fallback sang `Asia/Ho_Chi_Minh`).
-* **[Frontend - API]** Sửa lỗi UI không lấy được thông tin do bóc tách sai gói dữ liệu (Data nesting) từ API trong `ApexMatchesPage` (`res.data` thay vì `res.data.data`). Khắc phục lỗi hiển thị cảnh báo trắng khi thư viện Axios trả về chuỗi String thay vì Error Object.
+- **[Auth]** Chặn login tài khoản chưa OTP; bọc `ProtectedRoute` Admin/Elite.
+- **[DB]** SQL Error 207 — bất đồng bộ String/Enum `BookingStatus`.
+- **[Logic]** Infinite loop PricingRule; chỉ `Confirmed` mới check-in.
+- **[OS]** Timezone Linux/Docker → fallback `Asia/Ho_Chi_Minh`.
+- **[FE]** Data nesting sai `ApexMatchesPage`; Axios error hiển thị trắng.
 
 ### Hỗ trợ từ AI (AI-assisted)
-* Antigravity AI (Gemini) tự động phân luồng ngầm hai hệ thống quét lỗi song song (Backend/Frontend Bug Scanner) để rà soát thư mục và sinh ra hơn 15 bản vá lỗi khác nhau. Người thực hiện đóng vai trò rà soát tổng thể, kiểm soát rủi ro (chủ động từ chối tự động Merge Code để tránh xung đột cục bộ) và điều phối AI đẩy thẳng toàn bộ các commit sửa lỗi về nhánh làm việc gốc (`DE190147/audit-module`) nhằm bảo vệ tính toàn vẹn của mã nguồn.
+- Antigravity AI quét song song Backend/Frontend, sinh 15+ bản vá. Người thực hiện kiểm soát merge, push về `DE190147/audit-module`.
 
-
-
-
+---
 
 ## [2026-06-18] - Giai đoạn: Đồng bộ hóa ngôn ngữ (Việt hoá) & Tái cấu trúc Backend
-**Người thực hiện:** Phạm Nguyễn Tiến Đạt
 
 ### Thêm mới (Added)
-* Tự động quét và dịch toàn bộ giao diện 40+ trang UI sang Tiếng Việt bằng các kịch bản NodeJS tuỳ chỉnh (`auto-translate-all.js`, `translate-phase1-global.js`, `remove-sports.js`,...).
-* Khởi tạo file Migration `20260617173327_AddPaymentDeadline` để mở rộng cấu trúc cơ sở dữ liệu bằng Entity Framework Core.
+- Script NodeJS dịch 40+ trang UI sang Tiếng Việt (`auto-translate-all.js`, …).
+- Migration `20260617173327_AddPaymentDeadline`.
 
 ### Thay đổi (Changed)
-* **Dọn dẹp ngữ cảnh (Domain Sanitization):** Quét và loại bỏ triệt để các hình ảnh, từ khóa thuộc về các môn thể thao ngoài luồng (Tennis, Bóng rổ, Golf, Padel), đồng bộ lại 100% ngữ cảnh dự án tập trung vào Pickleball và Cầu lông.
-* **Tái cấu trúc Backend (Refactoring):** Nâng cấp `EscrowService.cs`, áp dụng `IDbContextTransaction` với mức cô lập `Serializable` để chặn đứng lỗi Data Race khi hệ thống xử lý giao dịch nạp/rút tiền ví song song. 
-* **Clean Code:** Quét và loại bỏ toàn bộ các chuỗi cứng ("magic strings") trong `BookingService.cs` và `MatchService.cs`.
+- **Domain sanitization:** Loại bỏ Tennis, Bóng rổ, Golf, Padel — tập trung Pickleball & Cầu lông.
+- **EscrowService:** `IDbContextTransaction` isolation `Serializable` chống data race.
+- **Clean code:** Loại magic strings trong `BookingService`, `MatchService`.
 
 ### Sửa lỗi (Fixed)
-* **Xung đột mã nguồn (Merge Conflict):** Hợp nhất thành công đoạn code bị conflict tại `GearRentalPage.jsx`, giữ lại tính năng cột "Deposit" mới từ nhánh `main` kết hợp với ngôn ngữ Tiếng Việt của nhánh hiện tại.
-* **GitHub Push Protection (Bảo mật):** Xử lý tình trạng đẩy code (`git push`) bị chặn do hệ thống GitHub quét thấy một mã GCP API Key rò rỉ trong script dịch thuật. Đã thao tác Allow Secret qua cổng bảo mật của GitHub để hoàn tất đẩy code lên nhánh `DE190147/audit-module`.
-* **Phục hồi giao diện (UI Rollback):** Loại bỏ hoàn toàn các thay đổi thiết kế thừa (phong cách Nike) do AI tự ý thêm vào, dùng lệnh `git checkout` khôi phục giao diện Frontend về trạng thái nguyên bản, sạch sẽ lúc vừa Việt hoá xong.
+- Merge conflict `GearRentalPage.jsx` — giữ cột Deposit + tiếng Việt.
+- GitHub Push Protection — GCP API Key rò rỉ trong script dịch → Allow Secret.
+- UI Rollback — loại thiết kế Nike do AI tự thêm (`git checkout`).
 
 ### Hỗ trợ từ AI (AI-assisted)
-* Antigravity AI (Gemini) hỗ trợ viết các đoạn mã script NodeJS dịch thuật tự động, tìm và thay thế chuỗi trên quy mô lớn, đồng thời cung cấp kiến trúc giao dịch (Transaction) an toàn cho Backend. Người thực hiện đóng vai trò Product Owner & Reviewer: chủ động phanh lại và rollback các thiết kế rác do AI vẽ ra, can thiệp xử lý lỗi rò rỉ API Key chặn push code, và tự tay hợp nhất (resolve) các file bị conflict nhằm bảo vệ tính toàn vẹn của mã nguồn trên CodeGraph/GitHub.
+- Antigravity AI viết script dịch và kiến trúc transaction. Người thực hiện rollback UI rác, xử lý secret leak, resolve conflict.
 
-
-
+---
 
 ## [2026-06-18] - Giai đoạn: Đồng bộ mã nguồn, Phân giải xung đột & Tự động hoá Refactoring
-**Người thực hiện:** Phạm Nguyễn Tiến Đạt
 
 ### Thêm mới (Added)
-* **Thư viện (Dependencies):** Tích hợp bổ sung các package cần thiết (`react-leaflet`, `leaflet` cho giao diện bản đồ và `dompurify` để tăng cường bảo mật XSS) vào môi trường Frontend.
+- Dependencies: `react-leaflet`, `leaflet`, `dompurify`.
 
 ### Thay đổi (Changed)
-* **Tự động hóa Refactoring (Global):** Phát triển và thực thi PowerShell Script ngầm để quét qua hơn 35+ file `.jsx`. Dùng Regex chuyển đổi toàn bộ cú pháp Arrow Function (`const func = async () => {}`) sang Async Function (`async function func() {}`), giúp mã nguồn tuân thủ các tiêu chuẩn khai báo nghiêm ngặt của React ESLint.
-* **Bảo mật (Security):** Chạy lệnh kiểm tra bảo mật chuyên sâu (`npm audit` và `dotnet list package --vulnerable`), đưa ra quyết định giữ nguyên phiên bản thư viện `vite` hiện tại để tránh nguy cơ vỡ file cấu hình (Breaking Changes).
+- PowerShell script Regex: arrow async → `async function` trên 35+ file `.jsx` (ESLint).
+- `npm audit` + `dotnet list package --vulnerable` — giữ `vite` hiện tại tránh breaking change.
 
 ### Sửa lỗi (Fixed)
-* **Xung đột Git (Merge Conflict):** Xử lý dứt điểm tình trạng mã nguồn Backend bị sập (Build Failed) sau khi kéo code từ nhánh `main` về. Đã trực tiếp hợp nhất xung đột trong file `ProSportDbContextModelSnapshot.cs` và đổi tên class Migration bị trùng lặp nhằm khôi phục trạng thái biên dịch cho dự án.
-* **Lỗi React Hooks (Hoisting):** Quét và tiêu diệt hơn 60 cảnh báo lỗi `Cannot access variable before it is declared` sinh ra do việc gọi hàm trước khi khai báo bên trong `useEffect`, qua đó triệt tiêu hoàn toàn rủi ro người dùng gặp màn hình trắng khi tải dữ liệu.
-* **Phục hồi Dev Server:** Khắc phục lỗi Vite Hot Module Replacement (HMR Error) do file `MatchProNearbyPage.jsx` gọi thiếu thư viện, giúp Frontend Server khởi động lại bình thường.
+- Merge conflict `ProSportDbContextModelSnapshot.cs`; đổi tên Migration trùng.
+- 60+ lỗi React Hooks hoisting trong `useEffect`.
+- Vite HMR — `MatchProNearbyPage.jsx` thiếu import.
 
 ### Hỗ trợ từ AI (AI-assisted)
-* Antigravity AI (Gemini) đóng vai trò một Kỹ sư Hệ thống: tự động phân tích logs lỗi phức tạp của trình biên dịch (.NET Core), cung cấp giải pháp hợp nhất (merge) snapshot an toàn và chủ động viết Regex Script để sửa lỗi React Hooks trên diện rộng. Người thực hiện đóng vai trò Giám đốc Kỹ thuật (Tech Lead): kiên quyết yêu cầu AI phải "Deep Scan" liên tục để rà soát triệt để các lỗ hổng ẩn, đồng thời kiểm soát trực tiếp quá trình đóng gói commit để đẩy code (push) an toàn lên nhánh `DE190147/audit-module`.
+- Antigravity AI phân tích build log .NET, viết Regex script. Người thực hiện yêu cầu Deep Scan, kiểm soát commit/push.
 
-
-
-
+---
 
 ## [2026-06-20] - Giai đoạn: Tổng rà soát lỗi, Cấu hình Testing & Chuẩn hóa thiết kế UI
-**Người thực hiện:** Phạm Nguyễn Tiến Đạt
 
 ### Thêm mới (Added)
-* **Kiểm thử (Testing):** Khởi tạo tệp kịch bản `scripts/blackbox_tests.js` phục vụ cấu trúc kiểm thử hộp đen (BlackBox E2E) cho hệ thống API.
-* **Tiêu chuẩn UI:** Tự động clone và tích hợp thành công kho lưu trữ `taste-skill` từ GitHub vào bộ nhớ của Agent.
-* **Quy tắc hệ thống (Agent Rules):** Xây dựng bộ quy tắc thiết kế nội bộ tại `.agents/AGENTS.md` để ép buộc AI tự động áp dụng các phong cách UI cao cấp (Minimalist, Brutalist, Cold Luxury, cấm sử dụng font Serif mặc định) cho các luồng công việc Frontend sau này.
+- `scripts/blackbox_tests.js` — BlackBox E2E API.
+- Clone `taste-skill`; quy tắc UI tại `.agents/AGENTS.md`.
 
 ### Thay đổi (Changed)
-* **Cấu hình môi trường:** Tùy chỉnh hạ cấp (Downgrade) môi trường Test cục bộ từ .NET 10 xuống .NET 8 (cập nhật file `global.json` và `ProSport.Tests.csproj`) để vượt qua giới hạn bảo mật CET của hệ điều hành Windows.
-* **Version Control:** Tái cấu trúc luồng lưu trữ trên GitHub. Xóa bỏ nhánh làm việc thừa (`implement-ui-from-design`) và định tuyến hợp nhất mã nguồn vào nhánh chuẩn xác `DE190147/audit-module`.
+- Downgrade test .NET 10 → .NET 8 (`global.json`, `ProSport.Tests.csproj`).
+- Xóa nhánh `implement-ui-from-design`; chuẩn hóa `DE190147/audit-module`.
 
 ### Sửa lỗi (Fixed)
-* **Backend Logic:** Quét và khắc phục triệt để các rủi ro hệ thống bao gồm lỗi N+1 Queries, Race conditions và EF Core state tracking.
-* **Unit Tests (WhiteBox):** Sửa hàng loạt lỗi cú pháp trong các kịch bản kiểm thử (bổ sung Enum `Cancelled` bị thiếu, sửa bất đồng bộ tham số DTO), giúp 100% (7/7) bài kiểm thử WhiteBox vượt qua thành công (Passed).
-* **Frontend Build:** Khắc phục lỗi trình biên dịch (Vite Rollup Error) bằng cách cài đặt bổ sung các thư viện bị rò rỉ (`react-leaflet`, `leaflet`), giúp lệnh `npm run build` thực thi thành công không tì vết (0 errors).
+- Backend: N+1, race conditions, EF state tracking.
+- Unit tests: 7/7 pass (Enum `Cancelled`, DTO params).
+- Frontend build: cài `react-leaflet`, `leaflet` — `npm run build` 0 errors.
 
 ### Hỗ trợ từ AI (AI-assisted)
-* Antigravity AI (Gemini) đóng vai trò một Kỹ sư Kiểm thử & DevSecOps: tự động quét mã nguồn Backend để đưa ra các bản vá lỗi, khởi tạo hạ tầng chạy Unit Test và tự động thiết lập cấu hình tích hợp bộ quy tắc `taste-skill`. Người thực hiện đóng vai trò Quản trị viên Dự án (Project Manager): trực tiếp đưa ra quyết định hạ cấp phiên bản .NET để phá vỡ bế tắc của hệ điều hành, điều phối luồng đẩy code (Git Push) an toàn, và quyết liệt ép hệ thống phải "học" bộ quy tắc thiết kế mới từ bên ngoài để chặn đứng rủi ro AI sinh ra các giao diện rập khuôn rẻ tiền (AI-slop).
+- Antigravity AI quét Backend, thiết lập Unit Test, tích hợp `taste-skill`. Người thực hiện quyết định downgrade .NET và ép quy tắc UI chống AI-slop.
 
-
-
-
-
-
+---
 
 ## [2026-06-27] - Giai đoạn: Hoàn thiện tích hợp Frontend–Backend & Bổ sung API còn thiếu (Voucher / Khiếu nại / E-KYC)
-**Người thực hiện:** Phạm Nguyễn Tiến Đạt
 
 ### Thêm mới (Added)
-* **Backend - Voucher:** Dựng mới full-stack cụm mã giảm giá theo kiến trúc phân tầng (`VoucherDto` → `IVoucherRepository`/`VoucherRepository` → `IVoucherService`/`VoucherService` → `VoucherController`), hỗ trợ CRUD, kiểm tra trùng mã, lọc voucher còn hiệu lực; đăng ký Dependency Injection tại `Program.cs`.
-* **Backend - Khiếu nại (Report):** Dựng mới full-stack luồng báo cáo người chơi (khách gửi → Admin/Staff xử lý), kèm cơ chế chống tự báo cáo và báo cáo trùng.
-* **Backend - E-KYC:** Khởi tạo `KycController` cho phép Admin duyệt/từ chối hồ sơ, đồng bộ trạng thái `EkycProfile.Status` và `User.EKycStatus` trong cùng một giao dịch.
-* **Frontend - API Client:** Bổ sung `voucherApi.js`, `reportApi.js`, `kycApi.js` và mở rộng `bookingApi.js` (`getAllBookings`).
-* **Tính năng đánh giá người chơi (TK-035):** Hoàn thiện UI chấm điểm (1–5 sao) và hiển thị Trust Score thật cho Host/người tham gia tại `MatchDetailPage` thông qua `ratingApi`.
+- **Voucher:** Full-stack CRUD, kiểm tra trùng mã, lọc hiệu lực.
+- **Report:** Luồng khiếu nại khách → Admin/Staff; chống tự báo cáo & trùng.
+- **E-KYC:** `KycController` duyệt/từ chối; đồng bộ `EkycProfile` + `User.EKycStatus`.
+- **FE API:** `voucherApi.js`, `reportApi.js`, `kycApi.js`; mở rộng `bookingApi.js`.
+- **TK-035:** Rating 1–5 sao + Trust Score tại `MatchDetailPage`.
 
 ### Thay đổi (Changed)
-* **Chuyển Mock → Dữ liệu thật:** Kết nối (wiring) hàng loạt trang nghiệp vụ với API thực, thay thế toàn bộ dữ liệu giả:
-  * **Admin:** `AdminBookingsPage`, `AdminComplaintsPage`, `AdminKycPage`.
-  * **Elite (Staff):** `EliteScannerPage` (check-in QR), `EliteVouchersPage`, `EliteDisputesPage`.
-  * **Shop:** `ShopPage`, `ShopProductPage`, `ShopCartPage`, `ShopCheckoutPage` (giỏ hàng + thanh toán qua `cartApi`).
-  * **MatchPro:** `MatchProFeedPage`, `MatchProNearbyPage` (dùng `matchApi.getOpenMatches`).
-  * **Customer:** `ReportDisputePage` (gửi khiếu nại thật).
-* **Chuẩn hóa hợp đồng dữ liệu (Data Contract):** Bắt buộc toàn bộ Controller mới tuân theo envelope `ApiResponseDto` để đồng nhất với cách `axiosClient` bóc tách phản hồi.
-* **Chuẩn hóa UX:** Áp dụng nhất quán trạng thái Loading / Empty / Error cho các trang được wire.
+- **Mock → Real data** trên Admin, Elite, Shop, MatchPro, Customer pages.
+- Chuẩn hóa envelope `ApiResponseDto`; Loading/Empty/Error nhất quán.
 
 ### Sửa lỗi (Fixed)
-* **[Frontend - Crash] Import sai module:** Khắc phục lỗi sập trang do `Check`, `Star`, `Trash2`, `useState` bị import nhầm từ `react` (đúng ra là từ `lucide-react`) tại `ShopPage`, `ShopProductPage`, `ShopCartPage`.
-* **[Frontend - Crash] Sai kiểu dữ liệu:** Sửa lỗi gọi `m.hostId.substring()` trên giá trị kiểu số tại `MatchProFeedPage` (chuyển sang `String(...)`).
-* **[Frontend - API] Bóc tách sai gói dữ liệu:** Sửa lỗi đọc dư một lớp `.data` tại `EliteScannerPage` khiến kết quả check-in luôn rỗng; đồng thời bổ sung luồng nhập mã thủ công khi không có camera.
+- Import sai `Check`, `Star`, `Trash2` từ `react` thay vì `lucide-react`.
+- `hostId.substring()` trên số → `String(...)` tại `MatchProFeedPage`.
+- Bóc tách `.data` dư tại `EliteScannerPage`; thêm nhập mã thủ công.
 
 ### Hỗ trợ từ AI (AI-assisted)
-* Cursor (Claude Opus) đóng vai trò Kỹ sư Full-stack: sinh các tầng DTO–Repository–Service–Controller cho 3 cụm API mới theo chuẩn envelope và phân quyền theo vai trò (Role-based Authorization), đồng thời wiring các trang Frontend với dữ liệu thật. Người thực hiện đóng vai trò định hướng và kiểm soát: điều phối thứ tự ưu tiên nghiệp vụ, yêu cầu triển khai song song hai hướng (dựng backend còn thiếu + wiring trang đã có backend), bắt buộc chuẩn hóa envelope `ApiResponseDto`, xác định không phát sinh Migration mới (do Entity/bảng `Voucher`/`Report`/`EkycProfile` đã tồn tại sẵn), và chỉ ra các lỗi crash nghiêm trọng phía Frontend để vá triệt để.
+- Cursor (Claude Opus) dựng 3 cụm API + wiring FE. Người thực hiện ưu tiên nghiệp vụ, không migration mới, chỉ ra crash FE.
 
+---
 
+## [2026-06-29] - Giai đoạn: Google OAuth, Nhận diện thương hiệu PRO-SPORT, Việt hóa UI & Hoàn thiện phân hệ Staff (EliteSport OS + ProSport Dash)
 
+### Thêm mới (Added)
 
+**Auth & branding**
+- Google OAuth FE: `@react-oauth/google`, `GoogleSignInButton`, `googleAuth.js`, `GoogleOAuthProvider`.
+- Google OAuth BE: `POST /api/auth/google-login`, validate token trong `AuthService`.
+- Branding: `ProSportLogoMark`, `ProSportLogo`, `logo.svg`, favicon.
+- Utility: `labels.js`, `ConfirmDialog`, `PageLoader`; `setup-local.ps1`, `.env.example`.
 
-[2026-06-29] - Giai đoạn: Google OAuth, Nhận diện thương hiệu PRO-SPORT, Việt hóa UI & Hoàn thiện phân hệ Staff (EliteSport OS + ProSport Dash)
+**Staff vận hành**
+- BE: Walk-in booking, check-in QR, thuê thiết bị, dashboard lịch sân, `StaffDemoSeeder`.
+- FE Elite: POS, lịch sân, scanner, thuê/trả thiết bị, disputes, vouchers.
+- FE Dash: Bookings, Matches, Rentals, Payments, Broadcast, Notif Settings (demo localStorage).
+- Mobile scanner: `html5-qrcode`.
 
-**Người thực hiện:** Phạm Nguyễn Tiến Đạt
+### Thay đổi (Changed)
+- Việt hoá 80+ trang; chuẩn hóa `StatusBadge`, `labels.js`.
+- Phân quyền dispute: Staff → `Investigating`; Admin → `Resolved`/`Rejected`.
+- Route guard `EliteRoute`; logout trên Elite/Dash layouts.
 
-## Thêm mới (Added)
+### Sửa lỗi (Fixed)
+- OAuth: origin localhost, typo Client ID, initialize trùng.
+- Schedule `hh` → `HH`; guard check-in trùng mobile; seeder try/catch; scanner remount `scanKey`.
 
-### Auth & branding
-- **Google OAuth (Frontend):** Tích hợp `@react-oauth/google` — `GoogleSignInButton.jsx`, `googleAuth.js`, bọc `GoogleOAuthProvider` tại `main.jsx`; nút Google trên `LoginPage` và `RegisterPage`.
-- **Google OAuth (Backend):** Endpoint `POST /api/auth/google-login`, validate `googleIdToken` trong `AuthService.GoogleLoginAsync`.
-- **Nhận diện thương hiệu:** `ProSportLogoMark.jsx`, `ProSportLogo.jsx`, `public/logo.svg`, favicon; áp dụng trên Navbar, Footer, layouts và trang auth/status.
-- **Utility & UI:** `labels.js`, `ConfirmDialog.jsx`, `PageLoader.jsx`.
-- **Cấu hình dev:** `setup-local.ps1`, `appsettings.Development.example.json`, cập nhật `.env.example`.
+### Hỗ trợ từ AI (AI-assisted)
+- Cursor (Claude Opus) triển khai song song OAuth + Staff P0→P3. **`dotnet test` 10/10**, commit `fed44de`, `a5939b6`.
 
-### Staff vận hành
-- **Walk-in booking (Backend):** Endpoint `POST /api/bookings/walk-in`, `CreateWalkInBookingAsync` trong `BookingService`.
-- **Check-in QR (Backend):** `ProcessCheckInAsync` — cập nhật trạng thái booking sau check-in (`Status = Completed`).
-- **Thuê thiết bị tại quầy (Backend):** `EquipmentRentalService`, entity `BookingDetailEquipment`, API thuê/trả thiết bị gắn booking.
-- **Dashboard Staff (Backend):** Lịch sân realtime 06:00–22:00; `VnTimeHelper` (UTC+7) cho thống kê «hôm nay»; `StaffDemoSeeder` (booking, khiếu nại, kèo, thuê thiết bị demo).
-- **EliteSport OS (Frontend):** POS walk-in (`ElitePosWalkInPage`), lịch sân (`EliteSchedulePage`), scanner desktop (`EliteScannerPage`), thuê/trả thiết bị (`EliteEquipmentPage`), disputes & vouchers; prefill POS/Scanner qua query string.
-- **ProSport Dash (Frontend):** `DashBookingsPage`, `DashMatchesPage`, `DashRentalsPage`, `DashPaymentsPage`, `DashBroadcastPage` (demo localStorage), `DashNotifSettingsPage` (demo localStorage).
-- **Mobile scanner:** `MobileScannerPage` — quét QR bằng camera (`html5-qrcode`).
-- **API client:** Mở rộng `bookingApi.js`, `dashboardApi.js`, `equipmentApi.js`.
+---
 
-## Thay đổi (Changed)
+## [2026-06-30] - Giai đoạn: Owner Portal (Court Owner), Player Features, Audit & Hardening toàn cổng Owner
 
-### Auth & UI
-- **Việt hóa:** Rà soát và chuyển chuỗi EN → VI trên 80+ trang/component; chuẩn hóa `StatusBadge` và `labels.js`.
-- **Auth flow:** Sửa `AuthContext.jsx`, đồng bộ Google login qua `login()` tại Login/Register.
-- **Bảo mật repo:** Xóa `appsettings.Development.json` khỏi Git; secret chỉ giữ cục bộ (`.env`, `appsettings.Development.json`).
+### Thêm mới (Added)
 
-### Staff vận hành
-- **Phân quyền dispute:** Staff chỉ chuyển sang `Investigating`; Admin mới `Resolved`/`Rejected`; bổ sung `ReporterName`/`ReportedUserName` trên `ReportDto`.
-- **Route & guard:** `EliteRoute` trên `/dashboard/*`, `/mobile/scanner`, `/gear/maintenance`; `RoleSelectionPage` → `/403` khi sai vai trò; thu hẹp redirect login `/gear` → `/gear/maintenance`.
-- **Layout Staff:** Logout trên `EliteLayout.jsx` và `ProSportDashLayout.jsx`; nav chéo Elite ↔ Dash.
-- **ScheduleSlotDto:** Bổ sung `CheckInCode`, `StartTime`, `EndTime` phục vụ lịch sân và check-in.
-- **Demo UX:** Gắn nhãn rõ ràng cho Broadcast/Notif Settings (chưa có API thật).
+**Owner Portal — Backend**
+- 14+ controller `Controllers/Owner/`, `OwnerApiAuthorizationFilter`, `OwnerAccessService`.
+- Migration `20260630170056` → `20260630191246`; dashboard, courts, bookings, finance, reports, staff, …
+- `OwnerDemoSeeder` (`courtowner@prosport.vn`).
 
-## Sửa lỗi (Fixed)
+**Owner Portal — Frontend**
+- Layout `/owner/*` (20+ trang); trang cấu hình: operating hours, cancellation policy, memberships.
 
-### Auth & Frontend
-- **[OAuth] Origin bị chặn:** Thêm `http://localhost:5173` và `http://127.0.0.1:5173` vào Google Cloud Console.
-- **[OAuth] Client ID sai ký tự:** Sửa typo Client ID và đồng bộ `.env` / `appsettings.Development.json` cục bộ.
-- **[OAuth] Khởi tạo trùng:** Giảm lỗi `initialize() called multiple times` bằng cấu trúc provider/render đúng.
-- **[Frontend] UX:** Sửa logout, orphan routes, Loading/Error và chuỗi EN còn sót.
+**Player Features**
+- Tournament (trừ phí Escrow), ELO confirm/dispute, Membership discount.
+- Split payment, recurring booking, SignalR `NotificationHub`.
 
-### Staff
-- **[Schedule] Format giờ:** Sửa `hh` (12h) → `HH` (24h) trên lịch sân Elite.
-- **[Check-in] Gọi trùng:** Guard chống gọi API check-in trùng trên mobile scanner (`processingRef`).
-- **[Startup] Seeder:** Bọc `StaffDemoSeeder` try/catch trong `Program.cs` — tránh crash API khi seed lỗi.
-- **[Report] Claim role:** Fallback claim role trên `ReportController` khi thiếu claim `role`.
-- **[Scanner] Reset state:** Remount scanner desktop qua `scanKey` sau check-in thành công.
+**Dev workflow**
+- Submodule `.superpowers`, `docs/SUPERPOWERS.md`, test Staff → 403.
 
-## Hỗ trợ từ AI (AI-assisted)
+### Thay đổi (Changed)
+- CourtOwner login → `/owner/dashboard`; báo cáo doanh thu scoped + timezone VN.
+- UX: filter ngày, export CSV error handling, edit product/voucher/rental.
 
-Cursor (Claude Opus) triển khai song song: (A) Google OAuth end-to-end, logo PRO-SPORT, Việt hóa và chuẩn hóa cấu hình dev; (B) API Staff P0→P3, wiring Frontend Elite/Dash, seeder demo và luồng đăng nhập theo vai trò. Người thực hiện cấu hình GCP, sửa Client ID, tinh chỉnh logo, rà soát chất lượng Staff (format giờ, guard check-in, phạm vi commit), chạy `npm run build` và `dotnet test` (10/10 pass), commit và push lên `DE190147/audit-module` (commit `fed44de`, `a5939b6`).
+### Sửa lỗi (Fixed)
+
+| Mức | Nội dung |
+|-----|----------|
+| **P0** | Tournament miễn phí; ELO self-report; Membership không giảm giá |
+| **P0–P1** | IDOR cancellation policy; escrow scope; double-count revenue; dashboard `hh`→`HH` (**blackbox 14/14**) |
+| **P2** | Export CSV blob JSON; xóa `OwnerInventoryPage.jsx` dead code |
+
+### Hỗ trợ từ AI (AI-assisted)
+- Cursor (Composer) Owner Portal full-stack (201 files), audit P0→P2, Superpowers.
+- **`dotnet test` 73/73 pass**, `npm run build` OK; push **`4e0c435`** → `origin/DE190147/audit-module`.
+- PR: **base `main` ← compare `DE190147/audit-module`**.

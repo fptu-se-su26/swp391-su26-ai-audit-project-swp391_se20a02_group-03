@@ -97,6 +97,12 @@ public class SubmitMatchResultDto
     public string? SportType { get; set; }
 }
 
+public class DisputeMatchResultDto
+{
+    [MaxLength(500)]
+    public string? Reason { get; set; }
+}
+
 public class TournamentDto
 {
     public int TournamentId { get; set; }

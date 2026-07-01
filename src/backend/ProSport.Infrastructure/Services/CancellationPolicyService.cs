@@ -101,9 +101,11 @@ public class CancellationPolicyService : ICancellationPolicyService
     private async Task<int> GetComplexIdFromBookingAsync(Booking booking)
     {
         var courtId = booking.BookingDetails.FirstOrDefault()?.CourtId;
-        if (courtId == null) return 1;
+        if (courtId == null)
+            return booking.BookingDetails.FirstOrDefault()?.Court?.ComplexId ?? 0;
+
         var court = await _db.Courts.AsNoTracking().FirstOrDefaultAsync(c => c.CourtId == courtId);
-        return court?.ComplexId ?? 1;
+        return court?.ComplexId ?? 0;
     }
 
     private static CancellationRefundPreviewDto FullRefund(decimal total, string msg) => new()

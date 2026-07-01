@@ -47,7 +47,6 @@ export default function EliteScannerPage() {
     if (prefillCode?.trim()) {
       doCheckIn(prefillCode.trim())
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [prefillCode])
 
   useEffect(() => {
@@ -65,7 +64,6 @@ export default function EliteScannerPage() {
     return () => {
       try { scanner.clear() } catch (_) { /* noop */ }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scanKey])
 
   function resetScanner() {

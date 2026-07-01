@@ -1,10 +1,11 @@
 import axiosClient from './axiosClient';
 import axios from 'axios';
+import { getAuthToken } from '../utils/authStorage';
 
 const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:5138/api';
 
 function authHeaders() {
-  const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+  const token = getAuthToken();
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 

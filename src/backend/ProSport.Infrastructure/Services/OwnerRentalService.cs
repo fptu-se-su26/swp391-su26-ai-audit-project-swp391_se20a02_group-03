@@ -43,13 +43,19 @@ public class OwnerRentalService : IOwnerRentalService
             .Skip((query.Page - 1) * query.Size).Take(query.Size)
             .Select(r => r.RentalSessionId).ToListAsync();
 
-        var items = new List<RentalSessionDto>();
-        foreach (var id in ids)
-            items.Add(await MapSessionDetail(id));
+        var items = await _db.RentalSessions.AsNoTracking()
+            .Include(x => x.Customer)
+            .Include(x => x.Staff)
+            .Include(x => x.SessionAssets).ThenInclude(sa => sa.RentalAsset).ThenInclude(a => a.ProductStock)
+            .Include(x => x.ConditionChecks).ThenInclude(c => c.Staff)
+            .Include(x => x.Surcharges).ThenInclude(s => s.AppliedBy)
+            .Where(r => ids.Contains(r.RentalSessionId))
+            .OrderByDescending(r => r.CreatedAt)
+            .ToListAsync();
 
         return new ApiResponseDto<PagedResult<RentalSessionDto>>(200, "Success", new PagedResult<RentalSessionDto>
         {
-            Items = items,
+            Items = items.Select(MapSessionDetail).ToList(),
             TotalCount = total,
             CurrentPage = query.Page,
             TotalPages = (int)Math.Ceiling(total / (double)Math.Max(query.Size, 1))
@@ -60,7 +66,7 @@ public class OwnerRentalService : IOwnerRentalService
     {
         var exists = await _db.RentalSessions.AnyAsync(r => r.RentalSessionId == id && r.ComplexId == complexId && !r.IsDeleted);
         if (!exists) return new ApiResponseDto<RentalSessionDto>(404, "Không tìm thấy phiên thuê.");
-        return new ApiResponseDto<RentalSessionDto>(200, "Success", await MapSessionDetail(id));
+        return new ApiResponseDto<RentalSessionDto>(200, "Success", MapSessionDetail(await LoadSessionDetail(id)));
     }
 
     public async Task<ApiResponseDto<RentalSessionDto>> CreateRentalAsync(int actorUserId, CreateRentalSessionDto dto)
@@ -107,7 +113,8 @@ public class OwnerRentalService : IOwnerRentalService
                 {
                     RentalSessionId = session.RentalSessionId,
                     RentalAssetId = asset.RentalAssetId,
-                    BeforeCondition = asset.Condition
+                    BeforeCondition = asset.Condition,
+                    RentalPriceAtTime = asset.ProductStock.SellingPrice
                 });
             }
             await _db.SaveChangesAsync();
@@ -116,7 +123,7 @@ public class OwnerRentalService : IOwnerRentalService
             await _auditLog.LogAsync(actorUserId, "CREATE", "RentalSession", session.RentalSessionId.ToString(), dto.ComplexId,
                 null, JsonSerializer.Serialize(dto.RentalAssetIds));
 
-            return new ApiResponseDto<RentalSessionDto>(201, "Tạo phiên thuê thành công.", await MapSessionDetail(session.RentalSessionId));
+            return new ApiResponseDto<RentalSessionDto>(201, "Tạo phiên thuê thành công.", MapSessionDetail(await LoadSessionDetail(session.RentalSessionId)));
         }
         catch
         {
@@ -261,9 +268,8 @@ public class OwnerRentalService : IOwnerRentalService
     private async Task<bool> SessionBelongsToComplex(int rentalId, int complexId) =>
         await _db.RentalSessions.AnyAsync(r => r.RentalSessionId == rentalId && r.ComplexId == complexId && !r.IsDeleted);
 
-    private async Task<RentalSessionDto> MapSessionDetail(int id)
-    {
-        var r = await _db.RentalSessions.AsNoTracking()
+    private Task<RentalSession> LoadSessionDetail(int id) =>
+        _db.RentalSessions.AsNoTracking()
             .Include(x => x.Customer)
             .Include(x => x.Staff)
             .Include(x => x.SessionAssets).ThenInclude(sa => sa.RentalAsset).ThenInclude(a => a.ProductStock)
@@ -271,7 +277,7 @@ public class OwnerRentalService : IOwnerRentalService
             .Include(x => x.Surcharges).ThenInclude(s => s.AppliedBy)
             .FirstAsync(x => x.RentalSessionId == id);
 
-        return new RentalSessionDto
+    private static RentalSessionDto MapSessionDetail(RentalSession r) => new()
         {
             RentalSessionId = r.RentalSessionId,
             ComplexId = r.ComplexId,
@@ -288,6 +294,7 @@ public class OwnerRentalService : IOwnerRentalService
                 RentalAssetId = sa.RentalAssetId,
                 AssetCode = sa.RentalAsset.AssetCode,
                 ProductName = sa.RentalAsset.ProductStock?.ProductName ?? "",
+                RentalPriceAtTime = sa.RentalPriceAtTime,
                 BeforeCondition = sa.BeforeCondition,
                 AfterCondition = sa.AfterCondition
             }).ToList(),
@@ -313,5 +320,4 @@ public class OwnerRentalService : IOwnerRentalService
                 CreatedAt = s.CreatedAt
             }).ToList()
         };
-    }
 }

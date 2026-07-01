@@ -46,13 +46,13 @@ public class EloRatingController : ControllerBase
 
     [Authorize]
     [HttpPost("match-results/{matchId}/dispute")]
-    public async Task<IActionResult> DisputeResult(int matchId)
+    public async Task<IActionResult> DisputeResult(int matchId, [FromBody] DisputeMatchResultDto? dto)
     {
         var claim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
         if (string.IsNullOrEmpty(claim) || !int.TryParse(claim, out var userId))
             return Unauthorized(new ApiResponseDto<object>(401, "Unauthorized"));
 
-        var response = await _elo.DisputeMatchResultAsync(userId, matchId);
+        var response = await _elo.DisputeMatchResultAsync(userId, matchId, dto?.Reason);
         return StatusCode(response.StatusCode, response);
     }
 }

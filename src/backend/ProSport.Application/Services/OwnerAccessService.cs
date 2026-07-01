@@ -8,6 +8,7 @@ namespace ProSport.Application.Services;
 public class OwnerAccessService : IOwnerAccessService
 {
     private readonly IComplexOwnerRepository _complexOwnerRepository;
+    private readonly IComplexRepository _complexRepository;
     private readonly IUserRepository _userRepository;
     private readonly ICourtRepository _courtRepository;
     private readonly IBookingRepository _bookingRepository;
@@ -15,12 +16,14 @@ public class OwnerAccessService : IOwnerAccessService
 
     public OwnerAccessService(
         IComplexOwnerRepository complexOwnerRepository,
+        IComplexRepository complexRepository,
         IUserRepository userRepository,
         ICourtRepository courtRepository,
         IBookingRepository bookingRepository,
         IRentalSessionRepository rentalSessionRepository)
     {
         _complexOwnerRepository = complexOwnerRepository;
+        _complexRepository = complexRepository;
         _userRepository = userRepository;
         _courtRepository = courtRepository;
         _bookingRepository = bookingRepository;
@@ -34,6 +37,31 @@ public class OwnerAccessService : IOwnerAccessService
 
         var complexOwners = await _complexOwnerRepository.GetByUserIdAsync(userId);
 
+        List<ComplexDto> managed;
+        if (user.Role == Roles.Admin)
+        {
+            var allComplexes = await _complexRepository.GetAllActiveAsync();
+            managed = allComplexes.Select(c => new ComplexDto
+            {
+                ComplexId = c.ComplexId,
+                Name = c.Name,
+                Address = c.Address,
+                LogoUrl = c.LogoUrl,
+                IsPrimary = false
+            }).ToList();
+        }
+        else
+        {
+            managed = complexOwners.Select(co => new ComplexDto
+            {
+                ComplexId = co.Complex.ComplexId,
+                Name = co.Complex.Name,
+                Address = co.Complex.Address,
+                LogoUrl = co.Complex.LogoUrl,
+                IsPrimary = co.IsPrimary
+            }).ToList();
+        }
+
         var dto = new OwnerContextDto
         {
             User = new OwnerUserDto
@@ -43,21 +71,22 @@ public class OwnerAccessService : IOwnerAccessService
                 Email = user.Email
             },
             Role = user.Role,
-            ManagedComplexes = complexOwners.Select(co => new ComplexDto
-            {
-                ComplexId = co.Complex.ComplexId,
-                Name = co.Complex.Name,
-                Address = co.Complex.Address,
-                LogoUrl = co.Complex.LogoUrl,
-                IsPrimary = co.IsPrimary
-            }).ToList()
+            ManagedComplexes = managed
         };
 
-        var primary = complexOwners.FirstOrDefault(co => co.IsPrimary) ?? complexOwners.FirstOrDefault();
-        if (primary != null)
+        if (user.Role == Roles.Admin && managed.Count > 0)
         {
-            dto.CurrentComplex = dto.ManagedComplexes.First(c => c.ComplexId == primary.ComplexId);
-            dto.DefaultComplexId = primary.ComplexId;
+            dto.CurrentComplex = managed[0];
+            dto.DefaultComplexId = managed[0].ComplexId;
+        }
+        else
+        {
+            var primary = complexOwners.FirstOrDefault(co => co.IsPrimary) ?? complexOwners.FirstOrDefault();
+            if (primary != null)
+            {
+                dto.CurrentComplex = dto.ManagedComplexes.First(c => c.ComplexId == primary.ComplexId);
+                dto.DefaultComplexId = primary.ComplexId;
+            }
         }
 
         return dto;

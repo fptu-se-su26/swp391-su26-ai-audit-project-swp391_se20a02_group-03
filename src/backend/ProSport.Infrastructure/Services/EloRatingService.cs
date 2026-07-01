@@ -93,23 +93,67 @@ public class EloRatingService : IEloRatingService
         if (!IsMatchParticipant(match, confirmerUserId))
             return new ApiResponseDto<bool>(403, "Chỉ người tham gia kèo mới được xác nhận kết quả.");
 
-        var result = await _db.MatchResults
-            .FirstOrDefaultAsync(r => r.MatchId == matchId && !r.IsDeleted);
-        if (result == null) return new ApiResponseDto<bool>(404, "Chưa có kết quả để xác nhận.");
-        if (result.Status == MatchResultStatus.Confirmed)
-            return new ApiResponseDto<bool>(400, "Kết quả đã được xác nhận.");
-        if (result.Status == MatchResultStatus.Disputed)
-            return new ApiResponseDto<bool>(400, "Kết quả đang tranh chấp, không thể xác nhận.");
-        if (result.Status != MatchResultStatus.Pending)
-            return new ApiResponseDto<bool>(400, "Trạng thái kết quả không hợp lệ.");
-
-        if (result.ReportedByUserId == confirmerUserId)
-            return new ApiResponseDto<bool>(403, "Không thể tự xác nhận kết quả do chính mình báo cáo.");
-
         var sportType = ResolveSportType(match, null);
-        await ApplyConfirmedResultAsync(match, result, sportType);
+        await using var tx = await _db.Database.BeginTransactionAsync();
+        try
+        {
+            var result = await _db.MatchResults
+                .FirstOrDefaultAsync(r => r.MatchId == matchId && !r.IsDeleted);
+            if (result == null)
+            {
+                await tx.RollbackAsync();
+                return new ApiResponseDto<bool>(404, "Chưa có kết quả để xác nhận.");
+            }
 
-        await _notifications.SendToUserAsync(result.ReportedByUserId, new RealtimeNotificationDto
+            if (result.ReportedByUserId == confirmerUserId)
+            {
+                await tx.RollbackAsync();
+                return new ApiResponseDto<bool>(403, "Không thể tự xác nhận kết quả do chính mình báo cáo.");
+            }
+
+            if (result.Status != MatchResultStatus.Pending)
+            {
+                await tx.RollbackAsync();
+                return result.Status switch
+                {
+                    MatchResultStatus.Confirmed => new ApiResponseDto<bool>(400, "Kết quả đã được xác nhận."),
+                    MatchResultStatus.Disputed => new ApiResponseDto<bool>(400, "Kết quả đang tranh chấp, không thể xác nhận."),
+                    _ => new ApiResponseDto<bool>(400, "Trạng thái kết quả không hợp lệ.")
+                };
+            }
+
+            var updated = await TryTransitionPendingResultAsync(
+                result.MatchResultId,
+                MatchResultStatus.Confirmed,
+                confirmerUserId,
+                disputeReason: null);
+
+            if (updated == 0)
+            {
+                await tx.RollbackAsync();
+                return new ApiResponseDto<bool>(409, "Kết quả đã được xác nhận bởi request khác.");
+            }
+
+            result = await _db.MatchResults
+                .FirstAsync(r => r.MatchResultId == result.MatchResultId);
+
+            await ApplyEloUpdatesAsync(match, result, sportType);
+
+            await SetMatchCompletedAsync(match.MatchId);
+
+            await _db.SaveChangesAsync();
+            await tx.CommitAsync();
+        }
+        catch
+        {
+            await tx.RollbackAsync();
+            throw;
+        }
+
+        var confirmedResult = await _db.MatchResults.AsNoTracking()
+            .FirstAsync(r => r.MatchId == matchId && !r.IsDeleted);
+
+        await _notifications.SendToUserAsync(confirmedResult.ReportedByUserId, new RealtimeNotificationDto
         {
             Type = "MatchResultConfirmed",
             Title = "Kết quả đã được xác nhận",
@@ -120,7 +164,7 @@ public class EloRatingService : IEloRatingService
         return new ApiResponseDto<bool>(200, "Xác nhận kết quả và cập nhật ELO thành công.", true);
     }
 
-    public async Task<ApiResponseDto<bool>> DisputeMatchResultAsync(int disputerUserId, int matchId)
+    public async Task<ApiResponseDto<bool>> DisputeMatchResultAsync(int disputerUserId, int matchId, string? disputeReason = null)
     {
         var match = await _matchRepository.GetMatchByIdAsync(matchId);
         if (match == null) return new ApiResponseDto<bool>(404, "Match not found");
@@ -131,15 +175,39 @@ public class EloRatingService : IEloRatingService
         var result = await _db.MatchResults
             .FirstOrDefaultAsync(r => r.MatchId == matchId && !r.IsDeleted);
         if (result == null) return new ApiResponseDto<bool>(404, "Chưa có kết quả để khiếu nại.");
-        if (result.Status != MatchResultStatus.Pending)
-            return new ApiResponseDto<bool>(400, "Chỉ có thể khiếu nại kết quả đang chờ xác nhận.");
 
         if (result.ReportedByUserId == disputerUserId)
             return new ApiResponseDto<bool>(403, "Không thể khiếu nại kết quả do chính mình báo cáo.");
 
-        result.Status = MatchResultStatus.Disputed;
-        result.UpdatedAt = DateTime.UtcNow;
-        await _db.SaveChangesAsync();
+        await using var tx = await _db.Database.BeginTransactionAsync();
+        try
+        {
+            var updated = await TryTransitionPendingResultAsync(
+                result!.MatchResultId,
+                MatchResultStatus.Disputed,
+                confirmerUserId: null,
+                disputeReason);
+
+            if (updated == 0)
+            {
+                await tx.RollbackAsync();
+                result = await _db.MatchResults.AsNoTracking()
+                    .FirstOrDefaultAsync(r => r.MatchId == matchId && !r.IsDeleted);
+                if (result?.Status == MatchResultStatus.Confirmed)
+                    return new ApiResponseDto<bool>(400, "Kết quả đã được xác nhận, không thể khiếu nại.");
+                return new ApiResponseDto<bool>(400, "Chỉ có thể khiếu nại kết quả đang chờ xác nhận.");
+            }
+
+            await tx.CommitAsync();
+        }
+        catch
+        {
+            await tx.RollbackAsync();
+            throw;
+        }
+
+        result = await _db.MatchResults.AsNoTracking()
+            .FirstAsync(r => r.MatchId == matchId && !r.IsDeleted);
 
         await _notifications.SendToUserAsync(result.ReportedByUserId, new RealtimeNotificationDto
         {
@@ -152,7 +220,7 @@ public class EloRatingService : IEloRatingService
         return new ApiResponseDto<bool>(200, "Đã ghi nhận khiếu nại. ELO chưa thay đổi.", true);
     }
 
-    private async Task ApplyConfirmedResultAsync(DomainMatch match, MatchResult result, string sportType)
+    private async Task ApplyEloUpdatesAsync(DomainMatch match, MatchResult result, string sportType)
     {
         if (result.WinnerUserId.HasValue && result.LoserUserId.HasValue)
         {
@@ -160,17 +228,6 @@ public class EloRatingService : IEloRatingService
             var loser = await GetOrCreateRatingAsync(result.LoserUserId.Value, sportType);
             ApplyElo(winner, loser);
         }
-
-        result.Status = MatchResultStatus.Confirmed;
-        result.UpdatedAt = DateTime.UtcNow;
-
-        if (match.Status != MatchStatus.Completed)
-        {
-            match.Status = MatchStatus.Completed;
-            await _matchRepository.UpdateMatchAsync(match);
-        }
-
-        await _db.SaveChangesAsync();
     }
 
     private static IEnumerable<int> GetOpponentUserIds(DomainMatch match, int reporterUserId)
@@ -228,6 +285,83 @@ public class EloRatingService : IEloRatingService
         loser.GamesPlayed++;
         winner.Wins++;
         loser.Losses++;
+    }
+
+    private async Task SetMatchCompletedAsync(int matchId)
+    {
+        if (_db.Database.IsRelational())
+        {
+            await _db.Matches
+                .Where(m => m.MatchId == matchId && m.Status != MatchStatus.Completed)
+                .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(m => m.Status, MatchStatus.Completed)
+                    .SetProperty(m => m.UpdatedAt, DateTime.UtcNow));
+            return;
+        }
+
+        var match = await _db.Matches.FirstOrDefaultAsync(m => m.MatchId == matchId);
+        if (match != null && match.Status != MatchStatus.Completed)
+        {
+            match.Status = MatchStatus.Completed;
+            match.UpdatedAt = DateTime.UtcNow;
+        }
+    }
+
+    private async Task<int> TryTransitionPendingResultAsync(
+        int matchResultId,
+        string targetStatus,
+        int? confirmerUserId,
+        string? disputeReason)
+    {
+        if (_db.Database.IsRelational())
+        {
+            if (targetStatus == MatchResultStatus.Confirmed)
+            {
+                return await _db.MatchResults
+                    .Where(r => r.MatchResultId == matchResultId
+                        && !r.IsDeleted
+                        && r.Status == MatchResultStatus.Pending)
+                    .ExecuteUpdateAsync(setters => setters
+                        .SetProperty(r => r.Status, MatchResultStatus.Confirmed)
+                        .SetProperty(r => r.ConfirmedByUserId, confirmerUserId)
+                        .SetProperty(r => r.ConfirmedAt, DateTime.UtcNow)
+                        .SetProperty(r => r.UpdatedAt, DateTime.UtcNow));
+            }
+
+            return await _db.MatchResults
+                .Where(r => r.MatchResultId == matchResultId
+                    && !r.IsDeleted
+                    && r.Status == MatchResultStatus.Pending)
+                .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(r => r.Status, MatchResultStatus.Disputed)
+                    .SetProperty(r => r.DisputeReason, string.IsNullOrWhiteSpace(disputeReason) ? null : disputeReason.Trim())
+                    .SetProperty(r => r.DisputedAt, DateTime.UtcNow)
+                    .SetProperty(r => r.UpdatedAt, DateTime.UtcNow));
+        }
+
+        var entity = await _db.MatchResults
+            .FirstOrDefaultAsync(r => r.MatchResultId == matchResultId
+                && !r.IsDeleted
+                && r.Status == MatchResultStatus.Pending);
+        if (entity == null)
+            return 0;
+
+        if (targetStatus == MatchResultStatus.Confirmed)
+        {
+            entity.Status = MatchResultStatus.Confirmed;
+            entity.ConfirmedByUserId = confirmerUserId;
+            entity.ConfirmedAt = DateTime.UtcNow;
+        }
+        else
+        {
+            entity.Status = MatchResultStatus.Disputed;
+            entity.DisputeReason = string.IsNullOrWhiteSpace(disputeReason) ? null : disputeReason.Trim();
+            entity.DisputedAt = DateTime.UtcNow;
+        }
+
+        entity.UpdatedAt = DateTime.UtcNow;
+        await _db.SaveChangesAsync();
+        return 1;
     }
 
     private static UserSkillRatingDto Map(UserSkillRating r) => new()

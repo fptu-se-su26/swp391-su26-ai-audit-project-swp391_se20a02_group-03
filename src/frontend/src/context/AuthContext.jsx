@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react'
+import { clearAuthStorage, getAuthToken, getAuthUserRaw, persistAuth } from '../utils/authStorage'
 
 const AuthContext = createContext(null)
 
@@ -8,47 +9,33 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const storedToken = localStorage.getItem('token') || sessionStorage.getItem('token')
-    const storedUser  = localStorage.getItem('user')  || sessionStorage.getItem('user')
+    const storedToken = getAuthToken()
+    const storedUser = getAuthUserRaw()
     if (storedToken && storedUser) {
       try {
-        // HIGH FIX: Validate JWT expiry claim before trusting stored token
         const payload = JSON.parse(atob(storedToken.split('.')[1]))
         const isExpired = payload.exp && Date.now() / 1000 > payload.exp
         if (isExpired) {
-          // Token is expired — clear just auth keys, not all localStorage
-          localStorage.removeItem('token')
-          localStorage.removeItem('user')
-          sessionStorage.removeItem('token')
-          sessionStorage.removeItem('user')
+          clearAuthStorage()
         } else {
           setToken(storedToken)
           setUser(JSON.parse(storedUser))
         }
       } catch {
-        // HIGH FIX: Only remove auth-specific keys, don't nuke all localStorage (cart, preferences, etc)
-        localStorage.removeItem('token')
-        localStorage.removeItem('user')
-        sessionStorage.removeItem('token')
-        sessionStorage.removeItem('user')
+        clearAuthStorage()
       }
     }
     setLoading(false)
   }, [])
 
   const login = useCallback((tokenValue, userData, remember = false) => {
-    const storage = remember ? localStorage : sessionStorage
-    storage.setItem('token', tokenValue)
-    storage.setItem('user', JSON.stringify(userData))
+    persistAuth(tokenValue, JSON.stringify(userData), remember)
     setToken(tokenValue)
     setUser(userData)
   }, [])
 
   const logout = useCallback(() => {
-    localStorage.removeItem('token')
-    localStorage.removeItem('user')
-    sessionStorage.removeItem('token')
-    sessionStorage.removeItem('user')
+    clearAuthStorage()
     setToken(null)
     setUser(null)
   }, [])

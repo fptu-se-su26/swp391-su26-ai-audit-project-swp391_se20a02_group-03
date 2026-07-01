@@ -93,6 +93,7 @@ public class RentalSessionAssetDto
     public int RentalAssetId { get; set; }
     public string AssetCode { get; set; } = "";
     public string ProductName { get; set; } = "";
+    public decimal RentalPriceAtTime { get; set; }
     public string BeforeCondition { get; set; } = "";
     public string? AfterCondition { get; set; }
 }

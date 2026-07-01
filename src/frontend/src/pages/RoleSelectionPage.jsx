@@ -2,16 +2,15 @@ import { useNavigate } from 'react-router-dom'
 import ProSportLogo from '../components/ui/ProSportLogo'
 import { useAuth } from '../context/AuthContext'
 
-const cardStyle = {
-  background: '#f8fafc',
-  border: '2px solid #e2e8f0',
-  borderRadius: '12px',
-  padding: '20px',
-  display: 'flex',
-  alignItems: 'center',
-  gap: '16px',
-  cursor: 'pointer',
-  transition: 'border-color 0.2s, box-shadow 0.2s',
+const roleCardClass =
+  'flex items-center gap-4 p-5 bg-slate-50 border-2 border-slate-200 rounded-xl cursor-pointer transition-colors hover:border-slate-400 hover:shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500'
+
+function RoleIcon({ className, children }) {
+  return (
+    <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full ${className}`}>
+      {children}
+    </div>
+  )
 }
 
 function RoleCard({ icon, title, description, onClick }) {
@@ -21,16 +20,16 @@ function RoleCard({ icon, title, description, onClick }) {
       tabIndex={0}
       onClick={onClick}
       onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick() } }}
-      style={cardStyle}
-      onMouseEnter={e => { e.currentTarget.style.borderColor = '#94a3b8' }}
-      onMouseLeave={e => { e.currentTarget.style.borderColor = '#e2e8f0' }}
+      className={roleCardClass}
     >
       {icon}
-      <div style={{ flex: 1 }}>
-        <h3 style={{ fontWeight: 700, color: '#0f172a', marginBottom: '4px', fontSize: '1rem' }}>{title}</h3>
-        <p style={{ fontSize: '0.875rem', color: '#64748b', margin: 0 }}>{description}</p>
+      <div className="flex-1">
+        <h3 className="mb-1 text-base font-bold text-slate-900">{title}</h3>
+        <p className="m-0 text-sm text-slate-500">{description}</p>
       </div>
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2" aria-hidden="true">
+        <polyline points="9 18 15 12 9 6" />
+      </svg>
     </div>
   )
 }
@@ -97,32 +96,28 @@ export default function RoleSelectionPage() {
       </header>
 
       <main className="flex-1 flex items-center justify-center p-6">
-        <div style={{
-          background: 'white',
-          borderRadius: '20px',
-          padding: '40px',
-          maxWidth: '560px',
-          width: '100%',
-          boxShadow: '0 10px 40px rgba(0,0,0,0.05)',
-        }}>
-          <h2 style={{ fontSize: '1.75rem', fontWeight: 700, color: '#0f172a', marginBottom: '8px' }}>
+        <div className="w-full max-w-xl rounded-3xl bg-white p-10 shadow-xl shadow-slate-900/5">
+          <h2 className="mb-2 text-3xl font-bold text-slate-900">
             Chọn vai trò của bạn
           </h2>
-          <p style={{ color: '#64748b', marginBottom: '32px', fontSize: '0.9375rem' }}>
+          <p className="mb-8 text-[0.9375rem] text-slate-500">
             {isAuthenticated
               ? `Đang đăng nhập: ${user?.fullName || user?.email}. Chọn khu vực phù hợp với vai trò.`
               : 'Chọn cách bạn muốn truy cập — nhân viên và quản trị sẽ được chuyển tới đăng nhập.'}
           </p>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div className="flex flex-col gap-4">
             <RoleCard
               title="Người chơi / Thành viên"
               description="Đặt sân, tham gia kèo đấu & kết nối với người chơi khác"
               onClick={goCustomer}
               icon={(
-                <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#e0f2fe', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#008ba3" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                </div>
+                <RoleIcon className="bg-sky-100">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#008ba3" strokeWidth="2" aria-hidden="true">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
+                  </svg>
+                </RoleIcon>
               )}
             />
 
@@ -131,9 +126,12 @@ export default function RoleSelectionPage() {
               description="Dashboard doanh thu, quản lý sân, giá, nhân viên & booking"
               onClick={goOwner}
               icon={(
-                <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#d1fae5', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg>
-                </div>
+                <RoleIcon className="bg-emerald-100">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2" aria-hidden="true">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                    <path d="M9 22V12h6v10" />
+                  </svg>
+                </RoleIcon>
               )}
             />
 
@@ -142,9 +140,12 @@ export default function RoleSelectionPage() {
               description="Quản lý lịch đặt, khách lẻ & máy tính tiền POS"
               onClick={goStaff}
               icon={(
-                <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#cffafe', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0891b2" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-                </div>
+                <RoleIcon className="bg-cyan-100">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0891b2" strokeWidth="2" aria-hidden="true">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                    <polyline points="9 22 9 12 15 12 15 22" />
+                  </svg>
+                </RoleIcon>
               )}
             />
 
@@ -153,9 +154,14 @@ export default function RoleSelectionPage() {
               description="Toàn quyền kiểm soát hệ thống, phân tích & cổng quản lý"
               onClick={goAdmin}
               icon={(
-                <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#fee2e2', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-                </div>
+                <RoleIcon className="bg-red-100">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" aria-hidden="true">
+                    <rect x="3" y="3" width="7" height="7" />
+                    <rect x="14" y="3" width="7" height="7" />
+                    <rect x="14" y="14" width="7" height="7" />
+                    <rect x="3" y="14" width="7" height="7" />
+                  </svg>
+                </RoleIcon>
               )}
             />
           </div>

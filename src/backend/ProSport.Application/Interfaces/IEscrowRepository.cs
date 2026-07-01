@@ -1,3 +1,4 @@
+using ProSport.Application.DTOs;
 using ProSport.Domain.Entities;
 
 namespace ProSport.Application.Interfaces;
@@ -33,4 +34,35 @@ public interface IEscrowRepository
     Task<T> ExecuteInTransactionAsync<T>(Func<Task<T>> action);
 
     Task<bool> TransactionExistsByReferenceIdAsync(string referenceId);
+
+    /// <summary>
+    /// Xác nhận thanh toán VNPay: cập nhật booking + tạo transaction audit trong một DB transaction.
+    /// </summary>
+    Task<VnPayPaymentConfirmOutcome> ConfirmVnPayBookingPaymentAsync(int bookingId, string vnpayTransactionId, decimal paidAmount);
+
+    /// <summary>
+    /// Hủy booking đã thanh toán và hoàn tiền (kể cả split shares) trong một DB transaction.
+    /// Idempotent theo refundReferenceId.
+    /// </summary>
+    Task<bool> CancelBookingWithRefundAsync(int bookingId, decimal cancellationFee, decimal refundAmount, string reason, string refundReferenceId);
+
+    /// <summary>
+    /// Cộng tiền ví bằng SQL increment (tránh race read-modify-write). Gọi trong transaction hiện có hoặc tự bọc Serializable.
+    /// </summary>
+    Task<EscrowWallet> CreditWalletAsync(int userId, decimal amount);
+
+    /// <summary>Trừ Balance nếu đủ tiền — atomic trên SQL Server. Không tự commit transaction ngoài.</summary>
+    Task<bool> TryDebitWalletAsync(int userId, decimal amount);
+
+    /// <summary>Chuyển Balance → LockedBalance nếu đủ tiền.</summary>
+    Task<bool> TryLockWalletFundsAsync(int userId, decimal amount);
+
+    /// <summary>Chuyển LockedBalance → Balance nếu đủ locked.</summary>
+    Task<bool> TryReleaseWalletFundsAsync(int userId, decimal amount);
+
+    /// <summary>Trừ LockedBalance nếu đủ locked (không hoàn về Balance).</summary>
+    Task<bool> TryDeductLockedWalletFundsAsync(int userId, decimal amount);
+
+    /// <summary>Trừ ví và ghi transaction cho mua thiết bị. Gọi trong transaction hiện có; không tự SaveChanges.</summary>
+    Task<bool> PayEquipmentPurchaseAsync(int userId, decimal totalAmount, int? bookingId, string referenceId, string description);
 }

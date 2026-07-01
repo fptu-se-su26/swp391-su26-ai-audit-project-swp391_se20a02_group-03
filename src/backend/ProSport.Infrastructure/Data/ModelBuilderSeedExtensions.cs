@@ -80,7 +80,7 @@ public static class ModelBuilderSeedExtensions
     private static void SeedComplexes(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Complex>().HasData(
-            new Complex { ComplexId = 1, Name = "Pro-Sport Complex Quận 7", Address = "123 Nguyễn Văn Linh, Quận 7, TP.HCM", Description = "Tổ hợp thể thao cầu lông và pickleball hiện đại nhất khu vực.", Phone = "0912345678", Email = "contact@prosport-q7.vn", OpeningTime = "05:00", ClosingTime = "23:00", Status = "Active", CreatedAt = SeedDate, IsDeleted = false }
+            new Complex { ComplexId = 1, Name = "Pro-Sport Complex Quận 7", Address = "123 Nguyễn Văn Linh, Quận 7, TP.HCM", Description = "Tổ hợp thể thao cầu lông và pickleball hiện đại nhất khu vực.", Phone = "0912345678", Email = "contact@prosport-q7.vn", OpeningTime = new TimeSpan(5, 0, 0), ClosingTime = new TimeSpan(23, 0, 0), Status = "Active", CreatedAt = SeedDate, IsDeleted = false }
         );
     }
 
@@ -168,7 +168,6 @@ public static class ModelBuilderSeedExtensions
         Category = category,
         SportType = sportType,
         RetailPrice = retailPrice,
-        Price = retailPrice,
         StockQuantity = stock,
         Status = "Available",
         ImageUrl = imageUrl,

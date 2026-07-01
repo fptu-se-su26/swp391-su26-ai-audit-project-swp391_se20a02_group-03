@@ -1,5 +1,6 @@
 using ProSport.Application.DTOs;
 using ProSport.Application.Interfaces;
+using ProSport.Domain.Constants;
 using ProSport.Domain.Entities;
 
 namespace ProSport.Application.Services;
@@ -25,7 +26,7 @@ public class VoucherService : IVoucherService
         UsedQuantity = v.UsedQuantity,
         StartDate = v.StartDate,
         EndDate = v.EndDate,
-        IsActive = v.IsActive,
+        IsActive = VoucherStatus.IsUsable(v.Status),
         CreatedAt = v.CreatedAt
     };
 
@@ -62,7 +63,7 @@ public class VoucherService : IVoucherService
             UsedQuantity = 0,
             StartDate = dto.StartDate,
             EndDate = dto.EndDate,
-            IsActive = true,
+            Status = VoucherStatus.Active,
             CreatedByStaffId = staffId
         };
 
@@ -88,7 +89,7 @@ public class VoucherService : IVoucherService
         voucher.TotalQuantity = dto.TotalQuantity;
         voucher.StartDate = dto.StartDate;
         voucher.EndDate = dto.EndDate;
-        voucher.IsActive = dto.IsActive;
+        voucher.Status = dto.IsActive ? VoucherStatus.Active : VoucherStatus.Inactive;
 
         await _repository.UpdateAsync(voucher);
         return new ApiResponseDto<VoucherDto>(200, "Cập nhật voucher thành công.", Map(voucher));

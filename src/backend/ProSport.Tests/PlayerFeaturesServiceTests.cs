@@ -117,6 +117,10 @@ public class PlayerFeaturesServiceTests
         var confirm = await svc.ConfirmMatchResultAsync(11, 1);
         confirm.StatusCode.Should().Be(200);
 
+        var confirmed = await db.MatchResults.FirstAsync();
+        confirmed.ConfirmedByUserId.Should().Be(11);
+        confirmed.ConfirmedAt.Should().NotBeNull();
+
         var rating = await db.UserSkillRatings.FirstAsync(r => r.UserId == 10);
         rating.SportType.Should().Be("Pickleball");
     }
@@ -208,11 +212,13 @@ public class PlayerFeaturesServiceTests
         });
 
         var svc = CreateEloService(db, matchRepo);
-        var result = await svc.DisputeMatchResultAsync(11, 1);
+        var result = await svc.DisputeMatchResultAsync(11, 1, "Score không khớp");
 
         result.StatusCode.Should().Be(200);
         var stored = await db.MatchResults.FirstAsync();
         stored.Status.Should().Be(MatchResultStatus.Disputed);
+        stored.DisputeReason.Should().Be("Score không khớp");
+        stored.DisputedAt.Should().NotBeNull();
         (await db.UserSkillRatings.CountAsync()).Should().Be(0);
     }
 
@@ -244,7 +250,7 @@ public class PlayerFeaturesServiceTests
         });
         await db.SaveChangesAsync();
 
-        var svc = new TournamentService(db, Mock.Of<IOwnerAccessService>());
+        var svc = new TournamentService(db, Mock.Of<IOwnerAccessService>(), new EscrowRepository(db));
         var result = await svc.RegisterAsync(50, 1, new RegisterTournamentDto { TeamName = "Team X" });
 
         result.StatusCode.Should().Be(200);
@@ -253,6 +259,9 @@ public class PlayerFeaturesServiceTests
         var txn = await db.Transactions.FirstAsync();
         txn.Amount.Should().Be(500000);
         txn.ReferenceId.Should().Be("Tournament_1_Captain_50");
+        var reg = await db.TournamentRegistrations.FirstAsync();
+        reg.EntryFeePaid.Should().BeTrue();
+        reg.PaymentTransactionId.Should().Be(txn.TransactionId);
     }
 
     [Fact]
@@ -274,7 +283,7 @@ public class PlayerFeaturesServiceTests
         });
         await db.SaveChangesAsync();
 
-        var svc = new TournamentService(db, Mock.Of<IOwnerAccessService>());
+        var svc = new TournamentService(db, Mock.Of<IOwnerAccessService>(), new EscrowRepository(db));
         var result = await svc.RegisterAsync(51, 2, new RegisterTournamentDto { TeamName = "Team Y" });
 
         result.StatusCode.Should().Be(400);
@@ -384,7 +393,7 @@ public class PlayerFeaturesServiceTests
         await db.SaveChangesAsync();
 
         var ownerAccess = new Mock<IOwnerAccessService>();
-        var svc = new TournamentService(db, ownerAccess.Object);
+        var svc = new TournamentService(db, ownerAccess.Object, new EscrowRepository(db));
         var result = await svc.RegisterAsync(5, 1, new RegisterTournamentDto { TeamName = "Team B" });
 
         result.StatusCode.Should().Be(400);
@@ -397,7 +406,7 @@ public class PlayerFeaturesServiceTests
         var ownerAccess = new Mock<IOwnerAccessService>();
         ownerAccess.Setup(o => o.RequireComplexAccessAsync(99, 1, true)).Returns(Task.CompletedTask);
 
-        var svc = new TournamentService(db, ownerAccess.Object);
+        var svc = new TournamentService(db, ownerAccess.Object, new EscrowRepository(db));
         var result = await svc.CreateAsync(99, 1, new CreateTournamentDto
         {
             Name = "Admin Cup",

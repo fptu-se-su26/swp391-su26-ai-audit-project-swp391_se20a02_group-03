@@ -26,6 +26,13 @@ public class TournamentRegistration : BaseEntity
     public string TeamName { get; set; } = string.Empty;
     public string Status { get; set; } = "Registered";
 
+    /// <summary>True khi EntryFee đã trừ từ Escrow (hoặc giải miễn phí).</summary>
+    public bool EntryFeePaid { get; set; }
+
+    /// <summary>Giao dịch Escrow tương ứng khi EntryFee &gt; 0.</summary>
+    public int? PaymentTransactionId { get; set; }
+
     public Tournament Tournament { get; set; } = null!;
     public User Captain { get; set; } = null!;
+    public Transaction? PaymentTransaction { get; set; }
 }

@@ -3,6 +3,7 @@ using ProSport.Application.DTOs;
 using ProSport.Application.DTOs.Owner;
 using ProSport.Application.Interfaces;
 using ProSport.Application.Services;
+using ProSport.Application.Validation;
 using ProSport.Domain.Constants;
 using ProSport.Domain.Entities;
 using ProSport.Infrastructure.Data;
@@ -41,8 +42,8 @@ public class ComplexScheduleService : IComplexScheduleService
             schedules = Enumerable.Range(0, 7).Select(d => new ComplexOperatingSchedule
             {
                 DayOfWeek = d,
-                OpenTime = ParseTime(complex.OpeningTime, new TimeSpan(6, 0, 0)),
-                CloseTime = ParseTime(complex.ClosingTime, new TimeSpan(22, 0, 0))
+                OpenTime = complex.OpeningTime ?? new TimeSpan(6, 0, 0),
+                CloseTime = complex.ClosingTime ?? new TimeSpan(22, 0, 0)
             }).ToList();
         }
 
@@ -83,7 +84,8 @@ public class ComplexScheduleService : IComplexScheduleService
 
         foreach (var day in dto.WeeklySchedule)
         {
-            if (!TimeSpan.TryParse(day.OpenTime, out var open) || !TimeSpan.TryParse(day.CloseTime, out var close))
+            if (!OperatingTimeParser.TryParseStrict(day.OpenTime, out var open)
+                || !OperatingTimeParser.TryParseStrict(day.CloseTime, out var close))
                 return new ApiResponseDto<ComplexOperatingHoursDto>(400, "Định dạng giờ không hợp lệ.");
             if (open >= close)
                 return new ApiResponseDto<ComplexOperatingHoursDto>(400, $"Ngày {day.DayOfWeek}: giờ mở phải trước giờ đóng.");
@@ -234,7 +236,4 @@ public class ComplexScheduleService : IComplexScheduleService
 
         return !inMaintenance;
     }
-
-    private static TimeSpan ParseTime(string? value, TimeSpan fallback) =>
-        TimeSpan.TryParse(value, out var t) ? t : fallback;
 }

@@ -139,11 +139,22 @@ namespace ProSport.Infrastructure.Migrations
                         .IsUnique()
                         .HasFilter("[CheckInCode] IS NOT NULL");
 
+                    b.HasIndex("CreatedAt");
+
                     b.HasIndex("RecurringRuleId");
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Bookings");
+                    b.HasIndex("Status", "IsDeleted");
+
+                    b.ToTable("Bookings", t =>
+                        {
+                            t.HasCheckConstraint("CK_Bookings_PaymentMethod", "[PaymentMethod] IS NULL OR [PaymentMethod] IN ('VNPay','Escrow','Cash')");
+
+                            t.HasCheckConstraint("CK_Bookings_PaymentStatus", "[PaymentStatus] IS NULL OR [PaymentStatus] IN ('Pending','Paid','Refunded','Cancelled')");
+
+                            t.HasCheckConstraint("CK_Bookings_Status", "[Status] IN ('Pending','PendingPayment','Confirmed','CheckedIn','Cancelled','Completed','Expired','NoShow')");
+                        });
                 });
 
             modelBuilder.Entity("ProSport.Domain.Entities.BookingDetail", b =>
@@ -188,7 +199,7 @@ namespace ProSport.Infrastructure.Migrations
 
                     b.HasIndex("BookingId");
 
-                    b.HasIndex("CourtId");
+                    b.HasIndex("CourtId", "BookingDate");
 
                     b.ToTable("BookingDetails");
                 });
@@ -314,9 +325,10 @@ namespace ProSport.Infrastructure.Migrations
 
                     b.HasKey("BookingPaymentShareId");
 
-                    b.HasIndex("BookingId");
-
                     b.HasIndex("UserId");
+
+                    b.HasIndex("BookingId", "UserId")
+                        .IsUnique();
 
                     b.ToTable("BookingPaymentShares");
                 });
@@ -463,9 +475,8 @@ namespace ProSport.Infrastructure.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
-                    b.Property<string>("ClosingTime")
-                        .HasMaxLength(5)
-                        .HasColumnType("nvarchar(5)");
+                    b.Property<TimeSpan?>("ClosingTime")
+                        .HasColumnType("time");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2")
@@ -492,9 +503,8 @@ namespace ProSport.Infrastructure.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<string>("OpeningTime")
-                        .HasMaxLength(5)
-                        .HasColumnType("nvarchar(5)");
+                    b.Property<TimeSpan?>("OpeningTime")
+                        .HasColumnType("time");
 
                     b.Property<string>("Phone")
                         .HasMaxLength(20)
@@ -525,13 +535,13 @@ namespace ProSport.Infrastructure.Migrations
                         {
                             ComplexId = 1,
                             Address = "123 Nguyễn Văn Linh, Quận 7, TP.HCM",
-                            ClosingTime = "23:00",
+                            ClosingTime = new TimeSpan(0, 23, 0, 0, 0),
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Tổ hợp thể thao cầu lông và pickleball hiện đại nhất khu vực.",
                             Email = "contact@prosport-q7.vn",
                             IsDeleted = false,
                             Name = "Pro-Sport Complex Quận 7",
-                            OpeningTime = "05:00",
+                            OpeningTime = new TimeSpan(0, 5, 0, 0, 0),
                             Phone = "0912345678",
                             SlotDurationMinutes = 60,
                             Status = "Active"
@@ -820,9 +830,11 @@ namespace ProSport.Infrastructure.Migrations
 
                     b.HasKey("ComplexReviewId");
 
-                    b.HasIndex("ComplexId");
-
                     b.HasIndex("UserId");
+
+                    b.HasIndex("ComplexId", "UserId")
+                        .IsUnique()
+                        .HasFilter("[IsDeleted] = 0");
 
                     b.ToTable("ComplexReviews");
                 });
@@ -930,6 +942,8 @@ namespace ProSport.Infrastructure.Migrations
                     b.HasIndex("ComplexId", "Code")
                         .IsUnique()
                         .HasFilter("[Code] IS NOT NULL AND [IsDeleted] = 0");
+
+                    b.HasIndex("ComplexId", "IsDeleted");
 
                     b.ToTable("Courts");
 
@@ -1156,9 +1170,6 @@ namespace ProSport.Infrastructure.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<decimal>("Price")
-                        .HasColumnType("decimal(18,2)");
-
                     b.Property<decimal>("RetailPrice")
                         .HasColumnType("decimal(18,2)");
 
@@ -1199,7 +1210,6 @@ namespace ProSport.Infrastructure.Migrations
                             ImageUrl = "https://images.unsplash.com/photo-1617083934551-1af7da84de49?w=400&q=80",
                             IsDeleted = false,
                             Name = "Vợt Yonex Astrox 88D",
-                            Price = 6000000m,
                             RetailPrice = 6000000m,
                             SportType = "Badminton",
                             Status = "Available",
@@ -1216,7 +1226,6 @@ namespace ProSport.Infrastructure.Migrations
                             ImageUrl = "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&q=80",
                             IsDeleted = false,
                             Name = "Vợt Lining Windstorm 72",
-                            Price = 4000000m,
                             RetailPrice = 4000000m,
                             SportType = "Badminton",
                             Status = "Available",
@@ -1233,7 +1242,6 @@ namespace ProSport.Infrastructure.Migrations
                             ImageUrl = "https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=400&q=80",
                             IsDeleted = false,
                             Name = "Vợt Victor Thruster K Falcon",
-                            Price = 5500000m,
                             RetailPrice = 5500000m,
                             SportType = "Badminton",
                             Status = "Available",
@@ -1250,7 +1258,6 @@ namespace ProSport.Infrastructure.Migrations
                             ImageUrl = "https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=400&q=80",
                             IsDeleted = false,
                             Name = "Vợt Selkirk AMPED Epic",
-                            Price = 7000000m,
                             RetailPrice = 7000000m,
                             SportType = "Pickleball",
                             Status = "Available",
@@ -1267,7 +1274,6 @@ namespace ProSport.Infrastructure.Migrations
                             ImageUrl = "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&q=80",
                             IsDeleted = false,
                             Name = "Giày Yonex Power Cushion 65Z3",
-                            Price = 3200000m,
                             RetailPrice = 3200000m,
                             SportType = "Badminton",
                             Status = "Available",
@@ -1284,7 +1290,6 @@ namespace ProSport.Infrastructure.Migrations
                             ImageUrl = "https://images.unsplash.com/photo-1606107557195-0a394bbe4a5d?w=400&q=80",
                             IsDeleted = false,
                             Name = "Giày Victor A610 III",
-                            Price = 2400000m,
                             RetailPrice = 2400000m,
                             SportType = "Badminton",
                             Status = "Available",
@@ -1301,7 +1306,6 @@ namespace ProSport.Infrastructure.Migrations
                             ImageUrl = "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=400&q=80",
                             IsDeleted = false,
                             Name = "Giày Asics Gel-Rocket 11",
-                            Price = 2800000m,
                             RetailPrice = 2800000m,
                             SportType = "Pickleball",
                             Status = "Available",
@@ -1318,7 +1322,6 @@ namespace ProSport.Infrastructure.Migrations
                             ImageUrl = "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&q=80",
                             IsDeleted = false,
                             Name = "Áo thi đấu Yonex Tournament",
-                            Price = 650000m,
                             RetailPrice = 650000m,
                             SportType = "Badminton",
                             Status = "Available",
@@ -1335,7 +1338,6 @@ namespace ProSport.Infrastructure.Migrations
                             ImageUrl = "https://images.unsplash.com/photo-1591195853828-11db59a44f6b?w=400&q=80",
                             IsDeleted = false,
                             Name = "Quần short thể thao Pro-Sport DryFit",
-                            Price = 450000m,
                             RetailPrice = 450000m,
                             SportType = "Badminton",
                             Status = "Available",
@@ -1352,7 +1354,6 @@ namespace ProSport.Infrastructure.Migrations
                             ImageUrl = "https://images.unsplash.com/photo-1544966503-7cc5ac882d5f?w=400&q=80",
                             IsDeleted = false,
                             Name = "Áo khoác gió thể thao Pro-Sport",
-                            Price = 890000m,
                             RetailPrice = 890000m,
                             SportType = "Pickleball",
                             Status = "Available",
@@ -1369,7 +1370,6 @@ namespace ProSport.Infrastructure.Migrations
                             ImageUrl = "https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=400&q=80",
                             IsDeleted = false,
                             Name = "Cầu lông nhựa Yonex Mavis 350 (ống 6 quả)",
-                            Price = 280000m,
                             RetailPrice = 280000m,
                             SportType = "Badminton",
                             Status = "Available",
@@ -1386,7 +1386,6 @@ namespace ProSport.Infrastructure.Migrations
                             ImageUrl = "https://images.unsplash.com/photo-1530549387789-4c1017266635?w=400&q=80",
                             IsDeleted = false,
                             Name = "Cầu lông lông ngỗng Yonex AS-50 (hộp 12 quả)",
-                            Price = 1200000m,
                             RetailPrice = 1200000m,
                             SportType = "Badminton",
                             Status = "Available",
@@ -1403,7 +1402,6 @@ namespace ProSport.Infrastructure.Migrations
                             ImageUrl = "https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?w=400&q=80",
                             IsDeleted = false,
                             Name = "Bóng Pickleball Franklin X-40 (hộp 6 quả)",
-                            Price = 350000m,
                             RetailPrice = 350000m,
                             SportType = "Pickleball",
                             Status = "Available",
@@ -1420,7 +1418,6 @@ namespace ProSport.Infrastructure.Migrations
                             ImageUrl = "https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=400&q=80",
                             IsDeleted = false,
                             Name = "Bóng Pickleball Onix Fuse G2 (hộp 6 quả)",
-                            Price = 420000m,
                             RetailPrice = 420000m,
                             SportType = "Pickleball",
                             Status = "Available",
@@ -1437,7 +1434,6 @@ namespace ProSport.Infrastructure.Migrations
                             ImageUrl = "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400&q=80",
                             IsDeleted = false,
                             Name = "Quấn cán vợt Yonex Super Grap (3 cuộn)",
-                            Price = 180000m,
                             RetailPrice = 180000m,
                             SportType = "Badminton",
                             Status = "Available",
@@ -1454,7 +1450,6 @@ namespace ProSport.Infrastructure.Migrations
                             ImageUrl = "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400&q=80",
                             IsDeleted = false,
                             Name = "Túi đựng vợt 6 ngăn Yonex Pro",
-                            Price = 2100000m,
                             RetailPrice = 2100000m,
                             SportType = "Badminton",
                             Status = "Available",
@@ -1471,7 +1466,6 @@ namespace ProSport.Infrastructure.Migrations
                             ImageUrl = "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400&q=80",
                             IsDeleted = false,
                             Name = "Băng cổ tay thấm mồ hôi (bộ 2)",
-                            Price = 120000m,
                             RetailPrice = 120000m,
                             SportType = "Badminton",
                             Status = "Available",
@@ -1488,7 +1482,6 @@ namespace ProSport.Infrastructure.Migrations
                             ImageUrl = "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&q=80",
                             IsDeleted = false,
                             Name = "Băng gối thể thao neoprene",
-                            Price = 320000m,
                             RetailPrice = 320000m,
                             SportType = "Badminton",
                             Status = "Available",
@@ -1505,7 +1498,6 @@ namespace ProSport.Infrastructure.Migrations
                             ImageUrl = "https://images.unsplash.com/photo-1518310383802-640c2b31135a?w=400&q=80",
                             IsDeleted = false,
                             Name = "Băng cổ chân thể thao",
-                            Price = 250000m,
                             RetailPrice = 250000m,
                             SportType = "Badminton",
                             Status = "Available",
@@ -1522,7 +1514,6 @@ namespace ProSport.Infrastructure.Migrations
                             ImageUrl = "https://images.unsplash.com/photo-1574258495973-f010dfbb5371?w=400&q=80",
                             IsDeleted = false,
                             Name = "Kính bảo hộ Pickleball Pro-Sport",
-                            Price = 480000m,
                             RetailPrice = 480000m,
                             SportType = "Pickleball",
                             Status = "Available",
@@ -1780,7 +1771,12 @@ namespace ProSport.Infrastructure.Migrations
 
                     b.HasIndex("HostId");
 
-                    b.ToTable("Matches");
+                    b.HasIndex("Status");
+
+                    b.ToTable("Matches", t =>
+                        {
+                            t.HasCheckConstraint("CK_Matches_Status", "[Status] IN ('Open','Closed','Completed','Cancelled')");
+                        });
                 });
 
             modelBuilder.Entity("ProSport.Domain.Entities.MatchParticipant", b =>
@@ -1844,9 +1840,22 @@ namespace ProSport.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MatchResultId"));
 
+                    b.Property<DateTime?>("ConfirmedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("ConfirmedByUserId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2")
                         .HasColumnName("CreatedAt");
+
+                    b.Property<string>("DisputeReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime?>("DisputedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit")
@@ -1880,6 +1889,8 @@ namespace ProSport.Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("MatchResultId");
+
+                    b.HasIndex("ConfirmedByUserId");
 
                     b.HasIndex("MatchId")
                         .IsUnique();
@@ -2257,9 +2268,6 @@ namespace ProSport.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("RecurringBookingRuleId"));
 
-                    b.Property<int>("ComplexId")
-                        .HasColumnType("int");
-
                     b.Property<int>("CourtId")
                         .HasColumnType("int");
 
@@ -2307,8 +2315,6 @@ namespace ProSport.Infrastructure.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("RecurringBookingRuleId");
-
-                    b.HasIndex("ComplexId");
 
                     b.HasIndex("CourtId");
 
@@ -2450,6 +2456,9 @@ namespace ProSport.Infrastructure.Migrations
 
                     b.Property<int>("RentalAssetId")
                         .HasColumnType("int");
+
+                    b.Property<decimal>("RentalPriceAtTime")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("RentalSessionId")
                         .HasColumnType("int");
@@ -2729,9 +2738,15 @@ namespace ProSport.Infrastructure.Migrations
                         .HasColumnType("datetime2")
                         .HasColumnName("CreatedAt");
 
+                    b.Property<bool>("EntryFeePaid")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit")
                         .HasColumnName("IsDeleted");
+
+                    b.Property<int?>("PaymentTransactionId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -2753,6 +2768,8 @@ namespace ProSport.Infrastructure.Migrations
                     b.HasKey("TournamentRegistrationId");
 
                     b.HasIndex("CaptainUserId");
+
+                    b.HasIndex("PaymentTransactionId");
 
                     b.HasIndex("TournamentId", "CaptainUserId")
                         .IsUnique();
@@ -2818,6 +2835,10 @@ namespace ProSport.Infrastructure.Migrations
                     b.HasIndex("EscrowWalletId");
 
                     b.HasIndex("MatchId");
+
+                    b.HasIndex("ReferenceId")
+                        .IsUnique()
+                        .HasFilter("[ReferenceId] IS NOT NULL");
 
                     b.ToTable("Transactions");
                 });
@@ -3167,11 +3188,6 @@ namespace ProSport.Infrastructure.Migrations
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(true);
-
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit")
                         .HasColumnName("IsDeleted");
@@ -3192,7 +3208,10 @@ namespace ProSport.Infrastructure.Migrations
 
                     b.Property<string>("Status")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)")
+                        .HasDefaultValue("Active");
 
                     b.Property<int>("TotalQuantity")
                         .HasColumnType("int");
@@ -3219,7 +3238,10 @@ namespace ProSport.Infrastructure.Migrations
 
                     b.HasIndex("CreatedByStaffId");
 
-                    b.ToTable("Vouchers");
+                    b.ToTable("Vouchers", t =>
+                        {
+                            t.HasCheckConstraint("CK_Vouchers_Status", "[Status] IN ('Active','Inactive','Expired')");
+                        });
                 });
 
             modelBuilder.Entity("ProSport.Domain.Entities.Booking", b =>
@@ -3574,6 +3596,10 @@ namespace ProSport.Infrastructure.Migrations
 
             modelBuilder.Entity("ProSport.Domain.Entities.MatchResult", b =>
                 {
+                    b.HasOne("ProSport.Domain.Entities.User", "ConfirmedBy")
+                        .WithMany()
+                        .HasForeignKey("ConfirmedByUserId");
+
                     b.HasOne("ProSport.Domain.Entities.Match", "Match")
                         .WithMany()
                         .HasForeignKey("MatchId")
@@ -3589,6 +3615,8 @@ namespace ProSport.Infrastructure.Migrations
                     b.HasOne("ProSport.Domain.Entities.User", "Winner")
                         .WithMany()
                         .HasForeignKey("WinnerUserId");
+
+                    b.Navigation("ConfirmedBy");
 
                     b.Navigation("Match");
 
@@ -3680,12 +3708,6 @@ namespace ProSport.Infrastructure.Migrations
 
             modelBuilder.Entity("ProSport.Domain.Entities.RecurringBookingRule", b =>
                 {
-                    b.HasOne("ProSport.Domain.Entities.Complex", "Complex")
-                        .WithMany()
-                        .HasForeignKey("ComplexId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("ProSport.Domain.Entities.Court", "Court")
                         .WithMany()
                         .HasForeignKey("CourtId")
@@ -3697,8 +3719,6 @@ namespace ProSport.Infrastructure.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Complex");
 
                     b.Navigation("Court");
 
@@ -3865,6 +3885,10 @@ namespace ProSport.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("ProSport.Domain.Entities.Transaction", "PaymentTransaction")
+                        .WithMany()
+                        .HasForeignKey("PaymentTransactionId");
+
                     b.HasOne("ProSport.Domain.Entities.Tournament", "Tournament")
                         .WithMany("Registrations")
                         .HasForeignKey("TournamentId")
@@ -3872,6 +3896,8 @@ namespace ProSport.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Captain");
+
+                    b.Navigation("PaymentTransaction");
 
                     b.Navigation("Tournament");
                 });

@@ -7,13 +7,10 @@ import { paymentApi } from '../../api/paymentApi'
 import { playerFeaturesApi } from '../../api/playerFeaturesApi'
 import { useToast } from '../../components/Toast'
 
-/**
- * Helper: decode JWT token từ localStorage để lấy thông tin user.
- * Nếu không có token, trả về null.
- */
+import { getAuthToken } from '../../utils/authStorage'
 function getCurrentUser() {
   try {
-    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+    const token = getAuthToken();
     if (!token) return null;
     const payload = JSON.parse(atob(token.split('.')[1]));
     return {

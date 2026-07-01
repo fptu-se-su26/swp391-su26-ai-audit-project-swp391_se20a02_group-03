@@ -8,6 +8,9 @@ public class RentalSessionAsset
     public string BeforeCondition { get; set; } = "Good";
     public string? AfterCondition { get; set; }
 
+    /// <summary>Đơn giá thuê tại thời điểm giao dịch (hóa đơn chi tiết).</summary>
+    public decimal RentalPriceAtTime { get; set; }
+
     public RentalSession RentalSession { get; set; } = null!;
     public RentalAsset RentalAsset { get; set; } = null!;
 }

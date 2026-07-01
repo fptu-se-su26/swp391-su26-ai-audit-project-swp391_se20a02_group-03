@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using ProSport.Application.Interfaces;
+using ProSport.Domain.Constants;
 using ProSport.Domain.Entities;
 using ProSport.Infrastructure.Data;
 
@@ -20,7 +21,7 @@ public class VoucherRepository : IVoucherRepository
         if (onlyActive)
         {
             var now = DateTime.UtcNow;
-            query = query.Where(v => v.IsActive && v.StartDate <= now && v.EndDate >= now && v.UsedQuantity < v.TotalQuantity);
+            query = query.Where(v => v.Status == VoucherStatus.Active && v.StartDate <= now && v.EndDate >= now && v.UsedQuantity < v.TotalQuantity);
         }
         return await query.OrderByDescending(v => v.VoucherId).ToListAsync();
     }

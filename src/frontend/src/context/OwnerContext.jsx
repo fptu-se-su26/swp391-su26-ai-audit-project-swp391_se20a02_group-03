@@ -30,12 +30,34 @@ export function OwnerProvider({ children }) {
         setContext(res.data);
         const stored = localStorage.getItem(STORAGE_KEY);
         const storedId = stored ? parseInt(stored, 10) : null;
-        const managed = res.data.managedComplexes || [];
+        let managed = res.data.managedComplexes || [];
+
+        // Admin: context may be empty — fallback to complexes list API
+        if (isAdmin && managed.length === 0) {
+          try {
+            const complexesRes = await ownerApi.getComplexes();
+            if (complexesRes.statusCode === 200 && Array.isArray(complexesRes.data)) {
+              managed = complexesRes.data.map(c => ({
+                complexId: c.complexId,
+                name: c.name,
+                address: c.address,
+                logoUrl: c.logoUrl,
+                isPrimary: false,
+              }));
+            }
+          } catch {
+            /* keep empty */
+          }
+        }
+
         const validStored = managed.some(c => c.complexId === storedId);
         const nextId = validStored
           ? storedId
           : (res.data.defaultComplexId ?? managed[0]?.complexId ?? null);
         setComplexIdState(nextId);
+        if (managed.length && !res.data.managedComplexes?.length) {
+          setContext(prev => ({ ...prev, managedComplexes: managed }));
+        }
       } else {
         setError(res.message || 'Không tải được context chủ sân.');
       }

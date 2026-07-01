@@ -40,4 +40,11 @@ export default [
       'react-hooks/exhaustive-deps': 'off',
     },
   },
+  {
+    files: ['src/context/**/*.{js,jsx}', 'src/components/ui/ConfirmDialog.jsx'],
+    rules: {
+      // Provider + hook co-location is intentional for React context modules.
+      'react-refresh/only-export-components': 'off',
+    },
+  },
 ]

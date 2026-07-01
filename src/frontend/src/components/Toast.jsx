@@ -1,7 +1,9 @@
-import { useState, useEffect, createContext, useContext, useCallback } from 'react'
+import { useState, useEffect, createContext, useContext, useCallback, useMemo } from 'react'
 
 const ToastContext = createContext(null)
 
+// Hook exported alongside provider — intentional colocation for toast API surface.
+// eslint-disable-next-line react-refresh/only-export-components
 export function useToast() {
   return useContext(ToastContext)
 }
@@ -14,14 +16,22 @@ export function ToastProvider({ children }) {
     setToasts(prev => [...prev, { id, message, type, duration }])
   }, [])
 
-  addToast.addToast = addToast;
-
   const removeToast = useCallback((id) => {
     setToasts(prev => prev.filter(t => t.id !== id))
   }, [])
 
+  const toastApi = useMemo(() => {
+    const show = (message, type = 'success', duration = 4000) => addToast(message, type, duration)
+    return new Proxy(show, {
+      get(target, prop) {
+        if (prop === 'addToast') return target
+        return target[prop]
+      },
+    })
+  }, [addToast])
+
   return (
-    <ToastContext.Provider value={addToast}>
+    <ToastContext.Provider value={toastApi}>
       {children}
       <div className="fixed top-20 right-6 z-[9999] flex flex-col gap-4 pointer-events-none max-w-sm">
         {toasts.map(toast => (

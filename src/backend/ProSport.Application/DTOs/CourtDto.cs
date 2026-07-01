@@ -13,6 +13,16 @@ public class CourtDto
     public decimal PricePerHour { get; set; }
 }
 
+public class CourtAvailabilityDto
+{
+    public int CourtId { get; set; }
+    public string Date { get; set; } = null!;
+    public int SlotDurationMinutes { get; set; } = 60;
+    public bool IsClosed { get; set; }
+    public List<string> Slots { get; set; } = new();
+    public List<string> BookedSlots { get; set; } = new();
+}
+
 public class CreateCourtDto
 {
     public string Name { get; set; } = null!;

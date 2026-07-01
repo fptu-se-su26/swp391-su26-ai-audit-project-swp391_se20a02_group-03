@@ -356,49 +356,43 @@ public class BookingService : IBookingService
     {
         try
         {
+            var outcome = await _escrowRepository.ConfirmVnPayBookingPaymentAsync(bookingId, vnpayTransactionId, paidAmount);
             var booking = await _bookingRepository.GetByIdAsync(bookingId);
-            if (booking == null) return new ApiResponseDto<BookingDto>(404, "Booking not found");
 
-            if (booking.PaymentStatus == Domain.Constants.PaymentStatus.Paid)
-                return new ApiResponseDto<BookingDto>(400, "Booking đã được thanh toán.");
-
-            // Kiểm tra booking đã hết hạn thanh toán chưa
-            if (booking.PaymentDeadline.HasValue && DateTime.UtcNow > booking.PaymentDeadline.Value)
+            switch (outcome)
             {
-                // C-04 FIX: Set both Status AND PaymentStatus consistently when expired
-                booking.Status = BookingStatus.Cancelled;
-                booking.PaymentStatus = Domain.Constants.PaymentStatus.Cancelled;
-                await _bookingRepository.UpdateAsync(booking);
-                return new ApiResponseDto<BookingDto>(400, "Booking đã hết hạn thanh toán. Vui lòng đặt lại.");
+                case VnPayPaymentConfirmOutcome.NotFound:
+                    return new ApiResponseDto<BookingDto>(404, "Booking not found");
+                case VnPayPaymentConfirmOutcome.Expired:
+                    return new ApiResponseDto<BookingDto>(400, "Booking đã hết hạn thanh toán. Vui lòng đặt lại.");
+                case VnPayPaymentConfirmOutcome.AmountMismatch:
+                    _logger.LogWarning(
+                        "Payment amount mismatch for booking {BookingId}: expected {Expected}, got {Actual}",
+                        bookingId, booking?.TotalAmount, paidAmount);
+                    return new ApiResponseDto<BookingDto>(400,
+                        $"Số tiền thanh toán ({paidAmount:N0}) không khớp với hóa đơn ({booking?.TotalAmount:N0})");
+                case VnPayPaymentConfirmOutcome.DuplicateReference:
+                    return booking?.PaymentStatus == PaymentStatus.Paid
+                        ? new ApiResponseDto<BookingDto>(200, "Thanh toán thành công", MapToDto(booking))
+                        : new ApiResponseDto<BookingDto>(409, "Mã giao dịch VNPay đã được sử dụng.");
+                case VnPayPaymentConfirmOutcome.AlreadyPaid:
+                    return new ApiResponseDto<BookingDto>(400, "Booking đã được thanh toán.");
+                case VnPayPaymentConfirmOutcome.Success:
+                    break;
+                default:
+                    return new ApiResponseDto<BookingDto>(500, "An unexpected error occurred.");
             }
 
-            // Bảo mật: Kiểm tra xem số tiền trả qua VNPay có đúng bằng số tiền hóa đơn không
-            // Dùng tolerance thay vì == để tránh rounding issue khi VNPay parse amount
-            if (Math.Abs(booking.TotalAmount - paidAmount) > 1m) // tolerance 1 VND
-            {
-                _logger.LogWarning(
-                    "Payment amount mismatch for booking {BookingId}: expected {Expected}, got {Actual}",
-                    bookingId, booking.TotalAmount, paidAmount);
-                return new ApiResponseDto<BookingDto>(400, $"Số tiền thanh toán ({paidAmount:N0}) không khớp với hóa đơn ({booking.TotalAmount:N0})");
-            }
+            booking ??= await _bookingRepository.GetByIdAsync(bookingId);
+            if (booking == null)
+                return new ApiResponseDto<BookingDto>(404, "Booking not found");
 
-            booking.PaymentStatus = Domain.Constants.PaymentStatus.Paid;
-            booking.Status = BookingStatus.Confirmed;
-            booking.PaymentMethod = PaymentMethod.VNPay;
-            booking.CheckInCode = $"QR-{booking.BookingId}-{Guid.NewGuid().ToString()[..8]}";
-
-            await _bookingRepository.UpdateAsync(booking);
-
-            // Tạo Transaction record để audit trail
-            await CreatePaymentTransactionAsync(booking, vnpayTransactionId);
-
-            // Gửi Email xác nhận Booking kèm QR code
             if (booking.User != null && !string.IsNullOrEmpty(booking.User.Email))
             {
                 var courtNames = string.Join(", ", booking.BookingDetails.Select(bd => bd.Court?.Name ?? $"Court {bd.CourtId}"));
                 var firstDetail = booking.BookingDetails.FirstOrDefault();
                 var bookingDate = firstDetail?.BookingDate.ToString("dd/MM/yyyy");
-                var timeRange = $"{firstDetail?.StartTime:HH\\:mm} - {firstDetail?.EndTime:HH\\:mm}"; // M-03 FIX: HH = 24h format
+                var timeRange = $"{firstDetail?.StartTime:HH\\:mm} - {firstDetail?.EndTime:HH\\:mm}";
 
                 var detailsHtml = $@"
                     <p><b>Booking ID:</b> #{booking.BookingId}</p>
@@ -432,8 +426,7 @@ public class BookingService : IBookingService
     }
 
     /// <summary>
-    /// Tạo Transaction record cho VNPay payment để giữ audit trail.
-    /// Idempotent: Nếu transaction với vnpayTransactionId đã tồn tại, bỏ qua.
+    /// Legacy helper retained for cash walk-in audit; VNPay uses ConfirmVnPayBookingPaymentAsync.
     /// </summary>
     private async Task CreatePaymentTransactionAsync(Booking booking, string vnpayTransactionId)
     {
@@ -538,11 +531,7 @@ public class BookingService : IBookingService
                 {
                     var refundResult = await _escrowRepository.ExecuteInTransactionAsync(async () =>
                     {
-                        var wallet = await _escrowRepository.GetWalletByUserIdAsync(booking.UserId);
-                        if (wallet == null) return false;
-
-                        wallet.Balance += refundAmount;
-                        await _escrowRepository.UpdateWalletAsync(wallet);
+                        var wallet = await _escrowRepository.CreditWalletAsync(booking.UserId, refundAmount);
 
                         var transaction = new Transaction
                         {
@@ -669,10 +658,22 @@ public class BookingService : IBookingService
         if (booking.Status == BookingStatus.Cancelled || booking.Status == BookingStatus.Completed)
             return new ApiResponseDto<bool>(400, $"Không thể hủy booking ở trạng thái {booking.Status}");
 
-        booking.CancellationFee = booking.PaymentStatus == PaymentStatus.Paid ? booking.TotalAmount * 0.2m : 0;
-        booking.Status = BookingStatus.Cancelled;
-        booking.UpdatedAt = DateTime.UtcNow;
-        await _bookingRepository.UpdateAsync(booking);
+        // Operator/owner forced cancel (weather, outage) — customer is not at fault; full refund, no penalty.
+        var cancellationFee = 0m;
+        var refundAmount = booking.PaymentStatus == PaymentStatus.Paid ? booking.TotalAmount : 0m;
+
+        var cancelled = await _escrowRepository.CancelBookingWithRefundAsync(
+            bookingId,
+            cancellationFee,
+            refundAmount,
+            "Hủy bởi operator",
+            $"OperatorCancel_{bookingId}");
+
+        if (!cancelled)
+        {
+            _logger.LogError("Operator cancel failed for booking {BookingId}", bookingId);
+            return new ApiResponseDto<bool>(500, "Không thể hủy booking.");
+        }
 
         return new ApiResponseDto<bool>(200, "Hủy booking thành công.", true);
     }
@@ -688,23 +689,19 @@ public class BookingService : IBookingService
             if (booking.Status == BookingStatus.Cancelled || booking.Status == BookingStatus.Completed)
                 return new ApiResponseDto<bool>(200, "Booking đã ở trạng thái cuối.", true);
 
-            booking.CancellationFee = 0;
+            var refundAmount = booking.PaymentStatus == PaymentStatus.Paid ? booking.TotalAmount : 0;
+            var cancelled = await _escrowRepository.CancelBookingWithRefundAsync(
+                bookingId,
+                cancellationFee: 0,
+                refundAmount,
+                reason,
+                $"SystemCancel_{bookingId}");
 
-            if (booking.PaymentStatus == PaymentStatus.Paid)
+            if (!cancelled)
             {
-                var refunded = await RefundPaidBookingAsync(booking, reason);
-                if (!refunded)
-                {
-                    _logger.LogError("System refund failed for booking {BookingId}", bookingId);
-                    return new ApiResponseDto<bool>(500, "Không thể hoàn tiền booking.");
-                }
-
-                booking.PaymentStatus = PaymentStatus.Refunded;
+                _logger.LogError("System cancel failed for booking {BookingId}", bookingId);
+                return new ApiResponseDto<bool>(500, "Không thể hủy booking.");
             }
-
-            booking.Status = BookingStatus.Cancelled;
-            booking.UpdatedAt = DateTime.UtcNow;
-            await _bookingRepository.UpdateAsync(booking);
 
             try
             {
@@ -730,6 +727,51 @@ public class BookingService : IBookingService
         }
     }
 
+    private async Task<bool> RefundPaidBookingPartialAsync(Booking booking, decimal refundAmount, string reason)
+    {
+        if (refundAmount <= 0)
+            return true;
+
+        if (booking.IsSplitPayment && booking.PaymentShares.Count > 0)
+        {
+            var paidShares = booking.PaymentShares.Where(s => s.Status == PaymentShareStatus.Paid).ToList();
+            var totalPaid = paidShares.Sum(s => s.Amount);
+            if (totalPaid <= 0)
+                return true;
+
+            foreach (var share in paidShares)
+            {
+                var shareRefund = Math.Round(refundAmount * (share.Amount / totalPaid), 2, MidpointRounding.AwayFromZero);
+                if (shareRefund <= 0)
+                    continue;
+
+                var ok = await _escrowRepository.RefundSplitShareAtomicAsync(
+                    share.UserId, booking.BookingId, share.BookingPaymentShareId, shareRefund);
+                if (!ok)
+                    return false;
+            }
+
+            return true;
+        }
+
+        return await _escrowRepository.ExecuteInTransactionAsync(async () =>
+        {
+            var wallet = await _escrowRepository.CreditWalletAsync(booking.UserId, refundAmount);
+
+            await _escrowRepository.AddTransactionAsync(new Transaction
+            {
+                EscrowWalletId = wallet.EscrowWalletId,
+                BookingId = booking.BookingId,
+                Amount = refundAmount,
+                Type = TransactionType.Refund,
+                Status = TransactionStatus.Completed,
+                Description = $"Hoàn {refundAmount:N0} VNĐ do hủy booking #{booking.BookingId}: {reason}"
+            });
+
+            return true;
+        });
+    }
+
     private async Task<bool> RefundPaidBookingAsync(Booking booking, string reason)
     {
         if (booking.IsSplitPayment && booking.PaymentShares.Count > 0)
@@ -751,15 +793,7 @@ public class BookingService : IBookingService
 
         return await _escrowRepository.ExecuteInTransactionAsync(async () =>
         {
-            var wallet = await _escrowRepository.GetWalletByUserIdAsync(booking.UserId);
-            if (wallet == null)
-            {
-                wallet = new EscrowWallet { UserId = booking.UserId, Balance = 0, LockedBalance = 0 };
-                await _escrowRepository.CreateWalletAsync(wallet);
-            }
-
-            wallet.Balance += refundAmount;
-            await _escrowRepository.UpdateWalletAsync(wallet);
+            var wallet = await _escrowRepository.CreditWalletAsync(booking.UserId, refundAmount);
 
             await _escrowRepository.AddTransactionAsync(new Transaction
             {

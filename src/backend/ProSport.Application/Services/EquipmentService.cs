@@ -1,8 +1,8 @@
 using Microsoft.Extensions.Logging;
 using ProSport.Application.DTOs;
 using ProSport.Application.Interfaces;
-using ProSport.Domain.Entities;
-using System;
+using ProSport.Domain.Constants;
+using ProSport.Domain.Entities;using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -13,18 +13,20 @@ public class EquipmentService : IEquipmentService
 {
     private readonly IEquipmentRepository _equipmentRepository;
     private readonly IEquipmentCategoryRepository _categoryRepository;
+    private readonly IEscrowRepository _escrowRepository;
     private readonly ILogger<EquipmentService> _logger;
 
     public EquipmentService(
         IEquipmentRepository equipmentRepository, 
         IEquipmentCategoryRepository categoryRepository,
+        IEscrowRepository escrowRepository,
         ILogger<EquipmentService> logger)
     {
         _equipmentRepository = equipmentRepository;
         _categoryRepository = categoryRepository;
+        _escrowRepository = escrowRepository;
         _logger = logger;
     }
-
     // CRUD Methods
     public async Task<PagedResult<EquipmentDto>> GetPagedAsync(EquipmentQueryParameters parameters)
     {
@@ -59,7 +61,6 @@ public class EquipmentService : IEquipmentService
             Category = "Racket",
             SportType = "Badminton",
             Description = dto.Description,
-            Price = dto.Price,
             RetailPrice = dto.Price,
             ImageUrl = dto.ImageUrl,
             StockQuantity = 0,
@@ -82,7 +83,6 @@ public class EquipmentService : IEquipmentService
         equipment.Name = dto.Name;
         equipment.EquipmentName = dto.Name;
         equipment.Description = dto.Description;
-        equipment.Price = dto.Price;
         equipment.RetailPrice = dto.Price;
         equipment.Status = dto.Status;
         equipment.ImageUrl = dto.ImageUrl;
@@ -132,8 +132,30 @@ public class EquipmentService : IEquipmentService
             if (equipment.StockQuantity < request.Quantity)
                 return new ApiResponseDto<bool>(400, $"Not enough stock for {equipment.EquipmentName}. Only {equipment.StockQuantity} available.");
 
-            equipment.StockQuantity -= request.Quantity;
-            await _equipmentRepository.UpdateEquipmentAsync(equipment);
+            var totalAmount = equipment.RetailPrice * request.Quantity;
+            var equipmentName = equipment.EquipmentName ?? equipment.Name ?? $"#{equipment.EquipmentId}";
+            var referenceId = request.BookingId.HasValue
+                ? $"EquipmentBuy_B{request.BookingId}_{request.EquipmentId}_{Guid.NewGuid():N}"
+                : $"EquipmentBuy_{request.EquipmentId}_{Guid.NewGuid():N}";
+            var description = request.BookingId.HasValue
+                ? $"Mua {equipmentName} x{request.Quantity} (booking #{request.BookingId})"
+                : $"Mua {equipmentName} x{request.Quantity}";
+
+            var purchased = await _escrowRepository.ExecuteInTransactionAsync(async () =>
+            {
+                if (!await _escrowRepository.PayEquipmentPurchaseAsync(
+                        userId, totalAmount, request.BookingId, referenceId, description))
+                {
+                    return false;
+                }
+
+                equipment.StockQuantity -= request.Quantity;
+                await _equipmentRepository.UpdateEquipmentAsync(equipment);
+                return true;
+            });
+
+            if (!purchased)
+                return new ApiResponseDto<bool>(400, "Số dư ví không đủ để thanh toán.");
 
             return new ApiResponseDto<bool>(200, "Equipment purchased successfully", true);
         }
@@ -167,7 +189,7 @@ public class EquipmentService : IEquipmentService
         CategoryName = e.EquipmentCategory?.Name ?? "Unknown",
         Name = !string.IsNullOrWhiteSpace(e.Name) ? e.Name : e.EquipmentName,
         Description = e.Description,
-        Price = e.Price,
+        Price = e.RetailPrice,
         StockQuantity = e.StockQuantity,
         Status = e.Status ?? "Available",
         Category = e.Category ?? "Racket",

@@ -1,42 +1,123 @@
-import { useState } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import Navbar from '../../components/Navbar'
 import Footer from '../../components/Footer'
+import PageLoader from '../../components/ui/PageLoader'
+import { bookingApi } from '../../api/bookingApi'
+import { formatLocalDate, addMinutesToTimeLabel } from '../../utils/date'
 import { MapPin, Wifi, Car, Shirt, Wind, ShoppingBag, Droplets, Star, ChevronRight } from 'lucide-react'
 
-const court = {
-  id: 1,
-  name: 'Sân Infinity – Tầng 1',
-  sport: 'Cầu lông / Pickleball',
-  type: 'Sân trong nhà cao cấp',
-  address: 'Lê Văn Lương, Quận 7, TP.HCM',
-  rating: 4.9,
-  reviews: 124,
-  pricePerSlot: 120000,
-  images: [
-    'https://images.unsplash.com/photo-1544919982-b61976f0ba43?w=900&q=80',
-    'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&q=80',
-    'https://images.unsplash.com/photo-1529900748604-07564a03e7a6?w=600&q=80',
-    'https://images.unsplash.com/photo-1551958219-acbc595b39c6?w=600&q=80',
-  ],
-  amenities: [
-    { label: 'Wi-Fi tốc độ cao', icon: <Wifi className="w-5 h-5" /> },
-    { label: 'Bãi đỗ xe an toàn', icon: <Car className="w-5 h-5" /> },
-    { label: 'Phòng thay đồ', icon: <Shirt className="w-5 h-5" /> },
-    { label: 'Điều hòa', icon: <Wind className="w-5 h-5" /> },
-    { label: 'Cho thuê dụng cụ', icon: <ShoppingBag className="w-5 h-5" /> },
-    { label: 'Trạm nước uống', icon: <Droplets className="w-5 h-5" /> },
-  ],
-  description: 'Sân trong nhà cao cấp với mặt sàn chuẩn, hệ thống chiếu sáng chống chói và điều hòa toàn khu. Phù hợp thi đấu chuyên nghiệp và tập luyện. Bao gồm quyền sử dụng tiện ích và dịch vụ cho thuê dụng cụ.',
-}
+const DEFAULT_AMENITIES = [
+  { label: 'Wi-Fi tốc độ cao', icon: <Wifi className="w-5 h-5" /> },
+  { label: 'Bãi đỗ xe an toàn', icon: <Car className="w-5 h-5" /> },
+  { label: 'Phòng thay đồ', icon: <Shirt className="w-5 h-5" /> },
+  { label: 'Điều hòa', icon: <Wind className="w-5 h-5" /> },
+  { label: 'Cho thuê dụng cụ', icon: <ShoppingBag className="w-5 h-5" /> },
+  { label: 'Trạm nước uống', icon: <Droplets className="w-5 h-5" /> },
+]
 
-const HOURS = ['07:00','08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00']
-const BOOKED = ['09:00','10:00','14:00','15:00','20:00']
+function normalizeSlot(value) {
+  if (!value) return null
+  const text = String(value)
+  return text.length >= 5 ? text.slice(0, 5) : text
+}
 
 export default function CourtDetailPage() {
   const { id } = useParams()
   const [activeImg, setActiveImg] = useState(0)
   const [selectedSlot, setSelectedSlot] = useState(null)
+  const [court, setCourt] = useState(null)
+  const [slots, setSlots] = useState([])
+  const [booked, setBooked] = useState([])
+  const [slotDurationMinutes, setSlotDurationMinutes] = useState(60)
+  const [isClosedToday, setIsClosedToday] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const today = useMemo(() => formatLocalDate(), [])
+
+  useEffect(() => {
+    if (!id) return
+    let cancelled = false
+    setLoading(true)
+    setError(null)
+
+    Promise.all([
+      bookingApi.getCourtById(id),
+      bookingApi.getCourtAvailability(id, today),
+    ])
+      .then(([courtRes, availabilityRes]) => {
+        if (cancelled) return
+        if (courtRes.statusCode !== 200 || !courtRes.data) {
+          setError(courtRes.message || 'Không tìm thấy sân.')
+          setCourt(null)
+          return
+        }
+        const data = courtRes.data
+        setCourt({
+          id: data.courtId,
+          name: data.name,
+          sport: data.courtTypeName || 'Thể thao',
+          type: data.status || 'Sân',
+          address: data.description || '',
+          rating: 4.8,
+          reviews: 0,
+          pricePerSlot: data.pricePerHour > 0 ? data.pricePerHour : 120000,
+          images: data.imageUrl
+            ? [data.imageUrl, data.imageUrl, data.imageUrl, data.imageUrl]
+            : [
+                'https://images.unsplash.com/photo-1544919982-b61976f0ba43?w=900&q=80',
+                'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&q=80',
+              ],
+          amenities: DEFAULT_AMENITIES,
+          description: data.description || 'Sân thể thao trên hệ thống ProSport.',
+        })
+
+        if (availabilityRes.statusCode === 200 && availabilityRes.data) {
+          const availability = availabilityRes.data
+          setIsClosedToday(Boolean(availability.isClosed))
+          setSlotDurationMinutes(availability.slotDurationMinutes || 60)
+          setSlots(Array.isArray(availability.slots) ? availability.slots.map(normalizeSlot).filter(Boolean) : [])
+          setBooked(Array.isArray(availability.bookedSlots)
+            ? availability.bookedSlots.map(normalizeSlot).filter(Boolean)
+            : [])
+        } else {
+          setSlots([])
+          setBooked([])
+        }
+      })
+      .catch(err => {
+        if (!cancelled) setError(typeof err === 'string' ? err : 'Không tải được thông tin sân.')
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false)
+      })
+
+    return () => { cancelled = true }
+  }, [id, today])
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background-base">
+        <Navbar />
+        <PageLoader message="Đang tải thông tin sân..." />
+      </div>
+    )
+  }
+
+  if (error || !court) {
+    return (
+      <div className="min-h-screen bg-background-base flex flex-col">
+        <Navbar />
+        <main className="flex-1 flex items-center justify-center px-6">
+          <div className="text-center space-y-4">
+            <p className="text-red-400">{error || 'Không tìm thấy sân.'}</p>
+            <Link to="/apex/booking" className="text-[var(--theme-primary)] underline">Quay lại danh sách sân</Link>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    )
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-background-base font-sans text-foreground relative overflow-hidden">
@@ -160,14 +241,18 @@ export default function CourtDetailPage() {
               </div>
               
               <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-3">
-                {HOURS.map(h => {
-                  const booked = BOOKED.includes(h)
+                {isClosedToday ? (
+                  <p className="col-span-full text-sm text-foreground-muted">Tổ hợp đóng cửa hôm nay.</p>
+                ) : slots.length === 0 ? (
+                  <p className="col-span-full text-sm text-foreground-muted">Không có khung giờ khả dụng.</p>
+                ) : slots.map(h => {
+                  const isBooked = booked.includes(h)
                   const selected = selectedSlot === h
                   return (
-                    <button key={h} disabled={booked}
+                    <button key={h} disabled={isBooked}
                       onClick={() => setSelectedSlot(h)}
                       className={`py-3 text-sm font-mono tracking-wider font-semibold transition-all duration-200 rounded-xl border
-                        ${booked ? 'bg-red-500/5 text-red-500/40 border-red-500/10 cursor-not-allowed' :
+                        ${isBooked ? 'bg-red-500/5 text-red-500/40 border-red-500/10 cursor-not-allowed' :
                           selected ? 'bg-[#5E6AD2] text-white border-[#5E6AD2] shadow-[0_4px_15px_rgba(94,106,210,0.4)] scale-[1.02]' :
                           'bg-[var(--theme-surface)] text-foreground-muted border-border-default hover:bg-[var(--theme-surface-hover)] hover:border-border-hover hover:text-foreground'}`}>
                       {h}
@@ -197,7 +282,9 @@ export default function CourtDetailPage() {
                     <span className="w-1.5 h-1.5 rounded-full bg-[#5E6AD2] shadow-[0_0_5px_rgba(94,106,210,0.8)] animate-pulse" />
                     Khung giờ đã chọn
                   </p>
-                  <p className="text-2xl font-semibold text-[var(--theme-primary)] mb-1 tracking-tight">{selectedSlot} – {HOURS[HOURS.indexOf(selectedSlot) + 1] || '22:00'}</p>
+                  <p className="text-2xl font-semibold text-[var(--theme-primary)] mb-1 tracking-tight">
+                    {selectedSlot} – {addMinutesToTimeLabel(selectedSlot, slotDurationMinutes) || '—'}
+                  </p>
                   <p className="text-foreground-muted text-sm font-medium">Hôm nay • {court.name}</p>
                 </div>
               </div>
@@ -211,7 +298,7 @@ export default function CourtDetailPage() {
 
               {/* Book Button */}
               <Link
-                to={selectedSlot ? `/courts/${id}/book?slot=${selectedSlot}` : '#'}
+                to={selectedSlot ? `/courts/${id}/book?slot=${selectedSlot}&date=${today}` : '#'}
                 onClick={e => !selectedSlot && e.preventDefault()}
                 className={`w-full flex items-center justify-center h-12 rounded-xl font-semibold text-sm transition-all duration-200
                   ${selectedSlot ? 'bg-[#EDEDEF] text-[#050506] hover:bg-white shadow-[0_4px_14px_rgba(255,255,255,0.15)] active:scale-[0.98]' : 'bg-[var(--theme-surface)] text-foreground-muted border border-border-default cursor-not-allowed'}`}>

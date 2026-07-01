@@ -31,7 +31,7 @@ public class OwnerOperationsTests
             new() { PricingRuleId = 1, StartTime = new TimeSpan(8, 0, 0), EndTime = new TimeSpan(12, 0, 0), DayOfWeek = 1, Status = "Active" }
         });
 
-        var svc = new CourtService(courtRepo.Object, Mock.Of<ILogger<CourtService>>());
+        var svc = new CourtService(courtRepo.Object, Mock.Of<IComplexScheduleService>(), Mock.Of<ILogger<CourtService>>());
         var result = await svc.CreatePricingRuleAsync(1, new CreatePricingRuleDto
         {
             StartTime = new TimeSpan(10, 0, 0),
@@ -48,7 +48,7 @@ public class OwnerOperationsTests
     {
         var complexRepo = new Mock<IComplexOwnerRepository>();
         complexRepo.Setup(r => r.IsUserOwnerOfComplexAsync(1, 99)).ReturnsAsync(false);
-        var svc = new OwnerAccessService(complexRepo.Object, Mock.Of<IUserRepository>(), Mock.Of<ICourtRepository>(), Mock.Of<IBookingRepository>(), Mock.Of<IRentalSessionRepository>());
+        var svc = new OwnerAccessService(complexRepo.Object, Mock.Of<IComplexRepository>(), Mock.Of<IUserRepository>(), Mock.Of<ICourtRepository>(), Mock.Of<IBookingRepository>(), Mock.Of<IRentalSessionRepository>());
         await Assert.ThrowsAsync<OwnerAccessDeniedException>(() => svc.RequireComplexAccessAsync(1, 99));
     }
 
@@ -71,7 +71,7 @@ public class OwnerOperationsTests
         var courtRepo = new Mock<ICourtRepository>();
         courtRepo.Setup(r => r.GetByIdAsync(5)).ReturnsAsync(new Court { CourtId = 5, ComplexId = 2 });
 
-        var svc = new OwnerAccessService(complexRepo.Object, Mock.Of<IUserRepository>(), courtRepo.Object, bookingRepo.Object, Mock.Of<IRentalSessionRepository>());
+        var svc = new OwnerAccessService(complexRepo.Object, Mock.Of<IComplexRepository>(), Mock.Of<IUserRepository>(), courtRepo.Object, bookingRepo.Object, Mock.Of<IRentalSessionRepository>());
         await Assert.ThrowsAsync<OwnerAccessDeniedException>(() => svc.RequireBookingAccessAsync(1, 10, false));
     }
 
@@ -102,7 +102,7 @@ public class OwnerOperationsTests
         courtRepo.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(new Court { CourtId = 1, IsDeleted = false });
         courtRepo.Setup(r => r.HasActiveBookingsAsync(1)).ReturnsAsync(true);
 
-        var svc = new CourtService(courtRepo.Object, Mock.Of<ILogger<CourtService>>());
+        var svc = new CourtService(courtRepo.Object, Mock.Of<IComplexScheduleService>(), Mock.Of<ILogger<CourtService>>());
         var result = await svc.DeleteCourtAsync(1);
 
         result.StatusCode.Should().Be(400);
@@ -117,7 +117,7 @@ public class OwnerOperationsTests
         courtRepo.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(court);
         courtRepo.Setup(r => r.HasActiveBookingsAsync(1)).ReturnsAsync(false);
 
-        var svc = new CourtService(courtRepo.Object, Mock.Of<ILogger<CourtService>>());
+        var svc = new CourtService(courtRepo.Object, Mock.Of<IComplexScheduleService>(), Mock.Of<ILogger<CourtService>>());
         var result = await svc.DeleteCourtAsync(1);
 
         result.StatusCode.Should().Be(200);
@@ -291,11 +291,13 @@ public class OwnerOperationsTests
 
         var wallet = new EscrowWallet { EscrowWalletId = 1, UserId = 3, Balance = 0 };
         var escrowRepo = new Mock<IEscrowRepository>();
-        escrowRepo.Setup(r => r.ExecuteInTransactionAsync(It.IsAny<Func<Task<bool>>>()))
-            .Returns<Func<Task<bool>>>(async f => await f());
-        escrowRepo.Setup(r => r.GetWalletByUserIdAsync(3)).ReturnsAsync(wallet);
-        escrowRepo.Setup(r => r.UpdateWalletAsync(It.IsAny<EscrowWallet>())).Returns(Task.CompletedTask);
-        escrowRepo.Setup(r => r.AddTransactionAsync(It.IsAny<Transaction>())).Returns(Task.CompletedTask);
+        escrowRepo.Setup(r => r.CancelBookingWithRefundAsync(
+                10,
+                0m,
+                200000m,
+                "Bảo trì sân",
+                "SystemCancel_10"))
+            .ReturnsAsync(true);
 
         var notifications = new Mock<INotificationService>();
         notifications.Setup(n => n.SendToUserAsync(It.IsAny<int>(), It.IsAny<RealtimeNotificationDto>()))
@@ -316,10 +318,12 @@ public class OwnerOperationsTests
         var result = await svc.CancelAndRefundSystemAsync(10, "Bảo trì sân");
 
         result.StatusCode.Should().Be(200);
-        booking.Status.Should().Be(BookingStatus.Cancelled);
-        booking.PaymentStatus.Should().Be(PaymentStatus.Refunded);
-        booking.CancellationFee.Should().Be(0);
-        wallet.Balance.Should().Be(200000m);
+        escrowRepo.Verify(r => r.CancelBookingWithRefundAsync(
+            10,
+            0m,
+            200000m,
+            "Bảo trì sân",
+            "SystemCancel_10"), Times.Once);
         notifications.Verify(n => n.SendToUserAsync(3, It.IsAny<RealtimeNotificationDto>()), Times.Once);
     }
 

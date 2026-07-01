@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using ProSport.Application.DTOs;
 using ProSport.Application.DTOs.Owner;
 using ProSport.Application.Interfaces;
+using ProSport.Application.Validation;
 using ProSport.Domain.Constants;
 using ProSport.Domain.Entities;
 
@@ -89,8 +90,29 @@ public class OwnerComplexController : OwnerControllerBase
             if (updateDto.Phone != null) existing.Phone = updateDto.Phone;
             if (updateDto.Email != null) existing.Email = updateDto.Email;
             if (updateDto.LogoUrl != null) existing.LogoUrl = updateDto.LogoUrl;
-            if (updateDto.OpeningTime != null) existing.OpeningTime = updateDto.OpeningTime;
-            if (updateDto.ClosingTime != null) existing.ClosingTime = updateDto.ClosingTime;
+
+            var opening = existing.OpeningTime;
+            var closing = existing.ClosingTime;
+
+            if (updateDto.OpeningTime != null)
+            {
+                if (!OperatingTimeParser.TryParseStrict(updateDto.OpeningTime, out var parsedOpening))
+                    return StatusCode(400, new ApiResponseDto<object>(400, "OpeningTime không hợp lệ (định dạng HH:mm)."));
+                opening = parsedOpening;
+            }
+
+            if (updateDto.ClosingTime != null)
+            {
+                if (!OperatingTimeParser.TryParseStrict(updateDto.ClosingTime, out var parsedClosing))
+                    return StatusCode(400, new ApiResponseDto<object>(400, "ClosingTime không hợp lệ (định dạng HH:mm)."));
+                closing = parsedClosing;
+            }
+
+            if (opening.HasValue && closing.HasValue && opening.Value >= closing.Value)
+                return StatusCode(400, new ApiResponseDto<object>(400, "Giờ mở phải trước giờ đóng."));
+
+            existing.OpeningTime = opening;
+            existing.ClosingTime = closing;
             existing.UpdatedAt = DateTime.UtcNow;
 
             await _complexRepository.UpdateAsync(existing);

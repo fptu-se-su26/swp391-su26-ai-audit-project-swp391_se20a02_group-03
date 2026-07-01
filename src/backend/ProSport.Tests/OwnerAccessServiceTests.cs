@@ -10,13 +10,14 @@ namespace ProSport.Tests;
 public class OwnerAccessServiceTests
 {
     private readonly Mock<IComplexOwnerRepository> _complexOwnerRepo = new();
+    private readonly Mock<IComplexRepository> _complexRepo = new();
     private readonly Mock<IUserRepository> _userRepo = new();
     private readonly Mock<ICourtRepository> _courtRepo = new();
     private readonly Mock<IBookingRepository> _bookingRepo = new();
     private readonly Mock<IRentalSessionRepository> _rentalRepo = new();
 
     private OwnerAccessService CreateService() =>
-        new(_complexOwnerRepo.Object, _userRepo.Object, _courtRepo.Object, _bookingRepo.Object, _rentalRepo.Object);
+        new(_complexOwnerRepo.Object, _complexRepo.Object, _userRepo.Object, _courtRepo.Object, _bookingRepo.Object, _rentalRepo.Object);
 
     [Fact]
     public async Task HasAccessToComplex_ReturnsTrue_WhenOwnerLinked()

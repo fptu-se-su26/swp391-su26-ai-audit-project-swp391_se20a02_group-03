@@ -43,6 +43,7 @@ public class OwnerMembershipController : OwnerControllerBase
         if (userId == null) return UnauthorizedResult();
         try
         {
+            await _ownerAccess.RequireOwnerOrAdminAccessAsync(userId.Value, complexId, IsAdmin);
             return ToResult(await _memberships.CreateAsync(userId.Value, complexId, dto, IsAdmin));
         }
         catch (Exception ex) { return FromOwnerException(ex); }

@@ -11,7 +11,7 @@ function formatTime(value) {
 }
 
 const CANCELLABLE = new Set(['Pending', 'PendingPayment', 'Confirmed']);
-const CHECKINABLE = new Set(['Confirmed', 'PendingPayment']);
+const CHECKINABLE = new Set(['Confirmed']);
 const CONFIRMABLE = new Set(['Pending', 'PendingPayment']);
 
 export default function OwnerBookingDetailPage() {

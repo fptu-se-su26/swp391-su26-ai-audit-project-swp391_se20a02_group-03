@@ -58,7 +58,6 @@ export default function MatchDetailPage() {
 
   useEffect(() => {
     loadMatch()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id])
 
   useEffect(() => {

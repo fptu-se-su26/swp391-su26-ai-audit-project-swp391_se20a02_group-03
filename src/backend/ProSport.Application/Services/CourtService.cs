@@ -10,11 +10,16 @@ namespace ProSport.Application.Services;
 public class CourtService : ICourtService
 {
     private readonly ICourtRepository _courtRepository;
+    private readonly IComplexScheduleService _complexScheduleService;
     private readonly ILogger<CourtService> _logger;
 
-    public CourtService(ICourtRepository courtRepository, ILogger<CourtService> logger)
+    public CourtService(
+        ICourtRepository courtRepository,
+        IComplexScheduleService complexScheduleService,
+        ILogger<CourtService> logger)
     {
         _courtRepository = courtRepository;
+        _complexScheduleService = complexScheduleService;
         _logger = logger;
     }
 
@@ -128,6 +133,103 @@ public class CourtService : ICourtService
             _logger.LogError(ex, "Error getting booked slots for court: {CourtId} on {Date}", courtId, date);
             return new ApiResponseDto<IEnumerable<string>>(500, "An unexpected error occurred.");
         }
+    }
+
+    public async Task<ApiResponseDto<CourtAvailabilityDto>> GetCourtAvailabilityAsync(int courtId, DateTime date)
+    {
+        try
+        {
+            var court = await _courtRepository.GetByIdAsync(courtId);
+            if (court == null)
+                return new ApiResponseDto<CourtAvailabilityDto>(404, "Court not found");
+
+            var booked = (await _courtRepository.GetBookedSlotsAsync(courtId, date)).ToList();
+            var slotDurationMinutes = 60;
+            var slots = new List<string>();
+            var isClosed = false;
+
+            if (court.ComplexId.HasValue)
+            {
+                var hoursResponse = await _complexScheduleService.GetOperatingHoursAsync(court.ComplexId.Value);
+                if (hoursResponse.StatusCode == 200 && hoursResponse.Data != null)
+                {
+                    var schedule = hoursResponse.Data;
+                    slotDurationMinutes = schedule.SlotDurationMinutes > 0 ? schedule.SlotDurationMinutes : 60;
+
+                    if (schedule.Closures.Any(c => c.ClosureDate.Date == date.Date))
+                    {
+                        isClosed = true;
+                    }
+                    else
+                    {
+                        var daySchedule = schedule.WeeklySchedule
+                            .FirstOrDefault(d => d.DayOfWeek == (int)date.DayOfWeek)
+                            ?? schedule.WeeklySchedule.FirstOrDefault();
+
+                        if (daySchedule != null
+                            && TimeSpan.TryParse(daySchedule.OpenTime, out var open)
+                            && TimeSpan.TryParse(daySchedule.CloseTime, out var close))
+                        {
+                            slots = GenerateHourlySlots(open, close, slotDurationMinutes);
+                        }
+                    }
+
+                    foreach (var window in schedule.MaintenanceWindows)
+                    {
+                        if (window.CourtId.HasValue && window.CourtId.Value != courtId)
+                            continue;
+                        if (window.StartAt.Date > date.Date || window.EndAt.Date < date.Date)
+                            continue;
+
+                        var blockStart = window.StartAt.Date == date.Date
+                            ? window.StartAt.TimeOfDay
+                            : TimeSpan.Zero;
+                        var blockEnd = window.EndAt.Date == date.Date
+                            ? window.EndAt.TimeOfDay
+                            : TimeSpan.FromHours(24);
+
+                        slots = slots.Where(slot =>
+                        {
+                            if (!TimeSpan.TryParse(slot, out var slotStart))
+                                return true;
+                            var slotEnd = slotStart.Add(TimeSpan.FromMinutes(slotDurationMinutes));
+                            return slotEnd <= blockStart || slotStart >= blockEnd;
+                        }).ToList();
+                    }
+                }
+            }
+
+            if (slots.Count == 0 && !isClosed)
+                slots = GenerateHourlySlots(new TimeSpan(6, 0, 0), new TimeSpan(22, 0, 0), slotDurationMinutes);
+
+            return new ApiResponseDto<CourtAvailabilityDto>(200, "Success", new CourtAvailabilityDto
+            {
+                CourtId = courtId,
+                Date = date.ToString("yyyy-MM-dd"),
+                SlotDurationMinutes = slotDurationMinutes,
+                IsClosed = isClosed,
+                Slots = slots,
+                BookedSlots = booked
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting court availability for court {CourtId} on {Date}", courtId, date);
+            return new ApiResponseDto<CourtAvailabilityDto>(500, "An unexpected error occurred.");
+        }
+    }
+
+    private static List<string> GenerateHourlySlots(TimeSpan open, TimeSpan close, int slotDurationMinutes)
+    {
+        var slots = new List<string>();
+        if (slotDurationMinutes <= 0 || open >= close)
+            return slots;
+
+        var step = TimeSpan.FromMinutes(slotDurationMinutes);
+        for (var time = open; time + step <= close; time += step)
+            slots.Add($"{time.Hours:D2}:{time.Minutes:D2}");
+
+        return slots;
     }
     // UPDATE - modify existing court (admin only)
     public async Task<ApiResponseDto<CourtDto>> UpdateCourtAsync(int id, UpdateCourtDto dto)

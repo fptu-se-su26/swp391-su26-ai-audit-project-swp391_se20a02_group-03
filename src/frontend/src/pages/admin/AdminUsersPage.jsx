@@ -76,8 +76,7 @@ export default function AdminUsersPage() {
   // Tải lại khi đổi role hoặc trang.
   useEffect(() => {
     fetchUsers({ role: activeRole, page })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeRole, page])
+  }, [activeRole, page, fetchUsers])
 
   // Debounce tìm kiếm: gõ xong 400ms tự gọi API và reset về trang 1.
   useEffect(() => {
@@ -89,8 +88,7 @@ export default function AdminUsersPage() {
       }
     }, 400)
     return () => clearTimeout(timer)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [search])
+  }, [search, activeRole, page, fetchUsers])
 
   async function handleToggleLock(user) {
     try {

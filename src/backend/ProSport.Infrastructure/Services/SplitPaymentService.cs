@@ -47,18 +47,8 @@ public class SplitPaymentService : ISplitPaymentService
             if (dto.Participants.Count < 2)
                 return new ApiResponseDto<BookingDto>(400, "Cần ít nhất 2 người tham gia chia bill.");
 
-            var createDto = new CreateBookingDto { UserId = hostUserId, Details = dto.Details };
-            var bookingService = new BookingServiceProxy(_bookingRepository, _courtRepository, _membershipService);
-            var (total, details, error) = await bookingService.ValidateAndBuildDetailsAsync(createDto);
-            if (error != null) return new ApiResponseDto<BookingDto>(400, error);
-
-            var participantSum = dto.Participants.Sum(p => p.Amount);
-            if (Math.Abs(participantSum - total) > 0.01m)
-                return new ApiResponseDto<BookingDto>(400, $"Tổng phần chia ({participantSum:N0}) phải bằng tổng đơn ({total:N0}).");
-
-            var deadline = DateTime.UtcNow.AddHours(Math.Clamp(dto.SplitDeadlineHours, 1, 72));
-            var shares = new List<BookingPaymentShare>();
-
+            var resolvedParticipants = new List<(int UserId, decimal Amount)>();
+            var participantUserIds = new HashSet<int>();
             foreach (var p in dto.Participants)
             {
                 int userId;
@@ -74,15 +64,30 @@ public class SplitPaymentService : ISplitPaymentService
                 else
                     return new ApiResponseDto<BookingDto>(400, "Mỗi participant cần UserId hoặc Email.");
 
-                shares.Add(new BookingPaymentShare
-                {
-                    UserId = userId,
-                    Amount = p.Amount,
-                    Status = PaymentShareStatus.Pending,
-                    PaymentDeadline = deadline,
-                    IsHost = userId == hostUserId
-                });
+                if (!participantUserIds.Add(userId))
+                    return new ApiResponseDto<BookingDto>(400, "Mỗi người chỉ được có một phần chia bill.");
+
+                resolvedParticipants.Add((userId, p.Amount));
             }
+
+            var createDto = new CreateBookingDto { UserId = hostUserId, Details = dto.Details };
+            var bookingService = new BookingServiceProxy(_bookingRepository, _courtRepository, _membershipService);
+            var (total, details, error) = await bookingService.ValidateAndBuildDetailsAsync(createDto);
+            if (error != null) return new ApiResponseDto<BookingDto>(400, error);
+
+            var participantSum = dto.Participants.Sum(p => p.Amount);
+            if (Math.Abs(participantSum - total) > 0.01m)
+                return new ApiResponseDto<BookingDto>(400, $"Tổng phần chia ({participantSum:N0}) phải bằng tổng đơn ({total:N0}).");
+
+            var deadline = DateTime.UtcNow.AddHours(Math.Clamp(dto.SplitDeadlineHours, 1, 72));
+            var shares = resolvedParticipants.Select(p => new BookingPaymentShare
+            {
+                UserId = p.UserId,
+                Amount = p.Amount,
+                Status = PaymentShareStatus.Pending,
+                PaymentDeadline = deadline,
+                IsHost = p.UserId == hostUserId
+            }).ToList();
 
             var booking = new Booking
             {
@@ -192,39 +197,50 @@ public class SplitPaymentService : ISplitPaymentService
         var count = 0;
         foreach (var booking in expiredBookings)
         {
-            foreach (var share in booking.PaymentShares.Where(s => s.Status == PaymentShareStatus.Paid))
+            await using var tx = await _db.Database.BeginTransactionAsync();
+            try
             {
-                var refunded = await _escrowRepository.RefundSplitShareAtomicAsync(
-                    share.UserId, booking.BookingId, share.BookingPaymentShareId, share.Amount);
-                if (!refunded)
+                foreach (var share in booking.PaymentShares.Where(s => s.Status == PaymentShareStatus.Paid))
                 {
-                    _logger.LogWarning(
-                        "Failed to refund split share {ShareId} for booking {BookingId}",
-                        share.BookingPaymentShareId, booking.BookingId);
-                    continue;
+                    var wallet = await _escrowRepository.CreditWalletAsync(share.UserId, share.Amount);
+                    share.Status = PaymentShareStatus.Refunded;
+
+                    _db.Transactions.Add(new Transaction
+                    {
+                        EscrowWalletId = wallet.EscrowWalletId,
+                        BookingId = booking.BookingId,
+                        Amount = share.Amount,
+                        Type = TransactionType.Refund,
+                        Status = TransactionStatus.Completed,
+                        ReferenceId = $"SplitShareRefund_{share.BookingPaymentShareId}",
+                        Description = $"Hoàn tiền phần chia bill #{share.BookingPaymentShareId} — booking #{booking.BookingId}"
+                    });
                 }
 
-                share.Status = PaymentShareStatus.Refunded;
+                booking.Status = BookingStatus.Cancelled;
+                booking.PaymentStatus = PaymentStatus.Refunded;
+                foreach (var share in booking.PaymentShares.Where(s => s.Status == PaymentShareStatus.Pending))
+                    share.Status = PaymentShareStatus.Expired;
+
+                await _db.SaveChangesAsync();
+                await tx.CommitAsync();
+
+                await _notifications.SendToUserAsync(booking.UserId, new RealtimeNotificationDto
+                {
+                    Type = "split_payment_expired",
+                    Title = "Chia bill hết hạn",
+                    Message = $"Booking #{booking.BookingId} đã bị hủy do chưa thanh toán đủ. Các khoản đã trả được hoàn về ví.",
+                    Data = new { bookingId = booking.BookingId }
+                });
+
+                count++;
             }
-
-            booking.Status = BookingStatus.Cancelled;
-            booking.PaymentStatus = PaymentStatus.Refunded;
-            foreach (var share in booking.PaymentShares.Where(s => s.Status == PaymentShareStatus.Pending))
-                share.Status = PaymentShareStatus.Expired;
-
-            await _notifications.SendToUserAsync(booking.UserId, new RealtimeNotificationDto
+            catch (Exception ex)
             {
-                Type = "split_payment_expired",
-                Title = "Chia bill hết hạn",
-                Message = $"Booking #{booking.BookingId} đã bị hủy do chưa thanh toán đủ. Các khoản đã trả được hoàn về ví.",
-                Data = new { bookingId = booking.BookingId }
-            });
-
-            count++;
+                await tx.RollbackAsync();
+                _logger.LogError(ex, "Failed to expire split booking {BookingId}", booking.BookingId);
+            }
         }
-
-        if (count > 0)
-            await _db.SaveChangesAsync();
 
         return count;
     }
