@@ -1,6 +1,6 @@
 # Nhật ký thay đổi & Giao tiếp AI (Prompt Log)
 
-> Ghi nhận **đầu vào** (prompt gốc, kỳ vọng, đánh giá) cho mỗi phiên AI. Mỗi `Prompt #NN` tương ứng 1–1 với `Log #NN` trong [`AI_AUDIT_LOG.md`](AI_AUDIT_LOG.md).
+
 
 ### Prompt #01
 - **Date:** 2026-05-20
