@@ -1,6 +1,6 @@
 # AI Audit Log
 
-> Ghi nhận **kết quả thực tế**, quyết định và can thiệp con người sau mỗi phiên AI. Mỗi `Log #NN` tương ứng 1–1 với `Prompt #NN` trong [`PROMPTS.md`](PROMPTS.md) (cùng ngày, cùng chủ đề).
+
 
 ## Log #01
 - **Ngày:** 2026-05-20
