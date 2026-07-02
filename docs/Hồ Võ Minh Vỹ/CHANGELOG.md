@@ -38,3 +38,56 @@ Author: VyHVM
 ### AI-assisted
 - Dùng Google Gemini để tự động sinh toàn bộ kịch bản YAML thực thi GitHub Actions
 - Quá trình deploy được team kết hợp giám sát, tự cấu hình thêm file Vite để đảm bảo web hiển thị thành công mà không bị lỗi trắng trang
+
+## [2026-06-01]
+Author: VyHVM
+
+### Added
+- Hoàn thành chức năng Login và Register cho người dùng
+- Tích hợp gọi API authentication từ Frontend tới Backend
+
+### AI-assisted
+- Sử dụng Cursor để sinh form đăng nhập, đăng ký
+- Người thực hiện can thiệp thêm logic xác thực (validation) và phân quyền người dùng
+
+## [2026-06-11]
+Author: VyHVM
+
+### Added
+- Thiết kế và thiết lập cấu trúc Database cho dự án
+- Thêm các bảng Entity và migration script cần thiết
+
+### Changed
+- Cập nhật UI cho trang Login/Register theo guideline màu sắc của dự án (thực hiện ngày 10/06)
+
+### AI-assisted
+- Dùng Google Gemini điều chỉnh UI form Login/Register
+- Dùng Cursor tạo các bảng Database cơ bản
+- Quyết định thủ công: Tự thêm các trường dữ liệu quan trọng và cấu hình lại quan hệ các bảng
+
+## [2026-06-18]
+Author: VyHVM
+
+### Added
+- Hoàn thành chức năng Booking (đặt sân)
+
+### Fixed
+- Sửa lỗi xung đột giờ khi đặt sân (conflict thời gian trống)
+
+### AI-assisted
+- Sử dụng Google Gemini và Cursor để xây dựng luồng API và giao diện chọn giờ
+- Người thực hiện bổ sung thêm transaction khi ghi database để đảm bảo toàn vẹn dữ liệu, tránh trùng lịch
+
+## [2026-06-27]
+Author: VyHVM
+
+### Added
+- Phát triển API Quản lý thiết bị kho (CRUD) (thực hiện ngày 20/06)
+
+### Changed
+- Refactor lại mã nguồn Frontend, cấu trúc lại các component để tăng khả năng tái sử dụng
+
+### AI-assisted
+- Dùng Google Gemini tạo CRUD API thiết bị kho
+- Dùng Cursor để tổ chức lại component Frontend
+- Quyết định thủ công: Gộp các component nhỏ và xóa code dư thừa, bổ sung thuộc tính tình trạng cho thiết bị kho
