@@ -285,35 +285,6 @@
 
 ### Thêm mới (Added)
 
----
-
-## [2026-06-27] - Giai đoạn: Hoàn thiện tích hợp Frontend–Backend & Bổ sung API còn thiếu (Voucher / Khiếu nại / E-KYC)
-
-### Thêm mới (Added)
-- **Voucher:** Full-stack CRUD, kiểm tra trùng mã, lọc hiệu lực.
-- **Report:** Luồng khiếu nại khách → Admin/Staff; chống tự báo cáo & trùng.
-- **E-KYC:** `KycController` duyệt/từ chối; đồng bộ `EkycProfile` + `User.EKycStatus`.
-- **FE API:** `voucherApi.js`, `reportApi.js`, `kycApi.js`; mở rộng `bookingApi.js`.
-- **TK-035:** Rating 1–5 sao + Trust Score tại `MatchDetailPage`.
-
-### Thay đổi (Changed)
-- **Mock → Real data** trên Admin, Elite, Shop, MatchPro, Customer pages.
-- Chuẩn hóa envelope `ApiResponseDto`; Loading/Empty/Error nhất quán.
-
-### Sửa lỗi (Fixed)
-- Import sai `Check`, `Star`, `Trash2` từ `react` thay vì `lucide-react`.
-- `hostId.substring()` trên số → `String(...)` tại `MatchProFeedPage`.
-- Bóc tách `.data` dư tại `EliteScannerPage`; thêm nhập mã thủ công.
-
-### Hỗ trợ từ AI (AI-assisted)
-- Cursor (Claude Opus) dựng 3 cụm API + wiring FE. Người thực hiện ưu tiên nghiệp vụ, không migration mới, chỉ ra crash FE.
-
----
-
-## [2026-06-29] - Giai đoạn: Google OAuth, Nhận diện thương hiệu PRO-SPORT, Việt hóa UI & Hoàn thiện phân hệ Staff (EliteSport OS + ProSport Dash)
-
-### Thêm mới (Added)
-
 **Auth & branding**
 - Google OAuth FE: `@react-oauth/google`, `GoogleSignInButton`, `googleAuth.js`, `GoogleOAuthProvider`.
 - Google OAuth BE: `POST /api/auth/google-login`, validate token trong `AuthService`.
@@ -375,57 +346,6 @@
 - Cursor (Composer) Owner Portal full-stack (201 files), audit P0→P2, Superpowers.
 - **`dotnet test` 73/73 pass**, `npm run build` OK; push **`4e0c435`** → `origin/DE190147/audit-module`.
 - PR: **base `main` ← compare `DE190147/audit-module`**.
-
-**Auth & branding**
-- Google OAuth FE: `@react-oauth/google`, `GoogleSignInButton`, `googleAuth.js`, `GoogleOAuthProvider`.
-- Google OAuth BE: `POST /api/auth/google-login`, validate token trong `AuthService`.
-- Branding: `ProSportLogoMark`, `ProSportLogo`, `logo.svg`, favicon.
-- Utility: `labels.js`, `ConfirmDialog`, `PageLoader`; `setup-local.ps1`, `.env.example`.
-
-**Staff vận hành**
-- BE: Walk-in booking, check-in QR, thuê thiết bị, dashboard lịch sân, `StaffDemoSeeder`.
-- FE Elite: POS, lịch sân, scanner, thuê/trả thiết bị, disputes, vouchers.
-- FE Dash: Bookings, Matches, Rentals, Payments, Broadcast, Notif Settings (demo localStorage).
-- Mobile scanner: `html5-qrcode`.
-
-### Thay đổi (Changed)
-- Việt hoá 80+ trang; chuẩn hóa `StatusBadge`, `labels.js`.
-- Phân quyền dispute: Staff → `Investigating`; Admin → `Resolved`/`Rejected`.
-- Route guard `EliteRoute`; logout trên Elite/Dash layouts.
-
-### Sửa lỗi (Fixed)
-- OAuth: origin localhost, typo Client ID, initialize trùng.
-- Schedule `hh` → `HH`; guard check-in trùng mobile; seeder try/catch; scanner remount `scanKey`.
-
-### Hỗ trợ từ AI (AI-assisted)
-- Cursor (Claude Opus) triển khai song song OAuth + Staff P0→P3. **`dotnet test` 10/10**, commit `fed44de`, `a5939b6`.
-
----
-
-## [2026-06-30] - Giai đoạn: Owner Portal (Court Owner), Player Features, Audit & Hardening toàn cổng Owner
-
-### Thêm mới (Added)
-
-**Owner Portal — Backend**
-- 14+ controller `Controllers/Owner/`, `OwnerApiAuthorizationFilter`, `OwnerAccessService`.
-- Migration `20260630170056` → `20260630191246`; dashboard, courts, bookings, finance, reports, staff, …
-- `OwnerDemoSeeder` (`courtowner@prosport.vn`).
-
-**Owner Portal — Frontend**
-- Layout `/owner/*` (20+ trang); trang cấu hình: operating hours, cancellation policy, memberships.
-
-**Player Features**
-- Tournament (trừ phí Escrow), ELO confirm/dispute, Membership discount.
-- Split payment, recurring booking, SignalR `NotificationHub`.
-
-**Dev workflow**
-- Submodule `.superpowers`, `docs/SUPERPOWERS.md`, test Staff → 403.
-
-### Thay đổi (Changed)
-- CourtOwner login → `/owner/dashboard`; báo cáo doanh thu scoped + timezone VN.
-- UX: filter ngày, export CSV error handling, edit product/voucher/rental.
-
-
 
 ---
 
@@ -458,14 +378,6 @@
 
 | Mức | Nội dung |
 |-----|----------|
-| **P0** | Tournament miễn phí; ELO self-report; Membership không giảm giá |
-| **P0–P1** | IDOR cancellation policy; escrow scope; double-count revenue; dashboard `hh`→`HH` (**blackbox 14/14**) |
-| **P2** | Export CSV blob JSON; xóa `OwnerInventoryPage.jsx` dead code |
-
-### Hỗ trợ từ AI (AI-assisted)
-- Cursor (Composer) Owner Portal full-stack (201 files), audit P0→P2, Superpowers.
-- **`dotnet test` 73/73 pass**, `npm run build` OK; push **`4e0c435`** → `origin/DE190147/audit-module`.
-- PR: **base `main` ← compare `DE190147/audit-module`**.
 | **P0** | Operator cancel hoàn **100%**; equipment damage không double-charge cọc; race escrow wallet |
 | **P0** | Cart checkout all-or-nothing (không trừ stock một phần khi fail giữa chừng) |
 | **P0** | Checkout/mua thiết bị **không trừ ví** — lỗ hổng kế toán (chỉ trừ tồn kho) |

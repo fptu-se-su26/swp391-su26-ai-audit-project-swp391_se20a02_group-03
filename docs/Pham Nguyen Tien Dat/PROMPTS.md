@@ -1,9 +1,12 @@
 # Nhật ký thay đổi & Giao tiếp AI (Prompt Log)
 
+> Ghi nhận **đầu vào** (prompt gốc, kỳ vọng, đánh giá) cho mỗi phiên AI. Mỗi `Prompt #NN` tương ứng 1–1 với `Log #NN` trong [`AI_AUDIT_LOG.md`](AI_AUDIT_LOG.md).
+
 ### Prompt #01
 - **Date:** 2026-05-20
 - **AI Tool:** Google Gemini
 - **Author:** Phạm Nguyễn Tiến Đạt
+- **Audit Log:** Log #01
 - **Purpose:** Tạo meta-prompt chuẩn để hướng dẫn công cụ Stitch thiết kế bộ giao diện UI tĩnh cho hệ thống Pro-Sport.
 - **Prompt:** *"Đóng vai trò là một Chuyên gia Thiết kế UI/UX (UX/UI Designer), hãy xây dựng một bộ Meta-Prompt bằng tiếng Anh chuẩn xác để làm đầu vào cho nền tảng Stitch By Google. Yêu cầu hệ thống thiết kế bộ giao diện tĩnh cho dự án Pro-Sport Complex Management System, bao gồm trang chủ, danh sách sân và Dashboard thống kê mang phong cách thể thao, năng động."*
 - **Expected Output:** Bộ meta-prompt tiếng Anh chi tiết, tối ưu làm đầu vào cho công cụ Stitch By Google. Đề xuất bảng màu, bố cục trang chủ, màn hình danh sách sân và layout Dashboard.
@@ -15,6 +18,7 @@
 - **Date:** 2026-05-21
 - **AI Tool:** Stitch By Google
 - **Author:** Phạm Nguyễn Tiến Đạt
+- **Audit Log:** Log #02
 - **Purpose:** Sinh mã nguồn UI tĩnh (HTML/CSS/JS) cho các trang lõi của hệ thống dựa trên meta-prompt đã chuẩn bị.
 - **Prompt:** *"Design a clean, modern, and highly responsive dashboard for a sports complex management system. Include a comprehensive sidebar for global navigation, a main data-visualization area, and ensure the overall layout adheres to premium aesthetic standards with our designated sports color palette."*
 - **Expected Output:** Mã nguồn HTML/CSS/JS cho giao diện web trực quan. Layout trang Dashboard, Navbar/Sidebar và các component hiển thị trạng thái sân.
@@ -26,6 +30,7 @@
 - **Date:** 2026-05-22
 - **AI Tool:** Antigravity
 - **Author:** Phạm Nguyễn Tiến Đạt
+- **Audit Log:** Log #03
 - **Purpose:** Xây dựng React Component cho form đặt sân và tích hợp dữ liệu thực từ Backend.
 - **Prompt:** *"Phát triển một tập hợp các Functional Components trong React để xử lý biểu mẫu đặt sân (Court Booking Form). Các thành phần cần đảm bảo tính Responsive, sử dụng Tailwind CSS để styling và tích hợp quản lý trạng thái (State Management) với các trường chọn ngày, giờ và loại sân."*
 - **Expected Output:** React Functional Component hoàn chỉnh cho BookingForm.jsx và Dashboard.jsx. Sử dụng hook useState để quản lý trạng thái form. Các thẻ JSX được style bằng class Tailwind CSS.
@@ -37,6 +42,7 @@
 - **Date:** 2026-05-28
 - **AI Tool:** Antigravity
 - **Author:** Phạm Nguyễn Tiến Đạt
+- **Audit Log:** Log #04
 - **Purpose:** Tích hợp hiệu ứng GSAP và hoàn thiện 10 trang UI cho phân hệ Apex và MatchPro.
 - **Prompt:** *"Đóng vai trò là một Chuyên gia Kỹ sư Frontend (Senior Frontend Engineer), hãy thực hiện nâng cấp toàn diện ứng dụng React (Vite) hiện tại. Yêu cầu tích hợp thư viện GSAP để xử lý các hiệu ứng cuộn (Scroll Animation), đồng thời xây dựng hoàn chỉnh 10 trang UI thuộc phân hệ Apex và MatchPro tuân thủ chặt chẽ kiến trúc Component-Driven."*
 - **Expected Output:** Cấu trúc UI và CSS layout cho 10 trang mới thuộc phân hệ Apex và MatchPro. Tích hợp thư viện gsap và @gsap/react. Animation hiệu ứng cuộn và navbar entrance.
@@ -48,6 +54,7 @@
 - **Date:** 2026-05-29
 - **AI Tool:** Antigravity
 - **Author:** Phạm Nguyễn Tiến Đạt
+- **Audit Log:** Log #05
 - **Purpose:** Sinh toàn bộ hệ thống giao diện React (40+ trang) cho 6 phân hệ dựa trên ảnh thiết kế.
 - **Prompt:** *"Dựa trên bộ tài liệu thiết kế (Mockups/Wireframes) được đính kèm, hãy triển khai toàn bộ mã nguồn Frontend bằng thư viện React. Phân rã giao diện thành 40+ trang UI thuộc 6 phân hệ (Elite OS, Mobile App, Admin Portal, Shop, Public Pages), đảm bảo độ trung thực cao nhất (Pixel-perfect) so với thiết kế gốc và thiết lập cấu trúc Routing toàn cục."*
 - **Expected Output:** Toàn bộ React Functional Components cho 6 phân hệ: Public Pages, Admin Portal, EliteSport OS, Mobile App, Shop, Status Pages. Các Layout Component bao bọc từng phân hệ. Hệ thống routing đầy đủ trong App.jsx.
@@ -59,6 +66,7 @@
 - **Date:** 2026-06-01
 - **AI Tool:** Antigravity (Gemini)
 - **Author:** Phạm Nguyễn Tiến Đạt
+- **Audit Log:** Log #06
 - **Purpose:** Hoàn thiện phân hệ phụ trợ cho Gear và chuẩn hóa đa ngôn ngữ toàn hệ thống sang Tiếng Anh.
 - **Prompt:** *"Thực hiện quy trình Quốc tế hóa (Internationalization/Localization) bằng cách rà soát và chuyển đổi toàn bộ ngữ cảnh tiếng Việt sang tiếng Anh trên toàn hệ thống. Đồng thời, thiết kế và phát triển hoàn thiện mã nguồn cho 4 trang phụ trợ thuộc phân hệ Gear (Equipment Catalog, Rental Terms, Support, Privacy)."*
 - **Expected Output:** Rà soát và dịch thuật toàn bộ các nhãn (labels), từ khóa tiếng Việt còn sót lại trên giao diện sang tiếng Anh nhằm chuẩn hóa Premium UI. Mã nguồn React hoàn chỉnh cho 4 trang phụ trợ thuộc phân hệ Gear: GearRentalTermsPage, GearMaintenancePage, GearSupportPage, GearPrivacyPage. Tự động tích hợp định tuyến (Routing) cho 4 trang mới vào App.jsx và cập nhật các liên kết tương ứng tại footer của GearLayout.jsx.
@@ -70,6 +78,7 @@
 - **Date:** 2026-06-04
 - **AI Tool:** Antigravity (Gemini)
 - **Author:** Phạm Nguyễn Tiến Đạt
+- **Audit Log:** Log #07
 - **Purpose:** Thiết lập CI Pipeline, tái thiết kế trang About và khởi tạo các trang Nền tảng/Pháp lý (Platform/Legal).
 - **Prompt:** *"Khởi tạo và cấu hình luồng tích hợp liên tục (CI Pipeline) trên nền tảng Harness bao gồm các stage Build Frontend và Backend. Tiếp theo, đập đi xây lại (Overhaul) trang AboutPage và phát triển các trang Chính sách pháp lý (Legal Pages), đặc biệt chú trọng thiết kế giao diện cao cấp (Cinematic UI) tích hợp hiệu ứng GSAP cho trang Brand Mission."*
 - **Expected Output:** File cấu hình hệ thống Harness CI (.harness/prosport_ci_pipeline.yaml) thực hiện 3 công việc tự động: Build Frontend, Build Backend và rà soát Audit Docs. Giao diện đập đi xây lại (Overhaul) toàn diện cho AboutPage.jsx với đầy đủ nội dung: Mission, Stats, Journey, Timeline, Leadership Team kết hợp cùng GSAP animations. Mã nguồn React hoàn chỉnh cho 3 trang pháp lý (PrivacyPolicyPage, TermsOfServicePage, SitemapPage) và 1 trang nền tảng (BrandMissionPage). Tự động bổ sung định tuyến vào App.jsx và cập nhật các liên kết đang để # ở Footer.jsx sang link thực tế.
@@ -81,6 +90,7 @@
 - **Date:** 2026-06-11
 - **AI Tool:** Antigravity
 - **Author:** Phạm Nguyễn Tiến Đạt
+- **Audit Log:** Log #08
 - **Purpose:** Khắc phục lỗi điều hướng Footer, bổ sung GSAP animation cho trang Liên hệ (Contact) và chuẩn hóa hệ thống Keyframe animation toàn cục.
 - **Prompt:** *"Khắc phục lỗi điều hướng Hash-scroll của React Router tại Footer. Tiến hành chuẩn hóa và tối ưu hóa hệ thống Keyframe Animations (GSAP ScrollTrigger) trên toàn dự án để tạo sự nhất quán về trải nghiệm (UX). Revert các thử nghiệm đổi màu nền (Dark Theme) về nguyên bản (Light Theme) nhưng bắt buộc phải bảo lưu cấu trúc mã hiệu ứng chuyển động đã xây dựng."*
 - **Expected Output:** Sửa lỗi điều hướng khi click vào liên kết "Discover" ở khu vực Footer để trang tự động cuộn đến đúng section tương ứng trên trang chủ. Viết lại toàn bộ trang ContactPage.jsx để tích hợp các hiệu ứng GSAP ScrollTrigger cao cấp (Fade-in, Slide, Stagger, Fade-up) và thêm trạng thái gửi form thành công. Gom nhóm và chuẩn hóa toàn bộ các keyframe animation đang nằm rải rác về chung một file index.css. Áp dụng, sau đó hoàn tác (revert) các thay đổi về màu sắc giao diện theo quyết định định hướng sản phẩm.
@@ -92,6 +102,7 @@
 - **Date:** 2026-06-15
 - **AI Tool:** Antigravity (Gemini)
 - **Author:** Phạm Nguyễn Tiến Đạt
+- **Audit Log:** Log #09
 - **Purpose:** Tích hợp module AI Chatbot, ứng dụng kỹ thuật RAG để cấp phát ngữ cảnh động và tái thiết kế System Prompt nhằm tối ưu hóa năng lực xử lý đa nhiệm của AI.
 - **Prompt:** *"Thiết kế và triển khai kiến trúc AI Chatbot toàn diện từ Backend đến Frontend. Tại Backend, tích hợp OpenAI API và cấu trúc System Prompt nạp dữ liệu động (Real-time Context) từ DB. Tại Frontend, xây dựng Floating Widget UI với các hiệu ứng tương tác (Typing, Pulse ring), cấu hình mount global và mở rộng giới hạn logic để biến Chatbot thành một trợ lý AI Đa nhiệm."*
 - **Expected Output:** Tích hợp thành công SDK OpenAI vào tầng Backend (.NET) thông qua class ChatbotService. Ứng dụng kỹ thuật truy xuất dữ liệu động (danh sách sân khả dụng, kèo đang mở) từ CSDL để inject vào System Prompt theo thời gian thực. Xây dựng component AIChatbot.jsx (Frontend) ở định dạng Floating Widget với UX cao cấp (hiệu ứng typing, unread badge, quick prompts). Tái định cấu trúc System Prompt để biến AI từ một bot đặc thù (Domain-specific) thành một trợ lý đa nhiệm.
@@ -103,6 +114,7 @@
 - **Date:** 2026-06-17
 - **AI Tool:** Antigravity (Gemini)
 - **Author:** Phạm Nguyễn Tiến Đạt
+- **Audit Log:** Log #10
 - **Purpose:** Tiến hành rà soát mã nguồn (Code Audit) và gỡ lỗi toàn diện (Comprehensive Bug Fix) trên toàn bộ kiến trúc hệ thống (.NET & React).
 - **Prompt:** *"Kích hoạt quy trình Kiểm thử tĩnh (Static Analysis) và Tổng rà soát mã nguồn (Code Audit). Chủ động phát hiện và tung ra các bản vá lỗi (Patch) ở tầng Bảo mật (Security), Backend Logic và Frontend UX. Áp dụng kỹ thuật Lazy Loading để tối ưu hóa hiệu năng và trực tiếp xử lý các lỗi tương thích cấu hình môi trường."*
 - **Expected Output:** Phát hiện và sinh mã nguồn khắc phục các lỗ hổng bảo mật ở cả Client và Server. Khắc phục các lỗi Runtime, sự cố Timezone, xử lý bất đồng bộ và rủi ro vòng lặp vô hạn ở tầng Backend API. Cải thiện kiến trúc UI/UX, sửa lỗi đóng gói dữ liệu từ Axios, tích hợp Lazy Loading ở tầng Frontend. Đảm bảo toàn bộ dự án vượt qua quá trình Compile/Build mà không phát sinh bất kỳ lỗi nào.
@@ -114,6 +126,7 @@
 - **Date:** 2026-06-18
 - **AI Tool:** Antigravity (Gemini)
 - **Author:** Phạm Nguyễn Tiến Đạt
+- **Audit Log:** Log #11
 - **Purpose:** Đồng bộ hóa ngôn ngữ (Việt hoá toàn hệ thống), dọn dẹp ngữ cảnh nghiệp vụ (Domain Sanitization), tái cấu trúc Backend và quản lý luồng Version Control (Resolve Conflict & Bypass Security).
 - **Prompt:** *"Thực thi tự động hóa quy trình Việt hóa (Localization) thông qua Script quét toàn dự án. Thực hiện thanh lọc dữ liệu (Domain Sanitization), loại bỏ hoàn toàn các môn thể thao ngoại lai để cô lập ngữ cảnh nghiệp vụ vào Pickleball/Cầu lông. Tại Backend, tái cấu trúc mã (Refactor) áp dụng chuẩn Giao dịch (Transaction Isolation) an toàn cho EscrowService. Sau đó, xử lý xung đột Git (Merge Conflicts), bypass cảnh báo bảo mật Secret Scanning và đẩy code an toàn lên CodeGraph."*
 - **Expected Output:** Các kịch bản (scripts) tự động quét, dịch văn bản sang Tiếng Việt và thay thế các từ khóa/hình ảnh thể thao không liên quan cho hơn 40+ trang React. Bản nâng cấp luồng giao dịch Backend (EscrowService) tích hợp IDbContextTransaction với mức cô lập Serializable nhằm ngăn chặn Data Race. Hợp nhất thành công các file mã nguồn bị xung đột (Merge Conflict) và hoàn tất đẩy code (Git Push) qua rào cản kiểm duyệt.
@@ -125,6 +138,7 @@
 - **Date:** 2026-06-18
 - **AI Tool:** Antigravity (Gemini)
 - **Author:** Phạm Nguyễn Tiến Đạt
+- **Audit Log:** Log #12
 - **Purpose:** Đồng bộ mã nguồn từ nhánh main, xử lý xung đột Git (Merge Conflicts), rà soát bảo mật (Security Scan) và tự động hóa sửa lỗi React Hooks toàn dự án.
 - **Prompt:** *"Hãy tiến hành đồng bộ mã nguồn mới nhất từ nhánh `main`. Sau đó, thực hiện quét lỗi toàn diện (Deep Scan) trên cả hệ thống Frontend và Backend. Rà soát các lỗ hổng bảo mật tiềm ẩn của thư viện, khắc phục triệt để các cảnh báo mã nguồn (Linting/Hooks errors) và xử lý xung đột Git nếu có. Cuối cùng, đóng gói toàn bộ bản vá lỗi và đẩy (push) an toàn lên nhánh làm việc hiện tại."*
 - **Expected Output:** Hợp nhất thành công mã nguồn từ nhánh main và phân giải triệt để các tệp tin bị xung đột (Conflict). Quét và khắc phục tự động hóa toàn bộ các cảnh báo mã nguồn của React (ESLint/Hooks errors) trên hơn 35 trang giao diện. Báo cáo kết quả rà soát lỗ hổng bảo mật của các Dependencies (NPM, NuGet) và thực thi cài đặt nóng các package bị thiếu. Đóng gói và đẩy (Push) an toàn toàn bộ các thay đổi lên CodeGraph/GitHub.
@@ -139,6 +153,7 @@
 - **Date:** 2026-06-20
 - **AI Tool:** Antigravity (Gemini)
 - **Author:** Phạm Nguyễn Tiến Đạt
+- **Audit Log:** Log #13
 - **Purpose:** Đóng vai trò Quản trị dự án (PM) để tổng rà soát, vá lỗi toàn diện (Bug Fix) cho Backend & Frontend, thiết lập hạ tầng kiểm thử (WhiteBox/BlackBox Testing) và chuẩn hóa quy tắc thiết kế UI với `taste-skill`.
 - **Prompt:** *"Đóng vai trò là Quản trị viên Dự án (Project Manager), tiến hành tổng rà soát (Code Review) và vá lỗi (Bug Fix) toàn diện cho hệ thống, tập trung vào việc tối ưu hóa logic nghiệp vụ và hiệu suất truy xuất dữ liệu. Sau đó, thiết lập và thực thi các kịch bản kiểm thử hộp trắng (WhiteBox) và hộp đen (BlackBox). Tích hợp kho lưu trữ mã nguồn `taste-skill` vào môi trường dự án để chuẩn hóa quy tắc UI. Cuối cùng, quản lý hệ thống Version Control bằng cách gỡ bỏ các nhánh Git tạo lỗi và đẩy mã nguồn vào đúng nhánh chỉ định."*
 - **Expected Output:** Phát hiện và sửa triệt để các lỗi ẩn ở tầng Backend (N+1 queries, Race conditions, lỗi State tracking của EF Core). Khởi tạo thành công script kiểm thử hộp đen E2E và vượt qua 100% các Unit Test hộp trắng. Cấu hình tích hợp repo `taste-skill` vào não bộ hệ thống Agent (thông qua `.agents/AGENTS.md`) để áp dụng các tiêu chuẩn thiết kế khắt khe (Minimalist, cấm font Serif, v.v.). Cuối cùng là đẩy (push) mã nguồn thành công, an toàn lên nhánh `DE190147/audit-module` và dọn dẹp các nhánh thừa trên Remote.
@@ -155,6 +170,7 @@
 - **Date:** 2026-06-27
 - **AI Tool:** Cursor (Claude Opus)
 - **Author:** Phạm Nguyễn Tiến Đạt
+- **Audit Log:** Log #14
 - **Purpose:** Hoàn thiện tích hợp Frontend–Backend theo thứ tự ưu tiên nghiệp vụ, chuyển các phân hệ vận hành từ dữ liệu giả (mock) sang dữ liệu thật và bổ sung trọn vẹn ba cụm API còn thiếu (Voucher, Khiếu nại, E-KYC) theo kiến trúc phân tầng.
 - **Prompt:** *"Đóng vai trò là Kỹ sư Full-stack (Senior Full-stack Engineer), hãy triển khai song song hai hướng công việc theo thứ tự ưu tiên nghiệp vụ. Hướng thứ nhất: bổ sung trọn vẹn các API backend còn thiếu cho phân hệ Voucher, Khiếu nại (Report) và Phê duyệt E-KYC, tuân thủ nghiêm ngặt kiến trúc phân tầng Domain–Application–Infrastructure–API (DTO → Repository → Service → Controller → Dependency Injection), chuẩn hóa định dạng phản hồi theo envelope `ApiResponseDto` và áp dụng phân quyền theo vai trò (Role-based Authorization). Hướng thứ hai: hoàn thiện việc kết nối (wiring) các trang giao diện đã có backend sẵn sàng — quản lý đặt sân, check-in QR, cửa hàng và giỏ hàng, ghép trận — thay thế hoàn toàn mock data bằng dữ liệu thực, đồng thời chuẩn hóa trạng thái Loading/Empty/Error và xử lý nhất quán lớp vỏ phản hồi (response envelope) phía client."*
 - **Expected Output:** Ba cụm API backend hoàn chỉnh (Voucher, Report, E-KYC) đúng kiến trúc phân tầng và chuẩn envelope `ApiResponseDto`, có phân quyền Admin/Staff; đăng ký Dependency Injection tại `Program.cs`. Bổ sung lớp API client Frontend (`voucherApi.js`, `reportApi.js`, `kycApi.js`) và mở rộng `bookingApi.js`. Kết nối dữ liệu thật cho các trang nghiệp vụ: `AdminBookingsPage`, `EliteScannerPage`, `EliteVouchersPage`, `AdminComplaintsPage`, `EliteDisputesPage`, `ReportDisputePage`, `AdminKycPage`, `ShopPage`, `ShopProductPage`, `ShopCartPage`, `ShopCheckoutPage`, `MatchProFeedPage`, `MatchProNearbyPage`, và hoàn thiện tính năng đánh giá người chơi (TK-035) tại `MatchDetailPage`.
@@ -169,6 +185,7 @@
 - **Date:** 2026-06-29
 - **AI Tool:** Cursor (Claude Opus)
 - **Author:** Phạm Nguyễn Tiến Đạt
+- **Audit Log:** Log #15
 - **Purpose:** Hoàn thiện song song hai hướng: (1) Google OAuth end-to-end, nhận diện thương hiệu PRO-SPORT, Việt hóa UI và cấu hình dev an toàn; (2) phân hệ vận hành Staff (EliteSport OS + ProSport Dash) — thay mock bằng API thật, luồng quầy walk-in/check-in/thuê thiết bị và chuẩn hóa đăng nhập theo vai trò.
 - **Prompt:** *"Với vai trò Kỹ sư Full-stack Senior, triển khai song song hai hướng theo thứ tự ưu tiên nghiệp vụ. Hướng A — Auth & chất lượng sản phẩm: tích hợp `@react-oauth/google` tại Login/Register, bọc `GoogleOAuthProvider` đúng vị trí; validate `googleIdToken` tại Backend (`AuthService.GoogleLoginAsync`) với audience khớp Client ID; chuẩn hóa `VITE_GOOGLE_CLIENT_ID` / `GoogleAuth:ClientId` và Authorized JavaScript Origins (`localhost`, `127.0.0.1`); thiết kế lại logo PRO-SPORT (mark + wordmark) áp dụng thống nhất; rà soát Việt hóa, sửa auth/logout/status mapping; tách `labels.js`/`googleAuth.js`; bổ sung `setup-local.ps1` và file `.example` — không commit secret. Hướng B — Staff vận hành (P0→P3): walk-in booking, check-in QR, thuê/trả thiết bị, lịch sân realtime 06:00–22:00 (UTC+7), dashboard Elite/Staff, seeder demo; wiring `/elite/*`, `/dashboard/*`, `/mobile/scanner`; RoleSelection + guard route; logout layout Staff; mobile QR scanner; gắn nhãn tính năng demo (Broadcast/Settings). Tuân thủ kiến trúc phân tầng, `[Authorize(Roles)]`, envelope `ApiResponseDto`; chạy build/test trước push."*
 - **Expected Output:**
@@ -184,6 +201,7 @@
 - **Date:** 2026-06-30
 - **AI Tool:** Cursor (Composer)
 - **Author:** Phạm Nguyễn Tiến Đạt
+- **Audit Log:** Log #16
 - **Purpose:** Triển khai toàn diện **Owner Portal** (Court Owner), bổ sung **Player Features** (tournament, ELO, membership, split/recurring booking), tổng rà soát bảo mật/nghiệp vụ (Audit), vá lỗi P0–P3, đồng bộ `main`, kiểm thử WhiteBox/BlackBox và phát hành lên nhánh làm việc.
 - **Prompt:** *"Với vai trò Kỹ sư Full-stack Senior và Tech Lead module Audit, triển khai theo thứ tự ưu tiên nghiệp vụ sau. **P0 — Owner Portal:** xây dựng đầy đủ backend (Domain → Application → Infrastructure → API) và frontend cho Court Owner, gồm quản lý tổ hợp/sân, lịch đặt sân (danh sách, calendar, walk-in, check-in, hủy/xác nhận), dashboard, tài chính, báo cáo, kho/voucher, thuê thiết bị, nhân sự, đánh giá và cấu hình (giờ mở cửa, chính sách hủy, hội viên); áp dụng `OwnerAccessService`, `OwnerApiAuthorizationFilter`, phân quyền theo vai trò và envelope `ApiResponseDto`. **P0 — Sửa lỗi nghiệp vụ:** khắc phục đăng ký giải không thu phí, ELO tự báo cáo kết quả, membership không áp dụng giảm giá booking. **P1 — Audit & hardening:** rà soát toàn bộ Owner Portal, vá IDOR, sửa logic báo cáo doanh thu (tránh double-count, scope escrow, múi giờ VN), bổ sung UI còn thiếu và xử lý lỗi export CSV. **P2 — Tích hợp & phát hành:** đồng bộ nhánh `main`, giải quyết conflict nếu có, chạy WhiteBox (`dotnet test`) và BlackBox trước khi commit; loại file tạm/tooling khỏi staging; commit và push lên `DE190147/audit-module`. Mọi thay đổi phải tuân thủ kiến trúc phân tầng hiện có, không hardcode secret, và có bằng chứng kiểm thử trước khi hoàn tất."*
 - **Expected Output:**
@@ -193,16 +211,13 @@
   - **Audit & QA:** vá IDOR `OwnerCancellationPolicyController`; sửa `OwnerReportService` (NetRevenue, escrow scope, revenueByDay VN timezone); **`dotnet test` 73/73 pass**, `npm run build` OK; commit `4e0c435`, push `origin/DE190147/audit-module`.
 - **Evaluation:** AI triển khai đúng phạm vi Owner Portal full-stack (201 files, +37k dòng), sửa trọn 3 lỗi nghiệp vụ nghiêm trọng (tournament/ELO/membership), hoàn tất audit P0–P3 và mở rộng test suite lên 73 case pass. Kiến trúc phân quyền Owner (`RequireOwnerOrAdminAccessAsync`, Staff 403) và báo cáo doanh thu được hardening đúng hướng. Tôi đóng vai trò kiểm soát chất lượng (Human Decision): yêu cầu review diff trước commit, ưu tiên sửa bug nghiệp vụ trước khi mở rộng UI, ra lệnh sửa *tất cả* findings audit (không dừng ở P0), loại `scratch/`, `.cursor/`, tài liệu Word extract khỏi staging; phát hiện GitHub compare đặt ngược (base/compare) và hướng dẫn PR đúng (**base `main` ← compare `DE190147/audit-module`**). Blackbox dashboard owner ban đầu 13/14 do lỗi format giờ `hh` → `HH` tại `OwnerDashboardService` — đã can thiệp sửa thủ công trước khi push. Merge `origin/main` trả **Already up to date**; smoke test Owner (`courtowner@prosport.vn`) xác nhận courts CRUD, bookings/calendar và trang cấu hình mới hoạt động ổn định.*
 
-
-
-
-
-
+---
 
 ### Prompt #17
 - **Date:** 2026-07-01
 - **AI Tool:** Cursor (Composer)
 - **Author:** Phạm Nguyễn Tiến Đạt
+- **Audit Log:** Log #17
 - **Purpose:** Tổng rà soát Audit module (P0→P3): vá lỗi nghiệp vụ & bảo mật, khắc phục lỗ hổng kế toán checkout thiết bị, tối ưu hiệu năng, kiểm thử WhiteBox/BlackBox toàn hệ thống và phát hành lên nhánh làm việc.
 - **Prompt:** *"Đóng vai trò Tech Lead phụ trách module Audit, triển khai đợt rà soát và khắc phục toàn diện theo thứ tự ưu tiên P0→P3, tuân thủ kiến trúc phân tầng hiện có và envelope `ApiResponseDto`. **P0 — Nghiệp vụ & bảo mật:** sửa operator cancel (hoàn 100%, không thu phí hủy), equipment damage (chỉ thu phần chênh lệch sau cọc), escrow wallet atomic (tránh race read-modify-write), cart checkout all-or-nothing trong transaction Serializable; bổ sung validate `bookingId` khi checkout giỏ. **P0 — Kế toán:** tích hợp trừ ví Escrow và ghi `Transaction` cho luồng mua/checkout thiết bị (`BuyAsync`, `CheckoutCartAtomicAsync`). **P1 — Kiểm thử:** chạy WhiteBox (`dotnet test`, Vitest, ESLint, build) và BlackBox API (`blackbox-api-test.ps1`); sửa mọi failure theo root cause. **P2 — Hiệu năng & FE:** tối ưu truy vấn EF (`AsNoTracking`, split query, projection), response compression, index DB; lazy loading, ErrorBoundary, debounce tìm kiếm Owner, tách chunk Vite; API availability sân theo lịch vận hành. **P3 — Phát hành:** migration DB, chạy lại toàn bộ test, commit và push lên nhánh `DE190147/audit-module`; loại secret, `scratch/` và tooling cá nhân khỏi staging. Mọi thay đổi phải có bằng chứng kiểm thử trước khi hoàn tất."*
 - **Expected Output:**
