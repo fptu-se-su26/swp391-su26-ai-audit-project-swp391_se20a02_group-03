@@ -122,3 +122,30 @@
 
 * Trạng thái kiểm duyệt:
   Hiển thị dữ liệu thành công và kiểm thử chức năng hoàn tất.
+
+  ---
+## Log #04
+* Ngày thực hiện: 17/06/2026 - 18/06/2026
+* Người thực hiện: Phat1425
+* Công cụ AI hỗ trợ:
+  * Claude: phân tích nguyên nhân xung đột merge và đề xuất hướng xử lý
+  * Cursor: hỗ trợ sửa code và dọn migration
+* Mục tiêu:
+  Sửa lỗi cấu hình login flow, xử lý xung đột merge trong Program.cs và dọn dẹp migration cũ để thêm migration khởi tạo cho tính năng giỏ hàng và thiết bị.
+* Tham chiếu Prompt:
+  PROMPTS.md#prompt-04
+* Đề xuất từ AI:
+  * Rà soát và chuẩn hóa lại cấu hình đăng nhập.
+  * Phân tích các điểm xung đột trong Program.cs khi merge nhánh upstream.
+  * Đề xuất chấp nhận thay đổi từ upstream ở các điểm không ảnh hưởng logic cục bộ.
+  * Gợi ý xóa các migration cũ không còn khớp với schema hiện tại và tạo migration khởi tạo mới.
+* Quyết định điều chỉnh (Human Decision):
+  * Kiểm tra thủ công từng điểm xung đột trước khi chấp nhận thay đổi từ upstream.
+  * Xác nhận lại migration mới không làm mất dữ liệu của các bảng hiện có.
+  * Điều chỉnh một số cấu hình project cho khớp với môi trường triển khai thực tế.
+* Tập tin áp dụng:
+  * Program.cs
+  * Migrations (các file migration cũ bị xóa + migration khởi tạo mới cho Cart và Equipment)
+  * Cấu hình project (appsettings/login flow liên quan)
+* Trạng thái kiểm duyệt:
+  Build thành công, migration chạy không lỗi, đăng nhập hoạt động bình thường, merge được hoàn tất.
