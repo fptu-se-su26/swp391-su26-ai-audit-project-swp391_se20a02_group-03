@@ -86,3 +86,34 @@ Used in Cursor to support frontend integration and database seeding.
 ### Evaluation
 
 The output accelerated implementation but still required manual review and testing.
+
+
+
+# Prompts
+
+...
+
+---
+
+## Prompt #04
+**Ngày sử dụng:** 17/06/2026 - 18/06/2026
+**Bối cảnh:** Xử lý xung đột merge trong Program.cs sau khi kéo nhánh upstream, dọn dẹp migration cũ và sửa lỗi cấu hình login flow.
+
+**Prompt gửi cho Claude:**
+```
+Tôi đang gặp xung đột merge trong file Program.cs khi kéo thay đổi từ nhánh
+upstream. Hãy phân tích các điểm xung đột, đề xuất hướng giải quyết an toàn
+(giữ logic nào, chấp nhận thay đổi nào từ upstream), và gợi ý cách dọn dẹp
+các migration cũ không còn khớp với schema hiện tại, đồng thời tạo migration
+khởi tạo mới cho tính năng Cart và Equipment. Ngoài ra hãy rà soát lại luồng
+đăng nhập (login flow) hiện tại để tìm lỗi cấu hình.
+```
+
+**Prompt gửi cho Cursor (sinh code):**
+```
+Dựa trên hướng giải quyết đã thống nhất, hãy sửa Program.cs để merge đúng,
+xóa các migration cũ bị lỗi, generate migration khởi tạo mới cho Cart và
+Equipment, và sửa cấu hình project liên quan đến login flow.
+```
+
+**Kết quả sử dụng:** Xem Log #04 trong AI_AUDIT_LOG.md.
