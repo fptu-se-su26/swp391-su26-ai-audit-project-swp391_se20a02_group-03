@@ -71,3 +71,30 @@ Bản báo cáo tiến trình phát triển và kiểm soát phiên bản của 
 * Khắc phục lỗi rò rỉ bộ nhớ (Memory Leak) và giật lag giao diện trong trang `ApexSettingsPage` do Component `Toggle` bị khai báo lồng nhau (Nested static component).
 ### Hỗ trợ từ AI (AI-assisted)
 * Antigravity AI chẩn đoán chính xác luồng dữ liệu (Data Flow) để cấu trúc lại React Router. AI thể hiện khả năng đọc Stack Trace Backend C# tuyệt vời để khôi phục cấu hình Database, đồng thời dọn dẹp mã nguồn (Refactoring) đạt mức tối ưu hiệu năng mà không làm vỡ kiến trúc logic hiện tại.
+---
+## [2026-07-05 đến 07] - Giai đoạn: Đại tu Giao diện theo Design System mới & Chuẩn hóa Dữ liệu Nghiệp vụ
+**Người thực hiện:** Dương Khang Huy
+### Thêm mới (Added)
+* Bộ Design Token tập trung trong `index.css`: bảng màu Navy/Cream/Teal, bộ font Anton – Inter – JetBrains Mono, quy tắc hình khối viền cứng (Neo-Brutalist), hỗ trợ đầy đủ 2 theme Sáng/Tối.
+* Tiện ích `imageFallback.js` xử lý ảnh hỏng/thiếu thống nhất toàn dự án.
+* Bộ dữ liệu nghiệp vụ chuẩn (Seed Data) cho ~20 bảng: giờ mở cửa, chính sách hủy, ví Escrow, kèo đấu, voucher, kho sản phẩm, tài sản cho thuê, đánh giá tổ hợp, nhật ký Audit — thay thế hoàn toàn dữ liệu ảo trên UI.
+### Thay đổi (Changed)
+* Restyle đồng bộ ~95 trang trên 9 phân hệ (Owner, Admin, Elite, MatchPro, Gear, Dashboard, Auth, Legal, Status) theo bộ mockup thiết kế mới; **giữ nguyên 100% logic nghiệp vụ, API call và nội dung tiếng Việt**.
+* Tái cấu trúc 9 Layout Shell (Sidebar/Navbar) và 13 Component UI dùng chung (StatusBadge, StatCard, ConfirmDialog...) theo token mới.
+### Sửa lỗi (Fixed)
+* Luồng Đăng ký không còn thất bại toàn phần khi dịch vụ gửi email OTP gặp sự cố (bọc try-catch tại `AuthService`, log OTP ở môi trường Dev).
+### Hỗ trợ từ AI (AI-assisted)
+* Claude Code đóng vai trò Điều phối viên đa tác tử (Multi-agent Orchestrator): phân rã công việc theo lô, điều phối nhiều AI Agent song song mỗi agent một phân hệ, tự kiểm chứng bằng ESLint/Vite Build và duyệt giao diện thực tế trên trình duyệt sau mỗi lô.
+---
+## [2026-07-07 đến 09] - Giai đoạn: Nghiệm thu Hệ thống, Chẩn đoán Sự cố & Chuẩn bị Bàn giao
+**Người thực hiện:** Dương Khang Huy
+### Thêm mới (Added)
+* Biên bản kiểm thử nghiệm thu E2E trên đủ 5 vai trò người dùng, gồm 12 phát hiện xếp hạng mức nghiêm trọng, đối chiếu trực tiếp với đặc tả SRS.
+* Checklist cấu hình môi trường bên thứ ba cần hoàn thiện trước demo: Google OAuth Origins, SMTP, VNPay Sandbox, OpenAI API Key.
+### Sửa lỗi (Fixed)
+* Truy ra nguyên nhân gốc lỗi đăng nhập Google (HTTP 403 từ endpoint GSI — origin `localhost:5173` chưa đăng ký trên Google Cloud Console), phân định rõ lỗi cấu hình hạ tầng thay vì lỗi mã nguồn.
+* Khôi phục quyền truy cập tài khoản bị "kẹt" (khởi tạo qua Google Sign-In nên không có mật khẩu khả dụng) bằng chính API `change-password` của hệ thống, kiểm chứng hai chiều thành công.
+### Thay đổi (Changed)
+* Đóng gói toàn bộ khối lượng công việc thành 12 commit có cấu trúc (tách bạch Frontend redesign / Backend hardening), kiểm tra an toàn trước khi đẩy (xác nhận `.env` nằm trong `.gitignore`, loại trừ cấu hình cá nhân), push lên nhánh `DE190900/audit-module` chờ Leader review và merge qua Pull Request.
+### Hỗ trợ từ AI (AI-assisted)
+* Claude Code thực hiện chẩn đoán phân lớp sự cố xác thực bằng bằng chứng HTTP tái lập được; hỗ trợ chuẩn hóa quy trình Git (commit message, kiểm tra rò rỉ secrets, hướng dẫn quy trình PR theo template của repo).
