@@ -144,12 +144,4 @@ Kỹ thuật nhập vai kép (User + Lecturer) ép AI không chỉ bấm thử m
 **Mức độ thành công:** Rất cao.
 Cấu trúc "nghi vấn trước, hành động sau" buộc AI phải **kiểm chứng hiện trạng trước khi thay đổi** (Verify-then-Act): AI truy vấn thực tế và phủ nhận giả định của tôi — schema đã đủ 45 bảng, chỉ có ~20 bảng nghiệp vụ trống. Script seed sinh ra mang tính kỷ luật cao: idempotent (chạy lại không nhân đôi), dùng đúng bộ hằng số trạng thái của Backend, và tự kiểm tra tiếng Việt lưu đúng Unicode. **Can thiệp:** Tôi yêu cầu kiểm chứng cuối bằng API thật thay vì chỉ đếm dòng trong DB.
 ---
-## Prompt #15 - Chuẩn hóa Quy trình Tích hợp Mã nguồn (Git Workflow & PR)
-**Ngày:** 2026-07-09
-**Công cụ AI:** Claude Code (Claude Fable 5)
-**Mục đích:** Đóng gói khối lượng thay đổi lớn (124+ file) và đưa lên GitHub cho Leader review.
-### Cấu trúc Prompt
-*"Tôi muốn up lên GitHub để leader merge vào main thì tôi nên làm như thế nào trên GitHub?"* — sau đó: *"Làm luôn Bước 1–2 (commit + push) cho tôi."*
-### Phân tích & Đánh giá (Evaluation)
-**Mức độ thành công:** Cao.
-AI không gộp tất cả thành một commit hổ lốn mà chủ động **tách commit theo ranh giới trách nhiệm** (Frontend redesign / Backend hardening) để Leader dễ review, đồng thời tự thực hiện các bước kiểm tra an toàn trước khi đẩy: xác nhận `.env` được `.gitignore` che chắn, loại thư mục cấu hình cá nhân khỏi staging. **Can thiệp:** Tôi giữ quyền quyết định cuối với 2 file Backend có sẵn thay đổi dở, xác nhận đó là công việc chủ đích trước khi cho vào commit.
+hận `.env` được `.gitignore` che chắn, loại thư mục cấu hình cá nhân khỏi staging. **Can thiệp:** Tôi giữ quyền quyết định cuối với 2 file Backend có sẵn thay đổi dở, xác nhận đó là công việc chủ đích trước khi cho vào commit.
