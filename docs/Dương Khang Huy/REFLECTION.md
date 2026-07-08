@@ -61,3 +61,22 @@ TPhats hiện bug nếu hai người cùng ấn thanh toán một sân ở cùng
 **Cảm nghĩ cá nhân sau 8 tuần làm đồ án:**
 - AI có thể viết hộ code giao diện và API CRUD. Nhưng khi fix mấy lỗi liên quan đến transaction hay bảo mật, AI chỉ có thể đóng vai trò tư vấn giải pháp, còn người trực tiếp chèn code, debug và chịu trách nhiệm cho nó chạy được. 
 - **Bài học rút ra:** phải biết đặt đúng câu hỏi, chọn lọc giải pháp AI đưa ra, và biết cách ráp nối mọi thứ lại thành một hệ thống không bị sập.
+---
+## Tuần 9: Đại tu Giao diện Quy mô lớn & Nghệ thuật Điều phối Đa tác tử (Multi-agent Orchestration)
+### Tổng quan Quá trình
+Thách thức của tuần này khác hẳn các tuần trước: không phải viết mới một tính năng, mà là **thay da toàn bộ sản phẩm** (~95 trang, 124 file, hơn 6.600 dòng thay đổi) theo một bộ thiết kế mới trong khi hệ thống vẫn phải chạy. Thay vì để một AI xử lý tuần tự, tôi áp dụng mô hình điều phối đa tác tử: xây "hợp đồng thiết kế" (Design Token trong `index.css`) trước, rồi chia các phân hệ cho nhiều AI Agent chạy song song, mỗi agent bị ràng buộc nghiêm ngặt "chỉ đổi lớp trình bày, cấm đụng logic".
+### Hạn chế của AI & Bài học rút ra
+- **AI Agent không bền (Session Fragility):** Nhiều agent gián đoạn giữa chừng do giới hạn phiên làm việc, không để lại báo cáo. Nếu tin vào lời báo cáo "đã xong" thay vì kiểm tra bằng chứng, sản phẩm sẽ thủng lỗ chỗ. Giải pháp: dùng `git status` làm **nguồn sự thật duy nhất** (Single Source of Truth) để khoanh vùng phần thiếu và giao lại chính xác.
+- **Nhất quán không tự nhiên mà có:** Hai agent khác nhau cùng đọc một design system vẫn có thể cho ra hai kết quả lệch nhau. Việc con người chuẩn hóa token và cung cấp "trang mẫu đã duyệt" cho agent sau tham chiếu là yếu tố quyết định tính đồng bộ.
+- **Kiểm thử nhập vai phơi bày sự thật:** Khi để AI đóng vai người dùng thật đi hết luồng nghiệp vụ (đặt sân → trả tiền → đối chiếu ví trong Database), hàng loạt vấn đề mà build xanh và lint sạch không thể phát hiện đã lộ ra — từ luồng Guest bị chặn cho tới ba màn hình hiển thị ba mức giá khác nhau.
+### Bài học Cốt lõi
+- Ở quy mô lớn, giá trị của Kỹ sư không nằm ở việc gõ từng dòng code nhanh hơn AI, mà ở **năng lực làm Tổng công trình sư**: chốt phạm vi (quyết định loại nhóm Mobile), thiết kế ràng buộc cho AI, nghiệm thu bằng bằng chứng (build, browser, database) thay vì bằng lời hứa của công cụ.
+---
+## Tuần 9 (tiếp): Nghiệm thu, Chẩn đoán Sự cố & Bàn giao (Acceptance, Triage & Handover)
+### Tổng quan Quá trình
+Giai đoạn cuối không sinh thêm nhiều dòng code, nhưng lại là giai đoạn "đáng tiền" nhất: để AI nhập vai người dùng thật đi hết mọi luồng nghiệp vụ trên đủ 5 vai trò, chẩn đoán chuỗi sự cố xác thực, và đóng gói mọi thứ thành Pull Request chờ Leader phê duyệt.
+### Hạn chế của AI & Bài học rút ra
+- **Lỗi không phải lúc nào cũng nằm trong code:** Sự cố Google Sign-In hóa ra là thiếu đăng ký origin trên Google Cloud Console — thứ không một dòng code nào thể hiện. AI chỉ tìm ra được nhờ dám "bước ra ngoài codebase" probe thẳng endpoint của Google. Bài học: kỹ sư giỏi phải vẽ được **ranh giới hệ thống** (code / cấu hình / hạ tầng bên thứ ba) trước khi đổ lỗi cho bất kỳ tầng nào.
+- **Build xanh không có nghĩa là sản phẩm đúng:** Lint sạch, build thành công, nhưng kiểm thử nhập vai vẫn phơi ra chuyện ba màn hình hiển thị ba mức giá cho cùng một đơn đặt sân, và khách vãng lai bị chặn khỏi luồng xem sân trái với SRS. Kiểm thử theo hành vi người dùng (Behavior-driven) là lớp lưới an toàn cuối cùng mà không công cụ tĩnh nào thay thế được.
+### Cảm nghĩ sau giai đoạn nước rút
+- Vai trò của tôi đã dịch chuyển rõ rệt: từ người "nhờ AI viết code" thành người **đặt đề bài, cấp ràng buộc, thẩm định bằng chứng và chịu trách nhiệm cuối cùng**. AI làm được khối lượng của cả một nhóm nhỏ, nhưng phương hướng, phạm vi và chuẩn nghiệm thu vẫn phải do con người cầm.
