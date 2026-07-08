@@ -131,73 +131,70 @@ export default function AdminPricingPage() {
 
   return (
     <AdminLayout>
-      <div className="space-y-6">
-        <div className="flex justify-between items-center mb-2">
+      <div>
+        <div className="flex flex-wrap justify-between items-end gap-4 mb-7">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 mb-1">Cấu hình Bảng giá Sân</h1>
-            <p className="text-sm text-slate-500">Quản lý khung giờ và giá thuê theo từng sân.</p>
+            <h1 className="font-heading text-3xl md:text-4xl uppercase tracking-tight text-foreground mb-2">Cấu hình bảng giá sân</h1>
+            <p className="text-sm text-foreground-muted">Quản lý khung giờ và giá thuê theo từng sân.</p>
           </div>
-          <div className="flex items-center gap-2">
-            <label className="text-sm text-slate-500">Sân:</label>
-            <select
-              value={selectedCourt}
-              onChange={e => setSelectedCourt(e.target.value)}
-              disabled={loadingCourts}
-              className="border border-slate-200 rounded-md py-2 px-3 text-sm text-slate-900 outline-none bg-white min-w-56"
-            >
-              {loadingCourts && <option>Đang tải...</option>}
-              {!loadingCourts && courts.length === 0 && <option value="">Không có sân</option>}
-              {courts.map(c => (
-                <option key={c.courtId} value={c.courtId}>{c.name} ({c.courtTypeName})</option>
-              ))}
-            </select>
-          </div>
+          <select
+            value={selectedCourt}
+            onChange={e => setSelectedCourt(e.target.value)}
+            disabled={loadingCourts}
+            className="h-11 px-3.5 font-sans text-sm bg-surface border-2 border-border-strong outline-none rounded-[2px] text-foreground min-w-56"
+          >
+            {loadingCourts && <option>Đang tải...</option>}
+            {!loadingCourts && courts.length === 0 && <option value="">Không có sân</option>}
+            {courts.map(c => (
+              <option key={c.courtId} value={c.courtId}>{c.name} ({c.courtTypeName})</option>
+            ))}
+          </select>
         </div>
 
         {error && (
-          <div className="py-10 text-center text-red-500">
+          <div className="py-10 text-center text-danger">
             <ShieldAlert className="inline mr-2" size={20} /> {error}
           </div>
         )}
 
         {!error && (
-          <div className="grid grid-cols-1 lg:grid-cols-[1.4fr_1fr] gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-[1.4fr_1fr] gap-5">
             {/* Bảng khung giá hiện tại */}
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-              <h2 className="text-base font-bold text-slate-800 p-5 border-b border-slate-100">Khung giá hiện tại</h2>
+            <div className="border-2 border-border-strong bg-surface">
+              <h2 className="font-heading text-base uppercase text-foreground m-0 p-5 border-b-2 border-border-strong">Khung giá hiện tại</h2>
               <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead className="bg-slate-50 border-b border-slate-200 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                <table className="w-full text-sm font-sans">
+                  <thead className="bg-background-base text-left">
                     <tr>
-                      <th className="px-5 py-3">Khung giờ</th>
-                      <th className="px-5 py-3 text-right">Giá / giờ</th>
-                      <th className="px-5 py-3 text-center">Cuối tuần</th>
-                      <th className="px-5 py-3 text-right">Thao tác</th>
+                      <th className="label-mono text-foreground-subtle px-5 py-3 font-bold">Khung giờ</th>
+                      <th className="label-mono text-foreground-subtle px-5 py-3 text-right font-bold">Giá / giờ</th>
+                      <th className="label-mono text-foreground-subtle px-5 py-3 text-center font-bold">Cuối tuần</th>
+                      <th className="px-5 py-3 text-right"></th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100">
+                  <tbody className="divide-y divide-border-default">
                     {loadingRules && (
-                      <tr><td colSpan={4} className="px-5 py-10 text-center text-slate-400">
+                      <tr><td colSpan={4} className="px-5 py-10 text-center text-foreground-subtle">
                         <Loader2 className="inline animate-spin mr-2" size={16} /> Đang tải...
                       </td></tr>
                     )}
                     {!loadingRules && rules.length === 0 && (
-                      <tr><td colSpan={4} className="px-5 py-10 text-center text-slate-400">Chưa có khung giá nào cho sân này.</td></tr>
+                      <tr><td colSpan={4} className="px-5 py-10 text-center text-foreground-subtle">Chưa có khung giá nào cho sân này.</td></tr>
                     )}
                     {!loadingRules && rules.map(r => (
-                      <tr key={r.pricingRuleId} className="hover:bg-slate-50">
-                        <td className="px-5 py-3 font-medium text-slate-900">{hhmm(r.startTime)} – {hhmm(r.endTime)}</td>
-                        <td className="px-5 py-3 text-right font-semibold text-slate-900">{Number(r.pricePerHour).toLocaleString('vi-VN')} ₫</td>
+                      <tr key={r.pricingRuleId} className="hover:bg-surface-hover">
+                        <td className="px-5 py-3 font-bold text-foreground">{hhmm(r.startTime)} – {hhmm(r.endTime)}</td>
+                        <td className="px-5 py-3 text-right font-extrabold text-foreground">{Number(r.pricePerHour).toLocaleString('vi-VN')} ₫</td>
                         <td className="px-5 py-3 text-center">
                           {r.isWeekend
-                            ? <span className="bg-amber-100 text-amber-700 px-2 py-0.5 rounded text-xs font-bold">Cuối tuần</span>
-                            : <span className="bg-slate-100 text-slate-500 px-2 py-0.5 rounded text-xs font-medium">Ngày thường</span>}
+                            ? <span className="label-mono bg-ink text-paper px-2 py-0.5 rounded-[2px]">Cuối tuần</span>
+                            : <span className="label-mono text-foreground-subtle">Ngày thường</span>}
                         </td>
                         <td className="px-5 py-3 text-right">
                           <button
                             onClick={() => handleDeleteRule(r.pricingRuleId)}
                             disabled={deletingId === r.pricingRuleId}
-                            className="inline-flex items-center gap-1 text-red-600 hover:bg-red-50 px-2 py-1 rounded text-xs font-semibold disabled:opacity-50"
+                            className="inline-flex items-center gap-1 text-danger hover:bg-danger-bg px-2 py-1 rounded-[2px] text-xs font-bold disabled:opacity-50"
                           >
                             {deletingId === r.pricingRuleId ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
                           </button>
@@ -210,31 +207,31 @@ export default function AdminPricingPage() {
             </div>
 
             {/* Form thêm khung giá */}
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 h-fit">
-              <h2 className="text-base font-bold text-slate-800 mb-5">Thêm khung giá mới</h2>
+            <div className="border-2 border-border-strong bg-surface p-6 h-fit">
+              <h2 className="font-heading text-base uppercase text-foreground mb-5">Thêm khung giá mới</h2>
               <form onSubmit={handleAddRule} className="space-y-4">
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-semibold text-slate-500 mb-1">Giờ bắt đầu</label>
-                    <input type="time" value={form.startTime} onChange={e => setForm({ ...form, startTime: e.target.value })} className="w-full border border-slate-200 rounded-lg px-3 py-2 outline-none focus:border-[#14B8A6]" />
+                    <label className="label-mono text-foreground-subtle block mb-1.5">Giờ bắt đầu</label>
+                    <input type="time" value={form.startTime} onChange={e => setForm({ ...form, startTime: e.target.value })} className="w-full h-[42px] border-2 border-border-strong rounded-[2px] px-3 py-2 outline-none bg-background-base text-foreground focus:border-accent" />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-slate-500 mb-1">Giờ kết thúc</label>
-                    <input type="time" value={form.endTime} onChange={e => setForm({ ...form, endTime: e.target.value })} className="w-full border border-slate-200 rounded-lg px-3 py-2 outline-none focus:border-[#14B8A6]" />
+                    <label className="label-mono text-foreground-subtle block mb-1.5">Giờ kết thúc</label>
+                    <input type="time" value={form.endTime} onChange={e => setForm({ ...form, endTime: e.target.value })} className="w-full h-[42px] border-2 border-border-strong rounded-[2px] px-3 py-2 outline-none bg-background-base text-foreground focus:border-accent" />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-500 mb-1">Giá mỗi giờ (VNĐ)</label>
-                  <input type="number" min="0" step="1000" value={form.pricePerHour} onChange={e => setForm({ ...form, pricePerHour: e.target.value })} placeholder="VD: 120000" className="w-full border border-slate-200 rounded-lg px-3 py-2 outline-none focus:border-[#14B8A6]" />
+                  <label className="label-mono text-foreground-subtle block mb-1.5">Giá mỗi giờ (VNĐ)</label>
+                  <input type="number" min="0" step="1000" value={form.pricePerHour} onChange={e => setForm({ ...form, pricePerHour: e.target.value })} placeholder="VD: 120000" className="w-full h-11 border-2 border-border-strong rounded-[2px] px-3.5 outline-none bg-background-base text-foreground focus:border-accent" />
                 </div>
-                <label className="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
-                  <input type="checkbox" checked={form.isWeekend} onChange={e => setForm({ ...form, isWeekend: e.target.checked })} className="w-4 h-4 accent-[#14B8A6]" />
+                <label className="flex items-center gap-2 text-sm text-foreground cursor-pointer">
+                  <input type="checkbox" checked={form.isWeekend} onChange={e => setForm({ ...form, isWeekend: e.target.checked })} className="w-4 h-4 accent-accent" />
                   Áp dụng cho cuối tuần (T7, CN)
                 </label>
                 <button
                   type="submit"
                   disabled={saving || !selectedCourt}
-                  className="w-full bg-[#14B8A6] text-white py-2.5 rounded-lg font-semibold text-sm hover:bg-[#0b7373] flex items-center justify-center gap-2 disabled:opacity-50"
+                  className="btn-primary w-full flex items-center justify-center gap-2 disabled:opacity-50"
                 >
                   {saving ? <Loader2 size={16} className="animate-spin" /> : <Plus size={16} />}
                   Thêm khung giá

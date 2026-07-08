@@ -44,19 +44,19 @@ export default function MatchProLayout({ children }) {
   }
 
   return (
-    <div className="min-h-screen bg-background-deep flex flex-col text-[var(--theme-primary)]">
-      <header ref={headerRef} className="h-[60px] bg-background-base/80 backdrop-blur-md border-b border-border-default flex items-center px-4 md:px-8 gap-4 sticky top-0 z-[200]">
-        <ProSportLogo size="sm" className="shrink-0" />
+    <div className="min-h-screen bg-background-base flex flex-col text-foreground">
+      <header ref={headerRef} className="h-[76px] bg-ink border-b border-white/10 flex items-center px-4 md:px-10 gap-4 sticky top-0 z-[200]">
+        <ProSportLogo size="sm" variant="light" className="shrink-0" />
 
         <nav className="hidden lg:flex gap-1 flex-1 justify-center">
           {navLinks.map(link => (
             <Link
               key={link.path}
               to={link.path}
-              className={`py-1.5 px-[18px] text-[0.88rem] font-medium rounded-full no-underline transition-all relative ${
+              className={`py-2 px-4 font-bold text-[13px] uppercase tracking-[0.06em] no-underline transition-colors ${
                 isActive(link.path)
-                  ? 'text-[#5E6AD2] font-semibold after:content-[""] after:absolute after:-bottom-4 after:left-1/2 after:-translate-x-1/2 after:w-[60%] after:h-0.5 after:bg-[#5E6AD2] after:rounded-sm'
-                  : 'text-foreground-muted hover:text-[var(--theme-primary)] hover:bg-[var(--theme-surface)]'
+                  ? 'text-paper border-b-2 border-paper'
+                  : 'text-paper/50 hover:text-paper'
               }`}
             >
               {link.label}
@@ -68,14 +68,14 @@ export default function MatchProLayout({ children }) {
           <button
             type="button"
             onClick={handleProfile}
-            className="hidden sm:flex w-9 h-9 rounded-full bg-transparent items-center justify-center text-foreground-muted border-none cursor-pointer transition-all hover:bg-[var(--theme-surface-hover)] hover:text-[var(--theme-primary)]"
+            className="hidden sm:flex w-9 h-9 rounded-[2px] bg-transparent items-center justify-center text-paper/60 border-none cursor-pointer transition-colors hover:text-paper"
             aria-label="Hồ sơ"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
           </button>
           <button
             type="button"
-            className="lg:hidden w-9 h-9 rounded-full bg-transparent flex items-center justify-center text-foreground-muted border-none cursor-pointer transition-all hover:bg-[var(--theme-surface-hover)]"
+            className="lg:hidden w-9 h-9 rounded-[2px] bg-transparent flex items-center justify-center text-paper/60 border-none cursor-pointer transition-colors hover:text-paper"
             onClick={() => setMenuOpen(v => !v)}
             aria-label="Mở menu MatchPro"
           >
@@ -91,13 +91,13 @@ export default function MatchProLayout({ children }) {
       </header>
 
       {menuOpen && (
-        <nav className="lg:hidden bg-background-base border-b border-border-default px-4 py-3 flex flex-col gap-1 z-[199]">
+        <nav className="lg:hidden bg-ink border-b border-white/10 px-4 py-3 flex flex-col gap-1 z-[199]">
           {navLinks.map(link => (
             <Link
               key={link.path}
               to={link.path}
-              className={`py-2.5 px-4 rounded-xl text-sm font-medium no-underline ${
-                isActive(link.path) ? 'bg-[#5E6AD2]/15 text-[#5E6AD2]' : 'text-foreground-muted'
+              className={`py-2.5 px-4 rounded-[2px] font-bold text-[12.5px] uppercase tracking-[0.02em] no-underline ${
+                isActive(link.path) ? 'bg-paper text-ink' : 'text-paper/50'
               }`}
             >
               {link.label}

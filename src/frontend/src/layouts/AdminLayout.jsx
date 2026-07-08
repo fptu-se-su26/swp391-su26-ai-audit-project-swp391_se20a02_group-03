@@ -31,79 +31,79 @@ export default function AdminLayout({ children }) {
   const initials = displayName.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()
 
   return (
-    <div className="flex min-h-screen bg-[#f8fafc] font-['Inter',sans-serif]">
+    <div className="flex min-h-screen bg-background-base font-sans">
       {sidebarOpen && (
         <button
           type="button"
-          className="fixed inset-0 bg-black/40 z-[90] lg:hidden border-none cursor-pointer"
+          className="fixed inset-0 bg-ink/50 z-[90] lg:hidden border-none cursor-pointer"
           onClick={() => setSidebarOpen(false)}
           aria-label="Đóng menu"
         />
       )}
 
-      <aside className={`w-[240px] bg-white border-r border-slate-200 flex flex-col fixed left-0 top-0 bottom-0 z-[100] transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
-        <div className="flex items-center gap-3 px-5 py-6">
-          <ProSportLogo size="sm" variant="dark" subtitle="Cổng quản trị" />
+      <aside className={`w-[230px] bg-ink flex flex-col fixed left-0 top-0 bottom-0 z-[100] overflow-y-auto transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
+        <div className="px-6 py-6 border-b border-white/10">
+          <ProSportLogo size="sm" variant="light" subtitle="Cổng quản trị" />
         </div>
 
-        <div className="px-5 pb-5">
+        <div className="px-4 py-4">
           <button
             type="button"
             onClick={() => navigate('/admin/bookings')}
-            className="w-full bg-[#5E6AD2] hover:bg-[#4e5bc4] text-white border-none rounded-md py-2.5 text-[0.9rem] font-semibold cursor-pointer flex items-center justify-center gap-2 transition-all"
+            className="w-full bg-paper hover:bg-accent text-ink border-none rounded-[2px] py-2.5 text-[12px] font-extrabold uppercase tracking-[0.04em] cursor-pointer transition-colors"
           >
             + Đặt sân mới
           </button>
         </div>
 
-        <nav className="flex-1 overflow-y-auto pb-5 flex flex-col">
+        <nav className="flex-1 overflow-y-auto px-3 pb-4 flex flex-col gap-0.5">
           {navLinks.map(link => (
             <Link
               key={link.path}
               to={link.path}
               onClick={() => setSidebarOpen(false)}
-              className={`flex items-center gap-3 py-3 px-5 text-[0.875rem] font-medium no-underline border-l-4 transition-all ${
+              className={`flex items-center gap-3 py-2.5 px-3 rounded-[2px] font-bold text-[12.5px] uppercase tracking-[0.02em] no-underline transition-colors ${
                 isActive(link.path)
-                  ? 'bg-[#5E6AD2]/10 text-[#5E6AD2] border-l-[#5E6AD2] font-semibold'
-                  : 'text-slate-500 border-l-transparent hover:bg-slate-100 hover:text-slate-900'
+                  ? 'bg-paper text-ink'
+                  : 'text-paper/50 hover:text-paper'
               }`}
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d={link.icon} /></svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="shrink-0"><path d={link.icon} /></svg>
               <span>{link.label}</span>
             </Link>
           ))}
         </nav>
 
-        <div className="flex items-center gap-3 p-5 border-t border-slate-200">
-          <div className="w-9 h-9 rounded-full bg-[#5E6AD2]/15 text-[#5E6AD2] flex items-center justify-center text-xs font-bold">{initials}</div>
+        <div className="flex items-center gap-3 p-5 border-t border-white/10">
+          <div className="w-9 h-9 rounded-[2px] bg-paper text-ink flex items-center justify-center font-heading text-xs">{initials}</div>
           <div className="flex flex-col min-w-0">
-            <p className="text-[0.875rem] font-semibold text-slate-900 truncate">{displayName}</p>
-            <p className="text-xs text-slate-500 truncate">{displayEmail}</p>
+            <p className="text-sm font-semibold text-paper truncate">{displayName}</p>
+            <p className="text-xs text-paper/50 truncate">{displayEmail}</p>
           </div>
         </div>
       </aside>
 
-      <div className="flex-1 flex flex-col lg:ml-[240px] w-full">
-        <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 md:px-8 sticky top-0 z-50">
+      <div className="flex-1 flex flex-col lg:ml-[230px] w-full">
+        <header className="h-16 bg-surface border-b-2 border-border-strong flex items-center justify-between px-4 md:px-8 sticky top-0 z-50">
           <div className="flex items-center gap-3">
             <button
               type="button"
-              className="lg:hidden w-10 h-10 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 cursor-pointer"
+              className="lg:hidden w-10 h-10 flex items-center justify-center rounded-[2px] border-2 border-border-strong bg-surface text-foreground cursor-pointer"
               onClick={() => setSidebarOpen(true)}
               aria-label="Mở menu quản trị"
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="18" x2="21" y2="18" /></svg>
             </button>
-            <div className="hidden sm:flex items-center gap-2 bg-white border border-slate-200 rounded-full py-2 px-4 w-[280px] md:w-[360px] focus-within:border-[#5E6AD2] focus-within:shadow-[0_0_0_2px_rgba(94,106,210,0.1)]">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-slate-400 shrink-0"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-              <input type="search" aria-label="Tìm kiếm" placeholder="Tìm người dùng, sân, đặt sân..." className="border-none outline-none bg-transparent w-full text-[0.875rem] text-slate-900 placeholder:text-slate-400" />
+            <div className="hidden sm:flex items-center gap-2 bg-surface border-2 border-border-strong rounded-[2px] h-11 px-4 w-[280px] md:w-[360px] focus-within:border-accent">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-foreground-muted shrink-0"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="search" aria-label="Tìm kiếm" placeholder="Tìm người dùng, sân, đặt sân..." className="border-none outline-none bg-transparent w-full text-sm text-foreground placeholder:text-foreground-subtle" />
             </div>
           </div>
           <div className="flex items-center gap-4">
-            <Link to="/" className="text-sm font-medium text-slate-500 hover:text-[#5E6AD2] no-underline">← Về trang chủ</Link>
-            <button 
+            <Link to="/" className="label-mono text-foreground-muted hover:text-foreground no-underline">← Về trang chủ</Link>
+            <button
               onClick={handleLogout}
-              className="text-sm font-medium text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-md transition-colors cursor-pointer border-none"
+              className="text-sm font-bold uppercase tracking-[0.04em] text-danger border-2 border-danger px-3 py-1.5 rounded-[2px] transition-colors cursor-pointer bg-transparent hover:bg-danger-bg"
             >
               Đăng xuất
             </button>

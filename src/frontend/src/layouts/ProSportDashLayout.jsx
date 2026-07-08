@@ -40,21 +40,21 @@ export default function ProSportDashLayout({ children }) {
   const isActive = (path) => location.pathname.startsWith(path)
 
   return (
-    <div className="flex min-h-screen bg-[#f5f9fc]">
-      <aside className="w-[160px] bg-white border-r border-[#e0ecf0] flex flex-col p-[20px_12px] fixed left-0 top-0 bottom-0 z-[100] overflow-y-auto">
-        <div className="mb-7 pb-5 border-b border-[#e0ecf0]">
-          <ProSportLogo size="sm" variant="shop" subtitle="Hiệu suất đỉnh cao" />
+    <div className="flex min-h-screen bg-background-base">
+      <aside className="w-[230px] bg-ink flex flex-col fixed left-0 top-0 bottom-0 z-[100] overflow-y-auto">
+        <div className="px-6 py-6 border-b border-white/10">
+          <ProSportLogo size="sm" variant="light" subtitle="Dashboard nhân viên" />
         </div>
 
-        <nav className="flex flex-col gap-[3px] flex-1">
+        <nav className="flex-1 px-3 py-3 flex flex-col gap-0.5">
           {navLinks.map(link => (
             <Link
               key={link.path}
               to={link.path}
-              className={`flex items-center gap-2.5 py-[9px] px-3 rounded-[10px] text-[0.85rem] font-medium no-underline transition-all [&_svg]:shrink-0 ${
+              className={`flex items-center gap-2.5 py-2.5 px-3 rounded-[2px] font-bold text-[12.5px] uppercase tracking-[0.02em] no-underline transition-colors [&_svg]:shrink-0 ${
                 isActive(link.path)
-                  ? 'bg-[rgba(13,138,138,0.12)] text-[#14B8A6] font-semibold'
-                  : 'text-slate-500 hover:bg-[rgba(13,138,138,0.07)] hover:text-[#14B8A6]'
+                  ? 'bg-paper text-ink'
+                  : 'text-paper/50 hover:text-paper'
               }`}
             >
               {link.icon}
@@ -63,40 +63,40 @@ export default function ProSportDashLayout({ children }) {
           ))}
         </nav>
 
-        <div className="pt-4 border-t border-[#e0ecf0] mt-4 space-y-2">
+        <div className="p-4 border-t border-white/10 space-y-2">
           <Link
             to="/elite/dashboard"
-            className="block w-full text-center rounded-[10px] py-2.5 text-[0.78rem] font-semibold no-underline border border-[#e0ecf0] text-slate-600 hover:border-[#14B8A6] hover:text-[#14B8A6] transition-colors"
+            className="block w-full text-center rounded-[2px] py-2.5 text-[11px] font-bold uppercase tracking-[0.04em] no-underline border-2 border-white/15 text-paper/60 hover:border-paper hover:text-paper transition-colors"
           >
             EliteSport OS →
           </Link>
           <button
             type="button"
             onClick={() => { logout(); navigate('/login') }}
-            className="block w-full text-center rounded-[10px] py-2 text-[0.78rem] font-semibold border border-red-200 text-red-600 bg-red-50/50 hover:bg-red-50 cursor-pointer"
+            className="block w-full text-center rounded-[2px] py-2 text-[11px] font-bold uppercase tracking-[0.04em] border-2 border-danger text-danger cursor-pointer"
           >
             Đăng xuất
           </button>
-          <p className="text-[0.65rem] text-slate-400 text-center truncate px-1">{user?.fullName || 'Staff'}</p>
+          <p className="text-[11px] text-paper/40 text-center truncate px-1">{user?.fullName || 'Staff'}</p>
         </div>
       </aside>
 
-      <div className="ml-[160px] flex-1 flex flex-col min-h-screen">
-        <header className="h-14 bg-white border-b border-[#e0ecf0] flex items-center px-6 gap-4 sticky top-0 z-50 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
-          <div className="flex-1 max-w-[360px] flex items-center gap-2 bg-[#f5f9fc] border-[1.5px] border-[#e0ecf0] rounded-full py-[7px] px-4 transition-all focus-within:border-[#14B8A6]">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-slate-400 shrink-0">
+      <div className="ml-[230px] flex-1 flex flex-col min-h-screen">
+        <header className="h-16 bg-surface border-b-2 border-border-strong flex items-center px-6 gap-4 sticky top-0 z-50">
+          <div className="flex-1 max-w-[360px] flex items-center gap-2 bg-surface border-2 border-border-strong rounded-[2px] h-10 px-4 focus-within:border-accent transition-colors">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-foreground-muted shrink-0">
               <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
             </svg>
-            <input type="text" placeholder="Tìm kiếm..." id="psd-search" className="border-none bg-transparent font-['Inter',sans-serif] text-[0.85rem] text-foreground w-full outline-none placeholder:text-slate-400" />
+            <input type="text" placeholder="Tìm kiếm..." id="psd-search" className="border-none bg-transparent text-sm text-foreground w-full outline-none placeholder:text-foreground-subtle" />
           </div>
           <div className="flex items-center gap-2 ml-auto">
-            <Link to="/dashboard/inbox" className="w-9 h-9 rounded-full bg-transparent border-none cursor-pointer flex items-center justify-center text-slate-500 relative transition-all hover:bg-[rgba(13,138,138,0.08)] hover:text-[#14B8A6] no-underline" aria-label="Hộp thư">
+            <Link to="/dashboard/inbox" className="w-9 h-9 rounded-[2px] bg-transparent cursor-pointer flex items-center justify-center text-foreground-muted relative transition-colors hover:bg-surface-hover hover:text-foreground no-underline" aria-label="Hộp thư">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
                 <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
               </svg>
             </Link>
-            <button type="button" onClick={() => { logout(); navigate('/login') }} className="w-9 h-9 rounded-full bg-transparent border-none cursor-pointer flex items-center justify-center text-slate-500 relative transition-all hover:bg-[rgba(13,138,138,0.08)] hover:text-[#14B8A6]" aria-label="Đăng xuất" title="Đăng xuất">
+            <button type="button" onClick={() => { logout(); navigate('/login') }} className="w-9 h-9 rounded-[2px] bg-transparent border-none cursor-pointer flex items-center justify-center text-foreground-muted relative transition-colors hover:bg-surface-hover hover:text-foreground" aria-label="Đăng xuất" title="Đăng xuất">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
               </svg>

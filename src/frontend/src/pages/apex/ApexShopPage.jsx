@@ -3,7 +3,8 @@ import { gsap } from 'gsap'
 import ApexLayout from '../../layouts/ApexLayout'
 import { equipmentApi } from '../../api/equipmentApi'
 import PageLoader from '../../components/ui/PageLoader'
-import './ApexShopPage.css'
+import EmptyState from '../../components/ui/EmptyState'
+import { ShoppingCart, X, Frown } from 'lucide-react'
 
 const FALLBACK_IMG = 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&q=80'
 
@@ -91,49 +92,67 @@ export default function ApexShopPage() {
 
   return (
     <ApexLayout title="Cửa hàng">
-      <div className="apex-shop" ref={pageRef}>
-        <div className="shop-hero">
+      <div className="max-w-[1200px] mx-auto auth-animate-in" ref={pageRef}>
+        {/* Hero */}
+        <div className="shop-hero flex items-center justify-between gap-4 flex-wrap mb-6 bg-ink text-paper p-7">
           <div>
-            <h1 className="shop-hero__title">Cửa hàng Pro Gear</h1>
-            <p className="shop-hero__sub">Mua hoặc thuê thiết bị cao cấp cho trận đấu tiếp theo của bạn.</p>
+            <h1 className="font-heading text-2xl uppercase tracking-[-0.01em] text-paper mb-1">Cửa hàng Pro Gear</h1>
+            <p className="text-sm text-paper/65">Mua hoặc thuê thiết bị cao cấp cho trận đấu tiếp theo của bạn.</p>
           </div>
-          <button className="cart-btn btn-outline" onClick={() => setShowCart(!showCart)}>
-            🛒 Giỏ hàng
-            {cartCount > 0 && <span className="cart-count">{cartCount}</span>}
+          <button className="relative btn-outline !border-paper/30 !text-paper hover:!border-accent hover:!text-accent" onClick={() => setShowCart(!showCart)}>
+            <ShoppingCart size={16} />
+            Giỏ hàng
+            {cartCount > 0 && (
+              <span className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-accent text-ink text-[11px] font-bold flex items-center justify-center">
+                {cartCount}
+              </span>
+            )}
           </button>
         </div>
 
-        <div className="shop-mode-toggle">
-          <button className={`mode-btn ${mode === 'buy' ? 'active' : ''}`} onClick={() => setMode('buy')}>🛍️ Mua</button>
-          <button className={`mode-btn ${mode === 'rent' ? 'active' : ''}`} onClick={() => setMode('rent')}>🔄 Thuê</button>
+        {/* Mode toggle */}
+        <div className="flex gap-1 bg-surface border-2 border-border-strong p-1 w-fit mb-4">
+          <button className={`px-6 h-9 label-mono transition-colors ${mode === 'buy' ? 'bg-ink text-paper' : 'text-foreground-muted hover:text-foreground'}`} onClick={() => setMode('buy')}>Mua</button>
+          <button className={`px-6 h-9 label-mono transition-colors ${mode === 'rent' ? 'bg-ink text-paper' : 'text-foreground-muted hover:text-foreground'}`} onClick={() => setMode('rent')}>Thuê</button>
         </div>
 
-        <div className="shop-categories">
+        {/* Categories */}
+        <div className="flex flex-wrap gap-2 mb-6">
           {categories.map(c => (
-            <button key={c.key} className={`shop-cat-btn ${category === c.key ? 'active' : ''}`} onClick={() => setCategory(c.key)}>{c.label}</button>
+            <button
+              key={c.key}
+              className={`px-4 h-9 label-mono border-2 transition-colors ${
+                category === c.key
+                  ? 'bg-accent text-ink border-accent'
+                  : 'bg-surface border-border-default text-foreground-muted hover:border-border-hover hover:text-foreground'
+              }`}
+              onClick={() => setCategory(c.key)}
+            >
+              {c.label}
+            </button>
           ))}
         </div>
 
-        {error && <div className="shop-error">{error}</div>}
-        {loading && <PageLoader label="Đang tải sản phẩm..." />}
+        {error && <div className="mb-4 p-4 border-2 border-danger bg-danger-bg text-danger text-sm">{error}</div>}
+        {loading && <PageLoader message="Đang tải sản phẩm..." />}
 
-        <div className="shop-layout">
-          <div className="products-grid">
+        <div className="flex flex-col lg:flex-row gap-6 items-start">
+          <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5 w-full">
             {!loading && filtered.map(p => (
-              <div key={p.id} className="product-card">
-                <img src={p.img} alt={p.name} className="product-card__img" />
-                <div className="product-card__body">
-                  <p className="product-card__category">{categoryLabels[p.category] || p.category} · {p.sport}</p>
-                  <h3 className="product-card__name">{p.name}</h3>
-                  <div className="product-card__footer">
+              <div key={p.id} className="product-card card-base !p-0 overflow-hidden flex flex-col">
+                <img src={p.img} alt={p.name} className="w-full h-40 object-cover border-b-2 border-border-strong" />
+                <div className="p-4 flex-1 flex flex-col">
+                  <p className="label-mono text-foreground-subtle mb-1">{categoryLabels[p.category] || p.category} · {p.sport}</p>
+                  <h3 className="font-sans font-extrabold text-[15px] text-foreground mb-3 flex-1">{p.name}</h3>
+                  <div className="flex items-end justify-between">
                     <div>
                       {mode === 'rent' && p.rental
-                        ? <span className="product-price">{Number(p.rental).toLocaleString('vi-VN')}₫<small>/ngày</small></span>
-                        : <span className="product-price">{Number(p.price).toLocaleString('vi-VN')}₫</span>
+                        ? <span className="block font-heading text-lg text-foreground">{Number(p.rental).toLocaleString('vi-VN')}₫<small className="font-sans text-xs text-foreground-muted font-normal">/ngày</small></span>
+                        : <span className="block font-heading text-lg text-foreground">{Number(p.price).toLocaleString('vi-VN')}₫</span>
                       }
-                      <span className="product-stock">Còn {p.stock} sản phẩm</span>
+                      <span className="label-mono text-foreground-subtle">Còn {p.stock} sản phẩm</span>
                     </div>
-                    <button id={`add-btn-${p.id}`} className="btn-primary product-card__add" onClick={() => addToCart(p)} disabled={p.stock <= 0}>
+                    <button id={`add-btn-${p.id}`} className="btn-primary !h-9 !px-4 text-xs" onClick={() => addToCart(p)} disabled={p.stock <= 0}>
                       + Thêm
                     </button>
                   </div>
@@ -141,37 +160,42 @@ export default function ApexShopPage() {
               </div>
             ))}
             {!loading && filtered.length === 0 && (
-              <div className="shop-empty">
-                <span>🛍️</span>
-                <p>Không có sản phẩm cho thuê trong danh mục này.</p>
+              <div className="col-span-full">
+                <EmptyState
+                  icon={<Frown className="w-7 h-7" />}
+                  title="Không có sản phẩm"
+                  subtitle="Không có sản phẩm cho thuê trong danh mục này."
+                />
               </div>
             )}
           </div>
 
           {showCart && (
-            <div className="cart-panel">
-              <h3 className="cart-panel__title">🛒 Giỏ hàng</h3>
+            <div className="w-full lg:w-[280px] shrink-0 card-base lg:sticky lg:top-24">
+              <h3 className="font-heading text-lg uppercase text-foreground mb-4">Giỏ hàng</h3>
               {cart.length === 0 ? (
-                <div className="cart-empty"><p>Giỏ hàng trống</p></div>
+                <div className="text-center py-5 text-foreground-muted text-sm">Giỏ hàng trống</div>
               ) : (
                 <>
-                  <div className="cart-items">
+                  <div className="flex flex-col gap-2.5 mb-4">
                     {cart.map(item => (
-                      <div key={item.id} className="cart-item">
-                        <div className="cart-item__info">
-                          <p className="cart-item__name">{item.name}</p>
-                          <p className="cart-item__price">
+                      <div key={item.id} className="flex items-start justify-between gap-2.5 p-2.5 bg-background-base border border-border-default">
+                        <div>
+                          <p className="text-[13px] font-semibold text-foreground mb-0.5">{item.name}</p>
+                          <p className="text-xs text-foreground-muted">
                             {mode === 'rent' && item.rental ? `${item.rental.toLocaleString('vi-VN')}₫/ngày` : `${item.price.toLocaleString('vi-VN')}₫`} × {item.qty}
                           </p>
                         </div>
-                        <button className="cart-item__remove" onClick={() => removeFromCart(item.id)}>✕</button>
+                        <button className="text-foreground-muted hover:text-danger transition-colors shrink-0" onClick={() => removeFromCart(item.id)}>
+                          <X size={14} />
+                        </button>
                       </div>
                     ))}
                   </div>
-                  <div className="cart-panel__total">
+                  <div className="flex justify-between font-heading text-base text-foreground mb-3.5 border-t border-border-default pt-3">
                     <span>Tổng cộng</span><strong>{cartTotal.toLocaleString('vi-VN')}₫</strong>
                   </div>
-                  <button className="btn-primary cart-panel__checkout">Thanh toán</button>
+                  <button className="btn-primary w-full justify-center">Thanh toán</button>
                 </>
               )}
             </div>

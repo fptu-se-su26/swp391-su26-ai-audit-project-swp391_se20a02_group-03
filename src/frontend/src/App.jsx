@@ -124,7 +124,7 @@ import MaintenancePage from './pages/status/MaintenancePage'
 import PaymentReturnPage from './pages/status/PaymentReturnPage'
 
 const RouteLoader = () => (
-  <div className="flex items-center justify-center min-h-screen bg-[#f8fafc]">
+  <div className="flex items-center justify-center min-h-screen bg-background-base">
     <PageLoader message="Đang tải trang..." />
   </div>
 )

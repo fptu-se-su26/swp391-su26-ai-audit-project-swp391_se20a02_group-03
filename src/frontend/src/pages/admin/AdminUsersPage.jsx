@@ -24,12 +24,6 @@ const EKYC_LABELS = {
   NotSubmitted: 'Chưa nộp',
 }
 
-const ROLE_COLORS = {
-  Admin: '#818cf8',
-  Staff: '#0ea5e9',
-  Customer: '#94a3b8',
-}
-
 const PAGE_SIZE = 10
 
 function initialsOf(name = '') {
@@ -118,59 +112,55 @@ export default function AdminUsersPage() {
 
   return (
     <AdminLayout>
-      <div className="space-y-6">
-        <div className="flex justify-between items-start mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-slate-900 mb-1">Quản lý người dùng</h1>
-            <p className="text-sm text-slate-500">Quản lý tài khoản, vai trò và trạng thái xác minh trên toàn hệ thống.</p>
+      <div>
+        <h1 className="font-heading text-3xl md:text-4xl uppercase tracking-tight text-foreground mb-2">Quản lý người dùng</h1>
+        <p className="text-sm text-foreground-muted mb-7">Quản lý tài khoản, vai trò và trạng thái xác minh trên toàn hệ thống.</p>
+
+        <div className="flex flex-wrap justify-between items-center gap-3.5 mb-5">
+          <div className="flex items-center gap-2 bg-surface border-2 border-border-strong rounded-[2px] h-11 px-3.5 min-w-[280px] focus-within:border-accent">
+            <Search size={16} className="text-foreground-subtle shrink-0" />
+            <input
+              type="text"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="Tìm theo tên hoặc email..."
+              className="border-none outline-none font-sans text-sm text-foreground w-full bg-transparent"
+            />
+          </div>
+          <div className="flex gap-2 flex-wrap">
+            {ROLE_TABS.map(tab => (
+              <button
+                key={tab.key}
+                onClick={() => handleRoleChange(tab.key)}
+                className={`py-2.5 px-4 font-sans text-[11.5px] uppercase tracking-wide rounded-[2px] border-2 transition-colors ${
+                  activeRole === tab.key
+                    ? 'bg-ink text-paper border-ink font-extrabold'
+                    : 'bg-transparent text-foreground border-border-strong font-bold hover:bg-surface-hover'
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
           </div>
         </div>
 
-        <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
-          <div className="flex flex-wrap gap-3 justify-between items-center p-5 border-b border-slate-200">
-            <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-full py-2 px-4 w-80 focus-within:border-[#14B8A6]">
-              <Search size={16} className="text-slate-400" />
-              <input
-                type="text"
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-                placeholder="Tìm theo tên hoặc email..."
-                className="border-none outline-none font-['Inter'] text-sm text-slate-900 w-full bg-transparent"
-              />
-            </div>
-            <div className="flex gap-2">
-              {ROLE_TABS.map(tab => (
-                <button
-                  key={tab.key}
-                  onClick={() => handleRoleChange(tab.key)}
-                  className={`py-[6px] px-4 rounded-full border text-sm font-medium cursor-pointer transition-colors ${
-                    activeRole === tab.key
-                      ? 'border-[#e0f2fe] bg-[#e0f2fe] text-[#0284c7]'
-                      : 'border-slate-200 bg-white text-slate-500 hover:bg-slate-50'
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
+        <div className="border-2 border-border-strong bg-surface">
           <div className="overflow-x-auto">
-            <table className="w-full border-collapse">
+            <table className="w-full border-collapse font-sans">
               <thead>
-                <tr className="border-b border-slate-200 bg-slate-50">
-                  <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Người dùng</th>
-                  <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Vai trò</th>
-                  <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Xác minh</th>
-                  <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Ngày tạo</th>
-                  <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Trạng thái</th>
-                  <th className="px-5 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Thao tác</th>
+                <tr className="bg-ink text-paper">
+                  <th className="px-4.5 py-3.5 text-left label-mono">Người dùng</th>
+                  <th className="px-4.5 py-3.5 text-left label-mono">Vai trò</th>
+                  <th className="px-4.5 py-3.5 text-left label-mono">Xác minh</th>
+                  <th className="px-4.5 py-3.5 text-left label-mono">Ngày tạo</th>
+                  <th className="px-4.5 py-3.5 text-left label-mono">Trạng thái</th>
+                  <th className="px-4.5 py-3.5 text-right label-mono">Thao tác</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-border-default">
                 {loading && (
                   <tr>
-                    <td colSpan={6} className="px-5 py-12 text-center text-slate-400">
+                    <td colSpan={6} className="px-5 py-12 text-center text-foreground-subtle">
                       <Loader2 className="inline animate-spin mr-2" size={18} /> Đang tải...
                     </td>
                   </tr>
@@ -178,7 +168,7 @@ export default function AdminUsersPage() {
 
                 {!loading && error && (
                   <tr>
-                    <td colSpan={6} className="px-5 py-12 text-center text-red-500">
+                    <td colSpan={6} className="px-5 py-12 text-center text-danger">
                       <ShieldAlert className="inline mr-2" size={18} /> {error}
                     </td>
                   </tr>
@@ -186,62 +176,59 @@ export default function AdminUsersPage() {
 
                 {!loading && !error && users.length === 0 && (
                   <tr>
-                    <td colSpan={6} className="px-5 py-12 text-center text-slate-400">Không tìm thấy người dùng nào.</td>
+                    <td colSpan={6} className="px-5 py-12 text-center text-foreground-subtle">Không tìm thấy người dùng nào.</td>
                   </tr>
                 )}
 
                 {!loading && !error && users.map((u) => {
-                  const roleColor = ROLE_COLORS[u.role] || '#94a3b8'
                   const verified = u.eKycStatus === 'Verified'
                   return (
-                    <tr key={u.userId} className="hover:bg-slate-50/55 transition-colors">
-                      <td className="px-5 py-4 whitespace-nowrap">
+                    <tr key={u.userId} className="hover:bg-surface-hover transition-colors">
+                      <td className="px-4.5 py-4 whitespace-nowrap">
                         <div className="flex items-center gap-3">
                           {u.avatarUrl ? (
-                            <img src={u.avatarUrl} alt={u.fullName} className="w-10 h-10 rounded-full object-cover" />
+                            <img src={u.avatarUrl} alt={u.fullName} className="w-9 h-9 rounded-full object-cover shrink-0" />
                           ) : (
-                            <div className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold" style={{ background: roleColor }}>
+                            <div className="w-9 h-9 rounded-[2px] bg-ink text-paper flex items-center justify-center font-heading text-[13px] shrink-0">
                               {initialsOf(u.fullName)}
                             </div>
                           )}
-                          <div>
-                            <p className="font-semibold text-slate-900 text-sm">{u.fullName}</p>
-                            <p className="text-xs text-slate-500">{u.email}</p>
+                          <div className="min-w-0">
+                            <p className="font-extrabold text-foreground text-sm truncate">{u.fullName}</p>
+                            <p className="text-[11.5px] text-foreground-subtle truncate">{u.email}</p>
                           </div>
                         </div>
                       </td>
-                      <td className="px-5 py-4 whitespace-nowrap">
-                        <span className="inline-block py-1 px-3 rounded-full text-xs font-bold" style={{ background: roleColor + '20', color: roleColor === '#94a3b8' ? '#64748b' : roleColor }}>
-                          {ROLE_LABELS[u.role] || u.role}
-                        </span>
+                      <td className="px-4.5 py-4 whitespace-nowrap text-sm text-foreground font-semibold">
+                        {ROLE_LABELS[u.role] || u.role}
                       </td>
-                      <td className="px-5 py-4 whitespace-nowrap">
+                      <td className="px-4.5 py-4 whitespace-nowrap">
                         <div className="flex items-center gap-2">
-                          <span className="w-2 h-2 rounded-full" style={{ background: verified ? '#22c55e' : '#f59e0b' }}></span>
-                          <span className="text-sm font-medium text-slate-900">{EKYC_LABELS[u.eKycStatus] || u.eKycStatus}</span>
+                          <span className="w-2 h-2 rounded-full shrink-0" style={{ background: verified ? '#22c55e' : '#f59e0b' }}></span>
+                          <span className="text-sm font-medium text-foreground">{EKYC_LABELS[u.eKycStatus] || u.eKycStatus}</span>
                         </div>
                       </td>
-                      <td className="px-5 py-4 whitespace-nowrap">
-                        <span className="text-sm text-slate-500">
+                      <td className="px-4.5 py-4 whitespace-nowrap">
+                        <span className="text-sm text-foreground-muted">
                           {u.createdAt ? new Date(u.createdAt).toLocaleDateString('vi-VN') : '—'}
                         </span>
                       </td>
-                      <td className="px-5 py-4 whitespace-nowrap">
-                        <span className={`inline-block py-1 px-3 rounded-full text-xs font-bold ${u.isLocked ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>
+                      <td className="px-4.5 py-4 whitespace-nowrap">
+                        <span className={`label-mono px-2.5 py-1 rounded-[2px] ${u.isLocked ? 'bg-transparent text-danger border border-danger' : 'bg-ink text-paper'}`}>
                           {u.isLocked ? 'Đã khóa' : 'Hoạt động'}
                         </span>
                       </td>
-                      <td className="px-5 py-4 whitespace-nowrap text-right">
+                      <td className="px-4.5 py-4 whitespace-nowrap text-right">
                         {u.role === 'Admin' ? (
-                          <span className="text-xs text-slate-400 italic">Không thể khóa Admin</span>
+                          <span className="text-xs text-foreground-subtle italic">Không thể khóa Admin</span>
                         ) : (
                           <button
                             onClick={() => handleToggleLock(u)}
                             disabled={actingId === u.userId}
-                            className={`inline-flex items-center gap-1.5 py-1.5 px-3 rounded-md text-xs font-semibold cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+                            className={`inline-flex items-center gap-1.5 py-1.5 px-3.5 rounded-[2px] text-[11.5px] font-bold uppercase border-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
                               u.isLocked
-                                ? 'bg-green-50 text-green-700 hover:bg-green-100'
-                                : 'bg-red-50 text-red-600 hover:bg-red-100'
+                                ? 'bg-ink text-paper border-ink hover:opacity-90'
+                                : 'bg-transparent text-foreground border-border-strong hover:bg-surface-hover'
                             }`}
                           >
                             {actingId === u.userId ? (
@@ -262,25 +249,25 @@ export default function AdminUsersPage() {
             </table>
           </div>
 
-          <div className="flex justify-between items-center py-4 px-5 border-t border-slate-200 bg-white">
-            <span className="text-sm text-slate-500">
+          <div className="flex flex-wrap justify-between items-center gap-3 py-4 px-5 border-t-2 border-border-strong">
+            <span className="label-mono text-foreground-muted">
               {totalCount > 0
                 ? `Trang ${page} / ${totalPages} · Tổng ${totalCount} người dùng`
                 : 'Không có dữ liệu'}
             </span>
-            <div className="flex gap-1 items-center">
+            <div className="flex gap-1.5 items-center">
               <button
                 onClick={() => setPage(p => Math.max(1, p - 1))}
                 disabled={page <= 1 || loading}
-                className="px-3 h-8 border border-slate-200 bg-white rounded text-sm text-slate-600 cursor-pointer hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed"
+                className="px-3.5 h-8 border-2 border-border-strong bg-transparent rounded-[2px] text-[12px] font-bold text-foreground hover:bg-surface-hover disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 &lt; Trước
               </button>
-              <span className="px-3 h-8 flex items-center justify-center rounded text-sm bg-slate-800 text-white font-semibold min-w-8">{page}</span>
+              <span className="px-3.5 h-8 flex items-center justify-center rounded-[2px] text-[12px] bg-ink text-paper font-bold min-w-8">{page}</span>
               <button
                 onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                 disabled={page >= totalPages || loading}
-                className="px-3 h-8 border border-slate-200 bg-white rounded text-sm text-slate-600 cursor-pointer hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed"
+                className="px-3.5 h-8 border-2 border-border-strong bg-transparent rounded-[2px] text-[12px] font-bold text-foreground hover:bg-surface-hover disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 Sau &gt;
               </button>

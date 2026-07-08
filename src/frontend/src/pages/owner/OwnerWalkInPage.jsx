@@ -3,6 +3,7 @@ import { Link, useNavigate, useOutletContext, useSearchParams } from 'react-rout
 import { bookingApi } from '../../api/bookingApi';
 import { ownerApi } from '../../api/ownerApi';
 import PageLoader from '../../components/ui/PageLoader';
+import EmptyState from '../../components/ui/EmptyState';
 
 const TIME_SLOTS = [
   '06:00', '07:00', '08:00', '09:00', '10:00', '11:00',
@@ -149,36 +150,36 @@ export default function OwnerWalkInPage() {
   if (loading) return <PageLoader label="Đang tải sân..." />;
 
   return (
-    <div className="max-w-3xl space-y-4">
-      <Link to="/owner/bookings" className="text-sm text-emerald-700 no-underline">← Danh sách booking</Link>
+    <div className="max-w-3xl space-y-6">
+      <Link to="/owner/bookings" className="inline-block text-sm font-extrabold text-foreground border-b-2 border-border-strong no-underline">← Danh sách booking</Link>
       <div>
-        <h2 className="text-xl font-bold text-slate-900">Đặt sân walk-in</h2>
-        <p className="text-sm text-slate-500">Tạo booking tại quầy, thanh toán tiền mặt và xác nhận ngay.</p>
+        <h1 className="font-heading text-3xl md:text-4xl uppercase tracking-tight text-foreground mb-2">Đặt sân walk-in</h1>
+        <p className="text-sm text-foreground-muted">Tạo booking tại quầy, thanh toán tiền mặt và xác nhận ngay.</p>
       </div>
 
-      {error && <div className="text-sm text-red-600">{error}</div>}
+      {error && <div className="text-sm text-danger">{error}</div>}
 
       {!courts.length ? (
-        <p className="text-sm text-slate-500">Chưa có sân trong tổ hợp. Tạo sân trước khi nhận walk-in.</p>
+        <EmptyState title="Chưa có sân" subtitle="Chưa có sân trong tổ hợp. Tạo sân trước khi nhận walk-in." />
       ) : (
         <>
-          <div className="bg-white rounded-xl border p-4 grid sm:grid-cols-2 gap-3">
+          <div className="border-2 border-border-strong bg-surface p-6 grid sm:grid-cols-2 gap-3.5">
             <label className="text-sm">
-              <span className="text-slate-500 block mb-1">Sân</span>
-              <select className="w-full rounded-lg border px-3 py-2 text-sm" value={selectedCourtId} onChange={e => setSelectedCourtId(e.target.value)}>
+              <span className="label-mono text-foreground-muted block mb-1.5">Sân</span>
+              <select className="input-base w-full" value={selectedCourtId} onChange={e => setSelectedCourtId(e.target.value)}>
                 {courts.map(c => (
                   <option key={c.courtId} value={c.courtId}>{c.name}</option>
                 ))}
               </select>
             </label>
             <label className="text-sm">
-              <span className="text-slate-500 block mb-1">Ngày</span>
-              <input type="date" min={minDate} className="w-full rounded-lg border px-3 py-2 text-sm" value={selectedDate} onChange={e => setSelectedDate(e.target.value)} />
+              <span className="label-mono text-foreground-muted block mb-1.5">Ngày</span>
+              <input type="date" min={minDate} className="input-base w-full" value={selectedDate} onChange={e => setSelectedDate(e.target.value)} />
             </label>
           </div>
 
-          <div className="bg-white rounded-xl border p-4">
-            <p className="text-sm font-semibold text-slate-900 mb-3">Chọn khung giờ {slotsLoading && <span className="text-slate-400 font-normal">(đang tải...)</span>}</p>
+          <div className="border-2 border-border-strong bg-surface p-6">
+            <p className="text-sm font-extrabold text-foreground mb-3.5">Chọn khung giờ {slotsLoading && <span className="text-foreground-subtle font-normal">(đang tải...)</span>}</p>
             <div className="flex flex-wrap gap-2">
               {TIME_SLOTS.map(slot => {
                 const booked = bookedSlots.includes(slot);
@@ -189,10 +190,10 @@ export default function OwnerWalkInPage() {
                     type="button"
                     disabled={booked || slotsLoading}
                     onClick={() => toggleSlot(slot)}
-                    className={`px-3 py-1.5 rounded-lg text-sm border ${
-                      booked ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
-                        : selected ? 'bg-emerald-600 text-white border-emerald-600'
-                          : 'bg-white text-slate-700 hover:border-emerald-400'
+                    className={`px-4 py-2.5 rounded-[2px] label-mono border-2 ${
+                      booked ? 'bg-background-base text-foreground-subtle border-border-default cursor-not-allowed'
+                        : selected ? 'bg-[var(--theme-primary)] text-[var(--theme-secondary)] border-[var(--theme-primary)]'
+                          : 'bg-surface text-foreground border-border-strong hover:bg-surface-hover'
                     }`}
                   >
                     {slot}
@@ -200,11 +201,11 @@ export default function OwnerWalkInPage() {
                 );
               })}
             </div>
-            <p className="text-sm text-slate-500 mt-3">Ước tính: {estimatedTotal.toLocaleString('vi-VN')} ₫</p>
+            <p className="text-sm text-foreground-muted mt-3.5">Ước tính: <strong className="text-foreground">{estimatedTotal.toLocaleString('vi-VN')} ₫</strong></p>
           </div>
 
-          <div className="bg-white rounded-xl border p-4 space-y-3">
-            <div className="flex gap-4 text-sm">
+          <div className="border-2 border-border-strong bg-surface p-6 space-y-3.5">
+            <div className="flex gap-6 text-sm text-foreground">
               <label className="flex items-center gap-2">
                 <input type="radio" checked={customerMode === 'guest'} onChange={() => setCustomerMode('guest')} />
                 Khách lẻ
@@ -215,19 +216,19 @@ export default function OwnerWalkInPage() {
               </label>
             </div>
             {customerMode === 'email' ? (
-              <input className="w-full rounded-lg border px-3 py-2 text-sm" placeholder="Email khách" value={customerEmail} onChange={e => setCustomerEmail(e.target.value)} />
+              <input className="input-base w-full" placeholder="Email khách" value={customerEmail} onChange={e => setCustomerEmail(e.target.value)} />
             ) : (
-              <div className="grid sm:grid-cols-2 gap-2">
-                <input className="rounded-lg border px-3 py-2 text-sm" placeholder="Tên khách lẻ" value={customerName} onChange={e => setCustomerName(e.target.value)} />
-                <input className="rounded-lg border px-3 py-2 text-sm" placeholder="SĐT (tuỳ chọn)" value={customerPhone} onChange={e => setCustomerPhone(e.target.value)} />
+              <div className="grid sm:grid-cols-2 gap-2.5">
+                <input className="input-base" placeholder="Tên khách lẻ" value={customerName} onChange={e => setCustomerName(e.target.value)} />
+                <input className="input-base" placeholder="SĐT (tuỳ chọn)" value={customerPhone} onChange={e => setCustomerPhone(e.target.value)} />
               </div>
             )}
-            <input className="w-full rounded-lg border px-3 py-2 text-sm" placeholder="Ghi chú (tuỳ chọn)" value={notes} onChange={e => setNotes(e.target.value)} />
+            <input className="input-base w-full" placeholder="Ghi chú (tuỳ chọn)" value={notes} onChange={e => setNotes(e.target.value)} />
             <button
               type="button"
               disabled={submitting}
               onClick={handleBook}
-              className="px-4 py-2 rounded-lg bg-emerald-600 text-white text-sm disabled:opacity-60"
+              className="btn-primary disabled:opacity-60"
             >
               {submitting ? 'Đang tạo...' : 'Tạo booking walk-in'}
             </button>

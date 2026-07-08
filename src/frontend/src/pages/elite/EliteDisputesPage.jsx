@@ -5,10 +5,10 @@ import { useToast } from '../../components/Toast'
 import { Loader2 } from 'lucide-react'
 
 const STATUS_META = {
-  Pending: { label: 'CHỜ', cls: 'bg-amber-100 text-amber-700' },
-  Investigating: { label: 'ĐANG ĐIỀU TRA', cls: 'bg-blue-100 text-blue-700' },
-  Resolved: { label: 'ĐÃ XỬ LÝ', cls: 'bg-green-100 text-green-700' },
-  Rejected: { label: 'BÁC BỎ', cls: 'bg-slate-200 text-slate-600' },
+  Pending: { label: 'CHỜ', cls: 'bg-ink text-paper' },
+  Investigating: { label: 'ĐANG ĐIỀU TRA', cls: 'bg-accent text-ink' },
+  Resolved: { label: 'ĐÃ XỬ LÝ', cls: 'bg-surface border border-border-strong text-foreground' },
+  Rejected: { label: 'BÁC BỎ', cls: 'bg-surface border border-border-strong text-foreground-muted' },
 }
 
 const VIEW_TABS = [
@@ -82,10 +82,10 @@ export default function EliteDisputesPage() {
   return (
     <EliteLayout>
       <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex flex-wrap justify-between items-end gap-3.5">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 mb-1">Xác nhận Bùng Kèo</h1>
-            <p className="text-sm text-slate-500">Đối chứng hiện trường cho các ticket khiếu nại.</p>
+            <h1 className="font-heading text-3xl sm:text-4xl uppercase tracking-[-0.01em] text-foreground mb-2">Xác nhận bùng kèo</h1>
+            <p className="text-sm text-foreground-muted">Đối chứng hiện trường cho các ticket khiếu nại.</p>
           </div>
           <div className="flex gap-2">
             {VIEW_TABS.map(t => (
@@ -93,10 +93,10 @@ export default function EliteDisputesPage() {
                 key={t.key}
                 type="button"
                 onClick={() => setViewTab(t.key)}
-                className={`px-4 py-2 rounded-lg text-sm font-semibold border cursor-pointer ${
+                className={`label-mono px-4.5 h-10 px-[18px] rounded-[2px] border-2 cursor-pointer transition-colors ${
                   viewTab === t.key
-                    ? 'bg-[#5E6AD2] text-white border-[#5E6AD2]'
-                    : 'border-slate-200 text-slate-600 hover:bg-slate-50'
+                    ? 'bg-ink border-ink text-paper'
+                    : 'border-border-hover text-foreground-muted bg-transparent hover:border-foreground'
                 }`}
               >
                 {t.label}
@@ -105,14 +105,14 @@ export default function EliteDisputesPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="col-span-1 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col h-[560px]">
-            <div className="p-4 border-b border-slate-200 bg-slate-50 text-sm font-semibold text-slate-700">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.6fr] gap-5">
+          <div className="border-2 border-border-strong bg-surface overflow-hidden flex flex-col h-[560px]">
+            <div className="label-mono px-[18px] py-4 border-b-2 border-border-strong text-foreground">
               {loading ? 'Đang tải...' : `${reports.length} ticket`}
             </div>
-            <div className="flex-1 overflow-y-auto divide-y divide-slate-100">
+            <div className="flex-1 overflow-y-auto divide-y divide-border-default">
               {!loading && reports.length === 0 && (
-                <div className="p-6 text-center text-slate-400 text-sm">
+                <div className="p-6 text-center text-foreground-subtle text-sm">
                   {viewTab === 'open' ? 'Không có ticket cần xử lý.' : 'Chưa có ticket đã đóng.'}
                 </div>
               )}
@@ -120,13 +120,17 @@ export default function EliteDisputesPage() {
                 const meta = STATUS_META[r.status] || STATUS_META.Pending
                 const active = r.reportId === selectedId
                 return (
-                  <div key={r.reportId} onClick={() => setSelectedId(r.reportId)} className={`p-4 cursor-pointer border-l-4 ${active ? 'bg-blue-50 border-[#00c2ff]' : 'border-transparent hover:bg-slate-50'}`}>
-                    <div className="flex justify-between mb-1">
-                      <span className="font-bold text-slate-900 text-sm">#RP-{r.reportId}</span>
-                      <span className={`text-[0.65rem] font-bold px-2 py-0.5 rounded ${meta.cls}`}>{meta.label}</span>
+                  <div
+                    key={r.reportId}
+                    onClick={() => setSelectedId(r.reportId)}
+                    className={`px-[18px] py-4 cursor-pointer transition-colors ${active ? 'bg-background-base' : 'hover:bg-surface-hover'}`}
+                  >
+                    <div className="flex justify-between mb-1.5">
+                      <span className="font-extrabold text-sm text-foreground">#RP-{r.reportId}</span>
+                      <span className={`label-mono text-[9px] px-2 py-[3px] ${meta.cls}`}>{meta.label}</span>
                     </div>
-                    <p className="text-sm font-semibold text-slate-800 line-clamp-1">{r.reason}</p>
-                    <p className="text-xs text-slate-500 mt-1">
+                    <p className="text-[12.5px] text-foreground mb-1 line-clamp-1">{r.reason}</p>
+                    <p className="label-mono text-foreground-subtle">
                       Kèo #{r.matchId} • {r.reportedUserName || `Bị báo cáo #${r.reportedUserId}`}
                       {r.reporterName ? ` • Người báo: ${r.reporterName}` : ''}
                     </p>
@@ -136,47 +140,52 @@ export default function EliteDisputesPage() {
             </div>
           </div>
 
-          <div className="col-span-2 bg-white rounded-xl border border-slate-200 shadow-sm p-6 h-[560px] flex flex-col">
+          <div className="border-2 border-border-strong bg-surface flex flex-col h-[560px]">
             {!selected ? (
-              <div className="flex-1 flex items-center justify-center text-slate-400 text-sm">Chọn ticket để xem chi tiết.</div>
+              <div className="flex-1 flex items-center justify-center text-foreground-subtle text-sm">Chọn ticket để xem chi tiết.</div>
             ) : (
               <>
-                <div className={`border-l-4 pl-4 mb-6 ${isReadOnly ? 'border-slate-300' : 'border-amber-500'}`}>
-                  <h2 className="text-lg font-bold text-slate-800">Ticket #RP-{selected.reportId}</h2>
-                  <p className="text-sm text-slate-600 mt-1">
+                <div className={`p-[22px] border-b-2 border-border-strong ${isReadOnly ? 'border-l-4 border-l-border-strong' : 'border-l-4 border-l-warning'}`}>
+                  <h2 className="font-heading text-base uppercase text-foreground mb-1.5">Ticket #RP-{selected.reportId}</h2>
+                  <p className="text-[12.5px] text-foreground-muted">
                     {isReadOnly ? 'Ticket đã đóng — chỉ xem.' : `Xác nhận sự việc với ${selected.reportedUserName || `khách #${selected.reportedUserId}`}.`}
                   </p>
                 </div>
 
-                <div className="bg-slate-50 rounded-lg p-4 border border-slate-200 mb-6 space-y-2 text-sm">
-                  <p><strong>Nội dung khiếu nại:</strong> {selected.reason}</p>
-                  {selected.evidence && (
-                    <p><strong>Bằng chứng:</strong> <a href={selected.evidence} target="_blank" rel="noreferrer" className="text-[#00c2ff] underline break-all">{selected.evidence}</a></p>
-                  )}
-                  {selected.adminNote && (
-                    <p><strong>Ghi chú:</strong> {selected.adminNote}</p>
-                  )}
-                </div>
+                <div className="p-[22px] flex-1 overflow-y-auto">
+                  <div className="bg-background-base p-4 border border-border-default mb-5 space-y-2 text-sm text-foreground">
+                    <p><strong>Nội dung khiếu nại:</strong> {selected.reason}</p>
+                    {selected.evidence && (
+                      <p><strong>Bằng chứng:</strong> <a href={selected.evidence} target="_blank" rel="noreferrer" className="text-accent underline break-all">{selected.evidence}</a></p>
+                    )}
+                    {selected.adminNote && (
+                      <p><strong>Ghi chú:</strong> {selected.adminNote}</p>
+                    )}
+                  </div>
 
-                {!isReadOnly ? (
-                  <>
-                    <div className="flex-1">
-                      <label className="block text-sm font-semibold text-slate-700 mb-2">Chi tiết / Trích xuất Camera</label>
+                  {!isReadOnly ? (
+                    <div>
+                      <label className="block text-xs font-bold text-foreground mb-2">Chi tiết / trích xuất camera</label>
                       <textarea
-                        rows="5"
+                        rows="4"
                         value={note}
                         onChange={e => setNote(e.target.value)}
-                        className="w-full border border-slate-300 rounded-md p-3 text-sm outline-none focus:border-[#00c2ff] resize-none"
+                        className="w-full box-border p-3.5 text-sm border-2 border-border-strong bg-surface text-foreground outline-none resize-y rounded-[2px] focus:border-accent"
                         placeholder="Nhập ghi chú hoặc đính kèm link camera..."
                       />
                     </div>
-                    <button onClick={submitToAdmin} disabled={acting} className="self-start mt-4 bg-[#00c2ff] text-white font-bold px-6 py-2 rounded-md hover:bg-[#00ace6] flex items-center gap-2 disabled:opacity-60">
+                  ) : (
+                    <div className="text-sm text-foreground-muted">
+                      Trạng thái cuối: <strong className="text-foreground">{STATUS_META[selected.status]?.label || selected.status}</strong>
+                    </div>
+                  )}
+                </div>
+
+                {!isReadOnly && (
+                  <div className="p-[22px] border-t-2 border-border-strong">
+                    <button onClick={submitToAdmin} disabled={acting} className="btn-primary disabled:opacity-60">
                       {acting && <Loader2 size={16} className="animate-spin" />} Gửi báo cáo lên quản trị viên
                     </button>
-                  </>
-                ) : (
-                  <div className="flex-1 text-sm text-slate-500">
-                    Trạng thái cuối: <strong>{STATUS_META[selected.status]?.label || selected.status}</strong>
                   </div>
                 )}
               </>

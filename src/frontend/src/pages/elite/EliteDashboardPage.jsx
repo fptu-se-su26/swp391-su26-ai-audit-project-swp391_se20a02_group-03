@@ -42,87 +42,63 @@ export default function EliteDashboardPage() {
     )
   }
 
+  const quickActions = [
+    { to: '/elite/pos', icon: '+', label: 'Đặt sân mới' },
+    { to: '/elite/scanner', icon: '▦', label: 'Quét QR' },
+    { to: '/elite/disputes', icon: '!', label: `Khiếu nại (${stats?.openDisputes ?? 0})` },
+    { to: '/elite/bookings', icon: '▤', label: 'Đặt sân hôm nay' },
+    { to: '/elite/equipment', icon: '◫', label: 'Thuê thiết bị' },
+  ]
+
   return (
     <EliteLayout>
-      <div className="space-y-6">
-        <div className="flex justify-between items-start mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-slate-900 mb-1">Tổng quan</h1>
-            <p className="text-sm text-slate-500">Chỉ số vận hành và tác vụ đang hoạt động hôm nay.</p>
-          </div>
+      <div className="space-y-8">
+        <div>
+          <h1 className="font-heading text-3xl sm:text-4xl uppercase tracking-[-0.01em] text-foreground mb-2">Tổng quan</h1>
+          <p className="text-sm text-foreground-muted">Chỉ số vận hành và tác vụ đang hoạt động hôm nay.</p>
         </div>
 
         {error && (
-          <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>
+          <div className="border-2 border-danger bg-danger-bg px-4 py-3 text-sm text-danger rounded-[2px]">{error}</div>
         )}
 
-        <div className="grid grid-cols-4 max-[1200px]:grid-cols-2 gap-6">
-          <div className="bg-white rounded-2xl p-7 shadow-[0_4px_20px_rgba(0,0,0,0.03)] relative overflow-hidden flex flex-col">
-            <div className="flex justify-between items-center mb-6 relative z-[1]">
-              <span className="text-[0.75rem] font-bold text-slate-500 tracking-[0.05em]">TỶ LỆ LẤP SÂN</span>
-            </div>
-            <h2 className="font-['Oswald'] text-[3.5rem] font-bold text-slate-950 leading-none mb-2 relative z-[1]">
-              {stats?.occupancyRate ?? 0}%
-            </h2>
-            <p className="text-sm text-slate-500 relative z-[1]">
+        <div className="grid grid-cols-3 max-md:grid-cols-1 gap-[2px] bg-border-strong border-2 border-border-strong">
+          <div className="bg-surface p-7">
+            <p className="label-mono text-foreground-subtle mb-3.5">Tỷ lệ lấp sân</p>
+            <p className="font-heading text-[42px] leading-none text-foreground mb-2">{stats?.occupancyRate ?? 0}%</p>
+            <p className="text-[12.5px] text-foreground-muted">
               {stats?.activeCourts ?? 0}/{stats?.totalCourts ?? 0} sân có lịch hôm nay
             </p>
           </div>
 
-          <div className="bg-white rounded-2xl p-7 shadow-[0_4px_20px_rgba(0,0,0,0.03)] relative overflow-hidden flex flex-col">
-            <div className="flex justify-between items-center mb-6 relative z-[1]">
-              <span className="text-[0.75rem] font-bold text-slate-500 tracking-[0.05em]">KÈO ĐANG MỞ</span>
-            </div>
-            <h2 className="font-['Oswald'] text-[3.5rem] font-bold text-slate-950 leading-none mb-2 relative z-[1]">
-              {stats?.activeMatches ?? 0}
-            </h2>
-            <p className="text-sm text-slate-500 relative z-[1]">Kèo MatchPro đang hoạt động</p>
+          <div className="bg-surface p-7">
+            <p className="label-mono text-foreground-subtle mb-3.5">Kèo đang mở</p>
+            <p className="font-heading text-[42px] leading-none text-foreground mb-2">{stats?.activeMatches ?? 0}</p>
+            <p className="text-[12.5px] text-foreground-muted">Kèo MatchPro đang hoạt động</p>
           </div>
 
-          <div className="bg-white rounded-2xl p-7 shadow-[0_4px_20px_rgba(0,0,0,0.03)] relative overflow-hidden flex flex-col">
-            <div className="flex justify-between items-center mb-6 relative z-[1]">
-              <span className="text-[0.75rem] font-bold text-slate-500 tracking-[0.05em]">DOANH THU NGÀY</span>
-            </div>
-            <h2 className="font-['Oswald'] text-[2.5rem] font-bold text-slate-950 leading-none mb-2 relative z-[1]">
-              {formatVnd(stats?.todayRevenue ?? 0)}
-            </h2>
-            <p className="text-sm text-slate-500 relative z-[1]">{stats?.todayBookings ?? 0} đơn hôm nay</p>
+          <div className="bg-ink p-7">
+            <p className="label-mono text-[#9c9c96] mb-3.5">Doanh thu ngày</p>
+            <p className="font-heading text-[32px] leading-none text-paper mb-2">{formatVnd(stats?.todayRevenue ?? 0)}</p>
+            <p className="text-[12.5px] text-[#9c9c96]">{stats?.todayBookings ?? 0} đơn hôm nay</p>
           </div>
+        </div>
 
-          <div className="bg-white rounded-2xl p-7 shadow-[0_4px_20px_rgba(0,0,0,0.03)]">
-            <h3 className="text-[1.125rem] font-bold text-slate-900 mb-5">Thao tác nhanh</h3>
-            <div className="grid grid-cols-2 gap-3">
-              <Link to="/elite/pos" className="bg-slate-50 border border-slate-200 rounded-xl flex flex-col items-center justify-center gap-3 cursor-pointer transition-all p-4 text-sm font-semibold text-slate-800 hover:bg-white hover:border-[#00c2ff] hover:shadow-[0_4px_12px_rgba(0,194,255,0.1)]">
-                <div className="w-12 h-12 rounded-full flex items-center justify-center bg-[#00c2ff] text-[var(--theme-primary)]">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+        <div>
+          <h3 className="font-heading text-base uppercase text-foreground mb-5">Thao tác nhanh</h3>
+          <div className="grid grid-cols-5 max-lg:grid-cols-3 max-sm:grid-cols-2 gap-[2px] bg-border-strong border-2 border-border-strong">
+            {quickActions.map(action => (
+              <Link
+                key={action.to}
+                to={action.to}
+                className="bg-surface hover:bg-surface-hover px-4 py-7 flex flex-col items-center gap-3.5 no-underline text-foreground transition-colors"
+              >
+                <div className="w-12 h-12 bg-ink text-paper flex items-center justify-center font-extrabold text-lg rounded-[2px]">
+                  {action.icon}
                 </div>
-                Đặt sân mới
+                <span className="text-xs font-extrabold text-center">{action.label}</span>
               </Link>
-              <Link to="/elite/scanner" className="bg-slate-50 border border-slate-200 rounded-xl flex flex-col items-center justify-center gap-3 cursor-pointer transition-all p-4 text-sm font-semibold text-slate-800 hover:bg-white hover:border-[#00c2ff] hover:shadow-[0_4px_12px_rgba(0,194,255,0.1)]">
-                <div className="w-12 h-12 rounded-full flex items-center justify-center bg-slate-200 text-slate-500">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><rect x="7" y="7" width="10" height="10" rx="1"/></svg>
-                </div>
-                Quét QR
-              </Link>
-              <Link to="/elite/disputes" className="bg-slate-50 border border-slate-200 rounded-xl flex flex-col items-center justify-center gap-3 cursor-pointer transition-all p-4 text-sm font-semibold text-slate-800 hover:bg-white hover:border-[#00c2ff] hover:shadow-[0_4px_12px_rgba(0,194,255,0.1)]">
-                <div className="w-12 h-12 rounded-full flex items-center justify-center bg-red-100 text-red-700">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5v0a5.5 5.5 0 0 1-5.5 5.5H11"/></svg>
-                </div>
-                Khiếu nại ({stats?.openDisputes ?? 0})
-              </Link>
-              <Link to="/elite/bookings" className="bg-slate-50 border border-slate-200 rounded-xl flex flex-col items-center justify-center gap-3 cursor-pointer transition-all p-4 text-sm font-semibold text-slate-800 hover:bg-white hover:border-[#00c2ff] hover:shadow-[0_4px_12px_rgba(0,194,255,0.1)]">
-                <div className="w-12 h-12 rounded-full flex items-center justify-center bg-indigo-500 text-white">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                </div>
-                Đặt sân hôm nay
-              </Link>
-              <Link to="/elite/equipment" className="bg-slate-50 border border-slate-200 rounded-xl flex flex-col items-center justify-center gap-3 cursor-pointer transition-all p-4 text-sm font-semibold text-slate-800 hover:bg-white hover:border-[#00c2ff] hover:shadow-[0_4px_12px_rgba(0,194,255,0.1)]">
-                <div className="w-12 h-12 rounded-full flex items-center justify-center bg-purple-500 text-white">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 7h-4V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2H4a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/></svg>
-                </div>
-                Thuê thiết bị
-              </Link>
-            </div>
+            ))}
           </div>
         </div>
       </div>

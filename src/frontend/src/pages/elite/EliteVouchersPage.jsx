@@ -113,114 +113,106 @@ export default function EliteVouchersPage() {
 
   function statusOf(v) {
     const now = new Date()
-    if (!v.isActive) return { label: 'TẮT', cls: 'bg-slate-100 text-slate-600' }
-    if (new Date(v.endDate) < now) return { label: 'HẾT HẠN', cls: 'bg-slate-100 text-slate-600' }
-    if (v.remainingQuantity <= 0) return { label: 'HẾT LƯỢT', cls: 'bg-amber-100 text-amber-700' }
-    return { label: 'ĐANG CHẠY', cls: 'bg-green-100 text-green-600' }
+    if (!v.isActive) return { label: 'TẮT', cls: 'bg-surface-hover text-foreground-subtle' }
+    if (new Date(v.endDate) < now) return { label: 'HẾT HẠN', cls: 'bg-surface-hover text-foreground-subtle' }
+    if (v.remainingQuantity <= 0) return { label: 'HẾT LƯỢT', cls: 'bg-warning-bg text-warning' }
+    return { label: 'ĐANG CHẠY', cls: 'bg-ink text-paper' }
   }
 
   return (
     <EliteLayout>
-      <div className="space-y-6">
-        <div className="flex justify-between items-center mb-2">
-          <div>
-            <h1 className="text-2xl font-bold text-slate-900 mb-1">Phát hành Voucher</h1>
-            <p className="text-sm text-slate-500">Tạo mã giảm giá tại quầy hoặc đền bù khách hàng.</p>
-          </div>
+      <div className="space-y-7">
+        <div>
+          <h1 className="font-heading text-3xl sm:text-4xl uppercase tracking-[-0.01em] text-foreground mb-2">Phát hành voucher</h1>
+          <p className="text-sm text-foreground-muted">Tạo mã giảm giá tại quầy hoặc đền bù khách hàng.</p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-            <h2 className="text-lg font-bold text-slate-800 mb-4">Tạo Voucher Mới</h2>
-            <form className="space-y-4" onSubmit={handleSubmit}>
-              <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1">Mã voucher</label>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={form.code}
-                    onChange={e => setField('code', e.target.value)}
-                    placeholder="VD: SALE50"
-                    className="flex-1 border border-slate-300 rounded-md px-3 py-2 outline-none focus:border-[#00c2ff] uppercase"
-                  />
-                  <button type="button" onClick={() => setField('code', randomCode())} className="bg-slate-100 px-3 py-2 border border-slate-300 rounded-md text-sm hover:bg-slate-200">Ngẫu nhiên</button>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1">Tên / Mô tả</label>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+          <div className="card-base p-7">
+            <h2 className="font-heading text-lg uppercase tracking-[-0.01em] text-foreground mb-5">Tạo voucher mới</h2>
+            <form className="space-y-3.5" onSubmit={handleSubmit}>
+              <div className="flex gap-2">
                 <input
                   type="text"
-                  value={form.name}
-                  onChange={e => setField('name', e.target.value)}
-                  placeholder="VD: Giảm 10% toàn sân"
-                  className="w-full border border-slate-300 rounded-md px-3 py-2 outline-none focus:border-[#00c2ff]"
+                  value={form.code}
+                  onChange={e => setField('code', e.target.value)}
+                  placeholder="VD: SALE50"
+                  className="input-base flex-1 font-mono uppercase"
                 />
+                <button type="button" onClick={() => setField('code', randomCode())} className="btn-outline shrink-0">Ngẫu nhiên</button>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-1">% Giảm</label>
-                  <input type="number" min="0.01" max="100" step="0.5" value={form.discountPercent} onChange={e => setField('discountPercent', e.target.value)} className="w-full border border-slate-300 rounded-md px-3 py-2 outline-none focus:border-[#00c2ff]" />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-1">Giảm tối đa (₫)</label>
-                  <input type="number" min="0" value={form.maxDiscountAmount} onChange={e => setField('maxDiscountAmount', e.target.value)} placeholder="VD: 50000" className="w-full border border-slate-300 rounded-md px-3 py-2 outline-none focus:border-[#00c2ff]" />
-                </div>
-              </div>
+              <input
+                type="text"
+                value={form.name}
+                onChange={e => setField('name', e.target.value)}
+                placeholder="VD: Giảm 10% toàn sân"
+                className="input-base w-full"
+              />
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-2.5">
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-1">Đơn tối thiểu (₫)</label>
-                  <input type="number" min="0" value={form.minOrderAmount} onChange={e => setField('minOrderAmount', e.target.value)} placeholder="VD: 100000" className="w-full border border-slate-300 rounded-md px-3 py-2 outline-none focus:border-[#00c2ff]" />
+                  <label className="label-mono text-foreground-subtle mb-1.5 block">% Giảm</label>
+                  <input type="number" min="0.01" max="100" step="0.5" value={form.discountPercent} onChange={e => setField('discountPercent', e.target.value)} className="input-base h-[42px]" />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-1">Số lượng</label>
-                  <input type="number" min="1" value={form.totalQuantity} onChange={e => setField('totalQuantity', e.target.value)} className="w-full border border-slate-300 rounded-md px-3 py-2 outline-none focus:border-[#00c2ff]" />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-1">Bắt đầu</label>
-                  <input type="date" value={form.startDate} onChange={e => setField('startDate', e.target.value)} className="w-full border border-slate-300 rounded-md px-3 py-2 outline-none focus:border-[#00c2ff]" />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-1">Kết thúc</label>
-                  <input type="date" value={form.endDate} onChange={e => setField('endDate', e.target.value)} className="w-full border border-slate-300 rounded-md px-3 py-2 outline-none focus:border-[#00c2ff]" />
+                  <label className="label-mono text-foreground-subtle mb-1.5 block">Giảm tối đa (₫)</label>
+                  <input type="number" min="0" value={form.maxDiscountAmount} onChange={e => setField('maxDiscountAmount', e.target.value)} placeholder="VD: 50000" className="input-base h-[42px]" />
                 </div>
               </div>
 
-              <button type="submit" disabled={submitting} className="w-full bg-[#00c2ff] text-white font-bold py-2.5 rounded-md hover:bg-[#00ace6] mt-2 flex items-center justify-center gap-2 disabled:opacity-60">
-                {submitting && <Loader2 size={16} className="animate-spin" />} Phát hành Voucher
+              <div className="grid grid-cols-2 gap-2.5">
+                <div>
+                  <label className="label-mono text-foreground-subtle mb-1.5 block">Đơn tối thiểu (₫)</label>
+                  <input type="number" min="0" value={form.minOrderAmount} onChange={e => setField('minOrderAmount', e.target.value)} placeholder="VD: 100000" className="input-base h-[42px]" />
+                </div>
+                <div>
+                  <label className="label-mono text-foreground-subtle mb-1.5 block">Số lượng</label>
+                  <input type="number" min="1" value={form.totalQuantity} onChange={e => setField('totalQuantity', e.target.value)} className="input-base h-[42px]" />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2.5 mb-1">
+                <div>
+                  <label className="label-mono text-foreground-subtle mb-1.5 block">Bắt đầu</label>
+                  <input type="date" value={form.startDate} onChange={e => setField('startDate', e.target.value)} className="input-base h-[42px]" />
+                </div>
+                <div>
+                  <label className="label-mono text-foreground-subtle mb-1.5 block">Kết thúc</label>
+                  <input type="date" value={form.endDate} onChange={e => setField('endDate', e.target.value)} className="input-base h-[42px]" />
+                </div>
+              </div>
+
+              <button type="submit" disabled={submitting} className="btn-primary w-full h-[52px] mt-1">
+                {submitting && <Loader2 size={16} className="animate-spin" />} Phát hành voucher
               </button>
             </form>
           </div>
 
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-            <h2 className="text-lg font-bold text-slate-800 mb-4">Danh sách Voucher</h2>
+          <div className="card-base p-7">
+            <h2 className="font-heading text-lg uppercase tracking-[-0.01em] text-foreground mb-5">Danh sách voucher</h2>
             {loading ? (
-              <div className="py-12 text-center text-slate-400"><Loader2 className="inline animate-spin mr-2" size={18} /> Đang tải...</div>
+              <div className="py-12 text-center text-foreground-subtle"><Loader2 className="inline animate-spin mr-2" size={18} /> Đang tải...</div>
             ) : vouchers.length === 0 ? (
-              <div className="py-12 text-center text-slate-400">Chưa có voucher nào.</div>
+              <div className="py-12 text-center text-foreground-subtle">Chưa có voucher nào.</div>
             ) : (
               <div className="space-y-3 max-h-[520px] overflow-y-auto">
                 {vouchers.map(v => {
                   const st = statusOf(v)
                   return (
-                    <div key={v.voucherId} className="border border-slate-200 rounded-lg p-3 flex justify-between items-center gap-3">
+                    <div key={v.voucherId} className="border-2 border-border-strong rounded-[2px] p-4 flex justify-between items-center gap-3">
                       <div className="min-w-0">
-                        <p className="font-bold text-slate-900 text-sm flex items-center gap-1.5">
-                          <Ticket size={14} className="text-[#00c2ff]" /> {v.code} — Giảm {v.discountPercent}%
+                        <p className="font-extrabold text-foreground text-sm flex items-center gap-1.5">
+                          <Ticket size={14} className="text-accent" /> {v.code} — Giảm {v.discountPercent}%
                         </p>
-                        <p className="text-xs text-slate-500 truncate">{v.name}</p>
-                        <p className="text-[11px] text-slate-400 mt-0.5">
+                        <p className="text-xs text-foreground-muted truncate mt-0.5">{v.name}</p>
+                        <p className="label-mono text-foreground-subtle mt-1 font-normal normal-case tracking-normal">
                           Đã dùng {v.usedQuantity}/{v.totalQuantity} • HSD {new Date(v.endDate).toLocaleDateString('vi-VN')}
                         </p>
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
-                        <span className={`text-xs font-semibold px-2 py-1 rounded ${st.cls}`}>{st.label}</span>
-                        <button onClick={() => handleDelete(v.voucherId)} className="text-slate-400 hover:text-red-500 p-1"><Trash2 size={16} /></button>
+                        <span className={`label-mono px-2.5 py-1 rounded-[2px] ${st.cls}`}>{st.label}</span>
+                        <button onClick={() => handleDelete(v.voucherId)} className="text-foreground-subtle hover:text-danger p-1"><Trash2 size={16} /></button>
                       </div>
                     </div>
                   )

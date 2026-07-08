@@ -28,25 +28,25 @@ export function ConfirmProvider({ children }) {
       {children}
       {dialog && (
         <div
-          className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/50"
+          className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-ink/60"
           role="dialog"
           aria-modal="true"
           aria-labelledby="confirm-dialog-title"
           onClick={() => close(false)}
         >
           <div
-            className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 border border-slate-200"
+            className="bg-surface rounded-[2px] max-w-md w-full p-6 border-2 border-border-strong"
             onClick={e => e.stopPropagation()}
           >
-            <h3 id="confirm-dialog-title" className="text-lg font-bold text-slate-900 mb-2">
+            <h3 id="confirm-dialog-title" className="font-heading text-xl uppercase text-foreground mb-2">
               {dialog.title}
             </h3>
-            <p className="text-sm text-slate-600 mb-6 leading-relaxed">{dialog.message}</p>
+            <p className="text-sm text-foreground-muted mb-6 leading-relaxed">{dialog.message}</p>
             <div className="flex gap-3 justify-end">
               <button
                 type="button"
                 onClick={() => close(false)}
-                className="px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors"
+                className="btn-outline"
               >
                 {dialog.cancelLabel}
               </button>
@@ -54,10 +54,10 @@ export function ConfirmProvider({ children }) {
                 type="button"
                 autoFocus
                 onClick={() => close(true)}
-                className={`px-4 py-2.5 rounded-xl text-sm font-semibold text-white transition-colors ${
+                className={`inline-flex items-center justify-center gap-2 px-5 h-10 font-sans text-sm font-extrabold uppercase tracking-[0.04em] rounded-[2px] border-2 transition-colors duration-150 ${
                   dialog.variant === 'danger'
-                    ? 'bg-red-600 hover:bg-red-700'
-                    : 'bg-[#14B8A6] hover:bg-[#0D9488]'
+                    ? 'bg-danger border-danger text-paper hover:opacity-90'
+                    : 'btn-primary'
                 }`}
               >
                 {dialog.confirmLabel}

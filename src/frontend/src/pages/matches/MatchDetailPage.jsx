@@ -22,7 +22,7 @@ function StarRow({ value, onChange, size = 18, readOnly = false }) {
         >
           <Star
             size={size}
-            className={n <= value ? 'text-amber-400' : 'text-slate-300'}
+            className={n <= value ? 'text-warning' : 'text-foreground-subtle'}
             fill={n <= value ? 'currentColor' : 'none'}
           />
         </button>
@@ -34,10 +34,10 @@ function StarRow({ value, onChange, size = 18, readOnly = false }) {
 // Badge điểm tín nhiệm.
 function TrustBadge({ score }) {
   if (!score || score.totalRatings === 0) {
-    return <span className="text-xs text-slate-400">Chưa có đánh giá</span>
+    return <span className="text-xs text-foreground-subtle">Chưa có đánh giá</span>
   }
   return (
-    <span className="text-xs font-semibold text-amber-500 flex items-center gap-1">
+    <span className="label-mono text-warning flex items-center gap-1 normal-case tracking-normal">
       <Star size={12} fill="currentColor" /> {Number(score.trustScore).toFixed(1)} ({score.totalRatings} đánh giá)
     </span>
   )
@@ -131,7 +131,7 @@ export default function MatchDetailPage() {
     }
   }
 
-  if (!match) return <div className="p-10 text-center">Đang tải...</div>
+  if (!match) return <div className="p-10 text-center text-foreground-muted label-mono">Đang tải...</div>
 
   // Danh sách người có thể đánh giá (host + participants, trừ chính mình).
   const ratablePlayers = []
@@ -143,59 +143,51 @@ export default function MatchDetailPage() {
   const othersToRate = currentUserId ? ratablePlayers.filter(p => p.userId !== currentUserId) : []
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#f5f9fb]">
-      <Navbar theme="light" />
+    <div className="flex flex-col min-h-screen bg-background-base">
+      <Navbar />
 
-      <div className="max-w-[1000px] mx-auto px-6 pt-[90px] pb-20 w-full flex-1">
-        <Link to="/matches" className="text-slate-400 text-sm hover:text-[#14B8A6] mb-6 inline-block flex items-center gap-1">
+      <div className="max-w-[1100px] mx-auto px-4 md:px-10 pt-[110px] pb-20 w-full flex-1">
+        <Link to="/matches" className="text-foreground-muted text-sm font-bold hover:text-accent mb-6 inline-flex items-center gap-1.5">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
           Danh sách kèo
         </Link>
 
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-8">
-          <div className="space-y-6">
-            <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
-              <div className="flex gap-2 mb-4">
-                <span className="bg-[#14B8A6]/10 text-[#14B8A6] text-xs font-bold px-2.5 py-1 rounded-full uppercase">Cầu Lông</span>
-                <span className="bg-blue-50 text-blue-600 text-xs font-bold px-2.5 py-1 rounded-full uppercase">{match.skillLevel}</span>
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 lg:gap-12 items-start">
+          <div className="flex flex-col gap-6">
+            <div className="border-2 border-border-strong bg-surface p-6 md:p-8">
+              <div className="flex gap-2 mb-5 flex-wrap">
+                <span className="label-mono bg-ink text-paper px-3 py-1.5 rounded-[2px]">Cầu Lông</span>
+                <span className="label-mono border border-border-strong text-foreground px-3 py-1.5 rounded-[2px]">{match.skillLevel}</span>
               </div>
-              <h1 className="font-['Oswald'] text-2xl font-bold text-slate-900 mb-6">{match.title}</h1>
+              <h1 className="font-heading text-2xl md:text-3xl uppercase tracking-tight text-foreground mb-7">{match.title}</h1>
 
-              <div className="grid grid-cols-2 gap-4 mb-6">
-                <div className="flex gap-3">
-                  <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center shrink-0"><MapPin size={20} className="text-[#14B8A6]" /></div>
-                  <div>
-                    <p className="text-xs text-slate-400 mb-0.5">Địa điểm</p>
-                    <p className="text-sm font-semibold text-slate-800">{match.location}</p>
-                  </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-7">
+                <div>
+                  <p className="label-mono text-foreground-subtle mb-1.5">Địa điểm</p>
+                  <p className="text-sm font-extrabold text-foreground flex items-center gap-2"><MapPin size={16} className="text-accent shrink-0" /> {match.location}</p>
                 </div>
-                <div className="flex gap-3">
-                  <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center shrink-0"><Clock size={20} className="text-[#14B8A6]" /></div>
-                  <div>
-                    <p className="text-xs text-slate-400 mb-0.5">Thời gian</p>
-                    <p className="text-sm font-semibold text-slate-800">{new Date(match.matchDate).toLocaleDateString()} • {match.startTime}</p>
-                  </div>
+                <div>
+                  <p className="label-mono text-foreground-subtle mb-1.5">Thời gian</p>
+                  <p className="text-sm font-extrabold text-foreground flex items-center gap-2"><Clock size={16} className="text-accent shrink-0" /> {new Date(match.matchDate).toLocaleDateString()} • {match.startTime}</p>
                 </div>
               </div>
 
-              <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
-                <p className="text-sm font-semibold text-slate-900 mb-2">Ghi chú của chủ kèo</p>
-                <p className="text-sm text-slate-600 leading-relaxed">{match.notes || `Mã đặt sân: ${match.bookingId}`}</p>
+              <div className="bg-background-base border border-border-default p-4 rounded-[2px]">
+                <p className="text-sm font-bold text-foreground mb-2">Ghi chú của chủ kèo</p>
+                <p className="text-sm text-foreground-muted leading-relaxed">{match.notes || `Mã đặt sân: ${match.bookingId}`}</p>
               </div>
             </div>
 
-            <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-lg font-bold text-slate-900">Người tham gia ({match.currentParticipants}/{match.maxParticipants})</h2>
-              </div>
-              <div className="space-y-4">
+            <div className="border-2 border-border-strong bg-surface p-6 md:p-8">
+              <h2 className="font-heading text-lg uppercase text-foreground mb-6">Người tham gia ({match.currentParticipants}/{match.maxParticipants})</h2>
+              <div className="flex flex-col gap-4">
                 {match.participants && match.participants.map(p => (
-                  <div key={p.id ?? p.userId} className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center font-bold text-[#14B8A6]">
+                  <div key={p.id ?? p.userId} className="flex items-center gap-3.5">
+                    <div className="w-11 h-11 rounded-[2px] bg-ink text-paper flex items-center justify-center font-heading text-sm shrink-0">
                       {p.userId}
                     </div>
                     <div>
-                      <p className="font-bold text-slate-900 text-sm">Người chơi #{p.userId}</p>
+                      <p className="font-extrabold text-foreground text-sm">Người chơi #{p.userId}</p>
                       <TrustBadge score={trustScores[p.userId]} />
                     </div>
                   </div>
@@ -205,24 +197,24 @@ export default function MatchDetailPage() {
 
             {/* TK-035: Đánh giá người chơi sau trận */}
             {othersToRate.length > 0 && (
-              <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
-                <h2 className="text-lg font-bold text-slate-900 mb-1">Đánh giá người chơi</h2>
-                <p className="text-sm text-slate-500 mb-5">Chấm điểm uy tín cho những người chơi cùng kèo (1–5 sao).</p>
-                <div className="space-y-3">
+              <div className="border-2 border-border-strong bg-surface p-6 md:p-8">
+                <h2 className="font-heading text-lg uppercase text-foreground mb-1">Đánh giá người chơi</h2>
+                <p className="text-sm text-foreground-muted mb-5">Chấm điểm uy tín cho những người chơi cùng kèo (1–5 sao).</p>
+                <div className="flex flex-col gap-3">
                   {othersToRate.map(pl => (
-                    <div key={pl.userId} className="border border-slate-100 rounded-xl p-4">
-                      <div className="flex items-center justify-between">
+                    <div key={pl.userId} className="border border-border-default rounded-[2px] p-4">
+                      <div className="flex items-center justify-between flex-wrap gap-3">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center font-bold text-[#14B8A6]">{pl.userId}</div>
+                          <div className="w-10 h-10 rounded-[2px] bg-ink text-paper flex items-center justify-center font-heading text-sm shrink-0">{pl.userId}</div>
                           <div>
-                            <p className="font-semibold text-slate-900 text-sm">Người chơi #{pl.userId} {pl.isHost && <span className="text-[#14B8A6] text-xs">(Chủ kèo)</span>}</p>
+                            <p className="font-bold text-foreground text-sm">Người chơi #{pl.userId} {pl.isHost && <span className="text-accent text-xs">(Chủ kèo)</span>}</p>
                             <TrustBadge score={trustScores[pl.userId]} />
                           </div>
                         </div>
                         {ratingTarget !== pl.userId && (
                           <button
                             onClick={() => { setRatingTarget(pl.userId); setRatingScore(5); setRatingComment('') }}
-                            className="text-sm font-semibold text-[#14B8A6] hover:bg-[#14B8A6]/10 px-3 py-1.5 rounded-lg"
+                            className="text-xs font-bold uppercase tracking-wide text-foreground border-2 border-border-strong hover:bg-surface-hover px-3.5 py-2 rounded-[2px] transition-colors"
                           >
                             Đánh giá
                           </button>
@@ -230,9 +222,9 @@ export default function MatchDetailPage() {
                       </div>
 
                       {ratingTarget === pl.userId && (
-                        <div className="mt-4 pt-4 border-t border-slate-100 space-y-3">
+                        <div className="mt-4 pt-4 border-t border-border-default flex flex-col gap-3">
                           <div className="flex items-center gap-3">
-                            <span className="text-sm text-slate-600">Điểm:</span>
+                            <span className="text-sm text-foreground-muted">Điểm:</span>
                             <StarRow value={ratingScore} onChange={setRatingScore} size={22} />
                           </div>
                           <textarea
@@ -241,20 +233,20 @@ export default function MatchDetailPage() {
                             rows={2}
                             maxLength={1000}
                             placeholder="Nhận xét (không bắt buộc)..."
-                            className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#14B8A6] resize-none"
+                            className="w-full border-2 border-border-strong rounded-[2px] px-3 py-2 text-sm outline-none focus:border-accent resize-none bg-background-base text-foreground"
                           />
                           <div className="flex gap-2">
                             <button
                               onClick={submitRating}
                               disabled={submittingRating}
-                              className="bg-[#14B8A6] text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-[#0D9488] flex items-center gap-2 disabled:opacity-60"
+                              className="btn-primary text-xs disabled:opacity-60"
                             >
                               {submittingRating && <Loader2 size={14} className="animate-spin" />}
                               Gửi đánh giá
                             </button>
                             <button
                               onClick={() => setRatingTarget(null)}
-                              className="text-sm font-semibold text-slate-500 px-4 py-2 rounded-lg hover:bg-slate-100"
+                              className="text-xs font-bold uppercase tracking-wide text-foreground-muted px-4 py-2.5 rounded-[2px] hover:bg-surface-hover"
                             >
                               Hủy
                             </button>
@@ -268,48 +260,48 @@ export default function MatchDetailPage() {
             )}
           </div>
 
-          <div className="sticky top-24 h-fit">
-            <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-[0_4px_24px_rgba(0,0,0,0.08)]">
-              <div className="flex items-center gap-4 mb-6 pb-6 border-b border-slate-100">
-                <div className="w-14 h-14 rounded-full bg-slate-100 flex items-center justify-center font-bold text-[#14B8A6] text-xl">
+          <div className="lg:sticky lg:top-28">
+            <div className="border-2 border-border-strong bg-surface p-6 md:p-8">
+              <div className="flex items-center gap-4 mb-6 pb-6 border-b-2 border-border-strong">
+                <div className="w-14 h-14 rounded-[2px] bg-ink text-paper flex items-center justify-center font-heading text-xl shrink-0">
                   {match.hostId}
                 </div>
                 <div>
-                  <p className="text-xs text-slate-400 mb-0.5">Chủ kèo</p>
-                  <p className="font-bold text-slate-900">Người chơi #{match.hostId}</p>
-                  <div className="mt-0.5"><TrustBadge score={trustScores[match.hostId]} /></div>
+                  <p className="label-mono text-foreground-subtle mb-1">Chủ kèo</p>
+                  <p className="font-extrabold text-foreground">Người chơi #{match.hostId}</p>
+                  <div className="mt-1"><TrustBadge score={trustScores[match.hostId]} /></div>
                 </div>
               </div>
 
-              <div className="flex justify-between items-center mb-6">
+              <div className="flex justify-between items-center mb-7">
                 <div>
-                  <p className="text-slate-400 text-sm mb-1">Chi phí / chỗ</p>
-                  <p className="font-['Oswald'] text-2xl font-bold text-[#14B8A6]">
-                    {match.escrowAmount.toLocaleString('vi-VN')} <span className="text-sm font-normal text-slate-400">VNĐ</span>
+                  <p className="label-mono text-foreground-subtle mb-1.5">Chi phí / chỗ</p>
+                  <p className="font-heading text-2xl text-foreground">
+                    {match.escrowAmount.toLocaleString('vi-VN')} <span className="text-sm font-sans font-normal text-foreground-subtle">VNĐ</span>
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="text-slate-400 text-sm mb-1">Chỗ còn trống</p>
-                  <p className="font-['Oswald'] text-2xl font-bold text-slate-900">{match.maxParticipants - match.currentParticipants}</p>
+                  <p className="label-mono text-foreground-subtle mb-1.5">Chỗ còn trống</p>
+                  <p className="font-heading text-2xl text-foreground">{match.maxParticipants - match.currentParticipants}</p>
                 </div>
               </div>
 
               {!joined ? (
                 <>
-                  <button onClick={handleJoin} disabled={isLoading} className="w-full bg-[#14B8A6] text-[var(--theme-primary)] font-bold py-3.5 rounded-xl hover:bg-[#0D9488] transition-colors shadow-md shadow-[#14B8A6]/20 flex items-center justify-center gap-2 mb-3 disabled:opacity-70">
+                  <button onClick={handleJoin} disabled={isLoading} className="btn-primary w-full h-14 text-[13px] tracking-[0.06em] mb-4 disabled:opacity-70">
                     {isLoading ? 'Đang xử lý...' : 'Tham gia & Ký quỹ'}
                   </button>
-                  <p className="text-xs text-slate-400 text-center leading-relaxed">
-                    Hệ thống sẽ trừ <b>{match.escrowAmount.toLocaleString('vi-VN')} VNĐ</b> từ ví ký quỹ. Sẽ hoàn lại 100% nếu bạn hủy trước 24h.
+                  <p className="text-[11.5px] text-foreground-subtle text-center leading-relaxed">
+                    Hệ thống sẽ trừ <strong className="text-foreground">{match.escrowAmount.toLocaleString('vi-VN')} VNĐ</strong> từ ví ký quỹ. Sẽ hoàn lại 100% nếu bạn hủy trước 24h.
                   </p>
                 </>
               ) : (
                 <>
-                  <button disabled className="w-full bg-green-50 text-green-600 font-bold py-3.5 rounded-xl cursor-not-allowed mb-3 border border-green-200 flex items-center justify-center gap-2">
+                  <button disabled className="w-full h-14 bg-transparent text-foreground font-extrabold text-[13px] uppercase tracking-[0.06em] rounded-[2px] cursor-not-allowed mb-3 border-2 border-border-strong flex items-center justify-center gap-2">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20 6 9 17 4 12"/></svg>
                     Đã tham gia
                   </button>
-                  <button onClick={() => setJoined(false)} className="w-full bg-white text-red-500 font-bold py-3 rounded-xl border border-red-200 hover:bg-red-50 transition-colors">
+                  <button onClick={() => setJoined(false)} className="w-full h-12 bg-transparent text-danger font-bold text-[13px] uppercase tracking-[0.04em] rounded-[2px] border-2 border-danger hover:bg-danger-bg transition-colors">
                     Rút khỏi kèo
                   </button>
                 </>
@@ -319,7 +311,7 @@ export default function MatchDetailPage() {
         </div>
       </div>
 
-      <Footer variant="light" />
+      <Footer />
     </div>
   )
 }

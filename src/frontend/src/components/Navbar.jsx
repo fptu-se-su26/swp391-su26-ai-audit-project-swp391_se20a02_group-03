@@ -51,19 +51,19 @@ export default function Navbar() {
   })()
 
   return (
-    <nav ref={navRef} className="fixed top-0 left-0 right-0 z-[100] h-16 bg-background-base/80 backdrop-blur-md border-b border-border-default font-sans">
-      <div className="flex items-center h-full gap-6 max-w-7xl mx-auto px-6">
-        <ProSportLogo size="sm" className="font-heading" />
+    <nav ref={navRef} className="fixed top-0 left-0 right-0 z-[100] h-[76px] bg-ink/90 backdrop-blur-md border-b border-white/10 font-sans">
+      <div className="flex items-center h-full gap-6 max-w-[1400px] mx-auto px-6 lg:px-10">
+        <ProSportLogo size="sm" variant="light" />
 
-        <ul className={`lg:flex items-center gap-1 list-none ml-auto ${menuOpen ? 'flex flex-col absolute top-16 left-0 right-0 p-6 gap-2 bg-background-base border-b border-border-default' : 'hidden'}`}>
+        <ul className={`lg:flex items-center gap-1 list-none ml-auto ${menuOpen ? 'flex flex-col absolute top-[76px] left-0 right-0 p-6 gap-2 bg-ink border-b border-white/10' : 'hidden'}`}>
           {navLinks.map((link) => (
             <li key={link.path} className="w-full lg:w-auto">
               <Link
                 to={link.path}
-                className={`block w-full lg:inline-flex items-center justify-center px-4 py-2 transition-all rounded-lg font-medium text-sm
+                className={`block w-full lg:inline-flex items-center justify-center px-3 py-2 transition-colors font-bold text-[13px] uppercase tracking-[0.06em]
                   ${isActive(link.path)
-                    ? 'text-[var(--theme-primary)] bg-[var(--theme-surface-hover)] shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05),0_1px_2px_rgba(0,0,0,0.2)]'
-                    : 'text-foreground-muted hover:text-[var(--theme-primary)] hover:bg-[var(--theme-surface)]'
+                    ? 'text-paper border-b-2 border-paper'
+                    : 'text-paper/50 hover:text-paper'
                   }`}
                 onClick={() => setMenuOpen(false)}
               >
@@ -71,7 +71,7 @@ export default function Navbar() {
               </Link>
             </li>
           ))}
-          <li className="w-full lg:hidden pt-2 border-t border-border-default mt-2">
+          <li className="w-full lg:hidden pt-2 border-t border-white/10 mt-2">
             {isAuthenticated ? (
               <div className="flex flex-col gap-2">
                 {portalLinks.map(link => (
@@ -79,22 +79,22 @@ export default function Navbar() {
                     key={link.to}
                     to={link.to}
                     onClick={() => setMenuOpen(false)}
-                    className="w-full text-left px-4 py-2 text-foreground-muted hover:text-[var(--theme-primary)] font-medium text-sm"
+                    className="w-full text-left px-4 py-2 text-paper/60 hover:text-paper font-bold text-[13px] uppercase tracking-[0.06em]"
                   >
                     {link.label}
                   </Link>
                 ))}
                 <button
                   onClick={() => { handleLogout(); setMenuOpen(false) }}
-                  className="w-full text-left px-4 py-2 text-foreground-muted hover:text-[var(--theme-primary)] font-medium text-sm"
+                  className="w-full text-left px-4 py-2 text-paper/60 hover:text-paper font-bold text-[13px] uppercase tracking-[0.06em]"
                 >
                   Đăng xuất
                 </button>
               </div>
             ) : (
               <div className="flex flex-col gap-2 px-4">
-                <Link to="/login" onClick={() => setMenuOpen(false)} className="text-foreground-muted font-medium text-sm">Đăng nhập</Link>
-                <Link to="/register" onClick={() => setMenuOpen(false)} className="btn-primary text-center no-underline">Tham gia</Link>
+                <Link to="/login" onClick={() => setMenuOpen(false)} className="text-paper/70 font-bold text-[13px] uppercase tracking-[0.06em]">Đăng nhập</Link>
+                <Link to="/register" onClick={() => setMenuOpen(false)} className="inline-flex items-center justify-center px-6 py-3 bg-accent text-ink font-extrabold text-[13px] uppercase tracking-[0.06em] rounded-[2px] no-underline text-center">Tham gia</Link>
               </div>
             )}
           </li>
@@ -108,28 +108,28 @@ export default function Navbar() {
                 <Link
                   key={link.to}
                   to={link.to}
-                  className="text-foreground-muted hover:text-[var(--theme-primary)] transition-colors font-medium text-sm px-2"
+                  className="text-paper/60 hover:text-paper transition-colors font-bold text-[13px] uppercase tracking-[0.06em] px-2"
                 >
                   {link.label}
                 </Link>
               ))}
               <button
                 onClick={handleLogout}
-                className="text-foreground-muted hover:text-[var(--theme-primary)] transition-colors font-medium text-sm px-2"
+                className="text-paper/60 hover:text-paper transition-colors font-bold text-[13px] uppercase tracking-[0.06em] px-2"
               >
                 Đăng xuất
               </button>
             </>
           ) : (
             <>
-              <Link to="/login" className="text-foreground-muted hover:text-[var(--theme-primary)] transition-colors font-medium text-sm px-2">Đăng nhập</Link>
-              <Link to="/register" className="btn-primary no-underline">Tham gia</Link>
+              <Link to="/login" className="text-paper font-bold text-[13px] uppercase tracking-[0.06em] px-2">Đăng nhập</Link>
+              <Link to="/register" className="inline-flex items-center justify-center px-6 h-11 bg-accent text-ink font-extrabold text-[13px] uppercase tracking-[0.06em] rounded-[2px] no-underline">Tham gia</Link>
             </>
           )}
         </div>
 
         <button
-          className="lg:hidden flex items-center justify-center w-10 h-10 rounded-lg text-foreground-muted hover:bg-[var(--theme-surface)] hover:text-[var(--theme-primary)] transition-colors ml-auto"
+          className="lg:hidden flex items-center justify-center w-10 h-10 rounded-[2px] text-paper/70 hover:bg-white/5 hover:text-paper transition-colors ml-auto"
           onClick={() => setMenuOpen(!menuOpen)}
           aria-label="Mở menu"
         >

@@ -10,6 +10,7 @@ const SIZES = {
 
 /**
  * Logo PRO-SPORT — monogram lục giác riêng, bấm về trang chủ (/).
+ * variant "light" = luôn hiển thị trên nền tối (paper trên ink), "default" = theo theme hiện tại.
  */
 export default function ProSportLogo({
   size = 'md',
@@ -21,37 +22,24 @@ export default function ProSportLogo({
 }) {
   const s = SIZES[size] || SIZES.md
 
-  const wordmarkClass =
-    variant === 'light'
-      ? 'text-white'
-      : variant === 'dark'
-        ? 'text-slate-900'
-        : variant === 'shop'
-          ? 'text-[#0f172a]'
-          : 'text-[var(--theme-primary)]'
-
-  const accentClass = variant === 'shop' ? 'text-[#14B8A6]' : 'text-[#5E6AD2]'
-
-  const subtitleClass =
-    variant === 'light'
-      ? 'text-white/50'
-      : 'text-slate-500'
+  const wordmarkClass = variant === 'light' ? 'text-paper' : 'text-foreground'
+  const subtitleClass = variant === 'light' ? 'text-paper/50' : 'text-foreground-muted'
 
   return (
     <Link
       to="/"
-      className={`prosport-logo group inline-flex items-center ${s.gap} no-underline shrink-0 ${wordmarkClass} transition-opacity duration-200 hover:opacity-80 active:opacity-65 ${className}`}
+      className={`prosport-logo group inline-flex items-center ${s.gap} no-underline shrink-0 ${wordmarkClass} transition-opacity duration-150 hover:opacity-80 active:opacity-65 ${className}`}
       aria-label="PRO-SPORT — về trang chủ"
     >
       <ProSportLogoMark size={s.icon} />
 
       {showText && !iconOnly && (
         <div className="flex flex-col leading-none">
-          <span className={`font-heading font-bold tracking-tight ${s.text}`}>
-            PRO<span className={accentClass}>-</span>SPORT
+          <span className={`font-heading uppercase tracking-[0.02em] ${s.text}`}>
+            PRO<span className="text-accent">-</span>SPORT
           </span>
           {subtitle && (
-            <span className={`text-[0.58rem] font-medium tracking-[0.08em] uppercase mt-1 ${subtitleClass}`}>
+            <span className={`text-[0.58rem] font-mono font-semibold tracking-[0.1em] uppercase mt-1 ${subtitleClass}`}>
               {subtitle}
             </span>
           )}

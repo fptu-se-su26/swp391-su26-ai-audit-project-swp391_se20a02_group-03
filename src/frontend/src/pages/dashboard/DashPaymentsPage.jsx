@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react'
 import ProSportDashLayout from '../../layouts/ProSportDashLayout'
 import { bookingApi } from '../../api/bookingApi'
 import PageLoader from '../../components/ui/PageLoader'
+import StatusBadge from '../../components/ui/StatusBadge'
 
 const PAY_TABS = [
   { key: '', label: 'Tất cả' },
@@ -42,33 +43,33 @@ export default function DashPaymentsPage() {
     <ProSportDashLayout>
       <div>
         <div className="mb-6">
-          <h1 className="dash-page-title">Thanh toán</h1>
-          <p className="dash-page-sub">Tổng hợp giao dịch đặt sân theo phương thức và trạng thái.</p>
+          <h1 className="font-heading text-3xl md:text-4xl uppercase tracking-tight text-foreground mb-2">Thanh toán</h1>
+          <p className="text-[13px] text-foreground-muted">Tổng hợp giao dịch đặt sân theo phương thức và trạng thái.</p>
         </div>
 
-        <div className="grid grid-cols-3 gap-4 mb-6 max-md:grid-cols-1">
-          <div className="bg-white rounded-xl p-4 border-[1.5px] border-[#e0ecf0]">
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-wide">Đã thu</p>
-            <p className="text-xl font-bold text-foreground mt-1">{stats.paidTotal.toLocaleString('vi-VN')}đ</p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-[2px] bg-ink border-2 border-ink mb-6">
+          <div className="bg-surface p-5.5">
+            <p className="label-mono text-foreground-subtle mb-2.5">Đã thu</p>
+            <p className="font-heading text-2xl text-foreground">{stats.paidTotal.toLocaleString('vi-VN')}đ</p>
           </div>
-          <div className="bg-white rounded-xl p-4 border-[1.5px] border-[#e0ecf0]">
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-wide">Chờ thanh toán</p>
-            <p className="text-xl font-bold text-amber-600 mt-1">{stats.pending}</p>
+          <div className="bg-surface p-5.5">
+            <p className="label-mono text-foreground-subtle mb-2.5">Chờ thanh toán</p>
+            <p className="font-heading text-2xl text-warning">{stats.pending}</p>
           </div>
-          <div className="bg-white rounded-xl p-4 border-[1.5px] border-[#e0ecf0]">
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-wide">Tiền mặt (Paid)</p>
-            <p className="text-xl font-bold text-[#14B8A6] mt-1">{stats.cash}</p>
+          <div className="bg-ink p-5.5">
+            <p className="label-mono text-[#9c9c96] mb-2.5">Tiền mặt (Paid)</p>
+            <p className="font-heading text-2xl text-paper">{stats.cash}</p>
           </div>
         </div>
 
-        <div className="flex gap-2 mb-4">
+        <div className="flex gap-2 mb-5 flex-wrap">
           {PAY_TABS.map(tab => (
             <button
               key={tab.key}
               type="button"
               onClick={() => setPayFilter(tab.key)}
-              className={`px-3 py-1.5 rounded-full text-xs font-semibold border cursor-pointer ${
-                payFilter === tab.key ? 'bg-[#14B8A6] text-white border-[#14B8A6]' : 'border-[#e0ecf0] text-slate-500'
+              className={`px-5 py-2.5 font-bold text-[11.5px] uppercase tracking-[0.02em] border-2 rounded-[2px] cursor-pointer transition-colors ${
+                payFilter === tab.key ? 'bg-[var(--theme-primary)] text-[var(--theme-secondary)] border-[var(--theme-primary)]' : 'bg-transparent border-border-hover text-foreground-muted'
               }`}
             >
               {tab.label}
@@ -77,35 +78,29 @@ export default function DashPaymentsPage() {
         </div>
 
         {loading && <PageLoader label="Đang tải..." />}
-        {error && <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>}
+        {error && <div className="border-2 border-danger bg-danger-bg px-4 py-3 text-sm text-danger rounded-[2px]">{error}</div>}
 
         {!loading && !error && (
-          <div className="bg-white rounded-xl border-[1.5px] border-[#e0ecf0] overflow-hidden">
-            <table className="w-full border-collapse text-sm">
+          <div className="border-2 border-border-strong bg-surface overflow-hidden rounded-[2px] overflow-x-auto">
+            <table className="w-full border-collapse text-sm min-w-[560px]">
               <thead>
-                <tr className="bg-[#f5f9fc] border-b border-[#e0ecf0]">
-                  <th className="text-left px-4 py-3 font-semibold text-slate-500">Mã</th>
-                  <th className="text-left px-4 py-3 font-semibold text-slate-500">Phương thức</th>
-                  <th className="text-left px-4 py-3 font-semibold text-slate-500">Trạng thái TT</th>
-                  <th className="text-right px-4 py-3 font-semibold text-slate-500">Số tiền</th>
+                <tr className="bg-ink text-paper">
+                  <th className="text-left px-4.5 py-3.5 label-mono">Mã</th>
+                  <th className="text-left px-4.5 py-3.5 label-mono">Phương thức</th>
+                  <th className="text-left px-4.5 py-3.5 label-mono">Trạng thái TT</th>
+                  <th className="text-right px-4.5 py-3.5 label-mono">Số tiền</th>
                 </tr>
               </thead>
               <tbody>
                 {filtered.length === 0 && (
-                  <tr><td colSpan={4} className="px-4 py-10 text-center text-slate-400">Không có giao dịch.</td></tr>
+                  <tr><td colSpan={4} className="px-4 py-10 text-center text-foreground-subtle">Không có giao dịch.</td></tr>
                 )}
                 {filtered.map(b => (
-                  <tr key={b.bookingId} className="border-b border-[#f0f5f9]">
-                    <td className="px-4 py-3 font-semibold">#{b.bookingId}</td>
-                    <td className="px-4 py-3">{b.paymentMethod || '—'}</td>
-                    <td className="px-4 py-3">
-                      <span className={`text-xs font-bold px-2 py-0.5 rounded ${
-                        b.paymentStatus === 'Paid' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'
-                      }`}>
-                        {b.paymentStatus || '—'}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-right font-semibold">{Number(b.totalAmount || 0).toLocaleString('vi-VN')}đ</td>
+                  <tr key={b.bookingId} className="border-t border-border-default hover:bg-surface-hover">
+                    <td className="px-4.5 py-3.5 font-extrabold text-foreground">#{b.bookingId}</td>
+                    <td className="px-4.5 py-3.5 text-foreground">{b.paymentMethod || '—'}</td>
+                    <td className="px-4.5 py-3.5"><StatusBadge status={b.paymentStatus} /></td>
+                    <td className="px-4.5 py-3.5 text-right font-extrabold text-foreground">{Number(b.totalAmount || 0).toLocaleString('vi-VN')}đ</td>
                   </tr>
                 ))}
               </tbody>

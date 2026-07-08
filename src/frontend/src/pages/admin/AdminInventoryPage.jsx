@@ -6,9 +6,9 @@ import { Search, Loader2, ShieldAlert } from 'lucide-react'
 const LOW_STOCK_THRESHOLD = 5
 
 function stockBadge(qty) {
-  if (qty <= 0) return { label: 'HẾT HÀNG', cls: 'bg-slate-200 text-slate-600' }
-  if (qty <= LOW_STOCK_THRESHOLD) return { label: 'SẮP HẾT', cls: 'bg-red-100 text-red-700' }
-  return { label: 'TỐT', cls: 'bg-green-100 text-green-700' }
+  if (qty <= 0) return { label: 'HẾT HÀNG', cls: 'bg-surface-hover text-foreground-subtle' }
+  if (qty <= LOW_STOCK_THRESHOLD) return { label: 'SẮP HẾT', cls: 'border border-danger text-danger' }
+  return { label: 'TỐT', cls: 'bg-ink text-paper' }
 }
 
 export default function AdminInventoryPage() {
@@ -57,65 +57,64 @@ export default function AdminInventoryPage() {
   return (
     <AdminLayout>
       <div className="space-y-6">
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex justify-between items-end flex-wrap gap-3.5 mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 mb-1">Quản lý Kho Dụng cụ</h1>
-            <p className="text-sm text-slate-500">Theo dõi tồn kho thiết bị thể thao theo thời gian thực.</p>
+            <h1 className="font-heading text-3xl md:text-4xl uppercase tracking-tight text-foreground mb-2">Quản lý kho dụng cụ</h1>
+            <p className="text-[13px] text-foreground-muted">Theo dõi tồn kho thiết bị thể thao theo thời gian thực.</p>
           </div>
-          <div className="text-sm text-slate-500">
-            Tổng: <span className="font-bold text-slate-900">{items.length}</span> sản phẩm
-          </div>
+          <p className="label-mono text-foreground">
+            Tổng: <strong>{items.length}</strong> sản phẩm
+          </p>
         </div>
 
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-          <div className="p-4 border-b border-slate-200 bg-slate-50 flex gap-4">
-            <div className="flex items-center gap-2 bg-white border border-slate-300 rounded-md px-3 py-1.5 w-72">
-              <Search size={15} className="text-slate-400" />
-              <input
-                type="text"
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-                placeholder="Tìm kiếm vật phẩm..."
-                className="border-none outline-none text-sm w-full bg-transparent"
-              />
-            </div>
-          </div>
+        <div className="flex items-center gap-2 bg-surface border-2 border-border-strong h-11 px-3.5 min-w-[300px] max-w-md rounded-[2px] mb-[22px]">
+          <Search size={15} className="text-foreground-subtle shrink-0" />
+          <input
+            type="text"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Tìm kiếm vật phẩm..."
+            className="border-none outline-none text-[13px] text-foreground w-full bg-transparent"
+          />
+        </div>
+
+        <div className="border-2 border-border-strong bg-surface rounded-[2px]">
           <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-slate-50 border-b border-slate-200 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+            <table className="w-full text-[13px]">
+              <thead className="bg-ink text-paper">
                 <tr>
-                  <th className="px-6 py-4">Vật phẩm</th>
-                  <th className="px-6 py-4">Phân loại</th>
-                  <th className="px-6 py-4">Môn</th>
-                  <th className="px-6 py-4 text-right">Giá bán lẻ</th>
-                  <th className="px-6 py-4 text-right">Tồn kho</th>
-                  <th className="px-6 py-4">Trạng thái</th>
+                  <th className="text-left px-[18px] py-3.5 label-mono">Vật phẩm</th>
+                  <th className="text-left px-[18px] py-3.5 label-mono">Phân loại</th>
+                  <th className="text-left px-[18px] py-3.5 label-mono">Môn</th>
+                  <th className="text-right px-[18px] py-3.5 label-mono">Giá bán lẻ</th>
+                  <th className="text-right px-[18px] py-3.5 label-mono">Tồn kho</th>
+                  <th className="text-left px-[18px] py-3.5 label-mono">Trạng thái</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 text-sm">
+              <tbody>
                 {loading && (
-                  <tr><td colSpan={6} className="px-6 py-12 text-center text-slate-400">
+                  <tr><td colSpan={6} className="px-[18px] py-12 text-center text-foreground-subtle">
                     <Loader2 className="inline animate-spin mr-2" size={18} /> Đang tải...
                   </td></tr>
                 )}
                 {!loading && error && (
-                  <tr><td colSpan={6} className="px-6 py-12 text-center text-red-500">
+                  <tr><td colSpan={6} className="px-[18px] py-12 text-center text-danger">
                     <ShieldAlert className="inline mr-2" size={18} /> {error}
                   </td></tr>
                 )}
                 {!loading && !error && filtered.length === 0 && (
-                  <tr><td colSpan={6} className="px-6 py-12 text-center text-slate-400">Không có sản phẩm nào.</td></tr>
+                  <tr><td colSpan={6} className="px-[18px] py-12 text-center text-foreground-subtle">Không có sản phẩm nào.</td></tr>
                 )}
                 {!loading && !error && filtered.map(i => {
                   const badge = stockBadge(i.stock)
                   return (
-                    <tr key={i.id} className="hover:bg-slate-50">
-                      <td className="px-6 py-4 font-semibold text-slate-900">{i.name}</td>
-                      <td className="px-6 py-4 text-slate-500">{i.category}</td>
-                      <td className="px-6 py-4 text-slate-500">{i.sport || '—'}</td>
-                      <td className="px-6 py-4 text-right text-slate-700">{Number(i.price).toLocaleString('vi-VN')} ₫</td>
-                      <td className={`px-6 py-4 text-right font-bold ${i.stock <= LOW_STOCK_THRESHOLD ? 'text-red-500' : 'text-slate-900'}`}>{i.stock}</td>
-                      <td className="px-6 py-4"><span className={`px-2 py-1 rounded text-xs font-bold ${badge.cls}`}>{badge.label}</span></td>
+                    <tr key={i.id} className="border-t border-border-default hover:bg-surface-hover">
+                      <td className="px-[18px] py-3.5 font-extrabold text-foreground">{i.name}</td>
+                      <td className="px-[18px] py-3.5 text-foreground-muted">{i.category}</td>
+                      <td className="px-[18px] py-3.5 text-foreground-muted">{i.sport || '—'}</td>
+                      <td className="px-[18px] py-3.5 text-right text-foreground">{Number(i.price).toLocaleString('vi-VN')} ₫</td>
+                      <td className={`px-[18px] py-3.5 text-right font-extrabold ${i.stock <= LOW_STOCK_THRESHOLD ? 'text-danger' : 'text-foreground'}`}>{i.stock}</td>
+                      <td className="px-[18px] py-3.5"><span className={`label-mono px-2.5 py-1 ${badge.cls}`}>{badge.label}</span></td>
                     </tr>
                   )
                 })}

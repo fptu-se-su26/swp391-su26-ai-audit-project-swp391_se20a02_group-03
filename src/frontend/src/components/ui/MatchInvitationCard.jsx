@@ -10,10 +10,10 @@ export default function MatchInvitationCard({ match, onJoin, onDecline }) {
     maxPlayers = 4,
   } = match
 
-  const defaultAvatar = `https://ui-avatars.com/api/?name=${hostName}&background=14B8A6&color=fff&size=80`
+  const defaultAvatar = `https://ui-avatars.com/api/?name=${hostName}&background=0d1b2a&color=f3f2ee&size=80`
 
   return (
-    <div className="p-4 bg-white border border-[#E2E8F0] rounded-xl transition-all duration-200 hover:shadow-sm hover:border-[#CBD5E1]">
+    <div className="p-4 bg-surface border-2 border-border-strong rounded-[2px]">
       <div className="flex items-start gap-3.5">
         <img
           src={hostAvatar || defaultAvatar}
@@ -34,23 +34,23 @@ export default function MatchInvitationCard({ match, onJoin, onDecline }) {
                 {courtName}
               </span>
             )}
-            <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-teal-50 text-teal-600">
+            <span className="label-mono px-2 py-0.5 rounded-[2px] border border-accent text-accent">
               {skillLevel}
             </span>
           </div>
         </div>
       </div>
 
-      <div className="flex items-center gap-2 mt-4 pt-3 border-t border-[#F1F5F9]">
+      <div className="flex items-center gap-2 mt-4 pt-3 border-t border-border-default">
         <button
           onClick={onJoin}
-          className="flex-1 h-9 rounded-lg bg-[#14B8A6] text-[var(--theme-primary)] text-sm font-semibold transition-all duration-200 hover:bg-[#0D9488] active:scale-[0.98]"
+          className="flex-1 h-9 rounded-[2px] bg-accent text-ink text-sm font-bold transition-colors duration-150 hover:opacity-90 active:scale-[0.98]"
         >
           Tham gia
         </button>
         <button
           onClick={onDecline}
-          className="flex-1 h-9 rounded-lg bg-white border border-[#E2E8F0] text-foreground-muted text-sm font-medium transition-all duration-200 hover:bg-[#F1F5F9] active:scale-[0.98]"
+          className="flex-1 h-9 rounded-[2px] bg-transparent border-2 border-border-hover text-foreground-muted text-sm font-medium transition-colors duration-150 hover:border-foreground active:scale-[0.98]"
         >
           Từ chối
         </button>

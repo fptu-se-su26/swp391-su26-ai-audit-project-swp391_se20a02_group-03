@@ -57,40 +57,44 @@ export default function ShopCheckoutPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#f5f9fc]">
-      <header className="h-14 bg-white border-b border-[#e0ecf0] flex items-center justify-center">
-        <ProSportLogo size="sm" variant="shop" />
+    <div className="min-h-screen flex flex-col bg-background-base font-sans">
+      <header className="h-[76px] bg-ink border-b border-white/10 flex items-center justify-center">
+        <ProSportLogo size="sm" variant="light" />
       </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-[1fr_380px] gap-7 max-w-[1100px] my-8 mx-auto px-6 flex-1 items-start w-full">
-        <div className="flex flex-col gap-5">
-          <div className="bg-white rounded-[14px] p-6 border-[1.5px] border-[#e0ecf0]">
-            <h2 className="text-base font-bold text-foreground mb-5">Thông tin giao hàng</h2>
-            <div className="grid grid-cols-2 gap-3.5">
-              <div className="flex flex-col gap-1.5 col-span-2">
-                <label className="text-[0.78rem] font-semibold text-[#94a3b8]">Họ tên người nhận</label>
-                <input type="text" placeholder="Nguyễn Văn A" className="border-[1.5px] border-[#e0ecf0] rounded-lg px-3 py-2.5 text-sm outline-none focus:border-[#14B8A6]" />
+      <div className="grid grid-cols-1 md:grid-cols-[1fr_380px] gap-8 max-w-[1100px] my-10 mx-auto px-5 md:px-10 flex-1 items-start w-full">
+        <div className="flex flex-col gap-6">
+          <div className="card-base">
+            <h2 className="label-mono text-foreground mb-6">Thông tin giao hàng</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="flex flex-col gap-1.5 sm:col-span-2">
+                <label className="text-xs font-bold uppercase tracking-[0.04em] text-foreground-muted">Họ tên người nhận</label>
+                <input type="text" placeholder="Nguyễn Văn A" className="input-base" />
               </div>
               <div className="flex flex-col gap-1.5">
-                <label className="text-[0.78rem] font-semibold text-[#94a3b8]">Số điện thoại</label>
-                <input type="text" placeholder="09xxxxxxxx" className="border-[1.5px] border-[#e0ecf0] rounded-lg px-3 py-2.5 text-sm outline-none focus:border-[#14B8A6]" />
+                <label className="text-xs font-bold uppercase tracking-[0.04em] text-foreground-muted">Số điện thoại</label>
+                <input type="text" placeholder="09xxxxxxxx" className="input-base" />
               </div>
               <div className="flex flex-col gap-1.5">
-                <label className="text-[0.78rem] font-semibold text-[#94a3b8]">Hình thức</label>
-                <input type="text" defaultValue="Nhận tại quầy" className="border-[1.5px] border-[#e0ecf0] rounded-lg px-3 py-2.5 text-sm outline-none focus:border-[#14B8A6]" />
+                <label className="text-xs font-bold uppercase tracking-[0.04em] text-foreground-muted">Hình thức</label>
+                <input type="text" defaultValue="Nhận tại quầy" className="input-base" />
               </div>
-              <div className="flex flex-col gap-1.5 col-span-2">
-                <label className="text-[0.78rem] font-semibold text-[#94a3b8]">Địa chỉ</label>
-                <input type="text" placeholder="Số nhà, đường, phường..." className="border-[1.5px] border-[#e0ecf0] rounded-lg px-3 py-2.5 text-sm outline-none focus:border-[#14B8A6]" />
+              <div className="flex flex-col gap-1.5 sm:col-span-2">
+                <label className="text-xs font-bold uppercase tracking-[0.04em] text-foreground-muted">Địa chỉ</label>
+                <input type="text" placeholder="Số nhà, đường, phường..." className="input-base" />
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-[14px] p-6 border-[1.5px] border-[#e0ecf0]">
-            <h2 className="text-base font-bold text-foreground mb-5">Phương thức thanh toán</h2>
-            <div className="flex gap-2.5 flex-wrap">
+          <div className="card-base">
+            <h2 className="label-mono text-foreground mb-6">Phương thức thanh toán</h2>
+            <div className="flex gap-3 flex-wrap">
               {payMethods.map(m => (
-                <button key={m} onClick={() => setPayMethod(m)} className={`border-[1.5px] rounded-lg p-3 px-4 bg-white cursor-pointer text-[0.82rem] font-semibold transition-all min-w-[100px] ${payMethod === m ? 'border-[#14B8A6] text-[#14B8A6] bg-[#14B8A6]/5' : 'border-[#e0ecf0] text-[#64748b] hover:border-[#14B8A6] hover:text-[#14B8A6]'}`}>
+                <button
+                  key={m}
+                  onClick={() => setPayMethod(m)}
+                  className={`px-5 h-11 text-xs font-extrabold uppercase tracking-[0.05em] rounded-[2px] border-2 transition-colors min-w-[110px] ${payMethod === m ? 'bg-ink text-paper border-ink' : 'bg-transparent text-foreground border-border-hover hover:border-foreground'}`}
+                >
                   {m}
                 </button>
               ))}
@@ -98,45 +102,52 @@ export default function ShopCheckoutPage() {
           </div>
         </div>
 
-        <div className="bg-white rounded-[14px] p-6 border-[1.5px] border-[#e0ecf0] md:sticky md:top-6">
-          <h2 className="text-base font-bold text-foreground mb-4">Tóm tắt đơn hàng</h2>
+        <div className="card-base md:sticky md:top-6">
+          <h2 className="label-mono text-foreground mb-6">Tóm tắt đơn hàng</h2>
           {loading ? (
-            <div className="py-8 text-center text-slate-400"><Loader2 className="inline animate-spin mr-2" size={18} /> Đang tải...</div>
+            <div className="py-8 text-center text-foreground-muted"><Loader2 className="inline animate-spin mr-2" size={18} /> Đang tải...</div>
           ) : items.length === 0 ? (
-            <p className="py-8 text-center text-slate-400 text-sm">Giỏ hàng trống.</p>
+            <p className="py-8 text-center text-foreground-muted text-sm">Giỏ hàng trống.</p>
           ) : (
             <>
-              {items.map(item => (
-                <div key={item.cartItemId} className="flex items-center gap-3 py-2.5 border-b border-[#f0f5f9]">
-                  <img src={item.imageUrl || FALLBACK_IMG} alt={item.equipmentName} className="w-[46px] h-[46px] rounded-lg object-cover shrink-0" onError={e => { e.currentTarget.src = FALLBACK_IMG }} />
-                  <div className="min-w-0">
-                    <p className="text-[0.85rem] font-bold text-foreground truncate">{item.equipmentName}</p>
-                    <p className="text-[0.75rem] text-[#94a3b8]">SL: {item.quantity} × {item.unitPrice.toLocaleString('vi-VN')}₫</p>
+              <div className="flex flex-col divide-y divide-border-default border-b-2 border-border-strong mb-4">
+                {items.map(item => (
+                  <div key={item.cartItemId} className="flex items-center gap-3 py-3">
+                    <img
+                      src={item.imageUrl || FALLBACK_IMG}
+                      alt={item.equipmentName}
+                      className="w-12 h-12 border-2 border-border-strong object-cover shrink-0"
+                      onError={e => { e.currentTarget.src = FALLBACK_IMG }}
+                    />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-extrabold text-foreground truncate">{item.equipmentName}</p>
+                      <p className="label-mono text-foreground-muted">SL {item.quantity} × {item.unitPrice.toLocaleString('vi-VN')}đ</p>
+                    </div>
+                    <span className="text-sm font-bold text-foreground whitespace-nowrap">{item.totalPrice.toLocaleString('vi-VN')}đ</span>
                   </div>
-                  <span className="ml-auto text-[0.85rem] font-semibold text-foreground whitespace-nowrap">{item.totalPrice.toLocaleString('vi-VN')}₫</span>
-                </div>
-              ))}
-              <div className="flex justify-between text-base font-bold text-foreground my-3.5 pt-3 border-t-[1.5px] border-[#e0ecf0]">
-                <span>Tổng cộng</span>
-                <span className="text-[#14B8A6] text-[1.15rem]">{total.toLocaleString('vi-VN')}₫</span>
+                ))}
+              </div>
+              <div className="flex justify-between items-center mb-6">
+                <span className="font-extrabold text-base text-foreground">Tổng cộng</span>
+                <span className="font-heading text-2xl text-foreground">{total.toLocaleString('vi-VN')}đ</span>
               </div>
             </>
           )}
           <button
             onClick={confirmPurchase}
             disabled={placing || items.length === 0}
-            className="bg-[#14B8A6] hover:bg-[#0b7373] text-white font-semibold flex items-center justify-center w-full gap-2 p-3.5 rounded-full text-[0.95rem] border-none cursor-pointer transition-colors disabled:opacity-50"
+            className="btn-primary w-full h-14 flex items-center justify-center gap-2 text-sm"
           >
             {placing ? <Loader2 size={16} className="animate-spin" /> : <Lock size={14} />}
             Xác nhận thanh toán
           </button>
-          <p className="flex items-center justify-center gap-1.5 text-[0.78rem] text-[#94a3b8] mt-2.5">
+          <p className="flex items-center justify-center gap-1.5 label-mono text-foreground-muted mt-4">
             <Lock size={12} /> Thanh toán được mã hóa an toàn
           </p>
         </div>
       </div>
 
-      <footer className="bg-[#0d1a24] text-white/55 flex flex-col md:flex-row items-center justify-between p-4 px-10 text-xs gap-5 mt-auto">
+      <footer className="bg-ink text-paper/55 flex flex-col md:flex-row items-center justify-between p-4 px-10 text-xs gap-5 mt-auto">
         <ProSportLogo size="sm" variant="light" />
         <p>© 2026 PRO-SPORT. Thiết kế cho hiệu suất đỉnh cao.</p>
       </footer>

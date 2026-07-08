@@ -135,18 +135,18 @@ export default function EliteEquipmentPage() {
     <EliteLayout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 mb-1">Cho thuê / Trả thiết bị</h1>
-          <p className="text-sm text-slate-500">Giao dụng cụ tại quầy và xác nhận khi khách trả.</p>
+          <h1 className="font-heading text-3xl sm:text-4xl uppercase tracking-[-0.01em] text-foreground mb-2">Cho thuê / trả thiết bị</h1>
+          <p className="text-sm text-foreground-muted">Giao dụng cụ tại quầy và xác nhận khi khách trả.</p>
         </div>
 
         <div className="grid grid-cols-1 xl:grid-cols-[1fr_360px] gap-6 items-start">
-          <div className="space-y-4">
+          <div className="space-y-5">
             <div className="flex gap-2">
               <button
                 type="button"
                 onClick={() => setTab('active')}
-                className={`px-4 py-2 rounded-lg text-sm font-semibold border cursor-pointer ${
-                  tab === 'active' ? 'bg-[#5E6AD2] text-white border-[#5E6AD2]' : 'border-slate-200 text-slate-600'
+                className={`label-mono px-[18px] h-10 rounded-[2px] border-2 cursor-pointer transition-colors ${
+                  tab === 'active' ? 'bg-ink border-ink text-paper' : 'border-border-hover text-foreground-muted bg-transparent hover:border-foreground'
                 }`}
               >
                 Đang thuê ({tab === 'active' ? rentals.length : '…'})
@@ -154,28 +154,28 @@ export default function EliteEquipmentPage() {
               <button
                 type="button"
                 onClick={() => setTab('history')}
-                className={`px-4 py-2 rounded-lg text-sm font-semibold border cursor-pointer ${
-                  tab === 'history' ? 'bg-[#5E6AD2] text-white border-[#5E6AD2]' : 'border-slate-200 text-slate-600'
+                className={`label-mono px-[18px] h-10 rounded-[2px] border-2 cursor-pointer transition-colors ${
+                  tab === 'history' ? 'bg-ink border-ink text-paper' : 'border-border-hover text-foreground-muted bg-transparent hover:border-foreground'
                 }`}
               >
                 Đã trả
               </button>
             </div>
 
-            <div className="bg-white rounded-xl border border-slate-200 divide-y divide-slate-100">
+            <div className="border-2 border-border-strong bg-surface divide-y divide-border-default">
               {rentals.length === 0 ? (
-                <p className="p-8 text-center text-slate-400 text-sm">
+                <p className="p-8 text-center text-foreground-subtle text-sm">
                   {tab === 'active' ? 'Không có thiết bị đang cho thuê.' : 'Chưa có lịch sử trả.'}
                 </p>
               ) : rentals.map(r => (
-                <div key={r.detailId} className="p-4 flex flex-wrap items-center justify-between gap-3">
+                <div key={r.detailId} className="p-[18px] flex flex-wrap items-center justify-between gap-3">
                   <div>
-                    <p className="font-bold text-slate-900">{r.equipmentName}</p>
-                    <p className="text-xs text-slate-500 mt-1">
+                    <p className="font-extrabold text-foreground mb-1">{r.equipmentName}</p>
+                    <p className="label-mono text-foreground-subtle">
                       #{r.detailId} • SL {r.quantity} • {r.customerName || `User #${r.userId}`}
                       {r.bookingId ? ` • Booking #${r.bookingId}` : ''}
                     </p>
-                    <p className="text-xs text-slate-400 mt-0.5">
+                    <p className="text-xs text-foreground-subtle mt-1">
                       {new Date(r.rentedAt).toLocaleString('vi-VN')} • {Number(r.subtotal || r.unitPrice * r.quantity).toLocaleString('vi-VN')}đ
                     </p>
                   </div>
@@ -184,7 +184,7 @@ export default function EliteEquipmentPage() {
                       <select
                         value={getReturnForm(r.detailId).condition}
                         onChange={e => setReturnForm(r.detailId, { condition: e.target.value })}
-                        className="border border-slate-200 rounded-lg px-2 py-1.5 text-sm"
+                        className="h-[38px] px-2.5 border-2 border-border-strong bg-surface text-foreground text-xs rounded-[2px]"
                       >
                         <option value="Good">Tốt</option>
                         <option value="Damaged">Hư hỏng</option>
@@ -194,7 +194,7 @@ export default function EliteEquipmentPage() {
                         type="button"
                         disabled={acting}
                         onClick={() => handleReturn(r.detailId)}
-                        className="inline-flex items-center justify-center gap-1 bg-green-600 text-white px-3 py-2 rounded-lg text-sm font-semibold border-none cursor-pointer hover:bg-green-700 disabled:opacity-60"
+                        className="inline-flex items-center justify-center gap-1.5 label-mono px-4 py-2.5 bg-ink text-paper border-none rounded-[2px] cursor-pointer hover:bg-accent hover:text-ink disabled:opacity-60"
                       >
                         {acting ? <Loader2 size={14} className="animate-spin" /> : <RotateCcw size={14} />}
                         Nhận trả
@@ -202,7 +202,7 @@ export default function EliteEquipmentPage() {
                     </div>
                   )}
                   {tab === 'history' && r.returnCondition && (
-                    <span className="text-xs font-semibold px-2 py-1 rounded bg-slate-100 text-slate-600">
+                    <span className="label-mono px-2.5 py-1 bg-background-base border border-border-default text-foreground-muted">
                       {r.returnCondition}
                     </span>
                   )}
@@ -211,8 +211,8 @@ export default function EliteEquipmentPage() {
             </div>
           </div>
 
-          <aside className="bg-white rounded-xl border border-slate-200 p-6 sticky top-24 space-y-4">
-            <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+          <aside className="border-2 border-border-strong bg-surface p-6 sticky top-24 space-y-4">
+            <h2 className="font-heading text-base uppercase text-foreground flex items-center gap-2">
               <Package size={18} /> Giao tại quầy
             </h2>
 
@@ -222,57 +222,57 @@ export default function EliteEquipmentPage() {
                   key={eq.equipmentId}
                   type="button"
                   onClick={() => setSelectedId(eq.equipmentId)}
-                  className={`text-left p-2 rounded-lg border text-xs cursor-pointer ${
+                  className={`text-left p-2 border-2 text-xs cursor-pointer rounded-[2px] transition-colors ${
                     selected?.equipmentId === eq.equipmentId
-                      ? 'border-[#5E6AD2] bg-[#5E6AD2]/5'
-                      : 'border-slate-200 hover:border-slate-300'
+                      ? 'border-accent bg-background-base'
+                      : 'border-border-default hover:border-border-hover'
                   }`}
                 >
-                  <img src={eq.imageUrl || FALLBACK_IMG} alt="" className="w-full h-14 object-cover rounded mb-1" />
-                  <p className="font-semibold text-slate-800 line-clamp-1">{eq.name}</p>
-                  <p className="text-slate-500">Kho: {eq.stockQuantity}</p>
+                  <img src={eq.imageUrl || FALLBACK_IMG} alt="" className="w-full h-14 object-cover mb-1.5 rounded-[2px]" />
+                  <p className="font-bold text-foreground line-clamp-1">{eq.name}</p>
+                  <p className="text-foreground-muted">Kho: {eq.stockQuantity}</p>
                 </button>
               ))}
             </div>
 
             {selected && (
               <>
-                <div className="border-t border-slate-100 pt-3">
-                  <p className="font-semibold text-slate-900">{selected.name}</p>
-                  <p className="text-sm text-slate-500">Giá thuê/giờ: {rentalPrice.toLocaleString('vi-VN')}đ</p>
+                <div className="border-t border-border-default pt-3.5">
+                  <p className="font-extrabold text-sm text-foreground mb-1">{selected.name}</p>
+                  <p className="text-[12.5px] text-foreground-muted">Giá thuê/giờ: {rentalPrice.toLocaleString('vi-VN')}đ</p>
                 </div>
 
-                <label className="block text-sm">
-                  <span className="text-slate-600">Email khách (tuỳ chọn)</span>
+                <label className="block">
+                  <span className="label-mono text-foreground-subtle block mb-1.5">Email khách (tuỳ chọn)</span>
                   <input
                     type="email"
                     value={customerEmail}
                     onChange={e => setCustomerEmail(e.target.value)}
                     placeholder="customer1@prosport.vn"
-                    className="w-full mt-1 border border-slate-200 rounded-lg px-3 py-2 text-sm"
+                    className="w-full h-10 px-3 border-2 border-border-strong bg-surface text-foreground text-sm rounded-[2px] outline-none focus:border-accent"
                   />
                 </label>
 
-                <label className="block text-sm">
-                  <span className="text-slate-600">Mã booking (tuỳ chọn)</span>
+                <label className="block">
+                  <span className="label-mono text-foreground-subtle block mb-1.5">Mã booking (tuỳ chọn)</span>
                   <input
                     type="number"
                     value={bookingId}
                     onChange={e => setBookingId(e.target.value)}
                     placeholder="123"
-                    className="w-full mt-1 border border-slate-200 rounded-lg px-3 py-2 text-sm"
+                    className="w-full h-10 px-3 border-2 border-border-strong bg-surface text-foreground text-sm rounded-[2px] outline-none focus:border-accent"
                   />
                 </label>
 
-                <label className="block text-sm">
-                  <span className="text-slate-600">Số lượng</span>
+                <label className="block">
+                  <span className="label-mono text-foreground-subtle block mb-1.5">Số lượng</span>
                   <input
                     type="number"
                     min={1}
                     max={selected.stockQuantity}
                     value={quantity}
                     onChange={e => setQuantity(e.target.value)}
-                    className="w-full mt-1 border border-slate-200 rounded-lg px-3 py-2 text-sm"
+                    className="w-full h-10 px-3 border-2 border-border-strong bg-surface text-foreground text-sm rounded-[2px] outline-none focus:border-accent"
                   />
                 </label>
 
@@ -280,7 +280,7 @@ export default function EliteEquipmentPage() {
                   type="button"
                   disabled={acting}
                   onClick={handleRent}
-                  className="w-full bg-[#5E6AD2] hover:bg-[#4e5bc4] text-white border-none rounded-lg py-3 font-semibold cursor-pointer disabled:opacity-60"
+                  className="btn-primary w-full disabled:opacity-60"
                 >
                   {acting ? 'Đang xử lý...' : 'Xác nhận cho thuê'}
                 </button>

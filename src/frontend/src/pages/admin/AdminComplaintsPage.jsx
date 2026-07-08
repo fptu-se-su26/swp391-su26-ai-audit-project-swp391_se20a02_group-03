@@ -5,10 +5,10 @@ import { useToast } from '../../components/Toast'
 import { Loader2 } from 'lucide-react'
 
 const STATUS_META = {
-  Pending: { label: 'CHỜ XỬ LÝ', cls: 'bg-amber-100 text-amber-700', border: 'border-amber-500' },
-  Investigating: { label: 'ĐANG ĐIỀU TRA', cls: 'bg-blue-100 text-blue-700', border: 'border-blue-500' },
-  Resolved: { label: 'ĐÃ XỬ LÝ', cls: 'bg-green-100 text-green-700', border: 'border-green-500' },
-  Rejected: { label: 'BÁC BỎ', cls: 'bg-slate-200 text-slate-600', border: 'border-slate-400' },
+  Pending: { label: 'CHỜ XỬ LÝ', cls: 'bg-ink text-paper border-2 border-ink', border: 'border-ink' },
+  Investigating: { label: 'ĐANG ĐIỀU TRA', cls: 'bg-transparent text-foreground border border-border-strong', border: 'border-foreground' },
+  Resolved: { label: 'ĐÃ XỬ LÝ', cls: 'bg-transparent text-accent border border-accent', border: 'border-accent' },
+  Rejected: { label: 'BÁC BỎ', cls: 'bg-transparent text-foreground-muted border border-border-default', border: 'border-border-hover' },
 }
 
 const FILTERS = [
@@ -78,8 +78,8 @@ export default function AdminComplaintsPage() {
     <AdminLayout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 mb-1">Giải quyết Khiếu nại</h1>
-          <p className="text-sm text-slate-500">Xử lý các báo cáo bùng kèo và tranh chấp giao dịch.</p>
+          <h1 className="font-heading text-3xl md:text-4xl uppercase tracking-tight text-foreground mb-2">Giải quyết khiếu nại</h1>
+          <p className="text-sm text-foreground-muted">Xử lý các báo cáo bùng kèo và tranh chấp giao dịch.</p>
         </div>
 
         <div className="flex gap-2 flex-wrap">
@@ -87,8 +87,10 @@ export default function AdminComplaintsPage() {
             <button
               key={f.key}
               onClick={() => setFilter(f.key)}
-              className={`py-[6px] px-4 rounded-full border text-sm font-medium transition-colors ${
-                filter === f.key ? 'border-[#14B8A6] bg-[#14B8A6]/10 text-[#0d9488]' : 'border-slate-200 bg-white text-slate-500 hover:bg-slate-50'
+              className={`px-4.5 h-11 font-sans text-[11.5px] font-bold uppercase tracking-[0.04em] border-2 rounded-[2px] transition-colors cursor-pointer ${
+                filter === f.key
+                  ? 'bg-ink border-ink text-paper'
+                  : 'bg-transparent border-border-hover text-foreground-muted hover:border-foreground'
               }`}
             >
               {f.label}
@@ -96,15 +98,15 @@ export default function AdminComplaintsPage() {
           ))}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.6fr] gap-5">
           {/* List */}
-          <div className="col-span-1 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col h-[600px]">
-            <div className="p-4 border-b border-slate-200 bg-slate-50 text-sm font-semibold text-slate-700">
+          <div className="col-span-1 border-2 border-border-strong bg-surface flex flex-col h-[600px]">
+            <div className="px-4.5 py-4 border-b-2 border-border-strong label-mono text-foreground">
               {loading ? 'Đang tải...' : `${filtered.length} khiếu nại`}
             </div>
-            <div className="flex-1 overflow-y-auto divide-y divide-slate-100">
+            <div className="flex-1 overflow-y-auto divide-y divide-border-default">
               {!loading && filtered.length === 0 && (
-                <div className="p-6 text-center text-slate-400 text-sm">Không có khiếu nại nào.</div>
+                <div className="p-6 text-center text-foreground-muted text-sm">Không có khiếu nại nào.</div>
               )}
               {filtered.map(r => {
                 const meta = STATUS_META[r.status] || STATUS_META.Pending
@@ -113,15 +115,15 @@ export default function AdminComplaintsPage() {
                   <div
                     key={r.reportId}
                     onClick={() => setSelectedId(r.reportId)}
-                    className={`p-4 cursor-pointer ${active ? 'bg-blue-50 border-l-4 ' + meta.border : 'hover:bg-slate-50 border-l-4 border-transparent'}`}
+                    className={`p-4.5 cursor-pointer border-l-4 transition-colors ${active ? 'bg-background-base ' + meta.border : 'hover:bg-surface-hover border-transparent'}`}
                   >
-                    <div className="flex justify-between mb-1">
-                      <span className="font-bold text-slate-900 text-sm">#RP-{r.reportId}</span>
-                      <span className={`text-[0.65rem] font-bold px-2 py-0.5 rounded ${meta.cls}`}>{meta.label}</span>
+                    <div className="flex justify-between items-center mb-1.5">
+                      <span className="font-extrabold text-foreground text-sm">#RP-{r.reportId}</span>
+                      <span className={`label-mono text-[9px] px-2 py-1 rounded-[2px] ${meta.cls}`}>{meta.label}</span>
                     </div>
-                    <p className="text-sm font-semibold text-slate-800 line-clamp-1">{r.reason}</p>
-                    <p className="text-xs text-slate-500 mt-1">
-                      Người báo cáo #{r.reporterId} → Bị báo cáo #{r.reportedUserId} • {new Date(r.createdAt).toLocaleDateString('vi-VN')}
+                    <p className="text-sm font-semibold text-foreground line-clamp-1">{r.reason}</p>
+                    <p className="text-xs text-foreground-muted mt-1">
+                      #{r.reporterId} → #{r.reportedUserId} • {new Date(r.createdAt).toLocaleDateString('vi-VN')}
                     </p>
                   </div>
                 )
@@ -130,53 +132,50 @@ export default function AdminComplaintsPage() {
           </div>
 
           {/* Detail */}
-          <div className="col-span-2 bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col h-[600px]">
+          <div className="col-span-1 border-2 border-border-strong bg-surface flex flex-col h-[600px]">
             {!selected ? (
-              <div className="flex-1 flex items-center justify-center text-slate-400 text-sm">Chọn một khiếu nại để xem chi tiết.</div>
+              <div className="flex-1 flex items-center justify-center text-foreground-muted text-sm">Chọn một khiếu nại để xem chi tiết.</div>
             ) : (
               <>
-                <div className="p-5 border-b border-slate-200">
-                  <div className="flex justify-between items-start mb-2">
-                    <h2 className="text-lg font-bold text-slate-900">#RP-{selected.reportId}: {selected.reason}</h2>
-                    <span className={`text-xs font-bold px-3 py-1 rounded-full ${(STATUS_META[selected.status] || STATUS_META.Pending).cls}`}>
+                <div className="p-5.5 border-b-2 border-border-strong">
+                  <div className="flex justify-between items-start gap-3 mb-2">
+                    <h2 className="font-heading text-base uppercase text-foreground">#RP-{selected.reportId}: {selected.reason}</h2>
+                    <span className={`label-mono px-2.5 py-1 rounded-[2px] shrink-0 ${(STATUS_META[selected.status] || STATUS_META.Pending).cls}`}>
                       {(STATUS_META[selected.status] || STATUS_META.Pending).label}
                     </span>
                   </div>
-                  <p className="text-sm text-slate-500">Kèo liên quan: <span className="font-bold text-[#14B8A6]">#MATCH-{selected.matchId}</span></p>
+                  <p className="text-sm text-foreground-muted">Kèo liên quan: <span className="font-bold text-foreground">#MATCH-{selected.matchId}</span></p>
                 </div>
 
-                <div className="flex-1 p-5 overflow-y-auto space-y-4">
-                  <div className="bg-slate-50 p-4 rounded-xl border border-slate-100">
-                    <p className="text-xs font-semibold text-slate-500 mb-1">Người báo cáo #{selected.reporterId} tố cáo người chơi #{selected.reportedUserId}</p>
-                    <p className="text-sm text-slate-800 leading-relaxed">{selected.reason}</p>
+                <div className="flex-1 p-5.5 overflow-y-auto space-y-5">
+                  <div className="bg-background-base p-4 border border-border-default">
+                    <p className="label-mono text-foreground-muted mb-2">Người báo cáo #{selected.reporterId} tố cáo người chơi #{selected.reportedUserId}</p>
+                    <p className="text-sm text-foreground leading-relaxed">{selected.reason}</p>
                     {selected.evidence && (
-                      <a href={selected.evidence} target="_blank" rel="noreferrer" className="inline-block mt-3 text-sm text-[#14B8A6] underline break-all">
+                      <a href={selected.evidence} target="_blank" rel="noreferrer" className="inline-block mt-3 text-sm text-accent underline break-all">
                         Xem bằng chứng
                       </a>
                     )}
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-2">Ghi chú xử lý của quản trị viên</label>
+                    <label className="block text-sm font-bold text-foreground mb-2">Ghi chú xử lý của quản trị viên</label>
                     <textarea
                       rows={4}
                       value={adminNote}
                       onChange={e => setAdminNote(e.target.value)}
                       placeholder="Nhập kết luận / quyết định xử lý..."
-                      className="w-full border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-[#14B8A6] resize-none text-sm"
+                      className="input-base h-auto py-3.5 resize-none"
                     />
                   </div>
                 </div>
 
-                <div className="p-5 border-t border-slate-200 bg-slate-50">
-                  <p className="text-sm font-semibold text-slate-700 mb-3">Quyết định xử lý</p>
-                  <div className="flex gap-3 flex-wrap">
-                    <button onClick={() => resolve('Investigating')} disabled={acting} className="flex-1 min-w-[120px] border border-blue-300 text-blue-600 font-semibold py-2 rounded-lg bg-white hover:bg-blue-50 disabled:opacity-60">Điều tra</button>
-                    <button onClick={() => resolve('Rejected')} disabled={acting} className="flex-1 min-w-[120px] border border-slate-300 text-slate-700 font-semibold py-2 rounded-lg bg-white hover:bg-slate-50 disabled:opacity-60">Bác bỏ</button>
-                    <button onClick={() => resolve('Resolved')} disabled={acting} className="flex-1 min-w-[120px] bg-green-500 text-white font-semibold py-2 rounded-lg hover:bg-green-600 disabled:opacity-60 flex items-center justify-center gap-2">
-                      {acting && <Loader2 size={15} className="animate-spin" />} Xử lý xong
-                    </button>
-                  </div>
+                <div className="p-5.5 border-t-2 border-border-strong flex gap-2.5 flex-wrap">
+                  <button onClick={() => resolve('Investigating')} disabled={acting} className="btn-outline flex-1 min-w-[120px] disabled:opacity-60">Điều tra</button>
+                  <button onClick={() => resolve('Rejected')} disabled={acting} className="btn-outline flex-1 min-w-[120px] disabled:opacity-60">Bác bỏ</button>
+                  <button onClick={() => resolve('Resolved')} disabled={acting} className="btn-primary flex-1 min-w-[120px] disabled:opacity-60">
+                    {acting && <Loader2 size={15} className="animate-spin" />} Xử lý xong
+                  </button>
                 </div>
               </>
             )}
