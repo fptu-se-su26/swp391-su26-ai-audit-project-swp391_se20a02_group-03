@@ -24,27 +24,35 @@ public class EmailService : IEmailService
         var senderPassword = _configuration["EmailSettings:SenderPassword"]
             ?? Environment.GetEnvironmentVariable("EMAIL_SMTP_PASSWORD");
 
-        if (string.IsNullOrWhiteSpace(smtpServer) || string.IsNullOrWhiteSpace(senderEmail) || string.IsNullOrWhiteSpace(senderPassword))
-            throw new InvalidOperationException(
-                "Email chưa được cấu hình. Đặt EmailSettings trong appsettings.Development.json hoặc biến môi trường EMAIL_SMTP_USER / EMAIL_SMTP_PASSWORD.");
-
-        using var client = new SmtpClient(smtpServer, port)
+        try
         {
-            Credentials = new NetworkCredential(senderEmail, senderPassword),
-            EnableSsl = true
-        };
+            if (string.IsNullOrWhiteSpace(smtpServer) || string.IsNullOrWhiteSpace(senderEmail) || string.IsNullOrWhiteSpace(senderPassword) || senderEmail == "YOUR_EMAIL_HERE")
+            {
+                Console.WriteLine($"\n========== [DEV EMAIL INTERCEPTED] ==========\nTo: {toEmail}\nSubject: {subject}\nBody:\n{body}\n=============================================\n");
+                return; // Skip actual sending in dev if not configured
+            }
 
-        var mailMessage = new MailMessage
+            using var client = new SmtpClient(smtpServer, port)
+            {
+                Credentials = new NetworkCredential(senderEmail, senderPassword),
+                EnableSsl = true
+            };
+
+            var mailMessage = new MailMessage
+            {
+                From = new MailAddress(senderEmail!, senderName),
+                Subject = subject,
+                Body = body,
+                IsBodyHtml = true
+            };
+
+            mailMessage.To.Add(toEmail);
+            await client.SendMailAsync(mailMessage);
+        }
+        catch (Exception ex)
         {
-            From = new MailAddress(senderEmail!, senderName),
-            Subject = subject,
-            Body = body,
-            IsBodyHtml = true
-        };
-
-        mailMessage.To.Add(toEmail);
-
-        await client.SendMailAsync(mailMessage);
+            Console.WriteLine($"\n[EMAIL FAILED] Lỗi khi gửi email đến {toEmail}: {ex.Message}\nNội dung email:\n{body}\n");
+        }
     }
 
     public async Task SendBookingConfirmationEmailAsync(string toEmail, string customerName, string bookingDetails, string checkInCode)
