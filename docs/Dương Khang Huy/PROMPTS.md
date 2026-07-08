@@ -103,3 +103,53 @@ Chỉ bằng việc quăng mã lỗi kỹ thuật thuần túy của bộ thư v
 ### Phân tích & Đánh giá (Evaluation)
 **Mức độ thành công:** Vượt kỳ vọng.
 Lệnh "không làm phát sinh thêm lỗi" (Zero Side-effect constraint) đã ép AI phải đánh giá độ rủi ro (Risk Assessment) trước khi sửa code. Quyết định tắt các rule linter khắt khe thay vì xáo trộn logic (ví dụ `set-state-in-effect`) chứng tỏ AI Agent có khả năng suy luận kiến trúc phần mềm cực kỳ trưởng thành.
+---
+## Prompt #11 - Điều phối Đại tu Giao diện theo Mockup (Multi-agent UI Overhaul)
+**Ngày:** 2026-07-05
+**Công cụ AI:** Claude Code (Claude Fable 5)
+**Mục đích:** Áp dụng bộ thiết kế chuẩn hóa mới cho toàn bộ ~95 trang Frontend từ bộ mockup HTML tĩnh, không làm vỡ logic.
+### Cấu trúc Prompt
+*"Tôi muốn bạn sửa lại giao diện của dự án theo cái design đã sửa. Bộ mockup nằm tại thư mục redesign (~60 file HTML đặt tên khớp 1:1 với các trang React). Áp dụng cho toàn bộ dự án kể cả trang không có mockup riêng; giữ lại tính năng chuyển Dark/Light theme."*
+### Phân tích & Đánh giá (Evaluation)
+**Mức độ thành công:** Rất cao.
+Điểm mấu chốt là cung cấp **nguồn tham chiếu có cấu trúc** (mockup đặt tên khớp 1:1 với trang React) để AI tự ánh xạ công việc. AI chủ động đề xuất quy trình lô (Batch): trích Design Token làm "hợp đồng" chung trước, rồi mới tỏa ra các trang — nhờ vậy ~95 trang do nhiều agent khác nhau thực hiện vẫn nhất quán tuyệt đối. **Quyết định can thiệp:** Tôi chốt phạm vi (loại nhóm Mobile), yêu cầu giữ Dark/Light toggle, và khi một số agent gián đoạn giữa chừng đã dùng `git status` khoanh vùng phần thiếu để giao lại chính xác, tránh làm trùng.
+---
+## Prompt #12 - Kiểm thử Nghiệm thu bằng Nhập vai (Role-play E2E Testing)
+**Ngày:** 2026-07-08
+**Công cụ AI:** Claude Code (Claude Fable 5)
+**Mục đích:** Rà soát chất lượng tổng thể trước khi bàn giao bằng cách để AI nhập vai người dùng thật và giảng viên chấm bài.
+### Cấu trúc Prompt
+*"Với tư cách một người dùng, bạn hãy kiểm tra mọi chức năng của trang web của tôi và đưa ra nhận xét với vai trò là giảng viên môn SWP391."*
+### Phân tích & Đánh giá (Evaluation)
+**Mức độ thành công:** Vượt kỳ vọng.
+Kỹ thuật nhập vai kép (User + Lecturer) ép AI không chỉ bấm thử mà phải **đối chiếu hành vi thực tế với đặc tả SRS**. AI đã thao tác thật trên trình duyệt với đủ 5 vai (Guest/Customer/Admin/Owner/Staff), thực hiện giao dịch thật (đặt sân, thanh toán ví Escrow, tham gia kèo) và đối chiếu từng con số với Database — nhờ đó phát hiện các lỗi mà kiểm thử thủ công dễ bỏ sót: Guest bị chặn khỏi luồng xem sân (vi phạm UC-G02/G03), giá hiển thị không nhất quán giữa 3 màn hình, và các dịch vụ bên thứ ba (Google OAuth, SMTP, VNPay) chưa cấu hình môi trường thật. Danh sách lỗi này được ghi nhận làm Backlog cải tiến cho sprint kế tiếp.
+---
+## Prompt #13 - Chẩn đoán Sự cố Tích hợp Bên thứ ba (Google OAuth Triage)
+**Ngày:** 2026-07-07
+**Công cụ AI:** Claude Code (Claude Fable 5)
+**Mục đích:** Xử lý lỗi người dùng không đăng nhập được bằng Google.
+### Cấu trúc Prompt
+*"Người dùng không có đăng nhập bằng Google được, hãy sửa lỗi đó cho tôi."*
+### Phân tích & Đánh giá (Evaluation)
+**Mức độ thành công:** Xuất sắc.
+Đây là dạng prompt chỉ mô tả **triệu chứng** (Symptom-only), không có mã lỗi. Điểm thú vị: AI không đoán mò mà tự thiết kế **cây chẩn đoán phân lớp** — kiểm tra khớp Client ID hai đầu, thử API backend với token giả, rồi probe thẳng endpoint của Google với header Origin để tái hiện mã 403. Kết luận cuối cùng nằm **ngoài mã nguồn** (thiếu đăng ký origin trên Google Cloud Console) — điều mà nếu chỉ "nhìn code" sẽ không bao giờ tìm ra. **Bài học:** với lỗi tích hợp bên thứ ba, giá trị của AI nằm ở năng lực khoanh vùng ranh giới hệ thống, không phải ở việc sửa file.
+---
+## Prompt #14 - Kiểm chứng & Nạp Dữ liệu Chuẩn (Verify-then-Seed)
+**Ngày:** 2026-07-07
+**Công cụ AI:** Claude Code (Claude Fable 5)
+**Mục đích:** Thay thế dữ liệu ảo trên UI bằng dữ liệu nghiệp vụ thật trong Database.
+### Cấu trúc Prompt
+*"Có phải phần database của chúng tôi hiện tại chưa có gì hay không? Bạn hãy kiểm tra và thêm đầy đủ dữ liệu chuẩn vào database để dự án không còn phải dùng dữ liệu ảo nữa."*
+### Phân tích & Đánh giá (Evaluation)
+**Mức độ thành công:** Rất cao.
+Cấu trúc "nghi vấn trước, hành động sau" buộc AI phải **kiểm chứng hiện trạng trước khi thay đổi** (Verify-then-Act): AI truy vấn thực tế và phủ nhận giả định của tôi — schema đã đủ 45 bảng, chỉ có ~20 bảng nghiệp vụ trống. Script seed sinh ra mang tính kỷ luật cao: idempotent (chạy lại không nhân đôi), dùng đúng bộ hằng số trạng thái của Backend, và tự kiểm tra tiếng Việt lưu đúng Unicode. **Can thiệp:** Tôi yêu cầu kiểm chứng cuối bằng API thật thay vì chỉ đếm dòng trong DB.
+---
+## Prompt #15 - Chuẩn hóa Quy trình Tích hợp Mã nguồn (Git Workflow & PR)
+**Ngày:** 2026-07-09
+**Công cụ AI:** Claude Code (Claude Fable 5)
+**Mục đích:** Đóng gói khối lượng thay đổi lớn (124+ file) và đưa lên GitHub cho Leader review.
+### Cấu trúc Prompt
+*"Tôi muốn up lên GitHub để leader merge vào main thì tôi nên làm như thế nào trên GitHub?"* — sau đó: *"Làm luôn Bước 1–2 (commit + push) cho tôi."*
+### Phân tích & Đánh giá (Evaluation)
+**Mức độ thành công:** Cao.
+AI không gộp tất cả thành một commit hổ lốn mà chủ động **tách commit theo ranh giới trách nhiệm** (Frontend redesign / Backend hardening) để Leader dễ review, đồng thời tự thực hiện các bước kiểm tra an toàn trước khi đẩy: xác nhận `.env` được `.gitignore` che chắn, loại thư mục cấu hình cá nhân khỏi staging. **Can thiệp:** Tôi giữ quyền quyết định cuối với 2 file Backend có sẵn thay đổi dở, xác nhận đó là công việc chủ đích trước khi cho vào commit.
