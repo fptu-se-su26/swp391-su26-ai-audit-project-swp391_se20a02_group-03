@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useOutletContext, useSearchParams } from 'react-router-dom';
 import { ownerApi } from '../../api/ownerApi';
 import PageLoader from '../../components/ui/PageLoader';
+import EmptyState from '../../components/ui/EmptyState';
 
 const RULE_TYPES = ['BasePrice', 'Weekend', 'PeakHour', 'CourtSpecific', 'SpecialDate'];
 const DAYS = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
@@ -81,64 +82,64 @@ export default function OwnerPricingPage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap justify-between gap-3">
+      <div className="flex flex-wrap justify-between items-end gap-5">
         <div>
-          <h2 className="text-xl font-bold">Quy tắc giá</h2>
-          <p className="text-sm text-slate-500">Ưu tiên: SpecialDate → Court → Peak → Weekend → Base</p>
+          <h1 className="font-heading text-3xl md:text-4xl uppercase tracking-tight text-foreground mb-2">Quy tắc giá</h1>
+          <p className="text-sm text-foreground-muted">Ưu tiên: SpecialDate → Court → Peak → Weekend → Base</p>
         </div>
-        <button type="button" onClick={() => setShowForm(v => !v)} className="px-3 py-2 rounded-lg bg-emerald-600 text-white text-sm">
+        <button type="button" onClick={() => setShowForm(v => !v)} className="btn-primary">
           {showForm ? 'Đóng' : '+ Thêm rule'}
         </button>
       </div>
 
-      <select className="rounded-lg border px-3 py-2 text-sm" value={courtId} onChange={e => setCourtId(e.target.value)}>
+      <select className="input-base w-auto" value={courtId} onChange={e => setCourtId(e.target.value)}>
         {courts.map(c => <option key={c.courtId} value={c.courtId}>{c.name}</option>)}
       </select>
 
-      {error && <div className="text-sm text-red-600 rounded-lg border border-red-200 bg-red-50 p-3">{error}</div>}
+      {error && <div className="text-sm text-danger border-2 border-danger bg-danger-bg p-3 rounded-[2px]">{error}</div>}
 
       {showForm && (
-        <form onSubmit={handleCreate} className="bg-white rounded-xl border p-4 grid md:grid-cols-3 gap-3">
-          <select value={form.ruleType} onChange={e => setForm({ ...form, ruleType: e.target.value })} className="rounded-lg border px-3 py-2 text-sm">
+        <form onSubmit={handleCreate} className="border-2 border-border-strong bg-surface p-6 grid md:grid-cols-3 gap-3">
+          <select value={form.ruleType} onChange={e => setForm({ ...form, ruleType: e.target.value })} className="input-base">
             {RULE_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
           </select>
-          <select value={form.dayOfWeek} onChange={e => setForm({ ...form, dayOfWeek: e.target.value })} className="rounded-lg border px-3 py-2 text-sm">
+          <select value={form.dayOfWeek} onChange={e => setForm({ ...form, dayOfWeek: e.target.value })} className="input-base">
             <option value="">Mọi ngày</option>
             {DAYS.map((d, i) => <option key={d} value={i}>{d}</option>)}
           </select>
-          <input type="time" value={form.startTime} onChange={e => setForm({ ...form, startTime: e.target.value })} className="rounded-lg border px-3 py-2 text-sm" />
-          <input type="time" value={form.endTime} onChange={e => setForm({ ...form, endTime: e.target.value })} className="rounded-lg border px-3 py-2 text-sm" />
-          <input type="number" value={form.pricePerHour} onChange={e => setForm({ ...form, pricePerHour: parseInt(e.target.value, 10) })} className="rounded-lg border px-3 py-2 text-sm" placeholder="Giá/giờ" />
-          <input type="number" step="0.1" value={form.multiplier} onChange={e => setForm({ ...form, multiplier: parseFloat(e.target.value) })} className="rounded-lg border px-3 py-2 text-sm" placeholder="Hệ số" />
-          <button type="submit" className="md:col-span-3 rounded-lg bg-emerald-600 text-white py-2 text-sm">Lưu rule</button>
+          <input type="time" value={form.startTime} onChange={e => setForm({ ...form, startTime: e.target.value })} className="input-base" />
+          <input type="time" value={form.endTime} onChange={e => setForm({ ...form, endTime: e.target.value })} className="input-base" />
+          <input type="number" value={form.pricePerHour} onChange={e => setForm({ ...form, pricePerHour: parseInt(e.target.value, 10) })} className="input-base" placeholder="Giá/giờ" />
+          <input type="number" step="0.1" value={form.multiplier} onChange={e => setForm({ ...form, multiplier: parseFloat(e.target.value) })} className="input-base" placeholder="Hệ số" />
+          <button type="submit" className="md:col-span-3 btn-primary">Lưu rule</button>
         </form>
       )}
 
       {!rules.length ? (
-        <p className="text-sm text-slate-500">Chưa có quy tắc giá cho sân này.</p>
+        <EmptyState title="Chưa có quy tắc giá" subtitle="Chưa có quy tắc giá cho sân này." />
       ) : (
-        <div className="overflow-x-auto bg-white rounded-xl border">
-          <table className="w-full text-sm">
-            <thead className="bg-slate-50 text-slate-500">
-              <tr>
-                <th className="p-3 text-left">Loại</th>
-                <th className="p-3 text-left">Ngày</th>
-                <th className="p-3 text-left">Khung giờ</th>
-                <th className="p-3 text-left">Giá/giờ</th>
-                <th className="p-3 text-left">Hệ số</th>
-                <th className="p-3" />
+        <div className="overflow-x-auto border-2 border-border-strong bg-surface">
+          <table className="w-full text-sm border-collapse">
+            <thead>
+              <tr className="bg-[var(--theme-primary)] text-[var(--theme-secondary)]">
+                <th className="text-left px-4 py-3.5 label-mono">Loại</th>
+                <th className="text-left px-4 py-3.5 label-mono">Ngày</th>
+                <th className="text-left px-4 py-3.5 label-mono">Khung giờ</th>
+                <th className="text-left px-4 py-3.5 label-mono">Giá/giờ</th>
+                <th className="text-left px-4 py-3.5 label-mono">Hệ số</th>
+                <th className="px-4 py-3.5" />
               </tr>
             </thead>
             <tbody>
               {rules.map(r => (
-                <tr key={r.pricingRuleId} className="border-t">
-                  <td className="p-3">{r.ruleType || 'BasePrice'}</td>
-                  <td className="p-3">{r.dayOfWeek != null ? DAYS[r.dayOfWeek] : 'All'}</td>
-                  <td className="p-3">{String(r.startTime).slice(0, 5)}–{String(r.endTime).slice(0, 5)}</td>
-                  <td className="p-3">{Number(r.pricePerHour).toLocaleString('vi-VN')} ₫</td>
-                  <td className="p-3">{r.multiplier ?? 1}</td>
-                  <td className="p-3 text-right">
-                    <button type="button" className="text-red-600 text-xs underline bg-transparent border-none cursor-pointer" onClick={() => removeRule(r.pricingRuleId)}>Xóa</button>
+                <tr key={r.pricingRuleId} className="border-t border-border-default">
+                  <td className="px-4 py-3.5 font-bold text-foreground">{r.ruleType || 'BasePrice'}</td>
+                  <td className="px-4 py-3.5 text-foreground">{r.dayOfWeek != null ? DAYS[r.dayOfWeek] : 'All'}</td>
+                  <td className="px-4 py-3.5 text-foreground">{String(r.startTime).slice(0, 5)}–{String(r.endTime).slice(0, 5)}</td>
+                  <td className="px-4 py-3.5 text-foreground">{Number(r.pricePerHour).toLocaleString('vi-VN')} ₫</td>
+                  <td className="px-4 py-3.5 text-foreground">{r.multiplier ?? 1}</td>
+                  <td className="px-4 py-3.5 text-right">
+                    <button type="button" className="text-danger text-xs underline bg-transparent border-none cursor-pointer" onClick={() => removeRule(r.pricingRuleId)}>Xóa</button>
                   </td>
                 </tr>
               ))}

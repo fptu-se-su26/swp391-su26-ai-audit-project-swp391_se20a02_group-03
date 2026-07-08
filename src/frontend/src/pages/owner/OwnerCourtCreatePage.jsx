@@ -11,9 +11,9 @@ const COURT_TYPES = [
 function Field({ label, children, hint }) {
   return (
     <label className="grid gap-1.5 text-sm">
-      <span className="font-medium text-slate-700">{label}</span>
+      <span className="label-mono text-foreground">{label}</span>
       {children}
-      {hint && <span className="text-xs text-slate-500">{hint}</span>}
+      {hint && <span className="text-[11.5px] text-foreground-subtle">{hint}</span>}
     </label>
   );
 }
@@ -55,18 +55,18 @@ export default function OwnerCourtCreatePage() {
   }
 
   return (
-    <div className="max-w-2xl space-y-4">
+    <div className="max-w-2xl space-y-5">
       <div>
-        <Link to="/owner/courts" className="text-sm text-emerald-700 no-underline">← Danh sách sân</Link>
-        <h2 className="text-xl font-bold text-slate-900 mt-2">Tạo sân mới</h2>
-        <p className="text-sm text-slate-500 mt-1">Sân sẽ được gán vào tổ hợp đang chọn.</p>
+        <Link to="/owner/courts" className="inline-block text-sm font-bold text-foreground no-underline border-b-2 border-foreground pb-0.5">← Danh sách sân</Link>
+        <h1 className="font-heading text-3xl md:text-4xl uppercase tracking-tight text-foreground mt-3 mb-2">Tạo sân mới</h1>
+        <p className="text-sm text-foreground-muted">Sân sẽ được gán vào tổ hợp đang chọn.</p>
       </div>
-      {error && <div className="text-sm text-red-600 rounded-lg border border-red-200 bg-red-50 p-3">{error}</div>}
-      <form onSubmit={handleSubmit} className="bg-white rounded-xl border p-5 grid gap-4">
+      {error && <div className="text-sm text-danger bg-danger-bg border border-danger p-3 rounded-[2px]">{error}</div>}
+      <form onSubmit={handleSubmit} className="border-2 border-border-strong bg-surface p-8 grid gap-5">
         <Field label="Tên sân *">
           <input
             required
-            className="rounded-lg border px-3 py-2 text-sm"
+            className="input-base"
             placeholder="VD: Sân cầu lông A1"
             value={form.name}
             onChange={e => setForm({ ...form, name: e.target.value })}
@@ -74,7 +74,7 @@ export default function OwnerCourtCreatePage() {
         </Field>
         <Field label="Mã sân" hint="Để trống sẽ tự sinh mã duy nhất trong tổ hợp.">
           <input
-            className="rounded-lg border px-3 py-2 text-sm font-mono uppercase"
+            className="input-base font-mono uppercase"
             placeholder="VD: CL-A1"
             value={form.code}
             onChange={e => setForm({ ...form, code: e.target.value })}
@@ -82,7 +82,7 @@ export default function OwnerCourtCreatePage() {
         </Field>
         <Field label="Loại sân">
           <select
-            className="rounded-lg border px-3 py-2 text-sm"
+            className="input-base"
             value={form.courtTypeId}
             onChange={e => setForm({ ...form, courtTypeId: parseInt(e.target.value, 10) })}
           >
@@ -96,25 +96,25 @@ export default function OwnerCourtCreatePage() {
             type="number"
             min={0}
             step={1000}
-            className="rounded-lg border px-3 py-2 text-sm"
+            className="input-base"
             value={form.basePrice}
             onChange={e => setForm({ ...form, basePrice: parseInt(e.target.value, 10) || 0 })}
           />
         </Field>
         <Field label="Mô tả">
           <textarea
-            className="rounded-lg border px-3 py-2 text-sm"
+            className="input-base h-auto py-3.5 resize-y"
             placeholder="Ghi chú về sân, thiết bị, vị trí..."
             rows={3}
             value={form.description}
             onChange={e => setForm({ ...form, description: e.target.value })}
           />
         </Field>
-        <div className="flex gap-2 pt-1">
-          <button type="submit" disabled={loading} className="rounded-lg bg-emerald-600 text-white px-4 py-2 text-sm disabled:opacity-50">
+        <div className="flex gap-2.5 pt-1">
+          <button type="submit" disabled={loading} className="btn-primary disabled:opacity-50">
             {loading ? 'Đang tạo...' : 'Tạo sân'}
           </button>
-          <Link to="/owner/courts" className="rounded-lg border px-4 py-2 text-sm text-slate-600 no-underline">Hủy</Link>
+          <Link to="/owner/courts" className="btn-outline no-underline">Hủy</Link>
         </div>
       </form>
     </div>

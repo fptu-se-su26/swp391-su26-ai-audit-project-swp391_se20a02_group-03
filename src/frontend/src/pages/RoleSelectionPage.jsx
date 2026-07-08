@@ -3,11 +3,11 @@ import ProSportLogo from '../components/ui/ProSportLogo'
 import { useAuth } from '../context/AuthContext'
 
 const roleCardClass =
-  'flex items-center gap-4 p-5 bg-slate-50 border-2 border-slate-200 rounded-xl cursor-pointer transition-colors hover:border-slate-400 hover:shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500'
+  'flex items-center gap-4 p-5 bg-surface border-2 border-border-strong rounded-[2px] cursor-pointer transition-colors hover:border-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/40'
 
 function RoleIcon({ className, children }) {
   return (
-    <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full ${className}`}>
+    <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-[2px] ${className}`}>
       {children}
     </div>
   )
@@ -24,10 +24,10 @@ function RoleCard({ icon, title, description, onClick }) {
     >
       {icon}
       <div className="flex-1">
-        <h3 className="mb-1 text-base font-bold text-slate-900">{title}</h3>
-        <p className="m-0 text-sm text-slate-500">{description}</p>
+        <h3 className="mb-1 text-base font-bold text-foreground">{title}</h3>
+        <p className="m-0 text-sm text-foreground-muted">{description}</p>
       </div>
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2" aria-hidden="true">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-foreground-subtle" aria-hidden="true">
         <polyline points="9 18 15 12 9 6" />
       </svg>
     </div>
@@ -90,17 +90,17 @@ export default function RoleSelectionPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-green-50 to-sky-100 font-sans">
+    <div className="min-h-screen flex flex-col bg-background-base font-sans">
       <header className="p-6 flex justify-center">
-        <ProSportLogo size="md" variant="dark" />
+        <ProSportLogo size="md" />
       </header>
 
       <main className="flex-1 flex items-center justify-center p-6">
-        <div className="w-full max-w-xl rounded-3xl bg-white p-10 shadow-xl shadow-slate-900/5">
-          <h2 className="mb-2 text-3xl font-bold text-slate-900">
+        <div className="card-base w-full max-w-xl p-10">
+          <h2 className="font-heading mb-2 text-3xl uppercase text-foreground">
             Chọn vai trò của bạn
           </h2>
-          <p className="mb-8 text-[0.9375rem] text-slate-500">
+          <p className="mb-8 text-sm text-foreground-muted">
             {isAuthenticated
               ? `Đang đăng nhập: ${user?.fullName || user?.email}. Chọn khu vực phù hợp với vai trò.`
               : 'Chọn cách bạn muốn truy cập — nhân viên và quản trị sẽ được chuyển tới đăng nhập.'}
@@ -112,8 +112,8 @@ export default function RoleSelectionPage() {
               description="Đặt sân, tham gia kèo đấu & kết nối với người chơi khác"
               onClick={goCustomer}
               icon={(
-                <RoleIcon className="bg-sky-100">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#008ba3" strokeWidth="2" aria-hidden="true">
+                <RoleIcon className="bg-accent/10 text-accent">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                     <circle cx="12" cy="7" r="4" />
                   </svg>
@@ -126,8 +126,8 @@ export default function RoleSelectionPage() {
               description="Dashboard doanh thu, quản lý sân, giá, nhân viên & booking"
               onClick={goOwner}
               icon={(
-                <RoleIcon className="bg-emerald-100">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2" aria-hidden="true">
+                <RoleIcon className="bg-accent/10 text-accent">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                     <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
                     <path d="M9 22V12h6v10" />
                   </svg>
@@ -140,8 +140,8 @@ export default function RoleSelectionPage() {
               description="Quản lý lịch đặt, khách lẻ & máy tính tiền POS"
               onClick={goStaff}
               icon={(
-                <RoleIcon className="bg-cyan-100">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0891b2" strokeWidth="2" aria-hidden="true">
+                <RoleIcon className="bg-accent/10 text-accent">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                     <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
                     <polyline points="9 22 9 12 15 12 15 22" />
                   </svg>
@@ -154,8 +154,8 @@ export default function RoleSelectionPage() {
               description="Toàn quyền kiểm soát hệ thống, phân tích & cổng quản lý"
               onClick={goAdmin}
               icon={(
-                <RoleIcon className="bg-red-100">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" aria-hidden="true">
+                <RoleIcon className="bg-danger-bg text-danger">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                     <rect x="3" y="3" width="7" height="7" />
                     <rect x="14" y="3" width="7" height="7" />
                     <rect x="14" y="14" width="7" height="7" />

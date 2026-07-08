@@ -33,41 +33,41 @@ export default function OwnerRentalDetailPage() {
   }
 
   if (loading) return <PageLoader label="Đang tải chi tiết phiên thuê..." />;
-  if (error || !rental) return <div className="text-red-700 text-sm">{error || 'Không tìm thấy.'}</div>;
+  if (error || !rental) return <div className="text-danger text-sm">{error || 'Không tìm thấy.'}</div>;
 
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <h2 className="text-xl font-bold">Phiên thuê #{rental.rentalSessionId}</h2>
+    <div className="space-y-4 max-w-3xl">
+      <div className="flex items-center gap-3.5">
+        <h1 className="font-heading text-3xl md:text-4xl uppercase tracking-tight text-foreground">Phiên thuê #{rental.rentalSessionId}</h1>
         <OwnerStatusBadge status={rental.status} />
       </div>
-      <div className="grid md:grid-cols-2 gap-4">
-        <div className="bg-white border rounded-xl p-4 text-sm space-y-1">
-          <p><strong>Khách:</strong> {rental.customerName}</p>
-          <p><strong>Booking:</strong> {rental.bookingId ? `#${rental.bookingId}` : '—'}</p>
-          <p><strong>Phí thuê:</strong> {Number(rental.rentalFee).toLocaleString('vi-VN')} ₫</p>
-          <p><strong>Surcharge:</strong> {Number(rental.surchargeTotal).toLocaleString('vi-VN')} ₫</p>
+      <div className="grid md:grid-cols-2 gap-5">
+        <div className="border-2 border-border-strong bg-surface p-6 text-sm flex flex-col gap-2.5">
+          <p className="m-0 text-foreground"><span className="text-foreground-subtle">Khách:</span> <strong>{rental.customerName}</strong></p>
+          <p className="m-0 text-foreground"><span className="text-foreground-subtle">Booking:</span> {rental.bookingId ? `#${rental.bookingId}` : '—'}</p>
+          <p className="m-0 text-foreground"><span className="text-foreground-subtle">Phí thuê:</span> {Number(rental.rentalFee).toLocaleString('vi-VN')} ₫</p>
+          <p className="m-0 text-foreground"><span className="text-foreground-subtle">Surcharge:</span> {Number(rental.surchargeTotal).toLocaleString('vi-VN')} ₫</p>
         </div>
-        <div className="bg-white border rounded-xl p-4">
-          <h3 className="font-semibold mb-2 text-sm">Assets</h3>
-          <ul className="text-sm space-y-1">{rental.assets?.map(a => (
+        <div className="border-2 border-border-strong bg-surface p-6">
+          <h3 className="font-heading text-sm uppercase text-foreground mb-3">Assets</h3>
+          <ul className="text-sm space-y-1 text-foreground">{rental.assets?.map(a => (
             <li key={a.rentalAssetId}>{a.assetCode} — {a.beforeCondition} → {a.afterCondition || '—'}</li>
           ))}</ul>
         </div>
       </div>
-      <div className="bg-white border rounded-xl p-4">
-        <h3 className="font-semibold mb-2 text-sm">Condition history</h3>
-        {!rental.conditionHistory?.length ? <p className="text-sm text-slate-500">Chưa có.</p> : (
-          <ul className="text-sm space-y-1">{rental.conditionHistory.map(c => (
+      <div className="border-2 border-border-strong bg-surface p-6">
+        <h3 className="font-heading text-sm uppercase text-foreground mb-3">Condition history</h3>
+        {!rental.conditionHistory?.length ? <p className="text-sm text-foreground-muted">Chưa có.</p> : (
+          <ul className="text-sm space-y-1 text-foreground">{rental.conditionHistory.map(c => (
             <li key={c.conditionCheckId}>{c.checkType}: {c.assetCode} — {c.condition} ({c.staffName})</li>
           ))}</ul>
         )}
       </div>
       {rental.status !== 'Completed' && (
-        <form onSubmit={applySurcharge} className="bg-white border rounded-xl p-4 flex flex-wrap gap-2 items-end">
-          <input type="number" required className="border rounded-lg px-3 py-2 text-sm" placeholder="Amount" value={surcharge.amount} onChange={e => setSurcharge({ ...surcharge, amount: +e.target.value })} />
-          <input required className="border rounded-lg px-3 py-2 text-sm flex-1 min-w-[200px]" placeholder="Lý do" value={surcharge.reason} onChange={e => setSurcharge({ ...surcharge, reason: e.target.value })} />
-          <button type="submit" className="px-4 py-2 bg-amber-600 text-white rounded-lg border-none cursor-pointer text-sm">Áp surcharge</button>
+        <form onSubmit={applySurcharge} className="border-2 border-border-strong bg-surface p-6 flex flex-wrap gap-2.5 items-center">
+          <input type="number" required className="input-base w-auto" placeholder="Amount" value={surcharge.amount} onChange={e => setSurcharge({ ...surcharge, amount: +e.target.value })} />
+          <input required className="input-base flex-1 min-w-[200px]" placeholder="Lý do" value={surcharge.reason} onChange={e => setSurcharge({ ...surcharge, reason: e.target.value })} />
+          <button type="submit" className="btn-primary">Áp surcharge</button>
         </form>
       )}
     </div>

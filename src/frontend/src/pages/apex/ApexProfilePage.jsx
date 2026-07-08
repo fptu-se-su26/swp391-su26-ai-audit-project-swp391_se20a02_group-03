@@ -5,11 +5,12 @@ import authApi from '../../api/authApi'
 import { bookingApi } from '../../api/bookingApi'
 import { useToast } from '../../components/Toast'
 import StatusBadge from '../../components/ui/StatusBadge'
+import { Mail, Settings, BookOpen, ShoppingBag, LifeBuoy, ChevronRight } from 'lucide-react'
 
 export default function ApexProfilePage() {
   const { addToast } = useToast()
   const [editing, setEditing] = useState(false)
-  const [profile, setProfile] = useState(null)
+  const [, setProfile] = useState(null)
   const [bookingCount, setBookingCount] = useState(0)
   const [recentBookings, setRecentBookings] = useState([])
   const [form, setForm] = useState({
@@ -70,28 +71,28 @@ export default function ApexProfilePage() {
 
   return (
     <ApexLayout>
-      <div className="max-w-[900px] mx-auto space-y-6 animate-fade-up">
+      <div className="max-w-[900px] mx-auto space-y-6 auth-animate-in">
 
         {/* Profile Header */}
-        <div className="card-base p-6 md:p-8 flex max-md:flex-col md:items-center justify-between gap-6 shadow-sm">
+        <div className="card-base flex max-md:flex-col md:items-center justify-between gap-6">
           <div className="flex items-center gap-6">
             <div className="relative">
               <img
                 src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=80"
                 alt={form.name}
-                className="w-24 h-24 rounded-full object-cover ring-4 ring-white/5"
+                className="w-24 h-24 rounded-full object-cover border-2 border-border-strong"
               />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-[var(--theme-primary)] tracking-tight">{form.name || 'Người dùng'}</h1>
+              <h1 className="font-heading text-2xl uppercase tracking-[-0.01em] text-foreground">{form.name || 'Người dùng'}</h1>
               <div className="flex items-center gap-3 mt-1.5 mb-2">
-                <span className="px-2.5 py-1 bg-accent/10 border border-accent/20 text-accent text-[10px] font-bold uppercase tracking-wider rounded-md">
+                <span className="px-2.5 py-1 border border-accent text-accent label-mono">
                   {form.sport}
                 </span>
                 <span className="text-sm font-semibold text-foreground-muted">{form.level}</span>
               </div>
               <p className="text-sm text-foreground-muted flex items-center gap-1.5">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                <Mail size={14} />
                 {form.email}
               </p>
             </div>
@@ -100,7 +101,7 @@ export default function ApexProfilePage() {
             className={`${editing ? 'btn-primary' : 'btn-outline'} h-10 px-5 shrink-0`}
             onClick={editing ? save : () => setEditing(true)}
           >
-            {editing ? '✓ Lưu thay đổi' : 'Sửa hồ sơ'}
+            {editing ? 'Lưu thay đổi' : 'Sửa hồ sơ'}
           </button>
         </div>
 
@@ -109,8 +110,8 @@ export default function ApexProfilePage() {
 
           {/* Left: Personal Info */}
           <div className="lg:col-span-2">
-            <div className="card-base p-6 shadow-sm">
-              <h2 className="text-[15px] font-bold text-[var(--theme-primary)] mb-5 pb-4 border-b border-border-default">Thông tin cá nhân</h2>
+            <div className="card-base">
+              <h2 className="font-heading text-lg uppercase text-foreground mb-5 pb-4 border-b border-border-default">Thông tin cá nhân</h2>
 
               {editing ? (
                 <div className="space-y-4">
@@ -121,43 +122,47 @@ export default function ApexProfilePage() {
                       { label: 'Số điện thoại', key: 'phone', type: 'tel' },
                     ].map(f => (
                       <div key={f.key}>
-                        <label className="block text-xs font-bold text-foreground-muted uppercase tracking-wider mb-2">{f.label}</label>
+                        <label htmlFor={`profile-${f.key}`} className="block label-mono text-foreground-muted mb-2">{f.label}</label>
                         <input
+                          id={`profile-${f.key}`}
                           type={f.type}
                           value={form[f.key]}
                           onChange={e => setForm({ ...form, [f.key]: e.target.value })}
-                          className="w-full h-11 px-4 bg-[var(--theme-surface)] border border-border-default rounded-xl text-sm text-[var(--theme-primary)] font-medium focus:border-accent focus:ring-1 focus:ring-accent/20 outline-none transition-all shadow-sm"
+                          className="input-base h-11"
                         />
                       </div>
                     ))}
 
                     <div>
-                      <label className="block text-xs font-bold text-foreground-muted uppercase tracking-wider mb-2">Môn thể thao chính</label>
+                      <label htmlFor="profile-sport" className="block label-mono text-foreground-muted mb-2">Môn thể thao chính</label>
                       <select
+                        id="profile-sport"
                         value={form.sport}
                         onChange={e => setForm({ ...form, sport: e.target.value })}
-                        className="w-full h-11 px-4 bg-[var(--theme-surface)] border border-border-default rounded-xl text-sm text-[var(--theme-primary)] font-medium focus:border-accent focus:ring-1 focus:ring-accent/20 outline-none transition-all shadow-sm cursor-pointer"
+                        className="input-base h-11 cursor-pointer"
                       >
-                        {['Cầu lông', 'Pickleball'].map(s => <option key={s} className="bg-background-base">{s}</option>)}
+                        {['Cầu lông', 'Pickleball'].map(s => <option key={s} className="bg-surface">{s}</option>)}
                       </select>
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-foreground-muted uppercase tracking-wider mb-2">Trình độ</label>
+                      <label htmlFor="profile-level" className="block label-mono text-foreground-muted mb-2">Trình độ</label>
                       <select
+                        id="profile-level"
                         value={form.level}
                         onChange={e => setForm({ ...form, level: e.target.value })}
-                        className="w-full h-11 px-4 bg-[var(--theme-surface)] border border-border-default rounded-xl text-sm text-[var(--theme-primary)] font-medium focus:border-accent focus:ring-1 focus:ring-accent/20 outline-none transition-all shadow-sm cursor-pointer"
+                        className="input-base h-11 cursor-pointer"
                       >
-                        {['Người mới', 'Trung bình', 'Nâng cao', 'Chuyên nghiệp'].map(l => <option key={l} className="bg-background-base">{l}</option>)}
+                        {['Người mới', 'Trung bình', 'Nâng cao', 'Chuyên nghiệp'].map(l => <option key={l} className="bg-surface">{l}</option>)}
                       </select>
                     </div>
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-foreground-muted uppercase tracking-wider mb-2">Giới thiệu</label>
+                    <label htmlFor="profile-bio" className="block label-mono text-foreground-muted mb-2">Giới thiệu</label>
                     <textarea
+                      id="profile-bio"
                       value={form.bio}
                       onChange={e => setForm({ ...form, bio: e.target.value })}
-                      className="w-full p-4 bg-[var(--theme-surface)] border border-border-default rounded-xl text-sm text-[var(--theme-primary)] font-medium focus:border-accent focus:ring-1 focus:ring-accent/20 outline-none transition-all shadow-sm resize-none h-28"
+                      className="input-base h-28 py-3 resize-none"
                     />
                   </div>
                 </div>
@@ -165,19 +170,19 @@ export default function ApexProfilePage() {
                 <div className="space-y-5">
                   <div className="flex max-sm:flex-col sm:items-center py-2 border-b border-border-default">
                     <span className="w-40 text-sm font-medium text-foreground-muted">Số điện thoại</span>
-                    <strong className="text-sm font-semibold text-[var(--theme-primary)]">{form.phone || '—'}</strong>
+                    <strong className="text-sm font-semibold text-foreground">{form.phone || '—'}</strong>
                   </div>
                   <div className="flex max-sm:flex-col sm:items-center py-2 border-b border-border-default">
                     <span className="w-40 text-sm font-medium text-foreground-muted">Môn thể thao chính</span>
-                    <strong className="text-sm font-semibold text-[var(--theme-primary)]">{form.sport}</strong>
+                    <strong className="text-sm font-semibold text-foreground">{form.sport}</strong>
                   </div>
                   <div className="flex max-sm:flex-col sm:items-center py-2 border-b border-border-default">
                     <span className="w-40 text-sm font-medium text-foreground-muted">Trình độ</span>
-                    <strong className="text-sm font-semibold text-[var(--theme-primary)]">{form.level}</strong>
+                    <strong className="text-sm font-semibold text-foreground">{form.level}</strong>
                   </div>
                   <div className="flex max-sm:flex-col sm:items-center py-2 border-b border-border-default">
                     <span className="w-40 text-sm font-medium text-foreground-muted">Tổng đặt sân</span>
-                    <strong className="text-sm font-semibold text-[var(--theme-primary)]">{bookingCount} lượt</strong>
+                    <strong className="text-sm font-semibold text-foreground">{bookingCount} lượt</strong>
                   </div>
                   {form.bio && (
                     <div className="flex max-sm:flex-col py-2">
@@ -192,21 +197,21 @@ export default function ApexProfilePage() {
 
           {/* Right: Recent Bookings */}
           <div className="space-y-6">
-            <div className="card-base p-6 shadow-sm">
+            <div className="card-base">
               <div className="flex items-center justify-between mb-5 pb-4 border-b border-border-default">
-                <h2 className="text-[15px] font-bold text-[var(--theme-primary)]">Đặt sân gần đây</h2>
-                <Link to="/apex/bookings" className="text-xs font-semibold text-accent hover:text-accent-bright">Xem tất cả</Link>
+                <h2 className="font-heading text-lg uppercase text-foreground">Đặt sân gần đây</h2>
+                <Link to="/apex/bookings" className="label-mono text-accent hover:text-accent-bright">Xem tất cả</Link>
               </div>
 
               {recentBookings.length > 0 ? (
                 <div className="space-y-4">
                   {recentBookings.map(b => (
                     <div key={b.bookingId} className="flex gap-3">
-                      <span className="w-8 h-8 rounded-lg bg-[var(--theme-surface)] border border-border-default flex items-center justify-center text-sm shrink-0 mt-0.5">
+                      <span className="w-8 h-8 bg-background-base border border-border-default flex items-center justify-center text-sm shrink-0 mt-0.5">
                         {b.details?.[0]?.courtName?.toLowerCase().includes('pickleball') ? '🏓' : '🏸'}
                       </span>
                       <div className="min-w-0 flex-1">
-                        <p className="text-sm font-medium text-[var(--theme-primary)] leading-snug truncate">{b.details?.[0]?.courtName || 'Sân'}</p>
+                        <p className="text-sm font-medium text-foreground leading-snug truncate">{b.details?.[0]?.courtName || 'Sân'}</p>
                         <div className="flex items-center gap-2 mt-1">
                           <span className="text-xs text-foreground-muted font-medium">
                             {new Date(b.details?.[0]?.bookingDate).toLocaleDateString('vi-VN')}
@@ -226,23 +231,23 @@ export default function ApexProfilePage() {
             </div>
 
             {/* Quick Links */}
-            <div className="card-base p-6 shadow-sm">
-              <h2 className="text-[15px] font-bold text-[var(--theme-primary)] mb-4 pb-4 border-b border-border-default">Liên kết nhanh</h2>
-              <div className="space-y-2">
+            <div className="card-base">
+              <h2 className="font-heading text-lg uppercase text-foreground mb-4 pb-4 border-b border-border-default">Liên kết nhanh</h2>
+              <div className="space-y-1">
                 {[
-                  { to: '/apex/settings', label: 'Cài đặt tài khoản', icon: '⚙️' },
-                  { to: '/apex/bookings', label: 'Lịch sử đặt sân', icon: '📅' },
-                  { to: '/gear/catalog', label: 'Thuê dụng cụ', icon: '🎾' },
-                  { to: '/apex/support', label: 'Trung tâm hỗ trợ', icon: '💬' },
+                  { to: '/apex/settings', label: 'Cài đặt tài khoản', icon: <Settings size={16} /> },
+                  { to: '/apex/bookings', label: 'Lịch sử đặt sân', icon: <BookOpen size={16} /> },
+                  { to: '/gear/catalog', label: 'Thuê dụng cụ', icon: <ShoppingBag size={16} /> },
+                  { to: '/apex/support', label: 'Trung tâm hỗ trợ', icon: <LifeBuoy size={16} /> },
                 ].map(link => (
                   <Link
                     key={link.to}
                     to={link.to}
-                    className="flex items-center gap-3 p-3 rounded-xl text-sm font-medium text-foreground-muted hover:bg-[var(--theme-surface)] hover:text-[var(--theme-primary)] transition-colors border border-transparent hover:border-border-default"
+                    className="flex items-center gap-3 p-3 text-sm font-medium text-foreground-muted hover:bg-surface-hover hover:text-foreground transition-colors border border-transparent"
                   >
-                    <span className="w-7 h-7 rounded-lg bg-[var(--theme-surface)] flex items-center justify-center text-sm border border-border-default">{link.icon}</span>
+                    <span className="w-7 h-7 bg-background-base flex items-center justify-center border border-border-default text-foreground-muted">{link.icon}</span>
                     {link.label}
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="ml-auto text-[var(--theme-primary)]/20"><polyline points="9 18 15 12 9 6"/></svg>
+                    <ChevronRight size={14} className="ml-auto text-foreground-muted" />
                   </Link>
                 ))}
               </div>

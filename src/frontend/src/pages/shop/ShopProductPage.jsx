@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import { Loader2, Minus, Plus, ShoppingCart } from 'lucide-react'
+import { Minus, Plus, ShoppingCart, ArrowLeft, Frown } from 'lucide-react'
 import ShopLayout from '../../layouts/ShopLayout'
 import { equipmentApi } from '../../api/equipmentApi'
 import { cartApi } from '../../api/cartApi'
 import { useToast } from '../../components/Toast'
+import PageLoader from '../../components/ui/PageLoader'
+import EmptyState from '../../components/ui/EmptyState'
 
 const FALLBACK_IMG = 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&q=80'
 
@@ -58,72 +60,122 @@ export default function ShopProductPage() {
     }
   }
 
-  if (loading) {
-    return <ShopLayout><div className="py-32 text-center text-slate-400"><Loader2 className="inline animate-spin mr-2" size={22} /> Đang tải...</div></ShopLayout>
-  }
-  if (error || !product) {
-    return <ShopLayout><div className="py-32 text-center text-red-500">{error || 'Không tìm thấy sản phẩm.'}</div></ShopLayout>
-  }
+  if (loading) return (
+    <ShopLayout>
+      <PageLoader message="Đang tải sản phẩm..." />
+    </ShopLayout>
+  )
+
+  if (error || !product) return (
+    <ShopLayout>
+      <EmptyState
+        icon={<Frown className="w-7 h-7" />}
+        title="Không tìm thấy sản phẩm"
+        subtitle={error || 'Sản phẩm này có thể đã ngừng kinh doanh.'}
+        action={<button onClick={() => navigate('/shop')} className="btn-primary">Quay lại cửa hàng</button>}
+      />
+    </ShopLayout>
+  )
 
   const price = product.retailPrice || product.price || 0
   const inStock = product.stockQuantity > 0 && product.status === 'Available'
 
   return (
     <ShopLayout>
-      <div className="px-5 md:px-10 py-5 pb-16 max-w-[1200px] mx-auto">
-        <div className="text-xs text-[#94a3b8] mb-5">
-          <Link to="/shop" className="text-[#14B8A6] no-underline hover:underline">Cửa hàng</Link> › <span className="text-[#64748b]">{product.name}</span>
+      <div className="font-sans max-w-[1100px] mx-auto px-5 md:px-10 py-8 pb-16">
+
+        <div className="flex items-center gap-2 label-mono text-foreground-muted mb-8">
+          <Link to="/shop" className="hover:text-accent transition-colors">Cửa hàng</Link>
+          <span>/</span>
+          <span className="text-foreground">{product.name}</span>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
-          <div>
-            <div className="relative rounded-2xl overflow-hidden bg-[#f5f9fc] aspect-square">
-              <img src={product.imageUrl || FALLBACK_IMG} alt={product.name} className="w-full h-full object-cover" onError={e => { e.currentTarget.src = FALLBACK_IMG }} />
-            </div>
+        <button onClick={() => navigate(-1)} className="inline-flex items-center gap-2 font-bold text-sm text-foreground hover:text-accent transition-colors mb-8 border-b-2 border-foreground pb-0.5 w-fit">
+          <ArrowLeft className="w-4 h-4" /> Trở về cửa hàng
+        </button>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-start">
+
+          {/* Image */}
+          <div className="relative aspect-square border-2 border-border-strong bg-surface flex items-start p-5 overflow-hidden">
+            {!inStock && (
+              <span className="label-mono bg-foreground-muted text-paper px-4 py-2">Hết hàng</span>
+            )}
+            <img
+              src={product.imageUrl || FALLBACK_IMG}
+              alt={product.name}
+              className="absolute inset-0 w-full h-full object-cover -z-10"
+              onError={e => { e.currentTarget.src = FALLBACK_IMG }}
+            />
           </div>
 
+          {/* Info */}
           <div>
-            <p className="text-[0.7rem] font-bold tracking-widest uppercase text-[#94a3b8] mb-1">{product.category} • {product.type}</p>
-            <h1 className="font-oswald text-3xl font-bold text-foreground mb-1.5">{product.name}</h1>
-            <p className="text-sm text-[#14B8A6] mb-4">{product.categoryName}</p>
+            <p className="label-mono text-foreground-muted mb-3">{product.category} · {product.type}</p>
 
-            <div className="flex items-center gap-4 mb-6">
-              <span className="font-oswald text-3xl font-bold text-foreground">{price.toLocaleString('vi-VN')}₫</span>
+            <h1 className="font-heading text-3xl md:text-4xl uppercase tracking-tight text-foreground mb-7 leading-[1.05]">
+              {product.name}
+            </h1>
+
+            <div className="border-2 border-border-strong p-5 flex items-center justify-between mb-6">
+              <span className="font-bold text-sm text-foreground">Giá bán</span>
+              <span className="font-heading text-2xl text-foreground">{price.toLocaleString('vi-VN')}đ</span>
+            </div>
+
+            <div className="flex items-center justify-between pb-6 border-b-2 border-border-strong mb-7">
+              <span className="font-bold text-sm text-foreground">Tình trạng kho</span>
               {inStock ? (
-                <span className="flex items-center gap-1.5 text-[0.82rem] text-green-600"><span className="w-2 h-2 rounded-full bg-green-500" /> Còn {product.stockQuantity} sản phẩm</span>
+                <span className="label-mono bg-background-base border border-border-default px-3 py-1">Còn {product.stockQuantity} sản phẩm</span>
               ) : (
-                <span className="text-[0.82rem] bg-slate-100 text-slate-500 px-2.5 py-1 rounded-full font-semibold">Hết hàng</span>
+                <span className="label-mono bg-danger-bg text-danger border border-danger px-3 py-1">Hết hàng</span>
               )}
             </div>
 
             {product.description && (
-              <p className="text-sm text-[#475569] leading-relaxed mb-6">{product.description}</p>
+              <div className="mb-8">
+                <p className="label-mono text-foreground inline-block border-b-2 border-border-strong pb-1.5 mb-3">Mô tả sản phẩm</p>
+                <p className="text-sm leading-[1.75] text-foreground-muted">{product.description}</p>
+              </div>
             )}
 
-            <div className="mb-5">
-              <p className="text-[0.85rem] font-semibold text-foreground mb-2.5">Số lượng</p>
-              <div className="flex items-center gap-3">
-                <button onClick={() => setQty(q => Math.max(1, q - 1))} className="w-10 h-10 rounded-lg border border-[#e0ecf0] flex items-center justify-center hover:border-[#14B8A6]"><Minus size={16} /></button>
-                <span className="w-12 text-center font-bold text-lg">{qty}</span>
-                <button onClick={() => setQty(q => Math.min(product.stockQuantity || 1, q + 1))} className="w-10 h-10 rounded-lg border border-[#e0ecf0] flex items-center justify-center hover:border-[#14B8A6]"><Plus size={16} /></button>
+            <div className="mb-6">
+              <p className="font-bold text-sm text-foreground mb-3">Số lượng</p>
+              <div className="flex items-center border-2 border-border-strong h-14 w-fit">
+                <button
+                  onClick={() => setQty(q => Math.max(1, q - 1))}
+                  className="w-14 h-full flex items-center justify-center text-foreground hover:bg-surface-hover transition-colors"
+                >
+                  <Minus className="w-4 h-4" />
+                </button>
+                <span className="w-12 h-full flex items-center justify-center font-extrabold text-base text-foreground border-x-2 border-border-strong">
+                  {qty}
+                </span>
+                <button
+                  onClick={() => setQty(q => Math.min(product.stockQuantity || 1, q + 1))}
+                  className="w-14 h-full flex items-center justify-center text-foreground hover:bg-surface-hover transition-colors"
+                >
+                  <Plus className="w-4 h-4" />
+                </button>
               </div>
             </div>
 
-            <button
-              onClick={() => handleAddToCart(false)}
-              disabled={!inStock || adding}
-              className="bg-[#14B8A6] hover:bg-[#0b7373] text-white font-semibold flex items-center justify-center w-full gap-2 p-3.5 text-[0.95rem] mt-5 rounded-full transition-colors cursor-pointer border-none disabled:opacity-50"
-            >
-              {adding ? <Loader2 size={16} className="animate-spin" /> : <ShoppingCart size={16} />}
-              {inStock ? 'Thêm vào giỏ' : 'Hết hàng'}
-            </button>
-            <button
-              onClick={() => handleAddToCart(true)}
-              disabled={!inStock || adding}
-              className="w-full bg-white border-[1.5px] border-[#0F172A] text-foreground p-[13px] rounded-full text-[0.95rem] font-semibold cursor-pointer mt-2.5 transition-all hover:bg-[#0F172A] hover:text-white disabled:opacity-50"
-            >
-              Mua ngay
-            </button>
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={() => handleAddToCart(false)}
+                disabled={!inStock || adding}
+                className="btn-primary h-14 text-sm flex items-center justify-center gap-2"
+              >
+                <ShoppingCart className="w-4 h-4" />
+                {adding ? 'Đang thêm...' : (inStock ? 'Bỏ vào giỏ' : 'Hết hàng')}
+              </button>
+              <button
+                onClick={() => handleAddToCart(true)}
+                disabled={!inStock || adding}
+                className="btn-outline h-14 text-sm"
+              >
+                Mua ngay
+              </button>
+            </div>
           </div>
         </div>
       </div>

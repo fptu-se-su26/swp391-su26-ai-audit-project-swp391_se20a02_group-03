@@ -27,75 +27,75 @@ export default function EliteLayout({ children }) {
   const initials = displayName.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()
 
   return (
-    <div className="flex min-h-screen bg-[#f8fafc] font-['Inter',sans-serif]">
+    <div className="flex min-h-screen bg-background-base font-sans">
       {sidebarOpen && (
-        <button type="button" className="fixed inset-0 bg-black/40 z-[90] lg:hidden border-none cursor-pointer" onClick={() => setSidebarOpen(false)} aria-label="Đóng menu" />
+        <button type="button" className="fixed inset-0 bg-ink/50 z-[90] lg:hidden border-none cursor-pointer" onClick={() => setSidebarOpen(false)} aria-label="Đóng menu" />
       )}
 
-      <aside className={`w-[240px] bg-white border-r border-slate-200 flex flex-col fixed left-0 top-0 bottom-0 z-[100] transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
-        <div className="flex items-center gap-3 pt-8 pb-6 px-6">
-          <div className="w-11 h-11 rounded-full bg-[#5E6AD2]/15 text-[#5E6AD2] flex items-center justify-center text-sm font-bold">{initials}</div>
+      <aside className={`w-[230px] bg-ink flex flex-col fixed left-0 top-0 bottom-0 z-[100] overflow-y-auto transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
+        <div className="flex items-center gap-3 px-6 py-6 border-b border-white/10">
+          <div className="w-10 h-10 rounded-[2px] bg-paper text-ink flex items-center justify-center font-heading text-sm">{initials}</div>
           <div>
-            <h2 className="text-base font-bold text-slate-900 leading-[1.2]">{displayName}</h2>
-            <p className="text-xs text-slate-500 mt-0.5">EliteSport OS</p>
+            <h2 className="text-sm font-semibold text-paper leading-tight">{displayName}</h2>
+            <p className="label-mono text-paper/40 mt-0.5">EliteSport OS</p>
           </div>
         </div>
 
-        <div className="px-6 pb-6">
-          <Link to="/elite/scanner" onClick={() => setSidebarOpen(false)} className="w-full bg-[#5E6AD2] hover:bg-[#4e5bc4] text-white border-none rounded-lg py-3 text-[0.875rem] font-semibold cursor-pointer flex items-center justify-center gap-2 transition-all no-underline">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><rect x="7" y="7" width="10" height="10" rx="1"/></svg>
+        <div className="px-4 py-4">
+          <Link to="/elite/scanner" onClick={() => setSidebarOpen(false)} className="w-full bg-paper hover:bg-accent text-ink border-none rounded-[2px] py-2.5 text-[12px] font-extrabold uppercase tracking-[0.04em] cursor-pointer flex items-center justify-center gap-2 transition-colors no-underline">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><rect x="7" y="7" width="10" height="10" rx="1"/></svg>
             Quét nhanh
           </Link>
         </div>
 
-        <nav className="flex-1 flex flex-col">
+        <nav className="flex-1 px-3 flex flex-col gap-0.5 overflow-y-auto">
           {navLinks.map(link => (
             <Link
               key={link.path}
               to={link.path}
               onClick={() => setSidebarOpen(false)}
-              className={`flex items-center gap-3 py-3 px-6 text-[0.875rem] font-medium no-underline transition-all ${
+              className={`flex items-center gap-3 py-2.5 px-3 rounded-[2px] font-bold text-[12.5px] uppercase tracking-[0.02em] no-underline transition-colors ${
                 isActive(link.path)
-                  ? 'bg-[#5E6AD2]/10 text-[#5E6AD2] font-semibold rounded-r-full mr-4'
-                  : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
+                  ? 'bg-paper text-ink'
+                  : 'text-paper/50 hover:text-paper'
               }`}
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d={link.icon} /></svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="shrink-0"><path d={link.icon} /></svg>
               <span>{link.label}</span>
             </Link>
           ))}
         </nav>
 
-        <div className="py-6 border-t border-slate-200 space-y-1">
-          <Link to="/dashboard/inbox" onClick={() => setSidebarOpen(false)} className="flex items-center gap-3 py-3 px-6 text-[0.875rem] font-medium text-slate-500 no-underline hover:bg-slate-50 hover:text-[#5E6AD2]">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2"/><polyline points="3 9 12 15 21 9"/></svg>
+        <div className="py-4 px-3 border-t border-white/10 flex flex-col gap-0.5">
+          <Link to="/dashboard/inbox" onClick={() => setSidebarOpen(false)} className="flex items-center gap-3 py-2.5 px-3 rounded-[2px] font-bold text-[12.5px] uppercase tracking-[0.02em] text-paper/50 no-underline hover:text-paper">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2"/><polyline points="3 9 12 15 21 9"/></svg>
             <span>ProSport Dash</span>
           </Link>
-          <Link to="/contact" onClick={() => setSidebarOpen(false)} className="flex items-center gap-3 py-3 px-6 text-[0.875rem] font-medium text-slate-500 no-underline hover:bg-slate-50 hover:text-slate-900">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <Link to="/contact" onClick={() => setSidebarOpen(false)} className="flex items-center gap-3 py-2.5 px-3 rounded-[2px] font-bold text-[12.5px] uppercase tracking-[0.02em] text-paper/50 no-underline hover:text-paper">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
             <span>Hỗ trợ</span>
           </Link>
           <button
             type="button"
             onClick={() => { logout(); navigate('/login') }}
-            className="flex items-center gap-3 py-3 px-6 text-[0.875rem] font-medium text-red-600 w-full bg-transparent border-none cursor-pointer hover:bg-red-50"
+            className="flex items-center gap-3 py-2.5 px-3 rounded-[2px] font-bold text-[12.5px] uppercase tracking-[0.02em] text-danger w-full bg-transparent border-none cursor-pointer hover:bg-white/5 text-left"
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
             <span>Đăng xuất</span>
           </button>
         </div>
       </aside>
 
-      <div className="flex-1 flex flex-col lg:ml-[240px] w-full">
-        <header className="h-[72px] bg-white border-b border-slate-200 flex items-center justify-between px-4 md:px-8 sticky top-0 z-50">
+      <div className="flex-1 flex flex-col lg:ml-[230px] w-full">
+        <header className="h-16 bg-surface border-b-2 border-border-strong flex items-center justify-between px-4 md:px-8 sticky top-0 z-50">
           <div className="flex items-center gap-3">
-            <button type="button" className="lg:hidden w-10 h-10 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 cursor-pointer" onClick={() => setSidebarOpen(true)} aria-label="Mở menu">
+            <button type="button" className="lg:hidden w-10 h-10 flex items-center justify-center rounded-[2px] border-2 border-border-strong bg-surface text-foreground cursor-pointer" onClick={() => setSidebarOpen(true)} aria-label="Mở menu">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="18" x2="21" y2="18" /></svg>
             </button>
-            <ProSportLogo size="sm" variant="dark" iconOnly className="shrink-0" />
-            <div className="font-['Oswald',sans-serif] text-xl md:text-2xl font-bold text-slate-900 tracking-[-0.5px]">EliteSport OS</div>
+            <ProSportLogo size="sm" iconOnly className="shrink-0" />
+            <div className="font-heading text-xl md:text-2xl uppercase tracking-tight text-foreground">EliteSport OS</div>
           </div>
-          <Link to="/" className="text-sm font-medium text-slate-500 hover:text-[#5E6AD2] no-underline">← Trang chủ</Link>
+          <Link to="/" className="label-mono text-foreground-muted hover:text-foreground no-underline">← Trang chủ</Link>
         </header>
 
         <main className="p-4 md:p-8 flex-1">{children}</main>

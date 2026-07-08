@@ -11,14 +11,6 @@ const tabs = [
   { key: 'Reports', label: 'Khiếu nại' },
 ]
 
-const CalendarIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
-    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-    <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
-    <line x1="3" y1="10" x2="21" y2="10"/>
-  </svg>
-)
-
 function formatRelativeTime(dateStr) {
   const diff = Date.now() - new Date(dateStr).getTime()
   const mins = Math.floor(diff / 60000)
@@ -30,11 +22,8 @@ function formatRelativeTime(dateStr) {
 
 function mapNotification(n) {
   const category = n.category || 'All'
-  const iconBg = category === 'Reports' ? '#ef4444' : category === 'Matches' ? '#14B8A6' : '#f59e0b'
   return {
     id: n.id,
-    iconEl: <CalendarIcon />,
-    iconBg,
     tags: n.isRead ? [] : ['MỚI'],
     title: n.title,
     body: n.body,
@@ -63,8 +52,6 @@ export default function DashInboxPage() {
           const fromNotifs = (res.data.notifications ?? []).map(mapNotification)
           const fromActivity = (res.data.recentActivity ?? []).map((a, i) => ({
             id: 1000 + i,
-            iconEl: <CalendarIcon />,
-            iconBg: '#14B8A6',
             tags: [],
             title: a.title,
             body: a.description,
@@ -98,44 +85,46 @@ export default function DashInboxPage() {
 
   return (
     <ProSportDashLayout>
-      <div>
-        <div className="flex items-start justify-between mb-5">
-          <div>
-            <h1 className="font-['Oswald'] text-[1.6rem] font-bold text-foreground">Thông báo</h1>
-            <p className="text-[0.85rem] text-slate-500 mt-1">Cảnh báo vận hành từ đặt sân, kèo và khiếu nại.</p>
-          </div>
+      <div className="max-w-[900px]">
+        <div className="mb-7">
+          <h1 className="font-heading text-3xl md:text-4xl uppercase tracking-tight text-foreground mb-2">Thông báo</h1>
+          <p className="text-[13px] text-foreground-muted">Cảnh báo vận hành từ đặt sân, kèo và khiếu nại.</p>
         </div>
 
         {error && (
-          <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>
+          <div className="mb-4 border-2 border-danger bg-danger-bg px-4 py-3 text-sm text-danger rounded-[2px]">{error}</div>
         )}
 
-        <div className="flex gap-2 mb-5 flex-wrap">
+        <div className="flex gap-2.5 mb-6 flex-wrap">
           {tabs.map(t => (
-            <button key={t.key} className={`py-[7px] px-4 rounded-full border-[1.5px] text-[0.82rem] font-medium cursor-pointer font-['Inter'] transition-all hover:border-[#14B8A6] hover:text-[#14B8A6] ${activeTab === t.key ? 'bg-[var(--theme-primary)] border-[#0F172A] text-[var(--theme-primary)]' : 'bg-white border-[#e0ecf0] text-slate-500'}`} onClick={() => setActiveTab(t.key)}>{t.label}</button>
+            <button
+              key={t.key}
+              className={`px-5 py-2.5 font-bold text-xs uppercase tracking-[0.02em] border-2 rounded-[2px] cursor-pointer transition-colors ${activeTab === t.key ? 'bg-[var(--theme-primary)] text-[var(--theme-secondary)] border-[var(--theme-primary)]' : 'bg-transparent border-border-hover text-foreground-muted'}`}
+              onClick={() => setActiveTab(t.key)}
+            >
+              {t.label}
+            </button>
           ))}
         </div>
 
         {loading && <PageLoader label="Đang tải thông báo..." />}
 
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-0.5 bg-border-strong border-2 border-border-strong">
           {!loading && filtered.length === 0 && (
-            <div className="py-12 text-center text-slate-400 text-sm">Không có thông báo trong mục này.</div>
+            <div className="bg-surface py-12 text-center text-foreground-subtle text-sm">Không có thông báo trong mục này.</div>
           )}
           {filtered.map(n => (
-            <div key={n.id} className="flex gap-3.5 bg-white rounded-xl p-[18px] border-[1.5px] border-[#e0ecf0] transition-shadow hover:shadow-[0_2px_12px_rgba(0,0,0,0.06)]">
-              <div className="shrink-0">
-                <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: n.iconBg }}>
-                  {n.iconEl}
-                </div>
+            <div key={n.id} className="bg-surface px-6 py-5 flex gap-4 items-start">
+              {n.tags.length > 0 ? (
+                <span className="label-mono bg-ink text-paper px-2 py-1 mt-0.5 shrink-0">{n.tags[0]}</span>
+              ) : (
+                <span className="w-10 shrink-0" />
+              )}
+              <div className="flex-1 min-w-0">
+                <h3 className="text-sm font-extrabold text-foreground mb-1">{n.title}</h3>
+                <p className="text-[13px] text-foreground-muted">{n.body}</p>
               </div>
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-1.5">
-                  <span className="text-[0.75rem] text-slate-400 ml-auto whitespace-nowrap">{n.time}</span>
-                </div>
-                <h3 className="text-[0.95rem] font-bold text-foreground mb-1.5">{n.title}</h3>
-                <p className="text-sm text-slate-500 leading-[1.55]">{n.body}</p>
-              </div>
+              <span className="font-mono text-[10px] text-foreground-subtle shrink-0">{n.time}</span>
             </div>
           ))}
         </div>

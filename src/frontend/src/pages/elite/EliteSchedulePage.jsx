@@ -12,8 +12,8 @@ const sportFilters = [
 ]
 
 const slotStyles = {
-  booked: 'bg-blue-100 border-l-blue-500 text-blue-900 hover:ring-2 hover:ring-blue-300',
-  'in-use': 'bg-red-100 border-l-red-500 text-red-900 hover:ring-2 hover:ring-red-300',
+  booked: 'bg-ink text-paper hover:ring-2 hover:ring-accent',
+  'in-use': 'bg-danger text-paper hover:ring-2 hover:ring-accent',
 }
 
 function todayIso() {
@@ -72,56 +72,55 @@ export default function EliteSchedulePage() {
   return (
     <EliteLayout>
       <div className="space-y-6">
-        <div className="mb-6">
+        <div className="mb-2">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-[#006070] mb-1">Lịch thời gian thực</h1>
-              <p className="text-sm text-slate-500">Nhấn slot đã đặt để check-in nhanh hoặc mở POS cho slot trống.</p>
+              <h1 className="font-heading text-3xl sm:text-4xl uppercase tracking-[-0.01em] text-foreground mb-2">Lịch thời gian thực</h1>
+              <p className="text-sm text-foreground-muted">Nhấn slot đã đặt để check-in nhanh hoặc mở POS cho slot trống.</p>
             </div>
-            <label className="flex items-center gap-2 text-sm font-medium text-slate-600">
-              Ngày
-              <input
-                type="date"
-                value={selectedDate}
-                min={todayIso()}
-                onChange={e => setSelectedDate(e.target.value)}
-                className="border border-slate-200 rounded-lg px-3 py-1.5 text-sm outline-none focus:border-[#00c2ff]"
-              />
-            </label>
+            <input
+              type="date"
+              value={selectedDate}
+              min={todayIso()}
+              onChange={e => setSelectedDate(e.target.value)}
+              className="input-base h-11 w-auto"
+            />
           </div>
 
-          <div className="flex justify-between items-center mt-4 flex-wrap gap-3">
+          <div className="flex justify-between items-center mt-5 flex-wrap gap-3">
             <div className="flex gap-2 flex-wrap">
               {sportFilters.map(f => (
                 <button
                   key={f.key}
                   type="button"
-                  className={`px-4 py-1.5 rounded-full border bg-white text-[0.8125rem] font-medium cursor-pointer ${sport === f.key ? 'border-[#00c2ff] text-[#00c2ff]' : 'border-slate-200 text-slate-500 hover:bg-slate-50'}`}
+                  className={`label-mono h-[38px] px-[18px] rounded-[2px] border-2 cursor-pointer transition-colors ${
+                    sport === f.key ? 'border-ink bg-ink text-paper' : 'border-border-hover text-foreground-muted bg-transparent hover:border-foreground'
+                  }`}
                   onClick={() => setSport(f.key)}
                 >
                   {f.label}
                 </button>
               ))}
             </div>
-            <div className="flex gap-4">
-              <span className="flex items-center gap-1.5 text-[0.75rem] font-semibold text-slate-800"><span className="w-3 h-3 rounded-sm bg-slate-50 border border-slate-300"></span> Trống</span>
-              <span className="flex items-center gap-1.5 text-[0.75rem] font-semibold text-slate-800"><span className="w-3 h-3 rounded-sm bg-blue-100"></span> Đã đặt</span>
-              <span className="flex items-center gap-1.5 text-[0.75rem] font-semibold text-slate-800"><span className="w-3 h-3 rounded-sm bg-red-100"></span> Đang sử dụng</span>
+            <div className="flex gap-4 label-mono text-foreground-subtle">
+              <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-[2px] bg-surface border-2 border-border-strong"></span> Trống</span>
+              <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-[2px] bg-ink"></span> Đã đặt</span>
+              <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-[2px] bg-danger"></span> Đang sử dụng</span>
             </div>
           </div>
         </div>
 
         {error && (
-          <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>
+          <div className="border-2 border-danger bg-danger-bg px-4 py-3 text-sm text-danger rounded-[2px]">{error}</div>
         )}
 
         {selected && (
-          <div className="rounded-xl border border-[#00c2ff]/30 bg-cyan-50/60 px-4 py-4 flex flex-wrap items-center justify-between gap-4">
+          <div className="border-2 border-accent bg-surface px-5 py-4 flex flex-wrap items-center justify-between gap-4 rounded-[2px]">
             <div>
-              <p className="text-sm font-bold text-[#006070]">{selected.courtName} · {selected.slot.time}</p>
-              <p className="text-sm text-slate-600 mt-0.5">{selected.slot.label || selected.slot.customerName || `Đơn #${selected.slot.bookingId}`}</p>
+              <p className="text-sm font-extrabold text-foreground">{selected.courtName} · {selected.slot.time}</p>
+              <p className="text-sm text-foreground-muted mt-0.5">{selected.slot.label || selected.slot.customerName || `Đơn #${selected.slot.bookingId}`}</p>
               {selected.slot.checkInCode && (
-                <p className="text-xs text-slate-500 mt-1 font-mono">Mã: {selected.slot.checkInCode}</p>
+                <p className="text-xs text-foreground-subtle mt-1 font-mono">Mã: {selected.slot.checkInCode}</p>
               )}
             </div>
             <div className="flex flex-wrap gap-2">
@@ -130,13 +129,13 @@ export default function EliteSchedulePage() {
                   <button
                     type="button"
                     onClick={() => copyCheckInCode(selected.slot.checkInCode)}
-                    className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-sm font-medium hover:bg-slate-50"
+                    className="btn-outline h-9 px-3.5 text-xs"
                   >
                     Sao chép mã
                   </button>
                   <Link
                     to={`/elite/scanner?code=${encodeURIComponent(selected.slot.checkInCode)}`}
-                    className="px-3 py-1.5 rounded-lg bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-700 no-underline"
+                    className="btn-primary h-9 px-3.5 text-xs no-underline"
                   >
                     Check-in
                   </Link>
@@ -144,11 +143,11 @@ export default function EliteSchedulePage() {
               )}
               <Link
                 to="/elite/bookings"
-                className="px-3 py-1.5 rounded-lg border border-[#00c2ff] text-[#006070] text-sm font-semibold hover:bg-white no-underline"
+                className="btn-outline h-9 px-3.5 text-xs no-underline"
               >
                 Danh sách đơn
               </Link>
-              <button type="button" onClick={() => setSelected(null)} className="px-3 py-1.5 text-sm text-slate-500 hover:text-slate-800">
+              <button type="button" onClick={() => setSelected(null)} className="label-mono text-foreground-subtle hover:text-foreground px-2">
                 Đóng
               </button>
             </div>
@@ -158,34 +157,34 @@ export default function EliteSchedulePage() {
         {loading ? (
           <PageLoader label="Đang tải lịch sân..." />
         ) : (
-          <div className="bg-white rounded-xl border border-slate-200 shadow-[0_1px_3px_rgba(0,0,0,0.02)] overflow-x-auto">
+          <div className="border-2 border-border-strong bg-surface overflow-x-auto">
             <div className="min-w-[900px]">
-              <div className="flex border-b border-slate-200 py-4">
-                <div className="w-[120px] shrink-0"></div>
+              <div className="flex border-b-2 border-border-strong">
+                <div className="w-[130px] shrink-0"></div>
                 {timeHeaders.map(time => (
-                  <div key={time} className="flex-1 text-left text-[0.8125rem] font-semibold text-slate-500 pl-2.5">{time}</div>
+                  <div key={time} className="flex-1 label-mono text-foreground py-3 pl-2.5">{time}</div>
                 ))}
               </div>
 
-              <div className="relative bg-slate-50">
-                <div className="absolute top-0 left-[120px] right-0 bottom-0 flex pointer-events-none z-0">
+              <div className="relative bg-background-base">
+                <div className="absolute top-0 left-[130px] right-0 bottom-0 flex pointer-events-none z-0">
                   {timeHeaders.map((_, i) => (
-                    <div key={i} className="flex-1 border-l border-dashed border-slate-200"></div>
+                    <div key={i} className="flex-1 border-l border-border-default"></div>
                   ))}
                 </div>
 
                 {courts.length === 0 && (
-                  <div className="py-12 text-center text-sm text-slate-500">Chưa có sân hoặc lịch trống cho ngày đã chọn.</div>
+                  <div className="py-12 text-center text-sm text-foreground-subtle">Chưa có sân hoặc lịch trống cho ngày đã chọn.</div>
                 )}
 
                 {courts.map((court, idx) => (
-                  <div key={court.courtId} className={`flex min-h-[80px] relative z-[1] ${idx < courts.length - 1 ? 'border-b border-slate-200' : ''}`}>
-                    <div className="w-[120px] shrink-0 bg-white flex flex-col justify-center px-4 text-sm font-bold text-slate-800 border-r border-slate-200">
+                  <div key={court.courtId} className={`flex min-h-[80px] relative z-[1] ${idx < courts.length - 1 ? 'border-b border-border-default' : ''}`}>
+                    <div className="w-[130px] shrink-0 bg-surface flex flex-col justify-center px-4 text-sm font-extrabold text-foreground border-r border-border-default">
                       <span>{court.courtName}</span>
-                      <span className="text-[0.7rem] font-medium text-slate-400 mt-0.5">{court.sportType}</span>
+                      <span className="label-mono text-foreground-subtle mt-0.5 font-normal">{court.sportType}</span>
                       <Link
                         to={posUrl(court.courtId)}
-                        className="mt-2 text-[0.65rem] font-semibold text-[#00c2ff] hover:underline no-underline"
+                        className="mt-2 label-mono text-accent hover:underline no-underline"
                       >
                         + Khách lẻ
                       </Link>
@@ -196,7 +195,7 @@ export default function EliteSchedulePage() {
                           key={`${court.courtId}-${i}`}
                           type="button"
                           onClick={() => setSelected({ courtId: court.courtId, courtName: court.courtName, slot })}
-                          className={`absolute top-0 bottom-0 border-l-4 rounded-md px-3 py-2.5 overflow-hidden flex flex-col justify-center text-left cursor-pointer transition-shadow ${slotStyles[slot.status] || slotStyles.booked} ${selected?.courtId === court.courtId && selected?.slot?.bookingId === slot.bookingId ? 'ring-2 ring-[#00c2ff]' : ''}`}
+                          className={`absolute top-0 bottom-0 rounded-[2px] px-3 py-2.5 overflow-hidden flex flex-col justify-center text-left cursor-pointer transition-shadow ${slotStyles[slot.status] || slotStyles.booked} ${selected?.courtId === court.courtId && selected?.slot?.bookingId === slot.bookingId ? 'ring-2 ring-accent' : ''}`}
                           style={{ left: `${slot.startPercent}%`, width: `${slot.widthPercent}%` }}
                         >
                           <p className="text-[0.8125rem] font-bold whitespace-nowrap text-ellipsis overflow-hidden">{slot.label}</p>

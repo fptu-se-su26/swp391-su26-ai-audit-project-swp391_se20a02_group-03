@@ -110,12 +110,12 @@ export default function DashBroadcastPage() {
   return (
     <ProSportDashLayout>
       <div>
-        <div className="flex items-start justify-between mb-6">
+        <div className="flex flex-wrap items-end justify-between gap-5 mb-3">
           <div>
-            <h1 className="dash-page-title">Quản lý phát sóng</h1>
-            <p className="dash-page-sub">Thiết kế, lên lịch và phân tích thông điệp theo đối tượng.</p>
+            <h1 className="font-heading text-3xl md:text-4xl uppercase tracking-tight text-foreground mb-2">Quản lý phát sóng</h1>
+            <p className="text-[13px] text-foreground-muted">Thiết kế, lên lịch và phân tích thông điệp theo đối tượng.</p>
           </div>
-          <button className="btn-primary flex items-center gap-2 px-[18px] py-2.5">
+          <button className="btn-primary text-xs">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
             </svg>
@@ -124,129 +124,115 @@ export default function DashBroadcastPage() {
         </div>
 
         {error && (
-          <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>
+          <div className="my-5 border-2 border-danger bg-danger-bg px-4 py-3 text-sm text-danger rounded-[2px]">{error}</div>
         )}
-        <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+        <div className="my-5 border-2 border-warning bg-warning-bg px-4.5 py-3.5 text-[12.5px] text-foreground rounded-[2px]">
           <strong>Chế độ demo:</strong> Phát sóng push/email chưa kết nối backend. «Gửi ngay» ghi nhận nội bộ trên thiết bị; «Lưu nháp» lưu localStorage.
         </div>
         {loading && <PageLoader label="Đang tải dữ liệu..." />}
 
         {/* Stats */}
-        <div className="grid grid-cols-4 max-[1000px]:grid-cols-2 gap-4 mb-6">
-          {stats.map(s => (
-            <div key={s.label} className="bg-white rounded-xl p-[18px] border-[1.5px] border-[#e0ecf0]">
-              <p className="text-[0.68rem] font-bold tracking-[0.1em] uppercase text-slate-400 mb-2">{s.label}</p>
-              <p className="font-['Oswald'] text-[1.7rem] font-bold text-foreground mb-1.5">{s.value}</p>
-              {s.trend && <p className={`text-[0.78rem] ${s.trendUp ? 'text-green-500' : 'text-slate-500'}`}>{s.trend}</p>}
-              {s.bar && <div className="h-1.5 bg-[#e0ecf0] rounded-full overflow-hidden mt-2"><div className="w-[99%] h-full bg-gradient-to-r from-[#14B8A6] to-[#0fc8b5] rounded-full" /></div>}
-              {s.bars && (
-                <div className="flex items-end gap-[3px] h-10 mt-2">
-                  {s.bars.map((h, i) => (
-                    <div key={i} className={`flex-1 rounded-t ${i === s.bars.length - 1 ? 'bg-[var(--theme-primary)]' : 'bg-[rgba(13,138,138,0.5)]'}`} style={{ height: `${h}%` }} />
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-0.5 bg-border-strong border-2 border-border-strong mb-7">
+          {stats.map((s, i) => {
+            const isLast = i === stats.length - 1
+            return (
+              <div key={s.label} className={isLast ? 'bg-ink p-5.5' : 'bg-surface p-5.5'}>
+                <p className={`label-mono mb-2 ${isLast ? 'text-paper/60' : 'text-foreground-subtle'}`}>{s.label}</p>
+                <p className={`font-heading text-[26px] leading-none ${isLast ? 'text-paper' : 'text-foreground'}`}>{s.value}</p>
+                {s.trend && <p className={`text-[0.78rem] mt-2 ${s.trendUp ? 'text-accent' : 'text-foreground-muted'}`}>{s.trend}</p>}
+                {s.bar && <div className="h-1.5 bg-border-default rounded-[2px] overflow-hidden mt-2"><div className="w-[99%] h-full bg-accent" /></div>}
+                {s.bars && (
+                  <div className="flex items-end gap-[3px] h-10 mt-2">
+                    {s.bars.map((h, idx) => (
+                      <div key={idx} className={`flex-1 ${idx === s.bars.length - 1 ? 'bg-accent' : 'bg-accent/50'}`} style={{ height: `${h}%` }} />
+                    ))}
+                  </div>
+                )}
+              </div>
+            )
+          })}
         </div>
 
-        <div className="grid grid-cols-[1fr_280px] max-[1000px]:grid-cols-1 gap-5 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6 items-start">
           {/* Create Campaign */}
-          <div className="bg-white rounded-[14px] p-6 border-[1.5px] border-[#e0ecf0]">
-            <h2 className="text-base font-bold text-foreground mb-5">Tạo chiến dịch</h2>
+          <div className="border-2 border-border-strong bg-surface p-7 rounded-[2px]">
+            <h2 className="font-heading text-base uppercase tracking-tight text-foreground mb-5">Tạo chiến dịch</h2>
 
             <div className="mb-[18px]">
-              <label className="text-[0.78rem] font-semibold text-slate-500 block mb-2" htmlFor="camp-name">Tên nội bộ chiến dịch</label>
-              <input id="camp-name" type="text" value={campName} onChange={e => setCampName(e.target.value)} placeholder="VD: Khuyến mãi giải cầu lông mùa hè" className="w-full border-[1.5px] border-[#e0ecf0] rounded-lg px-3.5 py-2.5 font-['Inter'] text-sm text-foreground outline-none transition-colors focus:border-[#14B8A6] placeholder:text-slate-400 box-border" />
+              <label className="label-mono block mb-2 text-foreground-muted" htmlFor="camp-name">Tên nội bộ chiến dịch</label>
+              <input id="camp-name" type="text" value={campName} onChange={e => setCampName(e.target.value)} placeholder="VD: Khuyến mãi giải cầu lông mùa hè" className="input-base" />
             </div>
 
             <div className="mb-[18px]">
-              <label className="text-[0.78rem] font-semibold text-slate-500 block mb-2">Đối tượng nhận</label>
+              <label className="label-mono block mb-2 text-foreground-muted">Đối tượng nhận</label>
               <div className="flex flex-wrap gap-2">
                 {audiences.map(a => (
-                  <button key={a} className={`px-3.5 py-1.5 rounded-full border-[1.5px] text-[0.8rem] font-medium cursor-pointer font-['Inter'] transition-all hover:border-[#14B8A6] hover:text-[#14B8A6] ${selectedAud.includes(a) ? 'bg-[#14B8A6] border-[#14B8A6] text-[var(--theme-primary)]' : 'bg-white border-[#e0ecf0] text-slate-500'}`} onClick={() => toggleAud(a)}>{a}</button>
+                  <button key={a} className={`px-4 py-2 font-bold text-[11.5px] uppercase tracking-[0.02em] border-2 rounded-[2px] cursor-pointer transition-colors ${selectedAud.includes(a) ? 'bg-[var(--theme-primary)] text-[var(--theme-secondary)] border-[var(--theme-primary)]' : 'bg-transparent border-border-hover text-foreground-muted'}`} onClick={() => toggleAud(a)}>{a}</button>
                 ))}
               </div>
             </div>
 
             <div className="mb-[18px]">
-              <div className="grid grid-cols-2 gap-3">
-                <button className={`flex items-start gap-2.5 p-3.5 rounded-[10px] border-[1.5px] bg-white cursor-pointer text-left font-['Inter'] transition-all hover:border-[#14B8A6] ${msgType === 'push' ? 'border-[#14B8A6] bg-[rgba(13,138,138,0.05)]' : 'border-[#e0ecf0]'}`} onClick={() => setMsgType('push')}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <circle cx="12" cy="12" r="3"/>
-                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-                  </svg>
-                  <div>
-                    <p className="text-[0.85rem] font-bold text-foreground">Thông báo đẩy</p>
-                    <p className="text-[0.75rem] text-slate-400 mt-0.5">Ưu tiên cao, gửi tức thì</p>
-                  </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <button className={`text-left p-3.5 border-2 rounded-[2px] cursor-pointer transition-colors ${msgType === 'push' ? 'border-accent bg-accent/5' : 'border-border-hover bg-surface'}`} onClick={() => setMsgType('push')}>
+                  <p className="text-sm font-bold text-foreground">Thông báo đẩy</p>
+                  <p className="text-[11px] text-foreground-muted mt-1">Ưu tiên cao, gửi tức thì</p>
                 </button>
-                <button className={`flex items-start gap-2.5 p-3.5 rounded-[10px] border-[1.5px] bg-white cursor-pointer text-left font-['Inter'] transition-all hover:border-[#14B8A6] ${msgType === 'email' ? 'border-[#14B8A6] bg-[rgba(13,138,138,0.05)]' : 'border-[#e0ecf0]'}`} onClick={() => setMsgType('email')}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-                    <polyline points="22,6 12,13 2,6"/>
-                  </svg>
-                  <div>
-                    <p className="text-[0.85rem] font-bold text-foreground">Bản tin email</p>
-                    <p className="text-[0.75rem] text-slate-400 mt-0.5">Nội dung phong phú, cập nhật chi tiết</p>
-                  </div>
+                <button className={`text-left p-3.5 border-2 rounded-[2px] cursor-pointer transition-colors ${msgType === 'email' ? 'border-accent bg-accent/5' : 'border-border-hover bg-surface'}`} onClick={() => setMsgType('email')}>
+                  <p className="text-sm font-bold text-foreground">Bản tin email</p>
+                  <p className="text-[11px] text-foreground-muted mt-1">Nội dung phong phú, cập nhật chi tiết</p>
                 </button>
               </div>
             </div>
 
             <div className="mb-[18px]">
-              <label className="text-[0.78rem] font-semibold text-slate-500 block mb-2" htmlFor="msg-body">Nội dung tin nhắn</label>
-              <div className="flex gap-1.5 bg-[#f5f9fc] border-[1.5px] border-[#e0ecf0] rounded-t-lg px-2.5 py-1.5">
-                <button className="bg-transparent border-none cursor-pointer text-[0.85rem] text-slate-500 px-2 py-[3px] rounded font-['Inter'] transition-colors hover:bg-[rgba(13,138,138,0.1)] hover:text-[#14B8A6]"><strong>B</strong></button>
-                <button className="bg-transparent border-none cursor-pointer text-[0.85rem] text-slate-500 px-2 py-[3px] rounded font-['Inter'] transition-colors hover:bg-[rgba(13,138,138,0.1)] hover:text-[#14B8A6]"><em>I</em></button>
-                <button className="bg-transparent border-none cursor-pointer text-[0.75rem] text-slate-500 px-2 py-[3px] rounded font-['Inter'] transition-colors hover:bg-[rgba(13,138,138,0.1)] hover:text-[#14B8A6]">⟵⟶ Chèn biến</button>
-              </div>
+              <label className="label-mono block mb-2 text-foreground-muted" htmlFor="msg-body">Nội dung tin nhắn</label>
               <textarea
                 id="msg-body"
                 value={msgBody}
                 onChange={e => setMsgBody(e.target.value.slice(0, 250))}
                 placeholder="Nhập nội dung tin nhắn... Dùng {first_name} để cá nhân hóa."
-                className="w-full border-[1.5px] border-[#e0ecf0] border-t-0 rounded-b-lg px-3.5 py-3 font-['Inter'] text-sm text-foreground outline-none resize-y transition-colors focus:border-[#14B8A6] placeholder:text-slate-400 box-border"
+                className="input-base h-auto py-3 resize-y"
                 rows={5}
               />
-              <p className="text-[0.75rem] text-slate-400 text-right mt-1">{msgBody.length} / 250 ký tự</p>
+              <p className="text-[11px] text-foreground-subtle text-right mt-1">{msgBody.length} / 250 ký tự</p>
             </div>
 
             <div className="flex items-center justify-between mt-1">
-              <button className="flex items-center gap-1.5 bg-transparent border-none cursor-pointer text-[0.82rem] text-[#14B8A6] font-['Inter'] hover:underline">
+              <button className="flex items-center gap-1.5 bg-transparent border-none cursor-pointer text-[0.82rem] text-accent hover:underline">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
                 </svg>
                 Lên lịch gửi sau
               </button>
               <div className="flex gap-2.5">
-                <button type="button" className="btn-outline py-[9px] px-[18px] text-[0.85rem]" onClick={saveDraft}>Lưu nháp</button>
-                <button type="button" className="btn-primary py-[9px] px-[18px] text-[0.85rem]" onClick={sendNow}>Gửi ngay</button>
+                <button type="button" className="btn-outline text-xs" onClick={saveDraft}>Lưu nháp</button>
+                <button type="button" className="btn-primary text-xs" onClick={sendNow}>Gửi ngay</button>
               </div>
             </div>
           </div>
 
           {/* Recent Broadcasts */}
-          <div className="bg-white rounded-[14px] p-5 border-[1.5px] border-[#e0ecf0]">
+          <div className="border-2 border-border-strong bg-surface p-6 rounded-[2px]">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-[0.95rem] font-bold text-foreground">Phát sóng gần đây</h2>
-              <button className="bg-transparent border-none cursor-pointer text-slate-400 text-base">···</button>
+              <h2 className="font-heading text-[15px] uppercase tracking-tight text-foreground">Phát sóng gần đây</h2>
+              <button className="bg-transparent border-none cursor-pointer text-foreground-subtle text-base">···</button>
             </div>
             {recentBroadcasts.length === 0 && !loading && (
-              <p className="text-sm text-slate-400 py-4">Chưa có hoạt động gần đây.</p>
+              <p className="text-sm text-foreground-subtle py-4">Chưa có hoạt động gần đây.</p>
             )}
             {recentBroadcasts.map((b, idx) => (
-              <div key={`${b.title}-${idx}`} className="py-3.5 border-b border-[#f0f5f9] last:border-b-0">
+              <div key={`${b.title}-${idx}`} className="py-3.5 border-b border-border-default last:border-b-0">
                 <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-[0.65rem] font-bold tracking-[0.06em] px-2 py-[3px] rounded-full" style={{ background: b.statusColor + '20', color: b.statusColor }}>{b.status}</span>
-                  <span className="text-[0.75rem] text-slate-400">{b.date}</span>
+                  <span className="label-mono px-2 py-[3px] rounded-[2px] bg-ink text-paper">{b.status}</span>
+                  <span className="text-[11px] text-foreground-subtle">{b.date}</span>
                 </div>
                 <p className="text-sm font-bold text-foreground mb-1">{b.title}</p>
-                {b.meta  && <p className="text-[0.75rem] text-slate-400">{b.meta}</p>}
-                {b.open  && <div className="flex gap-2.5 text-[0.75rem] text-slate-500 mt-1.5"><span>👁 {b.open}</span><span>🔗 {b.click}</span></div>}
+                {b.meta  && <p className="text-[11px] text-foreground-subtle font-mono">{b.meta}</p>}
+                {b.open  && <div className="flex gap-2.5 text-[11px] text-foreground-muted mt-1.5"><span>👁 {b.open}</span><span>🔗 {b.click}</span></div>}
               </div>
             ))}
-            <a href="#" className="block text-center text-[0.82rem] text-[#14B8A6] font-semibold mt-3.5 no-underline hover:underline">Xem toàn bộ lịch sử</a>
+            <a href="#" className="block text-center text-xs font-bold text-foreground mt-3.5 no-underline hover:underline">Xem toàn bộ lịch sử →</a>
           </div>
         </div>
       </div>

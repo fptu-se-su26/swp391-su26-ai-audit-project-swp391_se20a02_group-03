@@ -18,7 +18,7 @@ const NAV = [
   { path: '/owner/finance', label: 'Tài chính' },
   { path: '/owner/reports', label: 'Báo cáo' },
   { path: '/owner/reviews', label: 'Đánh giá' },
-  { path: '/owner/audit-logs', label: 'Audit Log' },
+  { path: '/owner/audit-logs', label: 'Nhật ký' },
   { path: '/owner/staff', label: 'Nhân viên' },
   { path: '/owner/complex', label: 'Tổ hợp' },
   { path: '/owner/settings', label: 'Cài đặt' },
@@ -29,28 +29,28 @@ export default function OwnerSidebar({ open, onClose, displayName, onLogout }) {
   const isActive = (path) => location.pathname.startsWith(path);
 
   return (
-    <aside className={`w-64 bg-white border-r border-slate-200 flex flex-col fixed left-0 top-0 bottom-0 z-50 transition-transform ${open ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
-      <div className="p-5 border-b border-slate-100">
+    <aside className={`w-[230px] bg-ink flex flex-col fixed left-0 top-0 bottom-0 z-50 overflow-y-auto transition-transform ${open ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
+      <div className="px-6 py-6 border-b border-white/10">
         <Link to="/owner/dashboard" className="inline-block no-underline" onClick={onClose}>
-          <ProSportLogo size="sm" variant="dark" />
+          <ProSportLogo size="sm" variant="light" />
         </Link>
-        <p className="text-xs text-emerald-700 font-semibold mt-2 uppercase tracking-wide">Owner Portal</p>
+        <p className="label-mono text-paper/40 mt-1.5">Cổng chủ sân</p>
       </div>
 
-      <div className="px-4 py-3 border-b border-slate-100">
+      <div className="px-4 py-3 border-b border-white/10">
         <ComplexSelector />
       </div>
 
-      <nav className="flex-1 py-2 overflow-y-auto">
+      <nav className="flex-1 py-3 px-3 overflow-y-auto flex flex-col gap-0.5">
         {NAV.map(link => (
           <Link
             key={link.path}
             to={link.path}
             onClick={onClose}
-            className={`block px-5 py-2.5 text-sm no-underline transition-colors ${
+            className={`block px-3 py-2.5 rounded-[2px] font-bold text-[12.5px] uppercase tracking-[0.02em] no-underline transition-colors ${
               isActive(link.path)
-                ? 'bg-emerald-50 text-emerald-800 font-semibold border-r-4 border-emerald-600'
-                : 'text-slate-600 hover:bg-slate-50'
+                ? 'bg-paper text-ink'
+                : 'text-paper/50 hover:text-paper'
             }`}
           >
             {link.label}
@@ -58,12 +58,12 @@ export default function OwnerSidebar({ open, onClose, displayName, onLogout }) {
         ))}
       </nav>
 
-      <div className="p-4 border-t border-slate-100">
-        <p className="text-sm font-medium text-slate-800 truncate">{displayName}</p>
+      <div className="p-5 border-t border-white/10">
+        <p className="text-sm font-semibold text-paper truncate">{displayName}</p>
         <button
           type="button"
           onClick={onLogout}
-          className="mt-2 text-sm text-red-600 hover:underline bg-transparent border-none cursor-pointer p-0"
+          className="mt-2 label-mono text-paper/50 hover:text-danger bg-transparent border-none cursor-pointer p-0"
         >
           Đăng xuất
         </button>

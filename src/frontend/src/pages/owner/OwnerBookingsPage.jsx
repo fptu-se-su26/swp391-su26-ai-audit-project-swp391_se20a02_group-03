@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Link, useOutletContext } from 'react-router-dom';
 import { ownerApi } from '../../api/ownerApi';
-import OwnerStatusBadge from '../../components/owner/OwnerStatusBadge';
+import StatusBadge from '../../components/ui/StatusBadge';
 import PageLoader from '../../components/ui/PageLoader';
+import EmptyState from '../../components/ui/EmptyState';
 import { useDebouncedValue } from '../../utils/useDebouncedValue';
 
 const STATUS_OPTIONS = [
@@ -77,82 +78,82 @@ export default function OwnerBookingsPage() {
   if (loading && !items.length) return <PageLoader label="Đang tải booking..." />;
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap justify-between gap-3">
+    <div className="space-y-6">
+      <div className="flex flex-wrap justify-between gap-5 items-end">
         <div>
-          <h2 className="text-xl font-bold text-slate-900">Quản lý đặt sân</h2>
-          <p className="text-sm text-slate-500">Theo dõi, lọc và xử lý booking trong tổ hợp.</p>
+          <h1 className="font-heading text-3xl md:text-4xl uppercase tracking-tight text-foreground mb-2">Quản lý đặt sân</h1>
+          <p className="text-sm text-foreground-muted">Theo dõi, lọc và xử lý booking trong tổ hợp.</p>
         </div>
         <div className="flex gap-2">
-          <Link to="/owner/bookings/walk-in" className="px-3 py-2 rounded-lg bg-emerald-600 text-white text-sm no-underline hover:bg-emerald-700">
+          <Link to="/owner/bookings/walk-in" className="btn-primary no-underline">
             + Walk-in
           </Link>
-          <Link to="/owner/bookings/calendar" className="px-3 py-2 rounded-lg border text-sm no-underline text-slate-700 hover:bg-slate-50">
+          <Link to="/owner/bookings/calendar" className="btn-outline no-underline">
             Lịch
           </Link>
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2.5">
         <input
-          className="rounded-lg border px-3 py-2 text-sm min-w-[180px]"
+          className="input-base w-auto min-w-[200px]"
           placeholder="Tìm mã/khách..."
           value={keyword}
           onChange={e => setKeyword(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && load()}
         />
-        <select className="rounded-lg border px-3 py-2 text-sm" value={status} onChange={e => setStatus(e.target.value)}>
+        <select className="input-base w-auto" value={status} onChange={e => setStatus(e.target.value)}>
           {STATUS_OPTIONS.map(opt => (
             <option key={opt.value || 'all'} value={opt.value}>{opt.label}</option>
           ))}
         </select>
-        <select className="rounded-lg border px-3 py-2 text-sm" value={courtId} onChange={e => setCourtId(e.target.value)}>
+        <select className="input-base w-auto" value={courtId} onChange={e => setCourtId(e.target.value)}>
           <option value="">Tất cả sân</option>
           {courts.map(c => (
             <option key={c.courtId} value={c.courtId}>{c.name}</option>
           ))}
         </select>
-        <input type="date" className="rounded-lg border px-3 py-2 text-sm" value={dateFrom} onChange={e => setDateFrom(e.target.value)} title="Từ ngày" />
-        <input type="date" className="rounded-lg border px-3 py-2 text-sm" value={dateTo} onChange={e => setDateTo(e.target.value)} title="Đến ngày" />
-        <button type="button" onClick={load} className="px-3 py-2 rounded-lg bg-emerald-600 text-white text-sm">
+        <input type="date" className="input-base w-auto" value={dateFrom} onChange={e => setDateFrom(e.target.value)} title="Từ ngày" />
+        <input type="date" className="input-base w-auto" value={dateTo} onChange={e => setDateTo(e.target.value)} title="Đến ngày" />
+        <button type="button" onClick={load} className="btn-primary">
           Lọc
         </button>
       </div>
 
-      {error && <div className="text-sm text-red-600">{error}</div>}
+      {error && <div className="text-sm text-danger">{error}</div>}
 
       {!items.length ? (
-        <p className="text-sm text-slate-500">Không có booking phù hợp bộ lọc.</p>
+        <EmptyState title="Không có booking" subtitle="Không có booking phù hợp bộ lọc." />
       ) : (
-        <div className="overflow-x-auto bg-white rounded-xl border">
-          <table className="w-full text-sm">
-            <thead className="bg-slate-50 text-slate-500">
-              <tr>
-                <th className="p-3 text-left">Mã</th>
-                <th className="p-3 text-left">Sân</th>
-                <th className="p-3 text-left">Ngày</th>
-                <th className="p-3 text-left">Giờ</th>
-                <th className="p-3 text-left">TT</th>
-                <th className="p-3 text-left">Thanh toán</th>
-                <th className="p-3 text-left">Số tiền</th>
+        <div className="overflow-x-auto border-2 border-border-strong bg-surface">
+          <table className="w-full text-sm border-collapse">
+            <thead>
+              <tr className="bg-[var(--theme-primary)] text-[var(--theme-secondary)]">
+                <th className="text-left px-4 py-3.5 label-mono">Mã</th>
+                <th className="text-left px-4 py-3.5 label-mono">Sân</th>
+                <th className="text-left px-4 py-3.5 label-mono">Ngày</th>
+                <th className="text-left px-4 py-3.5 label-mono">Giờ</th>
+                <th className="text-left px-4 py-3.5 label-mono">Trạng thái</th>
+                <th className="text-left px-4 py-3.5 label-mono">Thanh toán</th>
+                <th className="text-left px-4 py-3.5 label-mono">Số tiền</th>
               </tr>
             </thead>
             <tbody>
               {items.map(b => {
                 const d = b.details?.[0];
                 return (
-                  <tr key={b.bookingId} className="border-t hover:bg-slate-50">
-                    <td className="p-3">
-                      <Link to={`/owner/bookings/${b.bookingId}`} className="text-emerald-700 no-underline font-medium">
+                  <tr key={b.bookingId} className="border-t border-border-default hover:bg-surface-hover">
+                    <td className="px-4 py-3.5">
+                      <Link to={`/owner/bookings/${b.bookingId}`} className="text-foreground font-extrabold underline underline-offset-2">
                         #{b.bookingId}
                       </Link>
                     </td>
-                    <td className="p-3">{d?.courtName || '—'}</td>
-                    <td className="p-3">{d?.bookingDate ? new Date(d.bookingDate).toLocaleDateString('vi-VN') : '—'}</td>
-                    <td className="p-3">{d ? `${formatTime(d.startTime)}–${formatTime(d.endTime)}` : '—'}</td>
-                    <td className="p-3"><OwnerStatusBadge status={b.status} /></td>
-                    <td className="p-3">{b.paymentStatus || '—'}</td>
-                    <td className="p-3">{Number(b.totalAmount).toLocaleString('vi-VN')} ₫</td>
+                    <td className="px-4 py-3.5 text-foreground">{d?.courtName || '—'}</td>
+                    <td className="px-4 py-3.5 text-foreground">{d?.bookingDate ? new Date(d.bookingDate).toLocaleDateString('vi-VN') : '—'}</td>
+                    <td className="px-4 py-3.5 text-foreground">{d ? `${formatTime(d.startTime)}–${formatTime(d.endTime)}` : '—'}</td>
+                    <td className="px-4 py-3.5"><StatusBadge status={b.status} /></td>
+                    <td className="px-4 py-3.5 text-foreground">{b.paymentStatus || '—'}</td>
+                    <td className="px-4 py-3.5 text-foreground">{Number(b.totalAmount).toLocaleString('vi-VN')} ₫</td>
                   </tr>
                 );
               })}

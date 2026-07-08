@@ -20,11 +20,11 @@ export default function OwnerLayout() {
   };
 
   return (
-    <div className="flex min-h-screen bg-slate-50 font-sans">
+    <div className="flex min-h-screen bg-background-base font-sans">
       {sidebarOpen && (
         <button
           type="button"
-          className="fixed inset-0 bg-black/40 z-40 lg:hidden"
+          className="fixed inset-0 bg-ink/50 z-40 lg:hidden"
           onClick={() => setSidebarOpen(false)}
           aria-label="Đóng menu"
         />
@@ -37,24 +37,24 @@ export default function OwnerLayout() {
         onLogout={handleLogout}
       />
 
-      <div className="flex-1 lg:ml-64 flex flex-col min-h-screen">
+      <div className="flex-1 lg:ml-[230px] flex flex-col min-h-screen">
         <OwnerHeader complexName={complexName} onMenuOpen={() => setSidebarOpen(true)} />
 
-        <main className="flex-1 p-4 md:p-6">
+        <main className="flex-1 p-4 md:p-8">
           {loading && (
-            <div className="rounded-xl border border-slate-200 bg-white px-4 py-6 animate-pulse">
-              <div className="h-4 w-40 bg-slate-200 rounded mb-2" />
-              <div className="h-3 w-64 bg-slate-100 rounded" />
+            <div className="rounded-[2px] border-2 border-border-strong bg-surface px-4 py-6 animate-pulse">
+              <div className="h-4 w-40 bg-border-default rounded-[2px] mb-2" />
+              <div className="h-3 w-64 bg-border-default rounded-[2px]" />
             </div>
           )}
 
           {error && !loading && (
-            <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-4 mb-4 flex flex-wrap items-center justify-between gap-3">
-              <p className="text-sm text-red-700">{error}</p>
+            <div className="rounded-[2px] border-2 border-danger bg-danger-bg px-4 py-4 mb-4 flex flex-wrap items-center justify-between gap-3">
+              <p className="text-sm text-danger">{error}</p>
               <button
                 type="button"
                 onClick={reload}
-                className="text-sm font-semibold text-red-700 underline bg-transparent border-none cursor-pointer"
+                className="text-sm font-semibold text-danger underline bg-transparent border-none cursor-pointer"
               >
                 Thử lại
               </button>
@@ -62,7 +62,7 @@ export default function OwnerLayout() {
           )}
 
           {!complexId && !loading && !error && (
-            <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-6 text-center text-amber-800">
+            <div className="rounded-[2px] border-2 border-warning bg-warning-bg px-4 py-6 text-center text-warning">
               Tài khoản chưa được gán tổ hợp. Liên hệ Admin để được phê duyệt.
             </div>
           )}

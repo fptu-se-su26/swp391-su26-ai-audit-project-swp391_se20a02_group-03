@@ -6,6 +6,7 @@ import { bookingApi } from '../../api/bookingApi'
 import { paymentApi } from '../../api/paymentApi'
 import { playerFeaturesApi } from '../../api/playerFeaturesApi'
 import { useToast } from '../../components/Toast'
+import { CheckCircle2 } from 'lucide-react'
 
 import { getAuthToken } from '../../utils/authStorage'
 function getCurrentUser() {
@@ -27,10 +28,10 @@ export default function BookingPage() {
   const [searchParams] = useSearchParams()
   const { addToast } = useToast()
   const isSubmitting = useRef(false) // Chống double-click
-  
+
   const slot = searchParams.get('slot') || '10:00'
   const date = searchParams.get('date') || new Date().toISOString().split('T')[0]
-  
+
   const [paymentMethod, setPaymentMethod] = useState('vnpay')
   const [splitMode, setSplitMode] = useState(false)
   const [partnerEmail, setPartnerEmail] = useState('')
@@ -140,7 +141,7 @@ export default function BookingPage() {
       } else {
         res = await bookingApi.createBooking({ details: [detail] });
       }
-      
+
       if (res.statusCode === 200 || res.statusCode === 201) {
         const bookingId = res.data?.bookingId;
 
@@ -186,19 +187,14 @@ export default function BookingPage() {
 
   if (isSuccess) {
     return (
-      <div className="flex flex-col min-h-screen bg-neo-bg">
+      <div className="flex flex-col min-h-screen bg-background-base">
         <Navbar theme="light" />
         <div className="flex-1 flex items-center justify-center p-6">
-          <div className="bg-neo-surface border-4 border-neo-muted rounded-sm p-10 max-w-[480px] w-full text-center shadow-[8px_8px_0_var(--color-neo-danger)] relative">
-            <div className="absolute top-2 left-2 w-4 h-4 border-t-4 border-l-4 border-neo-muted opacity-80"></div>
-            <div className="absolute top-2 right-2 w-4 h-4 border-t-4 border-r-4 border-neo-muted opacity-80"></div>
-            <div className="absolute bottom-2 left-2 w-4 h-4 border-b-4 border-l-4 border-neo-muted opacity-80"></div>
-            <div className="absolute bottom-2 right-2 w-4 h-4 border-b-4 border-r-4 border-neo-muted opacity-80"></div>
-
-            <div className="text-neo-accent text-6xl mb-6" style={{ textShadow: '4px 4px 0px var(--color-neo-danger)' }}>📜</div>
-            <h1 className="font-heading text-2xl font-bold text-neo-ink tracking-tight mb-4" style={{ textShadow: '2px 2px 0px var(--color-neo-danger)' }}>Lập Khế Ước Thành Công!</h1>
-            <p className="text-neo-ink text-xl font-bold mb-8 leading-relaxed">
-              Cảm ơn Đạo hữu. Bí Cảnh {court.name} lúc {slot} đã được giữ chỗ. Mã Khế Ước của Đạo hữu là <b className="text-neo-accent" style={{ textShadow: '1px 1px 0px var(--color-neo-danger)' }}>#{bookingResult?.bookingId || '—'}</b>.
+          <div className="card-base max-w-[480px] w-full text-center p-10">
+            <CheckCircle2 className="w-16 h-16 text-accent mx-auto mb-6" />
+            <h1 className="font-heading text-2xl uppercase tracking-tight text-foreground mb-4">Lập Khế Ước Thành Công!</h1>
+            <p className="text-foreground-muted text-base mb-8 leading-relaxed">
+              Cảm ơn Đạo hữu. Bí Cảnh {court.name} lúc {slot} đã được giữ chỗ. Mã Khế Ước của Đạo hữu là <b className="text-accent">#{bookingResult?.bookingId || '—'}</b>.
             </p>
             <div className="flex gap-4">
               <Link to="/customer/bookings" className="btn-outline flex-1">Sổ Lưu Khế Ước</Link>
@@ -211,74 +207,74 @@ export default function BookingPage() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-neo-bg">
+    <div className="flex flex-col min-h-screen bg-background-base">
       <Navbar theme="light" />
 
-      <main className="flex-1 max-w-[1080px] mx-auto px-6 pt-28 pb-24 w-full">
+      <main className="flex-1 max-w-[1080px] mx-auto px-6 pt-[100px] sm:pt-[130px] pb-24 w-full">
         {/* Breadcrumb */}
-        <nav className="flex items-center gap-2.5 text-xl font-bold tracking-wide uppercase text-neo-ink mb-8">
-          <Link to="/" className="hover:text-neo-accent transition-colors duration-200">Tông Môn</Link>
-          <span className="text-neo-muted border border-neo-muted bg-white px-1">/</span>
-          <Link to="/courts" className="hover:text-neo-accent transition-colors duration-200">Các Bí Cảnh</Link>
-          <span className="text-neo-muted border border-neo-muted bg-white px-1">/</span>
-          <span className="text-neo-accent font-heading text-sm uppercase">Lập Khế Ước</span>
+        <nav className="flex items-center gap-2.5 label-mono text-foreground-subtle mb-8">
+          <Link to="/" className="hover:text-foreground transition-colors duration-200">Tông Môn</Link>
+          <span>/</span>
+          <Link to="/courts" className="hover:text-foreground transition-colors duration-200">Các Bí Cảnh</Link>
+          <span>/</span>
+          <span className="text-accent normal-case">Lập Khế Ước</span>
         </nav>
 
-        <h1 className="font-heading text-2xl md:text-3xl font-bold text-neo-ink tracking-tight mb-10" style={{ textShadow: '2px 2px 0px var(--color-neo-danger)' }}>Lập Khế Ước Tu Luyện</h1>
+        <h1 className="font-heading text-2xl md:text-3xl uppercase tracking-tight text-foreground mb-10">Lập Khế Ước Tu Luyện</h1>
 
         <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-8 lg:gap-12 items-start">
           <div className="flex flex-col gap-6">
             {/* User Details */}
-            <div className="bg-neo-surface border-4 border-neo-muted shadow-[6px_6px_0_var(--color-neo-danger)] rounded-sm p-8">
-              <h2 className="font-heading text-xl font-bold text-neo-ink tracking-tight mb-5" style={{ textShadow: '1px 1px 0px var(--color-neo-danger)' }}>Hồ Sơ Tu Chân</h2>
+            <div className="card-base p-7 sm:p-8">
+              <h2 className="font-heading text-xl uppercase text-foreground mb-5">Hồ Sơ Tu Chân</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div className="flex flex-col gap-2">
-                  <label className="text-xl font-bold text-neo-ink tracking-wide uppercase">Đạo Hiệu (Họ Tên)</label>
-                  <input type="text" value={currentUser?.fullName || 'Không có'} readOnly className="w-full bg-neo-bg border-4 border-neo-muted rounded-sm px-4 py-3 text-xl text-neo-ink font-bold outline-none shadow-[inset_2px_2px_0_rgba(0,0,0,0.1)]" />
+                  <label className="label-mono text-foreground-muted">Đạo Hiệu (Họ Tên)</label>
+                  <input type="text" value={currentUser?.fullName || 'Không có'} readOnly className="input-base bg-surface-hover cursor-not-allowed" />
                 </div>
                 <div className="flex flex-col gap-2">
-                  <label className="text-xl font-bold text-neo-ink tracking-wide uppercase">Truyền Âm Phù (SĐT)</label>
-                  <input type="text" value={currentUser?.phone || 'Không có'} readOnly className="w-full bg-neo-bg border-4 border-neo-muted rounded-sm px-4 py-3 text-xl text-neo-ink font-bold outline-none shadow-[inset_2px_2px_0_rgba(0,0,0,0.1)]" />
+                  <label className="label-mono text-foreground-muted">Truyền Âm Phù (SĐT)</label>
+                  <input type="text" value={currentUser?.phone || 'Không có'} readOnly className="input-base bg-surface-hover cursor-not-allowed" />
                 </div>
               </div>
             </div>
 
             {/* Payment Method */}
-            <div className="bg-neo-surface border-4 border-neo-muted shadow-[6px_6px_0_var(--color-neo-danger)] rounded-sm p-8">
-              <h2 className="font-heading text-xl font-bold text-neo-ink tracking-tight mb-5" style={{ textShadow: '1px 1px 0px var(--color-neo-danger)' }}>Phương Thức Xuất Linh Thạch</h2>
+            <div className="card-base p-7 sm:p-8">
+              <h2 className="font-heading text-xl uppercase text-foreground mb-5">Phương Thức Xuất Linh Thạch</h2>
 
               <label className="flex items-center gap-3 mb-4 cursor-pointer">
-                <input type="checkbox" checked={splitMode} onChange={(e) => setSplitMode(e.target.checked)} className="w-5 h-5" />
-                <span className="font-bold text-neo-ink">Chia bill với bạn bè (Split Payment)</span>
+                <input type="checkbox" checked={splitMode} onChange={(e) => setSplitMode(e.target.checked)} className="w-5 h-5 accent-accent" />
+                <span className="font-bold text-foreground">Chia bill với bạn bè (Split Payment)</span>
               </label>
               {splitMode && (
                 <div className="mb-4">
-                  <label className="text-sm font-bold text-neo-ink block mb-1">Email người chơi cùng</label>
+                  <label className="label-mono text-foreground-muted block mb-2">Email người chơi cùng</label>
                   <input
                     type="email"
                     value={partnerEmail}
                     onChange={(e) => setPartnerEmail(e.target.value)}
                     placeholder="ban@example.com"
-                    className="w-full border-2 border-neo-muted rounded-sm px-3 py-2"
+                    className="input-base"
                   />
                 </div>
               )}
-              
+
               <div className="flex flex-col gap-4">
-                <label className={`group flex items-start gap-4 p-5 border-4 cursor-pointer transition-all duration-75 rounded-sm ${paymentMethod === 'escrow' ? 'border-neo-muted bg-neo-accent shadow-[4px_4px_0_var(--color-neo-danger)]' : 'border-neo-muted bg-white hover:bg-neo-secondary'}`}>
-                  <input type="radio" name="payment" value="escrow" checked={paymentMethod === 'escrow'} onChange={() => setPaymentMethod('escrow')} className="mt-1 w-5 h-5 accent-neo-danger" />
+                <label className={`flex items-start gap-4 p-5 border-2 cursor-pointer transition-colors ${paymentMethod === 'escrow' ? 'border-accent bg-accent/10' : 'border-border-default hover:border-border-hover'}`}>
+                  <input type="radio" name="payment" value="escrow" checked={paymentMethod === 'escrow'} onChange={() => setPaymentMethod('escrow')} className="mt-1 w-5 h-5 accent-accent" />
                   <div>
-                    <p className={`font-bold text-xl ${paymentMethod === 'escrow' ? 'text-neo-secondary' : 'text-neo-ink'}`}>Túi Càn Khôn (Ví ký quỹ)</p>
-                    <p className={`text-xl mt-1.5 font-bold ${paymentMethod === 'escrow' ? 'text-neo-secondary' : 'text-neo-ink'}`}>Linh Thạch hiện có: <b className="text-[var(--theme-primary)] bg-neo-secondary px-2 py-0.5 border-2 border-neo-muted">{escrowBalance.toLocaleString('vi-VN')} LT</b></p>
+                    <p className="font-bold text-foreground">Túi Càn Khôn (Ví ký quỹ)</p>
+                    <p className="text-sm mt-1.5 font-medium text-foreground-muted">Linh Thạch hiện có: <b className="text-accent">{escrowBalance.toLocaleString('vi-VN')} LT</b></p>
                   </div>
                 </label>
 
-                <label className={`group flex items-start gap-4 p-5 border-4 cursor-pointer transition-all duration-75 rounded-sm ${paymentMethod === 'vnpay' ? 'border-neo-muted bg-neo-accent shadow-[4px_4px_0_var(--color-neo-danger)]' : 'border-neo-muted bg-white hover:bg-neo-secondary'}`}>
-                  <input type="radio" name="payment" value="vnpay" checked={paymentMethod === 'vnpay'} onChange={() => setPaymentMethod('vnpay')} className="mt-1 w-5 h-5 accent-neo-danger" />
+                <label className={`flex items-start gap-4 p-5 border-2 cursor-pointer transition-colors ${paymentMethod === 'vnpay' ? 'border-accent bg-accent/10' : 'border-border-default hover:border-border-hover'}`}>
+                  <input type="radio" name="payment" value="vnpay" checked={paymentMethod === 'vnpay'} onChange={() => setPaymentMethod('vnpay')} className="mt-1 w-5 h-5 accent-accent" />
                   <div className="flex-1 flex justify-between items-center">
                     <div>
-                      <p className={`font-bold text-xl ${paymentMethod === 'vnpay' ? 'text-neo-secondary' : 'text-neo-ink'}`}>Mã Trận VNPay</p>
-                      <p className={`text-xl mt-1.5 font-bold ${paymentMethod === 'vnpay' ? 'text-neo-secondary' : 'text-neo-ink'}`}>Thẻ Ngọc / Thẻ Tín Dụng / QR Trận</p>
+                      <p className="font-bold text-foreground">Mã Trận VNPay</p>
+                      <p className="text-sm mt-1.5 font-medium text-foreground-muted">Thẻ Ngọc / Thẻ Tín Dụng / QR Trận</p>
                     </div>
                   </div>
                 </label>
@@ -288,45 +284,45 @@ export default function BookingPage() {
 
           {/* Right Panel - Summary */}
           <div className="lg:sticky lg:top-28">
-            <div className="bg-neo-secondary border-4 border-neo-muted rounded-sm p-7 lg:p-8 shadow-[8px_8px_0_var(--color-neo-danger)] relative overflow-hidden">
-              <h2 className="font-heading text-xl font-bold text-neo-ink tracking-tight mb-6" style={{ textShadow: '2px 2px 0px var(--color-neo-danger)' }}>Khế Ước Thư</h2>
-              
-              <div className="flex gap-4 pb-5 border-b-4 border-neo-muted border-dashed mb-5">
-                <div className="w-20 h-20 bg-neo-surface border-4 border-neo-muted flex items-center justify-center shrink-0">
+            <div className="card-base p-7 sm:p-8 bg-ink text-paper">
+              <h2 className="font-heading text-xl uppercase mb-6">Khế Ước Thư</h2>
+
+              <div className="flex gap-4 pb-5 border-b border-white/15 mb-5">
+                <div className="w-20 h-20 border-2 border-white/20 flex items-center justify-center shrink-0">
                    <span className="text-4xl">⛩️</span>
                 </div>
                 <div>
-                  <h3 className="font-bold text-neo-ink text-xl leading-snug">{court.name}</h3>
-                  <p className="text-lg text-neo-ink mt-2 font-bold bg-white border border-neo-muted px-2 inline-block shadow-[2px_2px_0_var(--color-neo-danger)]">{formatDate(date)} • {slot}</p>
+                  <h3 className="font-bold text-lg leading-snug">{court.name}</h3>
+                  <p className="text-sm mt-2 font-medium text-paper/70">{formatDate(date)} • {slot}</p>
                 </div>
               </div>
 
               <div className="space-y-4 mb-8">
-                <div className="flex justify-between items-center text-xl font-bold text-neo-ink">
+                <div className="flex justify-between items-center text-sm font-medium text-paper/80">
                   <span>Linh Thạch vào cửa</span>
                   <span>{court.price.toLocaleString('vi-VN')} LT</span>
                 </div>
                 {court.serviceFee > 0 && (
-                  <div className="flex justify-between items-center text-xl font-bold text-neo-ink">
+                  <div className="flex justify-between items-center text-sm font-medium text-paper/80">
                     <span className="flex items-center gap-1.5">
                       Phí truyền tống trận
-                      <span className="bg-neo-bg border-2 border-neo-muted px-1.5 text-lg">5%</span>
+                      <span className="label-mono border border-white/20 px-1.5">5%</span>
                     </span>
                     <span>{court.serviceFee.toLocaleString('vi-VN')} LT</span>
                   </div>
                 )}
-                <div className="flex justify-between items-center text-2xl border-t-4 border-neo-muted border-dashed pt-6 mt-4">
-                  <span className="font-bold text-neo-ink uppercase">Tổng Tiêu Hao</span>
-                  <span className="font-heading text-2xl font-bold text-neo-accent" style={{ textShadow: '2px 2px 0px var(--color-neo-danger)' }}>{total.toLocaleString('vi-VN')} LT</span>
+                <div className="flex justify-between items-center border-t border-white/15 pt-6 mt-4">
+                  <span className="font-bold uppercase text-sm">Tổng Tiêu Hao</span>
+                  <span className="font-heading text-2xl text-accent">{total.toLocaleString('vi-VN')} LT</span>
                 </div>
               </div>
 
-              <button onClick={handleBooking} disabled={isLoading} className="w-full flex items-center justify-center gap-2 h-16 bg-neo-muted border-2 border-neo-muted text-neo-secondary font-bold text-2xl uppercase transition-all duration-75 active:translate-y-1 shadow-[4px_4px_0_var(--color-neo-danger)] hover:bg-neo-accent disabled:opacity-70 disabled:cursor-not-allowed">
+              <button onClick={handleBooking} disabled={isLoading} className="w-full h-14 bg-accent text-ink font-bold text-sm uppercase tracking-[0.04em] transition-colors hover:bg-accent-bright disabled:opacity-70 disabled:cursor-not-allowed rounded-[2px]">
                 {isLoading ? 'Đang kích hoạt...' : 'Xuất Linh Thạch & Lập Khế Ước'}
               </button>
-              
-              <p className="text-center text-neo-ink text-lg font-bold mt-6 uppercase tracking-wider leading-relaxed">
-                Bằng việc nhấn Lập Khế Ước, Đạo hữu đã đồng ý với <a href="#" className="text-neo-accent hover:underline" style={{ textShadow: '1px 1px 0px var(--color-neo-danger)' }}>Thiên Đạo Pháp Tắc</a> của Thương Hội.
+
+              <p className="text-center text-paper/60 text-xs font-medium mt-6 leading-relaxed">
+                Bằng việc nhấn Lập Khế Ước, Đạo hữu đã đồng ý với <a href="#" className="text-accent hover:underline">Thiên Đạo Pháp Tắc</a> của Thương Hội.
               </p>
             </div>
           </div>

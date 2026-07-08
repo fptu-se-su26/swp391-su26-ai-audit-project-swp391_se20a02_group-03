@@ -1,14 +1,13 @@
 import { useState, useEffect } from 'react'
 import AdminLayout from '../../layouts/AdminLayout'
 import { dashboardApi } from '../../api/dashboardApi'
-import { Loader2, ShieldAlert, DollarSign, CalendarCheck, Swords, Package } from 'lucide-react'
+import { courtApi } from '../../api/courtApi'
+import { ShieldAlert } from 'lucide-react'
+import PageLoader from '../../components/ui/PageLoader'
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts'
 
-const ACTIVITY_STYLE = {
-  Confirmed: { color: '#10b981', bg: '#d1fae5' },
-  Completed: { color: '#3b82f6', bg: '#dbeafe' },
-  Pending: { color: '#f59e0b', bg: '#fef3c7' },
-  Cancelled: { color: '#ef4444', bg: '#fee2e2' },
-}
+const COURT_STATUS_LABELS = { Available: 'Trống', Booked: 'Đã đặt', Maintenance: 'Bảo trì', Closed: 'Đóng' }
+const COURT_STATUS_COLORS = { Available: '#14b8a6', Booked: '#0d1b2a', Maintenance: '#b26a00', Closed: '#b23b3b' }
 
 function fmtVnd(n) {
   return `${Number(n || 0).toLocaleString('vi-VN')} ₫`
@@ -27,6 +26,7 @@ export default function AdminDashboardPage() {
   const [stats, setStats] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [courtStatusData, setCourtStatusData] = useState([])
 
   useEffect(() => {
     let active = true
@@ -51,108 +51,134 @@ export default function AdminDashboardPage() {
     return () => { active = false }
   }, [])
 
+  useEffect(() => {
+    courtApi.getAll({ pageSize: 500 })
+      .then(res => {
+        const list = Array.isArray(res.data) ? res.data : (res.data?.items || [])
+        const counts = list.reduce((acc, c) => {
+          acc[c.status] = (acc[c.status] || 0) + 1
+          return acc
+        }, {})
+        setCourtStatusData(Object.entries(counts).map(([status, value]) => ({
+          status,
+          name: COURT_STATUS_LABELS[status] || status,
+          value,
+        })))
+      })
+      .catch(() => setCourtStatusData([]))
+  }, [])
+
   const maxRevenue = stats?.revenueTrend?.reduce((m, p) => Math.max(m, p.amount), 0) || 0
+  const chartData = stats?.revenueTrend?.map(p => ({ label: p.label, amount: p.amount })) || []
 
   const cards = stats ? [
-    { label: 'Tổng Doanh thu', value: fmtVnd(stats.totalRevenue), icon: <DollarSign size={20} />, bg: '#e0f2fe', color: '#0ea5e9' },
-    { label: 'Lượt Đặt sân Tích cực', value: stats.activeBookings, icon: <CalendarCheck size={20} />, bg: '#f1f5f9', color: '#64748b' },
-    { label: 'Kèo đấu Đang diễn ra', value: stats.ongoingMatches, icon: <Swords size={20} />, bg: '#fef3c7', color: '#d97706' },
-    { label: 'Sản phẩm Thiết bị', value: stats.totalEquipment, icon: <Package size={20} />, bg: '#f1f5f9', color: '#64748b' },
+    { label: 'Tổng Doanh thu', value: fmtVnd(stats.totalRevenue) },
+    { label: 'Lượt Đặt sân Tích cực', value: stats.activeBookings },
+    { label: 'Kèo đấu Đang diễn ra', value: stats.ongoingMatches },
+    { label: 'Sản phẩm Thiết bị', value: stats.totalEquipment, dark: true },
   ] : []
 
   return (
     <AdminLayout>
-      <div className="space-y-6">
-        <div className="flex justify-between items-start mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-slate-900 mb-1">Tổng quan Bảng điều khiển</h1>
-            <p className="text-sm text-slate-500">
-              {stats
-                ? `${stats.totalUsers} người dùng · ${stats.totalCourts} sân đang quản lý`
-                : 'Nhịp đập thời gian thực của hoạt động cơ sở thể thao.'}
-            </p>
-          </div>
+      <div className="space-y-9">
+        <div className="mb-9">
+          <h1 className="font-heading text-3xl md:text-4xl uppercase tracking-tight text-foreground mb-2">Tổng quan bảng điều khiển</h1>
+          <p className="text-sm text-foreground-muted">
+            {stats
+              ? `${stats.totalUsers} người dùng · ${stats.totalCourts} sân đang quản lý`
+              : 'Nhịp đập thời gian thực của hoạt động cơ sở thể thao.'}
+          </p>
         </div>
 
-        {loading && (
-          <div className="py-20 text-center text-slate-400">
-            <Loader2 className="inline animate-spin mr-2" size={22} /> Đang tải số liệu...
-          </div>
-        )}
+        {loading && <PageLoader message="Đang tải số liệu..." />}
         {!loading && error && (
-          <div className="py-20 text-center text-red-500">
+          <div className="py-20 text-center text-danger">
             <ShieldAlert className="inline mr-2" size={22} /> {error}
           </div>
         )}
 
         {!loading && !error && stats && (
           <>
-            <div className="grid grid-cols-4 gap-6 mb-6 max-xl:grid-cols-2">
+            <div className="grid grid-cols-2 xl:grid-cols-4 gap-[2px] bg-border-strong border-2 border-border-strong mb-10">
               {cards.map(c => (
-                <div key={c.label} className="bg-white rounded-xl p-6 border border-slate-200 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: c.bg, color: c.color }}>
-                      {c.icon}
-                    </div>
-                  </div>
-                  <p className="text-sm font-medium text-slate-500 mb-1">{c.label}</p>
-                  <p className="font-['Oswald'] text-3xl font-bold text-slate-900 leading-none break-all">{c.value}</p>
+                <div key={c.label} className={`p-6 ${c.dark ? 'bg-ink' : 'bg-surface'}`}>
+                  <p className={`label-mono mb-2.5 ${c.dark ? 'text-paper/60' : 'text-foreground-muted'}`}>{c.label}</p>
+                  <p className={`font-heading text-2xl ${c.dark ? 'text-paper' : 'text-foreground'}`}>{c.value}</p>
                 </div>
               ))}
             </div>
 
-            <div className="grid grid-cols-[2fr_1fr] gap-6 max-xl:grid-cols-1">
+            <div className="grid grid-cols-1 xl:grid-cols-[2fr_1fr] gap-6">
               {/* Revenue Trends */}
-              <div className="bg-white rounded-lg border border-slate-200 p-6 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
-                <div className="flex justify-between items-center mb-5">
-                  <h2 className="text-lg font-bold text-slate-900">Xu hướng Doanh thu (7 ngày)</h2>
+              <div className="border-2 border-border-strong bg-surface p-7">
+                <h3 className="font-heading text-base uppercase text-foreground mb-6">Xu hướng doanh thu (7 ngày)</h3>
+                <div className="h-[220px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={chartData} margin={{ top: 4, right: 0, left: 0, bottom: 0 }}>
+                      <XAxis dataKey="label" tick={{ fill: 'var(--color-foreground-muted)', fontSize: 11 }} axisLine={{ stroke: 'var(--color-border-default)' }} tickLine={false} />
+                      <YAxis hide />
+                      <Tooltip
+                        formatter={(value) => fmtVnd(value)}
+                        contentStyle={{ background: 'var(--color-surface)', border: '2px solid var(--color-border-strong)', borderRadius: 2, fontSize: 12 }}
+                        labelStyle={{ color: 'var(--color-foreground)' }}
+                        cursor={{ fill: 'var(--color-surface-hover)' }}
+                      />
+                      <Bar dataKey="amount" fill="var(--color-ink)" radius={0} />
+                    </BarChart>
+                  </ResponsiveContainer>
                 </div>
-                <div className="h-[240px] flex items-end gap-3">
-                  {stats.revenueTrend.map((p, i) => {
-                    const pct = maxRevenue > 0 ? Math.max(4, (p.amount / maxRevenue) * 100) : 4
-                    const isLast = i === stats.revenueTrend.length - 1
-                    return (
-                      <div key={p.label} className="flex-1 flex flex-col items-center gap-2 h-full justify-end">
-                        <div
-                          className={`w-full rounded-t transition-all ${isLast ? 'bg-[#0284c7]' : 'bg-[#38bdf8]'} opacity-90`}
-                          style={{ height: `${pct}%` }}
-                          title={fmtVnd(p.amount)}
-                        ></div>
-                        <span className="text-[0.7rem] text-slate-400 font-medium">{p.label}</span>
-                      </div>
-                    )
-                  })}
-                </div>
-                <p className="text-xs text-slate-400 mt-3 text-center">Doanh thu cao nhất trong kỳ: {fmtVnd(maxRevenue)}</p>
+                <p className="text-xs text-foreground-subtle mt-3 text-center">Doanh thu cao nhất trong kỳ: {fmtVnd(maxRevenue)}</p>
               </div>
 
-              {/* Recent Activity */}
-              <div className="bg-white rounded-lg border border-slate-200 p-6 shadow-[0_1px_2px_rgba(0,0,0,0.02)] flex flex-col">
-                <div className="mb-6">
-                  <h2 className="text-lg font-bold text-slate-900">Hoạt động Gần đây</h2>
-                  <p className="text-sm text-slate-500 mt-1">Các đơn đặt sân mới nhất</p>
-                </div>
-                <div className="flex flex-col flex-1">
-                  {stats.recentActivity.length === 0 && (
-                    <p className="text-sm text-slate-400 text-center py-8">Chưa có hoạt động nào.</p>
-                  )}
-                  {stats.recentActivity.map((item, i, arr) => {
-                    const st = ACTIVITY_STYLE[item.type] || { color: '#64748b', bg: '#f1f5f9' }
-                    return (
-                      <div key={i} className="flex gap-4 pb-5 relative">
-                        {i < arr.length - 1 && <div className="absolute left-[15px] top-8 bottom-0 w-[2px] bg-slate-200" />}
-                        <div className="w-8 h-8 rounded-full flex items-center justify-center z-[1] shrink-0" style={{ color: st.color, background: st.bg }}>
-                          <span className="w-2 h-2 rounded-full" style={{ background: st.color }}></span>
+              {/* Court occupancy pie */}
+              <div className="border-2 border-border-strong bg-surface p-7 flex flex-col">
+                <h3 className="font-heading text-base uppercase text-foreground mb-5">Hiệu suất khai thác sân</h3>
+                {courtStatusData.length === 0 ? (
+                  <p className="text-sm text-foreground-subtle text-center py-8 flex-1 flex items-center justify-center">Chưa có dữ liệu sân.</p>
+                ) : (
+                  <>
+                    <div className="h-[160px]">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie data={courtStatusData} dataKey="value" nameKey="name" innerRadius={40} outerRadius={70} paddingAngle={2}>
+                            {courtStatusData.map(entry => (
+                              <Cell key={entry.status} fill={COURT_STATUS_COLORS[entry.status] || '#9c9c96'} />
+                            ))}
+                          </Pie>
+                          <Tooltip contentStyle={{ background: 'var(--color-surface)', border: '2px solid var(--color-border-strong)', borderRadius: 2, fontSize: 12 }} />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </div>
+                    <div className="flex flex-col gap-2 mt-4">
+                      {courtStatusData.map(entry => (
+                        <div key={entry.status} className="flex items-center justify-between text-xs">
+                          <span className="flex items-center gap-2 text-foreground-muted">
+                            <span className="w-2.5 h-2.5 shrink-0" style={{ background: COURT_STATUS_COLORS[entry.status] || '#9c9c96' }} />
+                            {entry.name}
+                          </span>
+                          <span className="font-bold text-foreground">{entry.value}</span>
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-semibold text-slate-900">{item.title}</p>
-                          <p className="text-[0.8125rem] text-slate-500 mt-[2px] truncate">{item.description}</p>
-                          <p className="text-xs text-slate-400 mt-1">{timeAgo(item.time)}</p>
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* Recent Activity */}
+            <div className="border-2 border-border-strong bg-surface p-7 flex flex-col mt-6">
+              <h3 className="font-heading text-base uppercase text-foreground mb-5">Hoạt động gần đây</h3>
+              <div className="flex flex-col gap-4 text-sm flex-1">
+                {stats.recentActivity.length === 0 && (
+                  <p className="text-sm text-foreground-subtle text-center py-8">Chưa có hoạt động nào.</p>
+                )}
+                {stats.recentActivity.map((item, i, arr) => (
+                  <div key={i} className={`pb-3.5 ${i < arr.length - 1 ? 'border-b border-border-default' : ''}`}>
+                    <p className="font-extrabold text-foreground mb-0.5">{item.title}</p>
+                    <p className="text-sm text-foreground-muted mt-0.5 truncate">{item.description}</p>
+                    <p className="label-mono text-foreground-subtle mt-1">{timeAgo(item.time)}</p>
+                  </div>
+                ))}
               </div>
             </div>
           </>

@@ -1,80 +1,103 @@
 @import "tailwindcss";
 
 @theme {
-  /* Linear / Modern Theme Variables */
+  /* PRO-SPORT Editorial Theme — navy ink / cream paper, brutalist flat */
   --color-background-deep: var(--theme-bg-deep);
   --color-background-base: var(--theme-bg-base);
   --color-background-elevated: var(--theme-bg-elevated);
-  
+
   --color-surface: var(--theme-surface);
   --color-surface-hover: var(--theme-surface-hover);
-  
+
   --color-foreground: var(--theme-foreground);
   --color-foreground-muted: var(--theme-foreground-muted);
   --color-foreground-subtle: var(--theme-foreground-subtle);
-  
-  --color-accent: #5E6AD2;
-  --color-accent-bright: #6872D9;
-  --color-accent-glow: rgba(94,106,210,0.3);
-  
+
+  /* Brand chrome — constant across light/dark, always the navy/cream pairing used in nav bars and sidebars */
+  --color-ink: #0d1b2a;
+  --color-paper: #f3f2ee;
+
+  --color-accent: #14b8a6;
+  --color-accent-bright: #17cdbe;
+  --color-accent-glow: rgba(20,184,166,0.25);
+
   --color-border-default: var(--theme-border-default);
   --color-border-hover: var(--theme-border-hover);
-  --color-border-accent: rgba(94,106,210,0.30);
+  --color-border-strong: var(--theme-border-strong);
+  --color-border-accent: rgba(20,184,166,0.35);
 
-  /* Legacy maps to prevent immediate breakage of older pages before refactoring */
   --color-primary: var(--theme-primary);
   --color-secondary: var(--theme-secondary);
-  --color-success: #4caf50;
-  --color-warning: #ff9800;
-  --color-danger: #ef4444;
+  --color-success: #14b8a6;
+  --color-warning: #b26a00;
+  --color-warning-bg: var(--theme-warning-bg);
+  --color-danger: #b23b3b;
+  --color-danger-bg: var(--theme-danger-bg);
   --color-bg: var(--theme-bg-base);
   --color-card: var(--theme-surface);
 
   /* Typography */
-  --font-sans: 'Inter', 'Geist Sans', system-ui, sans-serif;
-  --font-heading: 'Inter', 'Geist Sans', system-ui, sans-serif;
-  --font-brand: 'Inter', 'Geist Sans', system-ui, sans-serif;
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-heading: 'Anton', 'Inter', sans-serif;
+  --font-brand: 'Anton', 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
 }
 
 /* Base Styles */
 :root {
-  /* Default Dark Theme */
-  --theme-bg-deep: #020203;
-  --theme-bg-base: #050506;
-  --theme-bg-elevated: #0a0a0c;
-  --theme-surface: rgba(255,255,255,0.05);
-  --theme-surface-hover: rgba(255,255,255,0.08);
-  --theme-foreground: #EDEDEF;
-  --theme-foreground-muted: #8A8F98;
-  --theme-foreground-subtle: rgba(255,255,255,0.60);
-  --theme-border-default: rgba(255,255,255,0.06);
-  --theme-border-hover: rgba(255,255,255,0.10);
-  --theme-primary: #ffffff;
-  --theme-secondary: #0a0a0c;
-  
+  /* Default theme = dark: deep navy content area (extrapolated, no mockup reference) */
+  --theme-bg-deep: #05101a;
+  --theme-bg-base: #0d1b2a;
+  --theme-bg-elevated: #16283a;
+  --theme-surface: #16283a;
+  --theme-surface-hover: #1c3247;
+  --theme-foreground: #f3f2ee;
+  --theme-foreground-muted: #9c9c96;
+  --theme-foreground-subtle: rgba(243,242,238,0.6);
+  --theme-border-default: rgba(243,242,238,0.14);
+  --theme-border-hover: rgba(243,242,238,0.24);
+  --theme-border-strong: #3a4f63;
+  --theme-primary: #f3f2ee;
+  --theme-secondary: #0d1b2a;
+  --theme-warning-bg: rgba(178,106,0,0.15);
+  --theme-danger-bg: rgba(178,59,59,0.15);
+
   --color-text: var(--color-foreground);
 }
 
 .light {
-  /* Light Theme Overrides */
-  --theme-bg-deep: #f8fafc;
-  --theme-bg-base: #ffffff;
-  --theme-bg-elevated: #f1f5f9;
-  --theme-surface: rgba(0,0,0,0.04);
-  --theme-surface-hover: rgba(0,0,0,0.08);
-  --theme-foreground: #0f172a;
-  --theme-foreground-muted: #64748b;
-  --theme-foreground-subtle: rgba(0,0,0,0.60);
-  --theme-border-default: rgba(0,0,0,0.08);
-  --theme-border-hover: rgba(0,0,0,0.15);
-  --theme-primary: #0f172a;
-  --theme-secondary: #ffffff;
-  
+  /* Light theme = exact mockup palette: cream paper / navy ink */
+  --theme-bg-deep: #e4e2da;
+  --theme-bg-base: #f3f2ee;
+  --theme-bg-elevated: #ffffff;
+  --theme-surface: #ffffff;
+  --theme-surface-hover: #e4e2da;
+  --theme-foreground: #0d1b2a;
+  --theme-foreground-muted: #54534d;
+  --theme-foreground-subtle: #8a8a84;
+  --theme-border-default: rgba(13,27,42,0.14);
+  --theme-border-hover: rgba(13,27,42,0.25);
+  --theme-border-strong: #0d1b2a;
+  --theme-primary: #0d1b2a;
+  --theme-secondary: #f3f2ee;
+  --theme-warning-bg: #fdf6e3;
+  --theme-danger-bg: #fdf5f5;
+
   --color-text: var(--color-foreground);
 }
 
 @layer base {
   html { scroll-behavior: smooth; }
+
+  ::selection {
+    background: var(--color-accent);
+    color: #0d1b2a;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
   body {
     font-family: var(--font-sans);
     color: var(--color-text);
@@ -87,158 +110,131 @@
     overflow-x: hidden;
   }
 
-  /* Linear Scrollbar */
   ::-webkit-scrollbar { width: 10px; height: 10px; background: transparent; }
   ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { 
-    background: rgba(255,255,255,0.1);
-    border-radius: 5px;
+  ::-webkit-scrollbar-thumb {
+    background: var(--theme-border-hover);
+    border-radius: 0;
     border: 2px solid var(--color-background-base);
   }
-  ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+  ::-webkit-scrollbar-thumb:hover { background: var(--theme-foreground-muted); }
 }
 
 @layer components {
-  /* ── Linear Modern Buttons ── */
+  /* ── Editorial mono label (section eyebrows, table headers) ── */
+  .label-mono {
+    @apply font-mono text-[11px] font-semibold uppercase tracking-[0.12em];
+  }
+
+  /* ── Buttons — flat, hard border, no shadow/glow ── */
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 px-4 h-10
-           bg-[#5E6AD2] text-white font-sans text-sm font-medium
-           rounded-lg transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)]
-           shadow-[0_0_0_1px_rgba(94,106,210,0.5),0_4px_12px_rgba(94,106,210,0.3),inset_0_1px_0_0_rgba(255,255,255,0.2)];
+    @apply inline-flex items-center justify-center gap-2 px-5 h-10
+           bg-[var(--theme-primary)] text-[var(--theme-secondary)] font-sans text-sm font-extrabold uppercase tracking-[0.04em]
+           border-2 border-[var(--theme-primary)] rounded-[2px];
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease,
+                transform 0.15s ease, box-shadow 0.15s ease;
   }
-  
+
   .btn-primary:hover {
-    @apply bg-[#6872D9] -translate-y-[1px];
-    box-shadow: 0 0 0 1px rgba(94,106,210,0.6), 0 8px 20px rgba(94,106,210,0.4), inset 0 1px 0 0 rgba(255,255,255,0.3);
+    @apply bg-accent border-accent text-ink;
+    transform: translate(-2px, -2px);
+    box-shadow: 4px 4px 0 rgba(13, 27, 42, 0.85);
   }
-  
+
   .btn-primary:active {
-    @apply scale-[0.98] translate-y-[0px];
-    box-shadow: 0 0 0 1px rgba(94,106,210,0.5), 0 2px 4px rgba(94,106,210,0.2), inset 0 1px 0 0 rgba(255,255,255,0.1);
+    transform: translate(0, 0);
+    box-shadow: none;
+    @apply opacity-90;
   }
 
   .btn-outline {
-    @apply inline-flex items-center justify-center gap-2 px-4 h-10
-           bg-[var(--theme-surface)] text-foreground font-sans text-sm font-medium
-           rounded-lg transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)]
-           border border-border-default shadow-sm;
+    @apply inline-flex items-center justify-center gap-2 px-5 h-10
+           bg-transparent text-foreground font-sans text-sm font-bold uppercase tracking-[0.04em]
+           border-2 border-border-hover rounded-[2px];
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease,
+                transform 0.15s ease, box-shadow 0.15s ease;
   }
 
   .btn-outline:hover {
-    @apply bg-[var(--theme-surface-hover)] border-border-hover -translate-y-[1px];
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    @apply border-foreground;
+    transform: translate(-2px, -2px);
   }
 
   .btn-outline:active {
-    @apply scale-[0.98] translate-y-[0px];
-    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    transform: translate(0, 0);
   }
 
   .auth-btn {
     @apply inline-flex items-center justify-center gap-2 px-4
-           bg-[#5E6AD2] text-white font-sans font-medium
-           rounded-lg transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)]
-           shadow-[0_0_0_1px_rgba(94,106,210,0.5),0_4px_12px_rgba(94,106,210,0.3),inset_0_1px_0_0_rgba(255,255,255,0.2)]
-           w-full h-11 text-base;
+           bg-ink text-paper font-sans font-extrabold uppercase tracking-[0.05em]
+           rounded-[2px] transition-colors duration-150
+           w-full h-14 text-sm;
   }
 
   .auth-btn:hover {
-    @apply bg-[#6872D9] -translate-y-[1px];
-    box-shadow: 0 0 0 1px rgba(94,106,210,0.6), 0 8px 20px rgba(94,106,210,0.4), inset 0 1px 0 0 rgba(255,255,255,0.3);
-  }
-
-  .auth-btn:active {
-    @apply scale-[0.98] translate-y-[0px];
-    box-shadow: 0 0 0 1px rgba(94,106,210,0.5), 0 2px 4px rgba(94,106,210,0.2), inset 0 1px 0 0 rgba(255,255,255,0.1);
+    @apply bg-accent text-ink;
   }
 
   /* ── Inputs ── */
   .input-base, .auth-input, .contact-input, .form-input {
-    @apply w-full px-4 h-11 bg-[var(--theme-surface)] border border-border-default rounded-lg
-           text-sm text-foreground placeholder:text-foreground-muted font-sans
-           outline-none transition-all duration-200;
-    box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+    @apply w-full px-4 h-[52px] bg-surface border-2 border-[var(--theme-border-strong)] rounded-[2px]
+           text-sm text-foreground placeholder:text-foreground-subtle font-sans
+           outline-none transition-colors duration-150;
   }
 
   .input-base:focus, .auth-input:focus, .contact-input:focus, .form-input:focus {
-    @apply border-[#5E6AD2] ring-2 ring-[#5E6AD2]/20;
-    box-shadow: inset 0 2px 4px rgba(0,0,0,0.05), 0 0 0 1px rgba(94,106,210,0.2);
+    @apply border-accent ring-2 ring-accent/20;
   }
 
   /* ── Cards ── */
   .card-base {
-    @apply bg-[var(--theme-surface)] border border-border-default rounded-2xl p-6 relative backdrop-blur-md;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.05), inset 0 1px 0 0 var(--theme-surface-hover);
-  }
-  
-  .card-base:hover {
-    box-shadow: 0 8px 25px rgba(0,0,0,0.1), inset 0 1px 0 0 var(--theme-surface-hover);
+    @apply bg-surface border-2 border-[var(--theme-border-strong)] rounded-[2px] p-6 relative;
   }
 
-  /* ── Auth Layout ── */
+  /* ── Auth Layout — fixed brand split (ink visual / paper form), constant regardless of toggle ── */
   .auth-layout {
-    @apply min-h-screen flex flex-col lg:flex-row bg-[#020203];
+    @apply min-h-screen flex flex-col lg:flex-row bg-ink;
   }
 
   .auth-visual {
-    @apply hidden lg:flex relative w-1/2 flex-col justify-center items-center border-r border-white/5 overflow-hidden bg-[#050506];
+    @apply hidden lg:flex relative w-1/2 flex-col justify-between p-14 overflow-hidden bg-ink text-paper;
   }
 
   .auth-form {
-    @apply flex-1 flex flex-col justify-center items-center p-8 lg:p-16 relative bg-[#020203];
+    @apply flex-1 flex flex-col justify-center items-center p-8 lg:p-16 relative bg-paper;
   }
 
   .auth-form-inner {
-    @apply w-full max-w-[400px];
+    @apply w-full max-w-[400px] text-ink;
   }
 
   .auth-animate-in {
-    animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation: fadeUp 0.4s ease-out forwards;
   }
 
   .auth-animate-in-delayed {
-    animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.1s forwards;
+    animation: fadeUp 0.4s ease-out 0.08s forwards;
     opacity: 0;
   }
 
   .auth-animate-fade {
-    animation: fadeIn 0.4s ease-out forwards;
+    animation: fadeIn 0.3s ease-out forwards;
   }
 
   /* ── Utility Classes ── */
-  .container { @apply max-w-[1200px] mx-auto px-6; }
-  
+  .container { @apply max-w-[1400px] mx-auto px-6; }
+
   .gradient-text {
-    @apply bg-clip-text text-transparent bg-gradient-to-b from-white via-white/95 to-white/70;
+    @apply text-foreground;
   }
-  
+
   .gradient-accent {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-[#5E6AD2] via-indigo-400 to-[#5E6AD2];
-    background-size: 200% auto;
-    animation: textShine 4s linear infinite;
+    @apply text-accent;
   }
-}
-
-/* Linear Background Animations */
-@keyframes float {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  50% { transform: translateY(-20px) rotate(1deg); }
-}
-.animate-blob { animation: float 10s ease-in-out infinite; }
-
-@keyframes textShine {
-  to { background-position: 200% center; }
-}
-
-/* Noise Pattern */
-.bg-noise {
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-  opacity: 0.025;
-  pointer-events: none;
 }
 
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(20px); }
+  from { opacity: 0; transform: translateY(16px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
@@ -247,14 +243,84 @@
   to { opacity: 1; }
 }
 
-@keyframes authFloat {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+/* ── Infinite marquee (brand strip) ── */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
 }
 
-/* ── PRO-SPORT Logo — athletic swoosh ── */
+.marquee {
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+  mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 30s linear infinite;
+}
+
+.marquee:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+/* ── Brutalist card lift — hard offset shadow on hover ── */
+.card-lift {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card-lift:hover {
+  transform: translate(-3px, -3px);
+  box-shadow: 6px 6px 0 var(--theme-border-strong);
+}
+
+/* ── Image zoom on hover (wrap img in overflow-hidden parent) ── */
+.img-zoom {
+  overflow: hidden;
+}
+
+.img-zoom img {
+  transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.img-zoom:hover img {
+  transform: scale(1.06);
+}
+
+/* ── Skeleton shimmer ── */
+@keyframes shimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(90deg,
+    var(--theme-surface) 25%,
+    var(--theme-surface-hover) 50%,
+    var(--theme-surface) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.6s ease-in-out infinite;
+  border-radius: 2px;
+}
+
+/* ── Brand loader — equalizer bars ── */
+@keyframes loaderBar {
+  0%, 100% { transform: scaleY(0.3); }
+  50% { transform: scaleY(1); }
+}
+
+.loader-bar {
+  width: 6px;
+  height: 100%;
+  background: var(--color-accent);
+  transform-origin: bottom;
+  animation: loaderBar 0.9s ease-in-out infinite;
+}
+
+/* ── PRO-SPORT Logo — Anton wordmark ── */
 .prosport-mark {
-  transition: transform 0.2s ease;
+  transition: transform 0.15s ease;
 }
 
 .group:hover .prosport-mark {
@@ -264,5 +330,22 @@
 @media (prefers-reduced-motion: reduce) {
   .group:hover .prosport-mark {
     transform: none;
+  }
+
+  .marquee-track,
+  .skeleton,
+  .loader-bar {
+    animation: none;
+  }
+
+  .card-lift:hover,
+  .btn-primary:hover,
+  .btn-outline:hover,
+  .img-zoom:hover img {
+    transform: none;
+  }
+
+  html {
+    scroll-behavior: auto;
   }
 }

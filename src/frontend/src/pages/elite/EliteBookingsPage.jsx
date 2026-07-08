@@ -89,146 +89,142 @@ export default function EliteBookingsPage() {
 
   return (
     <EliteLayout>
-      <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="space-y-7">
+        <div className="flex flex-wrap justify-between items-end gap-5">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 mb-1">Đặt sân hôm nay</h1>
-            <p className="text-sm text-slate-500">Theo dõi lịch đặt, thanh toán và mã check-in.</p>
+            <h1 className="font-heading text-3xl sm:text-4xl uppercase tracking-[-0.01em] text-foreground mb-2">Đặt sân hôm nay</h1>
+            <p className="text-sm text-foreground-muted">Theo dõi lịch đặt, thanh toán và mã check-in.</p>
           </div>
           <div className="flex gap-2">
-            <Link to="/elite/pos" className="text-sm font-semibold bg-[#5E6AD2] text-white px-4 py-2 rounded-lg no-underline hover:bg-[#4e5bc4]">
+            <Link to="/elite/pos" className="btn-primary no-underline">
               + Đặt tại quầy
             </Link>
-            <Link to="/elite/scanner" className="text-sm font-semibold border border-slate-200 text-slate-700 px-4 py-2 rounded-lg no-underline hover:bg-slate-50 flex items-center gap-1">
+            <Link to="/elite/scanner" className="btn-outline no-underline">
               <QrCode size={16} /> Quét QR
             </Link>
           </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-4 max-md:grid-cols-1">
-          <div className="bg-white rounded-xl p-5 border border-slate-200">
-            <p className="text-2xl font-bold text-slate-900">{stats.todayTotal}</p>
-            <p className="text-sm text-slate-500">Lượt đặt hôm nay</p>
+        <div className="grid grid-cols-3 max-md:grid-cols-1 gap-[2px] bg-border-strong border-2 border-border-strong mb-2">
+          <div className="bg-surface p-6">
+            <p className="font-heading text-[34px] leading-none text-foreground mb-1.5">{stats.todayTotal}</p>
+            <p className="label-mono text-foreground-subtle">Lượt đặt hôm nay</p>
           </div>
-          <div className="bg-white rounded-xl p-5 border border-slate-200">
-            <p className="text-2xl font-bold text-green-600">{stats.todayConfirmed}</p>
-            <p className="text-sm text-slate-500">Đã xác nhận hôm nay</p>
+          <div className="bg-surface p-6">
+            <p className="font-heading text-[34px] leading-none text-accent mb-1.5">{stats.todayConfirmed}</p>
+            <p className="label-mono text-foreground-subtle">Đã xác nhận hôm nay</p>
           </div>
-          <div className="bg-white rounded-xl p-5 border border-slate-200">
-            <p className="text-2xl font-bold text-amber-600">{stats.pendingPay}</p>
-            <p className="text-sm text-slate-500">Chờ thanh toán (tổng)</p>
+          <div className="bg-ink p-6">
+            <p className="font-heading text-[34px] leading-none text-paper mb-1.5">{stats.pendingPay}</p>
+            <p className="label-mono text-[#9c9c96]">Chờ thanh toán (tổng)</p>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-          <div className="flex flex-wrap gap-3 justify-between items-center py-4 px-5 border-b border-slate-200">
-            <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-full py-2 px-4 w-72 max-w-full focus-within:border-[#5E6AD2]">
-              <Search size={16} className="text-slate-400 shrink-0" />
-              <input
-                type="text"
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-                placeholder="Tìm mã / sân / QR..."
-                className="border-none outline-none text-sm text-slate-900 w-full bg-transparent"
-              />
-            </div>
-            <div className="flex flex-wrap gap-2 items-center">
-              <button
-                type="button"
-                onClick={() => setTodayOnly(v => !v)}
-                className={`py-1.5 px-3 rounded-full border text-xs font-semibold cursor-pointer ${
-                  todayOnly ? 'border-[#5E6AD2] bg-[#5E6AD2]/10 text-[#5E6AD2]' : 'border-slate-200 text-slate-500'
-                }`}
-              >
-                Chỉ hôm nay
-              </button>
-              {STATUS_TABS.map(tab => (
-                <button
-                  key={tab.key}
-                  type="button"
-                  onClick={() => setStatusFilter(tab.key)}
-                  className={`py-1.5 px-3 rounded-full border text-xs font-medium cursor-pointer ${
-                    statusFilter === tab.key
-                      ? 'border-[#5E6AD2] bg-[#5E6AD2]/10 text-[#5E6AD2]'
-                      : 'border-slate-200 text-slate-500 hover:bg-slate-50'
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
+        <div className="flex flex-wrap gap-2.5 items-center">
+          <div className="flex items-center gap-2 bg-surface border-2 border-border-strong rounded-[2px] h-11 px-3.5 min-w-[240px] flex-1 sm:flex-none">
+            <Search size={16} className="text-foreground-subtle shrink-0" />
+            <input
+              type="text"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="Tìm mã / sân / QR..."
+              className="border-none outline-none text-sm text-foreground w-full bg-transparent"
+            />
           </div>
+          <button
+            type="button"
+            onClick={() => setTodayOnly(v => !v)}
+            className={`label-mono px-4 h-11 rounded-[2px] border-2 cursor-pointer transition-colors ${
+              todayOnly ? 'border-ink bg-ink text-paper' : 'border-border-hover text-foreground-muted bg-transparent'
+            }`}
+          >
+            Chỉ hôm nay
+          </button>
+          {STATUS_TABS.map(tab => (
+            <button
+              key={tab.key}
+              type="button"
+              onClick={() => setStatusFilter(tab.key)}
+              className={`label-mono px-4 h-11 rounded-[2px] border-2 cursor-pointer transition-colors ${
+                statusFilter === tab.key
+                  ? 'border-ink bg-ink text-paper'
+                  : 'border-border-hover text-foreground-muted bg-transparent hover:border-foreground'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="border-b border-slate-200 bg-slate-50">
-                  <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Mã</th>
-                  <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Sân</th>
-                  <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Giờ</th>
-                  <th className="px-5 py-3 text-right text-xs font-semibold text-slate-500 uppercase">Tiền</th>
-                  <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase">TT</th>
-                  <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase">QR</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {loading && (
-                  <tr><td colSpan={6} className="px-5 py-12 text-center text-slate-400">
-                    <Loader2 className="inline animate-spin mr-2" size={18} /> Đang tải...
-                  </td></tr>
-                )}
-                {!loading && error && (
-                  <tr><td colSpan={6} className="px-5 py-12 text-center text-red-500">{error}</td></tr>
-                )}
-                {!loading && !error && filtered.length === 0 && (
-                  <tr><td colSpan={6} className="px-5 py-12 text-center text-slate-400">Không có lượt đặt phù hợp.</td></tr>
-                )}
-                {!loading && !error && filtered.map(b => {
-                  const d = b.details?.[0]
-                  return (
-                    <tr key={b.bookingId} className="hover:bg-slate-50/55">
-                      <td className="px-5 py-4 text-sm font-semibold text-slate-600">#{b.bookingId}</td>
-                      <td className="px-5 py-4 text-sm font-semibold text-slate-900">{d?.courtName || '—'}</td>
-                      <td className="px-5 py-4 whitespace-nowrap">
-                        {d ? (
-                          <>
-                            <p className="text-sm font-medium text-slate-900 flex items-center gap-1">
-                              <CalendarDays size={13} className="text-slate-400" />
-                              {new Date(d.bookingDate).toLocaleDateString('vi-VN')}
-                            </p>
-                            <p className="text-xs text-slate-500">{fmtTime(d.startTime)} – {fmtTime(d.endTime)}</p>
-                          </>
-                        ) : '—'}
-                      </td>
-                      <td className="px-5 py-4 text-right text-sm font-semibold">
-                        {Number(b.totalAmount || 0).toLocaleString('vi-VN')}đ
-                      </td>
-                      <td className="px-5 py-4">
-                        <StatusBadge status={b.status} />
-                        {b.paymentMethod && (
-                          <p className="text-[0.65rem] text-slate-400 mt-1">{b.paymentMethod}</p>
-                        )}
-                      </td>
-                      <td className="px-5 py-4">
-                        {b.checkInCode ? (
-                          <button
-                            type="button"
-                            onClick={() => copyCode(b.checkInCode)}
-                            className="inline-flex items-center gap-1 text-xs font-mono text-[#5E6AD2] bg-[#5E6AD2]/10 px-2 py-1 rounded border-none cursor-pointer hover:bg-[#5E6AD2]/20"
-                            title={b.checkInCode}
-                          >
-                            <Copy size={12} /> Copy QR
-                          </button>
-                        ) : (
-                          <span className="text-xs text-slate-400">—</span>
-                        )}
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
+        <div className="border-2 border-border-strong bg-surface overflow-x-auto">
+          <table className="w-full border-collapse text-sm">
+            <thead>
+              <tr className="bg-ink text-paper">
+                <th className="text-left px-4.5 py-3.5 label-mono px-[18px]">Mã</th>
+                <th className="text-left py-3.5 label-mono px-[18px]">Sân</th>
+                <th className="text-left py-3.5 label-mono px-[18px]">Giờ</th>
+                <th className="text-right py-3.5 label-mono px-[18px]">Tiền</th>
+                <th className="text-left py-3.5 label-mono px-[18px]">TT</th>
+                <th className="text-left py-3.5 label-mono px-[18px]">QR</th>
+              </tr>
+            </thead>
+            <tbody>
+              {loading && (
+                <tr><td colSpan={6} className="px-5 py-12 text-center text-foreground-subtle border-t border-border-default">
+                  <Loader2 className="inline animate-spin mr-2" size={18} /> Đang tải...
+                </td></tr>
+              )}
+              {!loading && error && (
+                <tr><td colSpan={6} className="px-5 py-12 text-center text-danger border-t border-border-default">{error}</td></tr>
+              )}
+              {!loading && !error && filtered.length === 0 && (
+                <tr><td colSpan={6} className="px-5 py-12 text-center text-foreground-subtle border-t border-border-default">Không có lượt đặt phù hợp.</td></tr>
+              )}
+              {!loading && !error && filtered.map(b => {
+                const d = b.details?.[0]
+                return (
+                  <tr key={b.bookingId} className="hover:bg-surface-hover border-t border-border-default">
+                    <td className="px-[18px] py-3.5 font-extrabold text-foreground">#{b.bookingId}</td>
+                    <td className="px-[18px] py-3.5 font-bold text-foreground">{d?.courtName || '—'}</td>
+                    <td className="px-[18px] py-3.5 whitespace-nowrap">
+                      {d ? (
+                        <>
+                          <p className="text-sm font-medium text-foreground flex items-center gap-1">
+                            <CalendarDays size={13} className="text-foreground-subtle" />
+                            {new Date(d.bookingDate).toLocaleDateString('vi-VN')}
+                          </p>
+                          <p className="text-xs text-foreground-muted">{fmtTime(d.startTime)} – {fmtTime(d.endTime)}</p>
+                        </>
+                      ) : '—'}
+                    </td>
+                    <td className="px-[18px] py-3.5 text-right font-extrabold text-foreground">
+                      {Number(b.totalAmount || 0).toLocaleString('vi-VN')}đ
+                    </td>
+                    <td className="px-[18px] py-3.5">
+                      <StatusBadge status={b.status} />
+                      {b.paymentMethod && (
+                        <p className="text-[0.65rem] text-foreground-subtle mt-1">{b.paymentMethod}</p>
+                      )}
+                    </td>
+                    <td className="px-[18px] py-3.5">
+                      {b.checkInCode ? (
+                        <button
+                          type="button"
+                          onClick={() => copyCode(b.checkInCode)}
+                          className="inline-flex items-center gap-1 label-mono text-foreground bg-background-base border border-border-strong px-2.5 py-1 rounded-[2px] cursor-pointer hover:bg-surface-hover"
+                          title={b.checkInCode}
+                        >
+                          <Copy size={12} /> Copy QR
+                        </button>
+                      ) : (
+                        <span className="text-xs text-foreground-subtle">—</span>
+                      )}
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
         </div>
       </div>
     </EliteLayout>

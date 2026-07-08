@@ -1,109 +1,109 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
 import Navbar from '../../components/Navbar'
 import Footer from '../../components/Footer'
+import { User, ShieldCheck, LogOut, Upload } from 'lucide-react'
 
 export default function CustomerProfilePage() {
   const [activeTab, setActiveTab] = useState('profile')
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#f5f9fb]">
+    <div className="flex flex-col min-h-screen bg-background-base">
       <Navbar theme="light" />
 
-      <div className="max-w-[1000px] mx-auto px-6 pt-[90px] pb-20 w-full flex-1">
-        <h1 className="font-['Oswald'] text-3xl font-bold text-slate-900 mb-8">Tài khoản của tôi</h1>
+      <div className="max-w-[1000px] mx-auto px-6 pt-[100px] sm:pt-[130px] pb-20 w-full flex-1">
+        <h1 className="font-heading text-3xl md:text-4xl uppercase tracking-tight text-foreground mb-8">Tài khoản của tôi</h1>
 
         <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-8">
           {/* Sidebar */}
-          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 h-fit">
+          <div className="card-base h-fit">
             <div className="flex flex-col gap-2">
-              <button 
+              <button
                 onClick={() => setActiveTab('profile')}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-colors ${activeTab === 'profile' ? 'bg-[#14B8A6]/10 text-[#14B8A6]' : 'text-slate-600 hover:bg-slate-50'}`}
+                className={`flex items-center gap-3 px-4 py-3 rounded-[2px] text-sm font-bold transition-colors ${activeTab === 'profile' ? 'bg-accent/10 text-accent' : 'text-foreground-muted hover:bg-surface-hover'}`}
               >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                <User size={18} />
                 Thông tin cá nhân
               </button>
-              <button 
+              <button
                 onClick={() => setActiveTab('ekyc')}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-colors ${activeTab === 'ekyc' ? 'bg-[#14B8A6]/10 text-[#14B8A6]' : 'text-slate-600 hover:bg-slate-50'}`}
+                className={`flex items-center gap-3 px-4 py-3 rounded-[2px] text-sm font-bold transition-colors ${activeTab === 'ekyc' ? 'bg-accent/10 text-accent' : 'text-foreground-muted hover:bg-surface-hover'}`}
               >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                <ShieldCheck size={18} />
                 Xác thực E-KYC
               </button>
-              <div className="h-px bg-slate-100 my-2"></div>
-              <button className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-red-500 hover:bg-red-50 transition-colors">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+              <div className="h-px bg-border-default my-2"></div>
+              <button className="flex items-center gap-3 px-4 py-3 rounded-[2px] text-sm font-bold text-danger hover:bg-danger-bg transition-colors">
+                <LogOut size={18} />
                 Đăng xuất
               </button>
             </div>
           </div>
 
           {/* Main Content */}
-          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-8">
+          <div className="card-base">
             {activeTab === 'profile' && (
-              <div className="animate-[fadeIn_0.3s_ease]">
-                <h2 className="text-xl font-bold text-slate-900 mb-6">Cập nhật hồ sơ</h2>
-                
+              <div className="auth-animate-fade">
+                <h2 className="font-heading text-xl uppercase text-foreground mb-6">Cập nhật hồ sơ</h2>
+
                 <div className="flex items-center gap-6 mb-8">
-                  <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&q=80" alt="Avatar" className="w-24 h-24 rounded-full object-cover" />
+                  <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&q=80" alt="Avatar" className="w-24 h-24 rounded-full object-cover border-2 border-border-strong" />
                   <div>
-                    <button className="bg-slate-100 text-slate-700 text-sm font-semibold px-4 py-2 rounded-lg hover:bg-slate-200 transition-colors">Đổi ảnh đại diện</button>
-                    <p className="text-xs text-slate-400 mt-2">JPG, GIF hoặc PNG. Tối đa 5MB.</p>
+                    <button className="btn-outline text-xs">Đổi ảnh đại diện</button>
+                    <p className="label-mono text-foreground-subtle mt-2">JPG, GIF hoặc PNG. Tối đa 5MB.</p>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 max-sm:grid-cols-1 gap-6 mb-8">
                   <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-2">Họ và tên</label>
-                    <input type="text" defaultValue="Alex Mercer" className="w-full border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-[#14B8A6]" />
+                    <label className="block label-mono text-foreground-muted mb-2">Họ và tên</label>
+                    <input type="text" defaultValue="Alex Mercer" className="input-base" />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-2">Số điện thoại</label>
-                    <input type="tel" defaultValue="0901234567" className="w-full border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-[#14B8A6]" />
+                    <label className="block label-mono text-foreground-muted mb-2">Số điện thoại</label>
+                    <input type="tel" defaultValue="0901234567" className="input-base" />
                   </div>
                   <div className="col-span-full">
-                    <label className="block text-sm font-semibold text-slate-700 mb-2">Địa chỉ email</label>
-                    <input type="email" defaultValue="alex.mercer@example.com" disabled className="w-full border border-slate-200 rounded-xl px-4 py-3 bg-slate-50 text-slate-500" />
+                    <label className="block label-mono text-foreground-muted mb-2">Địa chỉ email</label>
+                    <input type="email" defaultValue="alex.mercer@example.com" disabled className="input-base bg-surface-hover text-foreground-muted cursor-not-allowed" />
                   </div>
                 </div>
-                
-                <button className="bg-[#14B8A6] text-[var(--theme-primary)] font-bold py-3 px-8 rounded-xl hover:bg-[#0D9488] transition-colors">Lưu thay đổi</button>
+
+                <button className="btn-primary">Lưu thay đổi</button>
               </div>
             )}
 
             {activeTab === 'ekyc' && (
-              <div className="animate-[fadeIn_0.3s_ease]">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-bold text-slate-900">Xác thực danh tính (E-KYC)</h2>
-                  <span className="bg-amber-100 text-amber-700 text-xs font-bold px-3 py-1.5 rounded-full uppercase">Chưa xác thực</span>
+              <div className="auth-animate-fade">
+                <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
+                  <h2 className="font-heading text-xl uppercase text-foreground">Xác thực danh tính (E-KYC)</h2>
+                  <span className="label-mono bg-warning-bg text-warning border border-warning px-3 py-1.5">Chưa xác thực</span>
                 </div>
-                
-                <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 flex gap-3 mb-8">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2" className="shrink-0 mt-0.5"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
-                  <p className="text-sm text-blue-800 leading-relaxed">
-                    Xác thực E-KYC là bắt buộc để bạn có thể <b>Tạo kèo</b> và <b>Sử dụng ví ký quỹ</b>. Thông tin của bạn được mã hóa an toàn.
+
+                <div className="border-2 border-border-strong bg-background-base p-4 flex gap-3 mb-8">
+                  <ShieldCheck size={20} className="text-accent shrink-0 mt-0.5" />
+                  <p className="text-sm text-foreground-muted leading-relaxed">
+                    Xác thực E-KYC là bắt buộc để bạn có thể <b className="text-foreground">Tạo kèo</b> và <b className="text-foreground">Sử dụng ví ký quỹ</b>. Thông tin của bạn được mã hóa an toàn.
                   </p>
                 </div>
 
                 <div className="space-y-6 mb-8">
                   <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-2">Mặt trước CMND / CCCD</label>
-                    <div className="border-2 border-dashed border-slate-300 rounded-2xl h-40 flex flex-col items-center justify-center text-slate-500 hover:border-[#14B8A6] hover:bg-[#14B8A6]/5 cursor-pointer transition-colors">
-                      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="mb-2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                    <label className="block label-mono text-foreground-muted mb-2">Mặt trước CMND / CCCD</label>
+                    <div className="border-2 border-dashed border-border-hover h-40 flex flex-col items-center justify-center text-foreground-muted hover:border-accent hover:bg-accent/5 cursor-pointer transition-colors">
+                      <Upload size={32} className="mb-2" />
                       <span className="text-sm font-medium">Nhấn để tải ảnh lên</span>
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-2">Mặt sau CMND / CCCD</label>
-                    <div className="border-2 border-dashed border-slate-300 rounded-2xl h-40 flex flex-col items-center justify-center text-slate-500 hover:border-[#14B8A6] hover:bg-[#14B8A6]/5 cursor-pointer transition-colors">
-                      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="mb-2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                    <label className="block label-mono text-foreground-muted mb-2">Mặt sau CMND / CCCD</label>
+                    <div className="border-2 border-dashed border-border-hover h-40 flex flex-col items-center justify-center text-foreground-muted hover:border-accent hover:bg-accent/5 cursor-pointer transition-colors">
+                      <Upload size={32} className="mb-2" />
                       <span className="text-sm font-medium">Nhấn để tải ảnh lên</span>
                     </div>
                   </div>
                 </div>
 
-                <button className="w-full bg-[#14B8A6] text-[var(--theme-primary)] font-bold py-3.5 rounded-xl hover:bg-[#0D9488] transition-colors">Gửi yêu cầu xác thực</button>
+                <button className="btn-primary w-full h-12">Gửi yêu cầu xác thực</button>
               </div>
             )}
           </div>

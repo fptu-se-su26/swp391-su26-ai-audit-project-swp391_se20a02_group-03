@@ -33,7 +33,7 @@ const principles = [
 
 const milestones = [
   { year: '2020', title: 'Thành lập tại TP.Hồ Chí Minh', desc: 'Bắt đầu với tầm nhìn số hóa quản lý cơ sở thể thao trên toàn Đông Nam Á.' },
-  { year: '2021', title: '50 Cơ sở đầu tiên', desc: 'Hợp tác với các câu lạc bộ tennis, sân cầu lông và khu liên hợp thể thao tại Việt Nam.' },
+  { year: '2021', title: '50 Cơ sở đầu tiên', desc: 'Hợp tác với các câu lạc bộ cầu lông, sân pickleball và khu liên hợp thể thao tại Việt Nam.' },
   { year: '2022', title: 'Ra mắt MatchPro', desc: 'Ra mắt hệ thống ghép kèo tích hợp AI, kết nối vận động viên theo kỹ năng và khu vực.' },
   { year: '2023', title: 'Gọi vốn Series A', desc: 'Gọi vốn 5 triệu USD để mở rộng công nghệ sân thông minh và nền tảng di động.' },
   { year: '2024', title: 'Mở rộng khu vực', desc: 'Mở rộng hoạt động sang Thái Lan, Singapore và Philippines với hơn 200 cơ sở đối tác.' },
@@ -131,101 +131,90 @@ export default function AboutPage() {
   }, [])
 
   return (
-    <div className="min-h-screen flex flex-col bg-white">
-      <Navbar theme="dark" />
+    <div className="min-h-screen flex flex-col bg-paper">
+      <Navbar />
 
       {/* ── Hero ── */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-[68px] px-6 pb-[60px] bg-[#0a0e1a] after:content-[''] after:absolute after:inset-0 after:bg-gradient-to-t after:from-[rgba(10,14,26,0.95)] after:via-[rgba(10,14,26,0.4)] after:to-transparent">
-        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1547347298-4074fc3086f0?w=1400&q=70')] bg-cover bg-center opacity-[0.22]" />
-        <div ref={heroRef} className="relative z-[1] text-center max-w-[780px] container">
-          <span className="inline-block text-[0.72rem] font-bold tracking-[0.15em] uppercase text-[#14B8A6] mb-5 px-4 py-1.5 rounded-full border border-[#14B8A6]/30 bg-[#14B8A6]/10">Về PRO-SPORT</span>
-          <h1 className="font-['Oswald'] text-[clamp(2rem,4.5vw,3.5rem)] font-bold text-[var(--theme-primary)] leading-[1.1] tracking-[-0.01em] mb-[22px]">
-            Định hình lại Tương lai<br />Hiệu suất Thể thao.
+      <section className="relative pt-[76px] bg-ink text-center overflow-hidden">
+        <div className="absolute inset-0 opacity-50 bg-[url('https://images.unsplash.com/photo-1547347298-4074fc3086f0?w=1400&q=70')] bg-cover bg-center" />
+        <div ref={heroRef} className="relative z-[1] max-w-[900px] mx-auto px-6 py-24 sm:py-[100px]">
+          <p className="label-mono text-paper mb-5">// Về Pro-Sport</p>
+          <h1 className="font-heading text-[clamp(2.2rem,6vw,5.4rem)] leading-[0.96] uppercase tracking-[-0.01em] text-paper mb-6">
+            Định hình lại tương lai<br />hiệu suất thể thao.
           </h1>
-          <p className="text-[1.05rem] text-[var(--theme-primary)]/65 leading-[1.7] max-w-[540px] mx-auto mb-8">
+          <p className="text-paper/65 text-base sm:text-[17px] leading-[1.75] max-w-[560px] mx-auto mb-9">
             Chúng tôi thu hẹp khoảng cách giữa tiềm năng con người và độ chính xác của công nghệ,
             xây dựng môi trường nơi các vận động viên tinh hoa được rèn giũa.
           </p>
-          <div className="flex gap-3 justify-center flex-wrap">
-            <Link to="/courts" className="bg-[#14B8A6] hover:bg-[#0D9488] hover:shadow-[0_0_24px_rgba(0,200,170,0.25)] hover:-translate-y-[1px] text-[var(--theme-primary)] rounded-full font-semibold tracking-[0.03em] transition-all inline-flex items-center gap-2 px-[26px] py-[13px] text-[0.95rem]">
-              Khám phá cơ sở →
+          <div className="flex gap-4 justify-center flex-wrap">
+            <Link to="/courts" className="btn-primary h-[54px] px-9 text-sm bg-accent border-accent text-ink hover:bg-accent-bright hover:border-accent-bright">
+              Khám phá cơ sở
             </Link>
-            <Link to="/contact" className="bg-transparent text-[var(--theme-primary)] border-[1.5px] border-white/25 rounded-full font-medium transition-all hover:border-[#14B8A6] hover:text-[#14B8A6] hover:bg-[#14B8A6]/5 inline-flex items-center gap-2 px-[22px] py-[13px] text-[0.95rem]">
+            <Link to="/contact" className="btn-outline h-[54px] px-9 text-sm text-paper border-paper/40 hover:border-paper">
               Liên hệ
             </Link>
           </div>
         </div>
       </section>
 
-      {/* ── Brvà Mission ── */}
-      <section className="py-20 bg-white">
-        <div ref={missionRef} className="container grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+      {/* ── Mission ── */}
+      <section className="py-20 sm:py-[120px] px-6 sm:px-10 bg-paper">
+        <div ref={missionRef} className="max-w-[1400px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           <div>
-            <span className="text-[0.72rem] font-bold tracking-[0.15em] uppercase text-[#14B8A6] mb-4 block">Sứ mệnh</span>
-            <h2 className="font-['Oswald'] text-[clamp(1.6rem,3vw,2.4rem)] font-bold text-slate-900 leading-[1.15] mb-6">
-              Tiếp sức Vận động viên qua<br />Công nghệ & Cơ sở vật chất Cao cấp
+            <p className="label-mono text-ink mb-4">// Sứ mệnh</p>
+            <h2 className="font-heading text-[clamp(1.6rem,3.6vw,3rem)] leading-[1.02] uppercase tracking-[-0.01em] text-ink mb-7">
+              Tiếp sức vận động viên qua công nghệ &amp; cơ sở vật chất cao cấp
             </h2>
-            <p className="text-[0.95rem] text-slate-500 leading-[1.75] mb-6">
-              PRO-SPORT ra đời từ một niềm tin đơn giản: mọi vận động viên đều xứng đáng tiếp cận cơ sở vật chất đẳng cấp thế giới và các công cụ thông minh giúp họ đạt hiệu suất đỉnh cao. Chúng tôi kết hợp công nghệ tiên tiến với các địa điểm cao cấp để tạo ra một hệ sinh thái nơi vận động viên mọi cấp độ có thể rèn luyện, thi đấu và phát triển.: 
+            <p className="text-ink/70 text-[15px] leading-[1.8] mb-5">
+              PRO-SPORT ra đời từ một niềm tin đơn giản: mọi vận động viên đều xứng đáng tiếp cận cơ sở vật chất đẳng cấp thế giới và các công cụ thông minh giúp họ đạt hiệu suất đỉnh cao.
             </p>
-            <p className="text-[0.95rem] text-slate-500 leading-[1.75] mb-8">
-              Nền tảng của chúng tôi kết nối <strong className="text-slate-800">200+ cơ sở</strong>, <strong className="text-slate-800">500,000+ vận động viên</strong>, và <strong className="text-slate-800">các chương trình huấn luyện chuyên nghiệp</strong> vào một trải nghiệm liền mạch — từ việc đặt sân đến tìm kèo đấu hoàn hảo.
+            <p className="text-ink/70 text-[15px] leading-[1.8] mb-8">
+              Nền tảng của chúng tôi kết nối <strong className="text-ink">200+ cơ sở</strong>, <strong className="text-ink">500.000+ vận động viên</strong> và các chương trình huấn luyện chuyên nghiệp vào một trải nghiệm liền mạch.
             </p>
-            <div className="flex gap-6 flex-wrap">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-[#14B8A6]/10 flex items-center justify-center text-[#14B8A6]">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                </div>
-                <span className="text-[0.88rem] font-medium text-slate-700">Hệ thống Đặt sân Thông minh</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-[#14B8A6]/10 flex items-center justify-center text-[#14B8A6]">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                </div>
-                <span className="text-[0.88rem] font-medium text-slate-700">Ghép kèo AI</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-[#14B8A6]/10 flex items-center justify-center text-[#14B8A6]">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                </div>
-                <span className="text-[0.88rem] font-medium text-slate-700">Phân tích Thời gian thực</span>
-              </div>
+            <div className="flex gap-7 flex-wrap">
+              <span className="font-bold text-[13px] uppercase tracking-[0.04em] text-ink border-b-2 border-ink pb-1.5">Đặt sân thông minh</span>
+              <span className="font-bold text-[13px] uppercase tracking-[0.04em] text-ink border-b-2 border-ink pb-1.5">Ghép kèo AI</span>
+              <span className="font-bold text-[13px] uppercase tracking-[0.04em] text-ink border-b-2 border-ink pb-1.5">Phân tích thời gian thực</span>
             </div>
           </div>
           <div className="relative">
-            <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=700&q=80" alt="Huấn luyện thể thao" className="w-full h-[420px] object-cover rounded-[20px] shadow-[0_8px_32px_rgba(0,0,0,0.12)]" />
-            <div className="absolute -bottom-5 -left-5 bg-[#0a0e1a] text-[var(--theme-primary)] rounded-xl px-6 py-4 shadow-lg max-w-[220px]">
-              <p className="font-['Oswald'] text-[2rem] font-bold text-[#14B8A6] leading-none">5+</p>
-              <p className="text-[0.82rem] text-[var(--theme-primary)]/60 mt-1">Năm xuất sắc trong Công nghệ Thể thao</p>
+            <div className="aspect-[4/3] bg-[url('https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=800&q=80')] bg-cover bg-center border-2 border-ink" />
+            <div className="absolute -bottom-6 -left-6 bg-ink text-paper px-7 py-6 max-w-[220px]">
+              <p className="font-heading text-3xl leading-none">5+</p>
+              <p className="text-xs text-paper/60 mt-1.5">Năm xuất sắc trong công nghệ thể thao</p>
             </div>
           </div>
         </div>
       </section>
 
       {/* ── Stats Banner ── */}
-      <section className="py-14 bg-[#0a0e1a]">
-        <div ref={statsRef} className="container flex justify-center gap-16 flex-wrap">
+      <section className="py-16 sm:py-[90px] px-6 sm:px-10 bg-ink">
+        <div ref={statsRef} className="max-w-[1400px] mx-auto flex justify-center gap-12 sm:gap-20 flex-wrap text-center">
           {stats.map(s => (
-            <div key={s.label} className="text-center">
-              <p className="font-['Oswald'] text-[2.2rem] font-bold text-[#14B8A6] leading-none">{s.value}</p>
-              <p className="text-[0.82rem] text-[var(--theme-primary)]/50 mt-2 tracking-wide">{s.label}</p>
+            <div key={s.label}>
+              <p className="font-heading text-[44px] text-paper mb-2 leading-none">{s.value}</p>
+              <p className="label-mono text-[#8a8a84]">{s.label}</p>
             </div>
           ))}
         </div>
       </section>
 
       {/* ── Our Journey ── */}
-      <section className="py-20 bg-white">
-        <div className="container">
-          <span className="text-[0.72rem] font-bold tracking-[0.15em] uppercase text-[#14B8A6] mb-3 block">Chúng tôi làm gì</span>
-          <h2 className="section-title mb-9 after:content-[''] after:block after:w-12 after:h-[3px] after:bg-[#14B8A6] after:mt-[10px]">Hành trình</h2>
-          <div ref={journeyRef} className="grid grid-cols-[1.3fr_1fr] grid-rows-[220px_220px] gap-4 max-md:grid-cols-1 max-md:grid-rows-[240px_180px_180px]">
+      <section className="py-20 sm:py-[120px] px-6 sm:px-10 bg-paper">
+        <div className="max-w-[1400px] mx-auto">
+          <p className="label-mono text-ink mb-4">// Chúng tôi làm gì</p>
+          <h2 className="font-heading text-[clamp(1.8rem,4vw,3.2rem)] uppercase tracking-[-0.01em] text-ink mb-12">Hành trình</h2>
+          <div ref={journeyRef} className="grid grid-cols-1 md:grid-cols-[1.3fr_1fr] md:grid-rows-2 gap-4 md:h-[480px]">
             {journey.map((item) => (
-              <div key={item.label} className={`relative rounded-[16px] overflow-hidden cursor-pointer group ${item.large ? 'row-span-2 max-md:row-span-1' : ''}`}>
-                <img src={item.image} alt={item.label} className="w-full h-full object-cover transition-transform duration-500 ease-in-out group-hover:scale-105" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/[0.72] to-transparent flex flex-col justify-end p-5 gap-[6px]">
-                  <span className="text-[0.68rem] font-bold tracking-[0.12em] text-[#14B8A6] uppercase">{item.tag}</span>
-                  <p className="font-['Oswald'] text-[1.05rem] font-bold text-[var(--theme-primary)]">{item.label}</p>
+              <div
+                key={item.label}
+                className={`relative overflow-hidden border-2 border-ink flex items-end p-6 sm:p-7 group h-[220px] md:h-auto ${item.large ? 'md:row-span-2' : ''}`}
+              >
+                <img src={item.image} alt={item.label} className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                <div className="absolute inset-0 bg-gradient-to-t from-ink/80 to-transparent" />
+                <div className="relative z-[1]">
+                  <span className="label-mono bg-ink text-paper px-3 py-1.5 inline-block mb-3">{item.tag}</span>
+                  <p className="font-heading text-lg sm:text-xl uppercase text-paper">{item.label}</p>
                 </div>
               </div>
             ))}
@@ -234,22 +223,21 @@ export default function AboutPage() {
       </section>
 
       {/* ── Core Principles ── */}
-      <section className="py-20 bg-[var(--color-bg)]">
-        <div className="container">
-          <div className="text-center mb-[52px]">
-            <span className="text-[0.72rem] font-bold tracking-[0.15em] uppercase text-[#14B8A6] mb-3 block">Tại sao chọn chúng tôi</span>
-            <h2 className="section-title">Nguyên tắc Cốt lõi</h2>
-            <p className="section-subtitle">Nền tảng thúc đẩy cam kết của chúng tôi đối với sự xuất sắc trong thể thao.</p>
+      <section className="py-20 sm:py-[120px] px-6 sm:px-10 bg-ink">
+        <div className="max-w-[1400px] mx-auto">
+          <div className="text-center mb-16">
+            <p className="label-mono text-paper mb-4">// Tại sao chọn chúng tôi</p>
+            <h2 className="font-heading text-[clamp(1.8rem,4vw,3.2rem)] uppercase tracking-[-0.01em] text-paper">Nguyên tắc cốt lõi</h2>
           </div>
-          <div ref={principlesRef} className="grid grid-cols-3 gap-6 max-md:grid-cols-1">
+          <div ref={principlesRef} className="grid grid-cols-1 md:grid-cols-3 gap-[2px] bg-white/15">
             {principles.map((p) => (
-              <div key={p.title} className="bg-white rounded-[16px] px-7 py-9 border-[1.5px] border-slate-200 transition-all hover:shadow-md hover:-translate-y-1 hover:border-[#14B8A6] group">
-                <div className="w-12 h-12 rounded-xl bg-[rgba(0,200,170,0.1)] flex items-center justify-center text-[#14B8A6] mb-[18px] transition-all group-hover:bg-[#14B8A6] group-hover:text-[var(--theme-primary)]">{p.icon}</div>
-                <h3 className="font-['Oswald'] text-[1.2rem] font-bold text-[#0a0e1a] mb-[10px]">{p.title}</h3>
-                <p className="text-sm text-slate-500 leading-[1.65] mb-5">{p.desc}</p>
-                <div className="flex flex-col gap-[2px] border-t border-slate-200 pt-4">
-                  <span className="font-['Oswald'] text-[1.6rem] font-bold text-[#14B8A6]">{p.stat}</span>
-                  <span className="text-[0.78rem] text-slate-400">{p.statLabel}</span>
+              <div key={p.title} className="bg-ink p-9">
+                <div className="text-paper mb-4">{p.icon}</div>
+                <h3 className="font-heading text-xl uppercase text-paper mb-3.5">{p.title}</h3>
+                <p className="text-sm leading-[1.7] text-paper/60 mb-6">{p.desc}</p>
+                <div className="border-t border-white/15 pt-4">
+                  <p className="font-heading text-[30px] text-paper leading-none">{p.stat}</p>
+                  <p className="label-mono text-[#6b6b6b] mt-1">{p.statLabel}</p>
                 </div>
               </div>
             ))}
@@ -258,24 +246,19 @@ export default function AboutPage() {
       </section>
 
       {/* ── Timeline ── */}
-      <section className="py-20 bg-white">
-        <div className="container">
-          <div className="text-center mb-14">
-            <span className="text-[0.72rem] font-bold tracking-[0.15em] uppercase text-[#14B8A6] mb-3 block">Câu chuyện</span>
-            <h2 className="section-title">Từ Tầm nhìn đến Hiện thực</h2>
-            <p className="section-subtitle">Những cột mốc quan trọng trong hành trình thay đổi quản lý thể thao.</p>
+      <section className="py-20 sm:py-[120px] px-6 sm:px-10 bg-paper">
+        <div className="max-w-[760px] mx-auto">
+          <div className="text-center mb-16">
+            <p className="label-mono text-ink mb-4">// Câu chuyện</p>
+            <h2 className="font-heading text-[clamp(1.8rem,4vw,3.2rem)] uppercase tracking-[-0.01em] text-ink">Từ tầm nhìn đến hiện thực</h2>
           </div>
-          <div ref={timelineRef} className="relative max-w-[700px] mx-auto">
-            {/* Timeline line */}
-            <div className="absolute left-[22px] top-0 bottom-0 w-[2px] bg-gradient-to-b from-[#14B8A6] via-[#14B8A6]/40 to-transparent max-md:left-[18px]" />
+          <div ref={timelineRef}>
             {milestones.map((m, i) => (
-              <div key={m.year} className="timeline-item relative flex gap-6 mb-8 last:mb-0 pl-[52px] max-md:pl-[44px]">
-                {/* Dot */}
-                <div className={`absolute left-[14px] top-1 w-[18px] h-[18px] rounded-full border-[3px] ${i === milestones.length - 1 ? 'border-[#14B8A6] bg-[#14B8A6] shadow-[0_0_12px_rgba(0,200,170,0.4)]' : 'border-[#14B8A6] bg-white'} max-md:left-[10px]`} />
-                <div className="bg-[#f8fafb] border border-slate-200 rounded-xl px-6 py-5 flex-1 transition-all hover:shadow-md hover:border-[#14B8A6]/40">
-                  <span className="text-[0.72rem] font-bold tracking-[0.1em] text-[#14B8A6] uppercase">{m.year}</span>
-                  <h3 className="font-['Oswald'] text-[1.05rem] font-bold text-slate-900 mt-1 mb-1.5">{m.title}</h3>
-                  <p className="text-[0.85rem] text-slate-500 leading-[1.65]">{m.desc}</p>
+              <div key={m.year} className={`timeline-item flex gap-7 py-7 border-t-2 border-ink ${i === milestones.length - 1 ? 'border-b-2' : ''}`}>
+                <span className="font-heading text-[26px] text-ink w-[90px] shrink-0">{m.year}</span>
+                <div>
+                  <h3 className="font-bold text-base text-ink mb-1.5">{m.title}</h3>
+                  <p className="text-[13.5px] leading-[1.6] text-ink/70">{m.desc}</p>
                 </div>
               </div>
             ))}
@@ -284,26 +267,18 @@ export default function AboutPage() {
       </section>
 
       {/* ── Leadership Team ── */}
-      <section className="py-20 bg-[var(--color-bg)]">
-        <div className="container">
-          <div className="text-center mb-14">
-            <span className="text-[0.72rem] font-bold tracking-[0.15em] uppercase text-[#14B8A6] mb-3 block">Con người</span>
-            <h2 className="section-title">Ban Lãnh đạo</h2>
-            <p className="section-subtitle">Những người có tầm nhìn thúc đẩy sứ mệnh của PRO-SPORT.</p>
+      <section className="py-20 sm:py-[120px] px-6 sm:px-10 bg-ink">
+        <div className="max-w-[1400px] mx-auto">
+          <div className="text-center mb-16">
+            <p className="label-mono text-paper mb-4">// Con người</p>
+            <h2 className="font-heading text-[clamp(1.8rem,4vw,3.2rem)] uppercase tracking-[-0.01em] text-paper">Ban lãnh đạo</h2>
           </div>
-          <div ref={teamRef} className="grid grid-cols-4 gap-6 max-lg:grid-cols-2 max-md:grid-cols-1">
+          <div ref={teamRef} className="grid grid-cols-2 lg:grid-cols-4 gap-6">
             {team.map(t => (
-              <div key={t.name} className="bg-white rounded-[16px] border-[1.5px] border-slate-200 overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1 hover:border-[#14B8A6] group">
-                <div className="relative h-[220px] overflow-hidden">
-                  <img src={t.avatar} alt={t.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
-                    <p className="text-[0.78rem] text-[var(--theme-primary)]/90 italic leading-[1.5]">"{t.quote}"</p>
-                  </div>
-                </div>
-                <div className="px-5 py-4">
-                  <h3 className="font-['Oswald'] text-[1.05rem] font-bold text-slate-900">{t.name}</h3>
-                  <p className="text-[0.82rem] text-[#14B8A6] font-medium mt-0.5">{t.role}</p>
-                </div>
+              <div key={t.name}>
+                <div className="aspect-[3/4] bg-cover bg-center border border-white/15 mb-4" style={{ backgroundImage: `url('${t.avatar}')` }} />
+                <h3 className="font-bold text-[15px] text-paper mb-1">{t.name}</h3>
+                <p className="label-mono text-[#8a8a84]">{t.role}</p>
               </div>
             ))}
           </div>
@@ -311,55 +286,32 @@ export default function AboutPage() {
       </section>
 
       {/* ── Partners ── */}
-      <section className="py-14 bg-white border-y border-slate-200">
-        <div className="container">
-          <p className="text-center text-[0.72rem] font-bold tracking-[0.15em] text-slate-400 uppercase mb-8">Đối tác & thương hiệu tin cậy</p>
-          <div className="flex justify-center items-center gap-[52px] flex-wrap">
-            {partners.map(b => (
-              <span key={b} className="font-['Oswald'] text-[1.1rem] font-bold tracking-[0.08em] text-slate-400 transition-colors hover:text-[#14B8A6] cursor-default">{b}</span>
-            ))}
-          </div>
+      <section className="py-14 px-6 sm:px-10 bg-paper border-y border-border-default">
+        <p className="text-center label-mono text-foreground-subtle mb-8">Đối tác & thương hiệu tin cậy</p>
+        <div className="flex justify-center items-center gap-10 sm:gap-[52px] flex-wrap">
+          {partners.map(b => (
+            <span key={b} className="font-heading text-lg tracking-[0.08em] text-foreground-subtle transition-colors hover:text-accent cursor-default">{b}</span>
+          ))}
         </div>
       </section>
 
-      {/* ── Global Operations ── */}
-      <section className="pt-20 pb-[100px] bg-[#0a0e1a] text-[var(--theme-primary)] text-center overflow-hidden">
-        <div className="container">
-          <span className="text-[0.72rem] font-bold tracking-[0.15em] uppercase text-[#14B8A6] mb-4 block">Hiện diện Toàn cầu</span>
-          <h2 className="font-['Oswald'] text-[2rem] font-bold mb-3">Hoạt động Toàn cầu</h2>
-          <p className="text-[0.9rem] text-[var(--theme-primary)]/55 max-w-[500px] mx-auto mb-[52px] leading-[1.65]">Hoạt động tại 14 thành phố, mang hạ tầng thể thao đẳng cấp nhất quán khắp Đông Nam Á và xa hơn nữa.</p>
-          <div className="relative flex items-center justify-center min-h-[160px]">
-            <div className="font-['Oswald'] text-[clamp(2rem,6vw,5rem)] font-bold tracking-[0.15em] text-[#14B8A6] opacity-25 select-none">MẠNG LƯỚI ĐANG HOẠT ĐỘNG</div>
-            <div className="absolute inset-0 flex flex-wrap gap-[18px] justify-center items-center pointer-events-none">
-              {[...Array(40)].map((_, i) => (
-                <div key={i} className="w-1 h-1 rounded-full bg-[#14B8A6] opacity-40 animate-[pulse-glow_2.5s_ease-in-out_infinite]" style={{ animationDelay: `${i * 0.08}s` }} />
-              ))}
-            </div>
-          </div>
+      {/* ── CTA ── */}
+      <section className="py-24 sm:py-[140px] px-6 sm:px-10 bg-paper text-center">
+        <h2 className="font-heading text-[clamp(2rem,4.5vw,4rem)] leading-none uppercase tracking-[-0.01em] text-ink mb-6">Sẵn sàng nâng tầm trận đấu?</h2>
+        <p className="text-ink/70 text-[15px] leading-[1.7] max-w-[480px] mx-auto mb-10">
+          Tham gia cùng hơn 500.000 vận động viên tin tưởng PRO-SPORT cho tập luyện, kèo đấu và hành trình thi đấu.
+        </p>
+        <div className="flex gap-4 justify-center flex-wrap">
+          <Link to="/register" className="btn-primary h-[54px] px-9 text-sm">
+            Bắt đầu miễn phí
+          </Link>
+          <Link to="/contact" className="btn-outline h-[54px] px-9 text-sm text-ink border-ink/30 hover:border-ink">
+            Liên hệ kinh doanh
+          </Link>
         </div>
       </section>
 
-      {/* ── CTA Section ── */}
-      <section className="py-20 bg-gradient-to-br from-[#f0f7f6] via-[#e8f4f8] to-[#dceef8]">
-        <div className="container text-center">
-          <h2 className="font-['Oswald'] text-[clamp(1.6rem,3vw,2.4rem)] font-bold text-slate-900 leading-[1.15] mb-4">
-            Sẵn sàng nâng tầm trận đấu?
-          </h2>
-          <p className="text-[0.95rem] text-slate-500 max-w-[480px] mx-auto leading-[1.7] mb-8">
-            Tham gia cùng hơn 500.000 vận động viên tin tưởng PRO-SPORT cho tập luyện, kèo đấu và hành trình thi đấu.
-          </p>
-          <div className="flex gap-3 justify-center flex-wrap">
-            <Link to="/register" className="bg-[#14B8A6] hover:bg-[#0D9488] hover:shadow-[0_0_24px_rgba(0,200,170,0.25)] hover:-translate-y-[1px] text-[var(--theme-primary)] rounded-full font-semibold tracking-[0.03em] transition-all inline-flex items-center gap-2 px-[28px] py-[14px] text-[0.95rem]">
-              Bắt đầu miễn phí →
-            </Link>
-            <Link to="/contact" className="bg-transparent text-slate-900 border-[1.5px] border-slate-200 rounded-full font-medium transition-all hover:border-[#14B8A6] hover:text-[#14B8A6] hover:bg-[#14B8A6]/5 inline-flex items-center gap-2 px-[24px] py-[14px] text-[0.95rem]">
-              Liên hệ kinh doanh
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      <Footer variant="dark" />
+      <Footer />
     </div>
   )
 }

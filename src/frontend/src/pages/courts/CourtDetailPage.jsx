@@ -5,7 +5,7 @@ import Footer from '../../components/Footer'
 import PageLoader from '../../components/ui/PageLoader'
 import { bookingApi } from '../../api/bookingApi'
 import { formatLocalDate, addMinutesToTimeLabel } from '../../utils/date'
-import { MapPin, Wifi, Car, Shirt, Wind, ShoppingBag, Droplets, Star, ChevronRight } from 'lucide-react'
+import { MapPin, Wifi, Car, Shirt, Wind, ShoppingBag, Droplets, Star } from 'lucide-react'
 
 const DEFAULT_AMENITIES = [
   { label: 'Wi-Fi tốc độ cao', icon: <Wifi className="w-5 h-5" /> },
@@ -108,10 +108,10 @@ export default function CourtDetailPage() {
     return (
       <div className="min-h-screen bg-background-base flex flex-col">
         <Navbar />
-        <main className="flex-1 flex items-center justify-center px-6">
+        <main className="flex-1 flex items-center justify-center px-6 pt-[76px]">
           <div className="text-center space-y-4">
-            <p className="text-red-400">{error || 'Không tìm thấy sân.'}</p>
-            <Link to="/apex/booking" className="text-[var(--theme-primary)] underline">Quay lại danh sách sân</Link>
+            <p className="text-danger">{error || 'Không tìm thấy sân.'}</p>
+            <Link to="/apex/booking" className="text-accent font-bold hover:underline">Quay lại danh sách sân</Link>
           </div>
         </main>
         <Footer />
@@ -120,54 +120,45 @@ export default function CourtDetailPage() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-background-base font-sans text-foreground relative overflow-hidden">
-      {/* ─── Ambient Background System ─── */}
-      <div className="fixed inset-0 pointer-events-none z-0">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,#0a0a0f_0%,#050506_50%,#020203_100%)]" />
-        <div className="absolute inset-0 bg-noise" />
-        <div className="absolute top-[-200px] left-1/2 -translate-x-1/2 w-[1200px] h-[800px] bg-[#5E6AD2]/10 blur-[150px] rounded-full mix-blend-screen pointer-events-none" />
-      </div>
-
+    <div className="flex flex-col min-h-screen bg-background-base font-sans text-foreground">
       <Navbar />
 
-      <main className="flex-1 max-w-[1200px] mx-auto px-6 pt-28 pb-24 w-full relative z-10">
+      <main className="flex-1 max-w-[1300px] mx-auto px-6 sm:px-10 pt-[100px] sm:pt-[130px] pb-24 w-full">
         {/* Breadcrumb */}
-        <nav className="flex items-center gap-2 text-sm font-medium tracking-wide text-foreground-muted mb-8">
-          <Link to="/" className="hover:text-[var(--theme-primary)] transition-colors duration-200">Trang chủ</Link>
-          <ChevronRight className="w-4 h-4 text-[var(--theme-primary)]/[0.1]" />
-          <Link to="/courts" className="hover:text-[var(--theme-primary)] transition-colors duration-200">Sân</Link>
-          <ChevronRight className="w-4 h-4 text-[var(--theme-primary)]/[0.1]" />
-          <span className="text-[var(--theme-primary)]">{court.name}</span>
+        <nav className="flex items-center gap-2.5 label-mono text-foreground-subtle mb-8">
+          <Link to="/" className="hover:text-foreground transition-colors duration-200">Trang chủ</Link>
+          <span>/</span>
+          <Link to="/courts" className="hover:text-foreground transition-colors duration-200">Sân</Link>
+          <span>/</span>
+          <span className="text-foreground normal-case">{court.name}</span>
         </nav>
 
         {/* ── BENTO GALLERY ── */}
-        <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-4 mb-14 h-[460px]">
+        <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-3 mb-14 lg:h-[440px]">
           {/* Main Large Image */}
-          <div className="relative overflow-hidden rounded-2xl bg-white/[0.02] border border-border-default shadow-[0_8px_32px_rgba(0,0,0,0.4)] group">
-            <img 
-              src={court.images[activeImg]} 
-              alt={court.name} 
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]" 
+          <div className="relative overflow-hidden border-2 border-border-strong h-[280px] lg:h-full">
+            <img
+              src={court.images[activeImg]}
+              alt={court.name}
+              className="w-full h-full object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#050506]/80 via-transparent to-transparent pointer-events-none" />
-            <span className="absolute top-5 left-5 bg-black/40 backdrop-blur-md text-[var(--theme-primary)] font-mono text-xs tracking-widest uppercase px-3 py-1.5 border border-border-default rounded-full shadow-[0_4px_12px_rgba(0,0,0,0.5)] z-10">
+            <span className="absolute top-5 left-5 label-mono bg-ink text-paper px-4 py-2">
               CÒN TRỐNG
             </span>
           </div>
-          
+
           {/* Side Thumbnails */}
-          <div className="hidden lg:grid grid-rows-3 gap-4 h-full">
+          <div className="hidden lg:grid grid-rows-3 gap-3 h-full">
             {court.images.slice(1, 4).map((img, i) => {
               const realIndex = i + 1;
               const isActive = activeImg === realIndex;
               return (
-                <button 
-                  key={img} 
+                <button
+                  key={img}
                   onClick={() => setActiveImg(realIndex)}
-                  className={`relative overflow-hidden rounded-xl border transition-all duration-300 h-full w-full group ${isActive ? 'border-[#5E6AD2] shadow-[0_0_15px_rgba(94,106,210,0.3)]' : 'border-border-default hover:border-border-hover'}`}
+                  className={`relative overflow-hidden border-2 transition-colors duration-200 h-full w-full ${isActive ? 'border-accent' : 'border-border-default hover:border-border-hover'}`}
                 >
-                  <img src={img} alt="" className={`w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 ${!isActive && 'opacity-60 grayscale-[30%]'}`} />
-                  {isActive && <div className="absolute inset-0 bg-[#5E6AD2]/10 mix-blend-overlay" />}
+                  <img src={img} alt="" className={`w-full h-full object-cover ${!isActive && 'opacity-60'}`} />
                 </button>
               )
             })}
@@ -176,28 +167,27 @@ export default function CourtDetailPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-10 lg:gap-14 items-start">
           {/* ── LEFT CONTENT ── */}
-          <div className="flex flex-col gap-10">
+          <div className="flex flex-col gap-8">
             {/* Header & Meta */}
-            <div className="card-base p-8">
+            <div className="card-base p-7 sm:p-8">
               <div className="flex items-start justify-between flex-wrap gap-4 mb-6">
                 <div>
-                  <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground mb-2">{court.name}</h1>
-                  <p className="text-foreground-muted font-medium flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#5E6AD2] shadow-[0_0_8px_rgba(94,106,210,0.8)]" />
+                  <h1 className="font-heading text-3xl md:text-4xl uppercase tracking-tight text-foreground mb-2">{court.name}</h1>
+                  <p className="text-foreground-muted font-medium flex items-center gap-2 flex-wrap">
                     {court.sport}
-                    <span className="text-[var(--theme-primary)]/[0.1] mx-1">|</span>
+                    <span className="text-foreground-subtle">|</span>
                     {court.type}
                   </p>
                 </div>
-                <div className="flex items-center gap-2 bg-[var(--theme-surface)] border border-border-default rounded-full px-4 py-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
-                  <Star className="w-4 h-4 text-yellow-500 fill-yellow-500/30" />
-                  <span className="font-semibold text-[var(--theme-primary)]">{court.rating}</span>
+                <div className="flex items-center gap-2 border-2 border-border-strong px-4 py-2">
+                  <Star className="w-4 h-4 text-warning fill-warning/30" />
+                  <span className="font-bold text-foreground">{court.rating}</span>
                   <span className="text-foreground-muted text-sm ml-1">({court.reviews} đánh giá)</span>
                 </div>
               </div>
-              
+
               <div className="flex items-center gap-2.5 text-foreground-muted font-medium mb-8 pb-8 border-b border-border-default">
-                <MapPin className="w-5 h-5 text-[#5E6AD2]" />
+                <MapPin className="w-5 h-5 text-accent" />
                 {court.address}
               </div>
 
@@ -205,42 +195,36 @@ export default function CourtDetailPage() {
             </div>
 
             {/* Amenities Grid */}
-            <div className="card-base p-8">
-              <h2 className="text-xl font-semibold text-foreground tracking-tight mb-6 flex items-center gap-3">
-                <div className="w-1.5 h-6 bg-white/[0.1] rounded-full" />
-                Tiện ích
-              </h2>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <div className="card-base p-7 sm:p-8">
+              <h2 className="font-heading text-xl uppercase text-foreground mb-6">Tiện ích</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-[2px] bg-border-default border-2 border-border-default">
                 {court.amenities.map(a => (
-                  <div key={a.label} className="group flex items-center gap-3 bg-white/[0.02] border border-white/[0.04] p-3 rounded-xl hover:bg-white/[0.05] hover:border-white/[0.1] transition-all duration-200 cursor-default">
-                    <div className="w-10 h-10 bg-[var(--theme-surface)] rounded-lg border border-white/[0.05] flex items-center justify-center shrink-0 text-foreground-muted group-hover:text-[#5E6AD2] group-hover:bg-[#5E6AD2]/10 transition-colors">
+                  <div key={a.label} className="flex items-center gap-3 bg-surface p-4">
+                    <div className="w-10 h-10 border border-border-default flex items-center justify-center shrink-0 text-foreground-muted">
                       {a.icon}
                     </div>
-                    <span className="text-sm font-medium text-foreground-muted group-hover:text-[var(--theme-primary)] transition-colors">{a.label}</span>
+                    <span className="text-sm font-medium text-foreground-muted">{a.label}</span>
                   </div>
                 ))}
               </div>
             </div>
 
             {/* Time Slot Picker */}
-            <div className="card-base p-8">
-              <div className="flex items-end justify-between mb-8 border-b border-border-default pb-6">
+            <div className="card-base p-7 sm:p-8">
+              <div className="flex items-end justify-between mb-7 border-b border-border-default pb-6 flex-wrap gap-4">
                 <div>
-                  <h2 className="text-xl font-semibold text-foreground tracking-tight mb-1 flex items-center gap-3">
-                    <div className="w-1.5 h-6 bg-[#5E6AD2] rounded-full shadow-[0_0_10px_rgba(94,106,210,0.8)]" />
-                    Lịch trống
-                  </h2>
-                  <p className="text-foreground-muted text-sm ml-4.5">Chọn khung giờ cho hôm nay</p>
+                  <h2 className="font-heading text-xl uppercase text-foreground mb-1.5">Lịch trống</h2>
+                  <p className="text-foreground-muted text-sm">Chọn khung giờ cho hôm nay</p>
                 </div>
                 {/* Legend */}
-                <div className="hidden sm:flex gap-5 text-sm font-medium text-foreground-muted">
-                  <span className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-[var(--theme-surface)] border border-border-default"/> Trống</span>
-                  <span className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-red-500/20 border border-red-500/30"/> Đã đặt</span>
-                  <span className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-[#5E6AD2] shadow-[0_0_8px_rgba(94,106,210,0.6)]"/> Đã chọn</span>
+                <div className="flex gap-5 label-mono text-foreground-muted">
+                  <span className="flex items-center gap-2"><span className="w-3 h-3 border border-border-strong bg-surface"/> Trống</span>
+                  <span className="flex items-center gap-2"><span className="w-3 h-3 border border-danger/40 bg-danger-bg"/> Đã đặt</span>
+                  <span className="flex items-center gap-2"><span className="w-3 h-3 bg-accent"/> Đã chọn</span>
                 </div>
               </div>
-              
-              <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-3">
+
+              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3">
                 {isClosedToday ? (
                   <p className="col-span-full text-sm text-foreground-muted">Tổ hợp đóng cửa hôm nay.</p>
                 ) : slots.length === 0 ? (
@@ -251,10 +235,10 @@ export default function CourtDetailPage() {
                   return (
                     <button key={h} disabled={isBooked}
                       onClick={() => setSelectedSlot(h)}
-                      className={`py-3 text-sm font-mono tracking-wider font-semibold transition-all duration-200 rounded-xl border
-                        ${isBooked ? 'bg-red-500/5 text-red-500/40 border-red-500/10 cursor-not-allowed' :
-                          selected ? 'bg-[#5E6AD2] text-white border-[#5E6AD2] shadow-[0_4px_15px_rgba(94,106,210,0.4)] scale-[1.02]' :
-                          'bg-[var(--theme-surface)] text-foreground-muted border-border-default hover:bg-[var(--theme-surface-hover)] hover:border-border-hover hover:text-foreground'}`}>
+                      className={`py-3 text-sm font-mono tracking-wider font-bold transition-colors duration-150 border-2
+                        ${isBooked ? 'bg-danger-bg text-danger/50 border-danger/20 cursor-not-allowed line-through' :
+                          selected ? 'bg-accent text-ink border-accent' :
+                          'bg-surface text-foreground-muted border-border-default hover:border-border-hover hover:text-foreground'}`}>
                       {h}
                     </button>
                   )
@@ -265,72 +249,66 @@ export default function CourtDetailPage() {
 
           {/* ── RIGHT PANEL (Booking Widget) ── */}
           <div className="lg:sticky lg:top-28">
-            <div className="card-base p-8 relative">
-              
-              <div className="mb-8">
-                <p className="text-foreground-muted font-medium text-sm mb-2 uppercase tracking-widest">Giá theo giờ</p>
-                <p className="text-4xl font-semibold text-foreground tracking-tight flex items-baseline gap-2">
-                  {court.pricePerSlot.toLocaleString('vi-VN')} 
-                  <span className="text-lg font-medium text-foreground-muted tracking-normal">VND</span>
+            <div className="card-base p-7 sm:p-8">
+
+              <div className="mb-7">
+                <p className="label-mono text-foreground-subtle mb-2">Giá theo giờ</p>
+                <p className="font-heading text-4xl text-foreground flex items-baseline gap-2">
+                  {court.pricePerSlot.toLocaleString('vi-VN')}
+                  <span className="text-base font-sans font-medium text-foreground-muted">VND</span>
                 </p>
               </div>
 
               {/* Selected state info */}
-              <div className={`transition-all duration-300 overflow-hidden ${selectedSlot ? 'max-h-40 opacity-100 mb-6' : 'max-h-0 opacity-0 mb-0'}`}>
-                <div className="bg-[#5E6AD2]/10 border border-[#5E6AD2]/20 p-5 rounded-xl shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
-                  <p className="text-xs font-mono tracking-wider uppercase text-[#5E6AD2] mb-2 flex items-center gap-1.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#5E6AD2] shadow-[0_0_5px_rgba(94,106,210,0.8)] animate-pulse" />
-                    Khung giờ đã chọn
-                  </p>
-                  <p className="text-2xl font-semibold text-[var(--theme-primary)] mb-1 tracking-tight">
+              {selectedSlot ? (
+                <div className="bg-ink p-5 mb-6">
+                  <p className="label-mono text-paper/60 mb-2">Khung giờ đã chọn</p>
+                  <p className="font-heading text-xl text-paper mb-1">
                     {selectedSlot} – {addMinutesToTimeLabel(selectedSlot, slotDurationMinutes) || '—'}
                   </p>
-                  <p className="text-foreground-muted text-sm font-medium">Hôm nay • {court.name}</p>
+                  <p className="text-paper/60 text-sm font-medium">Hôm nay • {court.name}</p>
                 </div>
-              </div>
-
-              {/* Placeholder when unselected */}
-              <div className={`transition-all duration-300 overflow-hidden ${!selectedSlot ? 'max-h-16 opacity-100 mb-6' : 'max-h-0 opacity-0 mb-0'}`}>
-                <div className="bg-white/[0.02] border border-border-default py-4 text-center rounded-xl border-dashed">
+              ) : (
+                <div className="border-2 border-dashed border-border-hover py-4 text-center mb-6">
                   <p className="text-foreground-muted font-medium text-sm">Vui lòng chọn khung giờ</p>
                 </div>
-              </div>
+              )}
 
               {/* Book Button */}
               <Link
                 to={selectedSlot ? `/courts/${id}/book?slot=${selectedSlot}&date=${today}` : '#'}
                 onClick={e => !selectedSlot && e.preventDefault()}
-                className={`w-full flex items-center justify-center h-12 rounded-xl font-semibold text-sm transition-all duration-200
-                  ${selectedSlot ? 'bg-[#EDEDEF] text-[#050506] hover:bg-white shadow-[0_4px_14px_rgba(255,255,255,0.15)] active:scale-[0.98]' : 'bg-[var(--theme-surface)] text-foreground-muted border border-border-default cursor-not-allowed'}`}>
+                className={`w-full flex items-center justify-center h-[52px] font-bold text-sm uppercase tracking-[0.04em] transition-colors duration-150
+                  ${selectedSlot ? 'bg-ink text-paper hover:bg-accent hover:text-ink' : 'bg-surface text-foreground-muted border-2 border-border-default cursor-not-allowed'}`}>
                 {selectedSlot ? 'Xác nhận đặt sân' : 'Chọn khung giờ'}
               </Link>
 
-              <p className="text-center text-foreground-muted text-xs font-medium mt-6">
+              <p className="text-center label-mono text-foreground-subtle mt-6">
                 Thanh toán bảo mật qua VNPay & Stripe
               </p>
 
               {/* Receipt / Invoice Preview */}
-              <div className={`transition-all duration-500 ease-in-out overflow-hidden border-t border-border-default ${selectedSlot ? 'max-h-64 mt-6 pt-6 opacity-100' : 'max-h-0 mt-0 pt-0 opacity-0'}`}>
-                <div className="space-y-4 text-sm font-medium">
+              {selectedSlot && (
+                <div className="border-t border-border-default mt-6 pt-6 space-y-3 text-sm font-medium">
                   <div className="flex justify-between items-center text-foreground-muted">
                     <span>Thuê sân (1 giờ)</span>
                     <span>{court.pricePerSlot.toLocaleString('vi-VN')}</span>
                   </div>
                   <div className="flex justify-between items-center text-foreground-muted">
                     <span className="flex items-center gap-2">
-                      Phí nền tảng 
-                      <span className="bg-white/[0.06] text-foreground-muted border border-border-default px-1.5 py-0.5 rounded text-[10px] font-mono">5%</span>
+                      Phí nền tảng
+                      <span className="bg-surface-hover text-foreground-muted border border-border-default px-1.5 py-0.5 text-[10px] font-mono">5%</span>
                     </span>
                     <span>{(court.pricePerSlot * 0.05).toLocaleString('vi-VN')}</span>
                   </div>
                   <div className="flex justify-between items-center border-t border-border-default pt-4 mt-2">
-                    <span className="font-semibold text-[var(--theme-primary)] text-base">Tổng cộng</span>
-                    <span className="text-xl font-semibold text-[var(--theme-primary)] tracking-tight">
-                      {(court.pricePerSlot * 1.05).toLocaleString('vi-VN')} <span className="text-sm font-medium text-foreground-muted">VND</span>
+                    <span className="font-bold text-foreground text-base">Tổng cộng</span>
+                    <span className="font-heading text-xl text-foreground">
+                      {(court.pricePerSlot * 1.05).toLocaleString('vi-VN')} <span className="text-sm font-sans font-medium text-foreground-muted">VND</span>
                     </span>
                   </div>
                 </div>
-              </div>
+              )}
 
             </div>
           </div>

@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { ownerApi } from '../../api/ownerApi';
-import OwnerStatusBadge from '../../components/owner/OwnerStatusBadge';
+import StatusBadge from '../../components/ui/StatusBadge';
 import PageLoader from '../../components/ui/PageLoader';
 import { useToast } from '../../components/Toast';
 
 function Field({ label, children }) {
   return (
     <label className="grid gap-1.5 text-sm">
-      <span className="font-medium text-slate-700">{label}</span>
+      <span className="label-mono text-foreground">{label}</span>
       {children}
     </label>
   );
@@ -93,7 +93,7 @@ export default function OwnerCourtDetailPage() {
   if (loading) return <PageLoader label="Đang tải sân..." />;
   if (error && !court) {
     return (
-      <div className="text-red-600">
+      <div className="text-danger">
         {error}{' '}
         <button type="button" className="underline bg-transparent border-none cursor-pointer" onClick={load}>Thử lại</button>
       </div>
@@ -101,25 +101,25 @@ export default function OwnerCourtDetailPage() {
   }
 
   return (
-    <div className="max-w-2xl space-y-4">
-      <Link to="/owner/courts" className="text-sm text-emerald-700 no-underline">← Danh sách sân</Link>
-      <div className="flex flex-wrap items-center gap-3">
-        <h2 className="text-xl font-bold text-slate-900">{court?.name}</h2>
-        <OwnerStatusBadge status={court?.status} type="court" />
+    <div className="max-w-2xl space-y-5">
+      <Link to="/owner/courts" className="inline-block text-sm font-bold text-foreground no-underline border-b-2 border-foreground pb-0.5">← Danh sách sân</Link>
+      <div className="flex flex-wrap items-center gap-3.5">
+        <h1 className="font-heading text-2xl md:text-3xl uppercase tracking-tight text-foreground">{court?.name}</h1>
+        <StatusBadge status={court?.status} />
       </div>
-      {error && <div className="text-sm text-red-600 rounded-lg border border-red-200 bg-red-50 p-3">{error}</div>}
+      {error && <div className="text-sm text-danger bg-danger-bg border border-danger p-3 rounded-[2px]">{error}</div>}
 
-      <form onSubmit={save} className="bg-white rounded-xl border p-5 grid gap-4">
+      <form onSubmit={save} className="border-2 border-border-strong bg-surface p-8 grid gap-5">
         <Field label="Tên sân">
           <input
-            className="rounded-lg border px-3 py-2 text-sm"
+            className="input-base"
             value={form.name}
             onChange={e => setForm({ ...form, name: e.target.value })}
           />
         </Field>
         <Field label="Mã sân">
           <input
-            className="rounded-lg border px-3 py-2 text-sm font-mono uppercase"
+            className="input-base font-mono uppercase"
             value={form.code}
             onChange={e => setForm({ ...form, code: e.target.value })}
             placeholder="Mã sân"
@@ -127,33 +127,37 @@ export default function OwnerCourtDetailPage() {
         </Field>
         <Field label="Mô tả">
           <textarea
-            className="rounded-lg border px-3 py-2 text-sm"
+            className="input-base h-auto py-3.5 resize-y"
             rows={3}
             value={form.description}
             onChange={e => setForm({ ...form, description: e.target.value })}
           />
         </Field>
-        <button type="submit" disabled={saving} className="rounded-lg bg-emerald-600 text-white py-2 text-sm disabled:opacity-50">
+        <button type="submit" disabled={saving} className="btn-primary disabled:opacity-50">
           {saving ? 'Đang lưu...' : 'Lưu thay đổi'}
         </button>
       </form>
 
-      <div className="bg-white rounded-xl border p-5 space-y-3">
-        <p className="text-sm font-medium text-slate-700">Trạng thái vận hành</p>
-        <div className="flex flex-wrap gap-2">
-          <button type="button" className="px-3 py-1.5 rounded-lg border text-sm hover:bg-emerald-50" onClick={() => setStatus('ACTIVE')}>Hoạt động</button>
-          <button type="button" className="px-3 py-1.5 rounded-lg border text-sm hover:bg-amber-50" onClick={() => setStatus('MAINTENANCE')}>Bảo trì</button>
-          <button type="button" className="px-3 py-1.5 rounded-lg border text-sm hover:bg-slate-100" onClick={() => setStatus('INACTIVE')}>Ngưng hoạt động</button>
-          <Link to={`/owner/pricing?courtId=${courtId}`} className="px-3 py-1.5 rounded-lg bg-slate-100 text-sm no-underline text-slate-700">Quy tắc giá</Link>
+      <div className="border-2 border-border-strong bg-surface p-6 space-y-4">
+        <h3 className="font-heading text-base uppercase tracking-tight text-foreground">Trạng thái vận hành</h3>
+        <div className="flex flex-wrap gap-2.5">
+          <button type="button" className="btn-outline" onClick={() => setStatus('ACTIVE')}>Hoạt động</button>
+          <button type="button" className="btn-outline" onClick={() => setStatus('MAINTENANCE')}>Bảo trì</button>
+          <button type="button" className="btn-outline" onClick={() => setStatus('INACTIVE')}>Ngưng hoạt động</button>
+          <Link to={`/owner/pricing?courtId=${courtId}`} className="btn-primary no-underline">Quy tắc giá</Link>
         </div>
       </div>
 
-      <div className="rounded-xl border border-red-200 bg-red-50 p-4 flex flex-wrap items-center justify-between gap-3">
+      <div className="border-2 border-danger bg-danger-bg p-5 flex flex-wrap items-center justify-between gap-4">
         <div>
-          <p className="text-sm font-medium text-red-800">Xóa sân</p>
-          <p className="text-xs text-red-600 mt-1">Hành động này không thể hoàn tác. Sân có booking sắp tới sẽ bị từ chối xóa.</p>
+          <p className="font-extrabold text-sm text-foreground mb-1">Xóa sân</p>
+          <p className="text-xs text-danger">Hành động này không thể hoàn tác. Sân có booking sắp tới sẽ bị từ chối xóa.</p>
         </div>
-        <button type="button" onClick={removeCourt} className="px-3 py-1.5 rounded-lg bg-red-600 text-white text-sm border-none cursor-pointer">
+        <button
+          type="button"
+          onClick={removeCourt}
+          className="inline-flex items-center justify-center gap-2 px-5 h-10 font-sans text-sm font-extrabold uppercase tracking-[0.04em] rounded-[2px] border-2 border-danger bg-danger text-paper transition-colors duration-150 hover:opacity-90"
+        >
           Xóa sân
         </button>
       </div>

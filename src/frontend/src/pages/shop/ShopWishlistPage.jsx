@@ -1,3 +1,4 @@
+import { Share2, Plus, X } from 'lucide-react'
 import ShopLayout from '../../layouts/ShopLayout'
 
 const items = [
@@ -7,8 +8,6 @@ const items = [
     sub: 'Giày chạy đường phố nam',
     price: '$240.00',
     badge: 'CÒN HÀNG',
-    badgeColor: '#22c55e',
-    img: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&q=80',
   },
   {
     id: 2,
@@ -17,51 +16,60 @@ const items = [
     price: '$299.00',
     oldPrice: '$350.00',
     badge: 'GIẢM GIÁ',
-    badgeColor: '#ef4444',
-    img: 'https://images.unsplash.com/photo-1523475496153-3d6cc0a9bf63?w=400&q=80',
   },
 ]
 
 export default function ShopWishlistPage() {
   return (
     <ShopLayout>
-      <div className="px-5 md:px-10 py-7 pb-15 max-w-[1000px] mx-auto">
-        <div className="flex flex-col sm:flex-row sm:items-start justify-between mb-7 gap-4">
+      <div className="font-sans max-w-[1100px] mx-auto px-5 md:px-10 py-8 pb-16">
+
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 gap-4">
           <div>
-            <h1 className="font-oswald text-3xl font-bold text-foreground">Danh sách yêu thích</h1>
-            <p className="text-[0.85rem] text-[#64748b] mt-1">{items.length} sản phẩm đã lưu. Theo dõi thiết bị yêu thích của bạn.</p>
+            <p className="label-mono text-foreground-muted mb-4">{'// Đã lưu'}</p>
+            <h1 className="font-heading text-3xl md:text-4xl uppercase tracking-tight text-foreground">Danh sách yêu thích</h1>
+            <p className="text-sm text-foreground-muted mt-2">{items.length} sản phẩm đã lưu. Theo dõi thiết bị yêu thích của bạn.</p>
           </div>
-          <div className="flex gap-2.5">
-            <button className="inline-flex gap-1.5 items-center px-4 py-2 border border-[#e0ecf0] hover:border-[#14B8A6] hover:text-[#14B8A6] rounded-lg text-sm transition-colors text-foreground font-semibold bg-white cursor-pointer">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          <div className="flex gap-3">
+            <button className="btn-outline flex items-center gap-2">
+              <Share2 size={14} />
               Chia sẻ danh sách
             </button>
-            <button className="px-4 py-2 bg-[#14B8A6] hover:bg-[#0b7373] text-[var(--theme-primary)] rounded-lg text-sm font-semibold transition-colors border-none cursor-pointer">Thêm tất cả vào giỏ</button>
+            <button className="btn-primary">Thêm tất cả vào giỏ</button>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4.5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
           {items.map(item => (
-            <div key={item.id} className="group bg-white rounded-[14px] border-[1.5px] border-[#e0ecf0] overflow-hidden transition-all duration-200 hover:shadow-[0_6px_20px_rgba(0,0,0,0.08)] hover:-translate-y-1">
-              <div className="relative h-[180px] overflow-hidden">
-                <img src={item.img} alt={item.name} className="w-full h-full object-cover transition-transform duration-400 group-hover:scale-105" />
+            <div key={item.id} className="border-2 border-border-strong bg-surface rounded-[2px] flex flex-col overflow-hidden group">
+              <div className="relative aspect-square border-b-2 border-border-strong overflow-hidden bg-background-base">
                 {item.badge && (
-                  <span className="absolute top-2.5 left-2.5 text-[0.65rem] font-bold tracking-wider px-2 py-0.5 rounded-full uppercase" style={{background: item.badgeColor + '22', color: item.badgeColor, border: `1px solid ${item.badgeColor}44`}}>
+                  <span className={`absolute top-3 left-3 label-mono px-2.5 py-1 z-10 ${item.oldPrice ? 'bg-danger-bg text-danger border border-danger' : 'bg-ink text-paper'}`}>
                     {item.badge}
                   </span>
                 )}
-                <button className="absolute top-2 right-2 w-[26px] h-[26px] rounded-full bg-white/90 border border-[#e0ecf0] cursor-pointer text-base flex items-center justify-center text-[#94a3b8] transition-all duration-200 hover:bg-red-500 hover:text-white hover:border-red-500" aria-label="Xóa">×</button>
+                <button
+                  className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center bg-surface border-2 border-border-strong text-foreground-muted hover:text-danger hover:border-danger transition-colors z-10 rounded-[2px]"
+                  aria-label="Xóa"
+                >
+                  <X size={14} />
+                </button>
               </div>
-              <div className="p-3.5">
-                <h3 className="text-sm font-bold text-foreground mb-1 line-clamp-2 leading-snug">{item.name}</h3>
-                <p className="text-[0.78rem] text-[#94a3b8] mb-3">{item.sub}</p>
-                <div className="flex items-center justify-between">
+
+              <div className="p-5 flex-1 flex flex-col">
+                <h3 className="font-sans font-extrabold text-[15px] text-foreground mb-1">{item.name}</h3>
+                <p className="label-mono text-foreground-muted mb-4">{item.sub}</p>
+
+                <div className="flex items-center justify-between mt-auto">
                   <div>
-                    {item.oldPrice && <span className="text-xs text-[#94a3b8] line-through block mb-0.5">{item.oldPrice}</span>}
-                    <span className="text-base font-bold" style={item.oldPrice ? {color:'#ef4444'} : {color: '#14B8A6'}}>{item.price}</span>
+                    {item.oldPrice && <span className="text-xs text-foreground-muted line-through block mb-0.5">{item.oldPrice}</span>}
+                    <span className={`font-heading text-lg ${item.oldPrice ? 'text-danger' : 'text-foreground'}`}>{item.price}</span>
                   </div>
-                  <button className="w-8 h-8 rounded-full bg-[#14B8A6]/10 border-none cursor-pointer flex items-center justify-center text-[#14B8A6] transition-all duration-200 hover:bg-[#14B8A6] hover:text-[var(--theme-primary)]" aria-label="Thêm vào giỏ">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                  <button
+                    className="w-9 h-9 flex items-center justify-center bg-ink text-paper hover:bg-accent hover:text-ink rounded-[2px] transition-colors"
+                    aria-label="Thêm vào giỏ"
+                  >
+                    <Plus className="w-4 h-4" />
                   </button>
                 </div>
               </div>

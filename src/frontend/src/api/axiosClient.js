@@ -36,12 +36,18 @@ axiosClient.interceptors.response.use(
       window.dispatchEvent(new CustomEvent('auth:session-expired'));
       const requestUrl = error.config?.url || '';
       const isProfileProbe = requestUrl.includes('/auth/me');
+      const base = (import.meta.env.BASE_URL ?? '/').replace(/\/$/, '');
       const currentPath = window.location.pathname;
-      const authPaths = ['/login', '/register', '/reset-password'];
-      const isAuthPage = authPaths.some(p => currentPath.includes(p));
-      // Không redirect khi chỉ probe profile (token hết hạn trên trang public như /gear/catalog)
-      if (!isAuthPage && !isProfileProbe) {
-        window.location.href = `${window.location.origin}${(import.meta.env.BASE_URL ?? '/').replace(/\/$/, '')}/login`;
+      // Chỉ redirect khi đang đứng trong khu vực bắt buộc đăng nhập —
+      // khách xem trang public (/, /about, /gear/catalog…) chỉ bị xoá token, không bị đá về /login
+      const protectedPrefixes = [
+        '/admin', '/owner', '/elite', '/dashboard', '/apex', '/customer',
+        '/gear/cart', '/matches/create', '/complete-profile',
+        '/mobile/dashboard', '/mobile/wallet', '/mobile/profile', '/mobile/booking', '/mobile/scanner',
+      ];
+      const needsAuth = protectedPrefixes.some(p => currentPath.startsWith(`${base}${p}`));
+      if (needsAuth && !isProfileProbe) {
+        window.location.href = `${window.location.origin}${base}/login`;
       }
     }
     // Return structured error message if available

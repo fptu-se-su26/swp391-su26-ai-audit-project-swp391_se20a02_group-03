@@ -75,21 +75,21 @@ export default function EliteScannerPage() {
 
   return (
     <EliteLayout title="Máy quét QR">
-      <div className="p-6 max-w-4xl mx-auto">
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900">Xác nhận vào bằng QR</h1>
-          <p className="text-foreground-muted">Quét mã QR đặt sân của khách để xác nhận vào sân ngay.</p>
+      <div className="space-y-7">
+        <div>
+          <h1 className="font-heading text-3xl sm:text-4xl uppercase tracking-[-0.01em] text-foreground mb-2">Xác nhận vào bằng QR</h1>
+          <p className="text-sm text-foreground-muted">Quét mã QR đặt sân của khách để xác nhận vào sân ngay.</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Trái: Scanner + nhập tay */}
-          <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-            <div key={scanKey} id="reader" className="w-full overflow-hidden rounded-lg"></div>
-            {loading && <p className="text-center mt-4 text-blue-600 font-semibold animate-pulse">Đang xử lý...</p>}
-            {error && <div className="mt-4 p-3 bg-red-50 text-red-600 rounded-lg text-center font-medium">{error}</div>}
+          <div className="card-base p-6">
+            <div key={scanKey} id="reader" className="w-full overflow-hidden rounded-[2px] border-2 border-dashed border-border-strong"></div>
+            {loading && <p className="text-center mt-4 text-accent font-extrabold label-mono animate-pulse">Đang xử lý...</p>}
+            {error && <div className="mt-4 p-3 border-2 border-danger bg-danger-bg text-danger rounded-[2px] text-center font-medium text-sm">{error}</div>}
 
-            <div className="mt-5 pt-5 border-t border-gray-100">
-              <p className="text-sm font-semibold text-gray-700 mb-2">Hoặc nhập mã thủ công</p>
+            <div className="mt-5 pt-5 border-t border-border-default">
+              <p className="text-sm font-extrabold text-foreground mb-2">Hoặc nhập mã thủ công</p>
               <form
                 onSubmit={(e) => { e.preventDefault(); doCheckIn(manualCode.trim()) }}
                 className="flex gap-2"
@@ -99,42 +99,42 @@ export default function EliteScannerPage() {
                   value={manualCode}
                   onChange={(e) => setManualCode(e.target.value)}
                   placeholder="Nhập mã xác nhận vào..."
-                  className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-emerald-500"
+                  className="input-base flex-1"
                 />
                 <button
                   type="submit"
                   disabled={loading || !manualCode.trim()}
-                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-lg disabled:opacity-50"
+                  className="btn-primary disabled:opacity-50"
                 >
-                  Xác nhận vào
+                  Xác nhận
                 </button>
               </form>
             </div>
           </div>
 
           {/* Phải: Kết quả */}
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col justify-center items-center min-h-[300px]">
+          <div className="border-2 border-border-strong bg-surface p-6 flex flex-col justify-center items-center min-h-[300px] rounded-[2px]">
             {!scanResult && !loading && !error && (
-              <div className="text-center text-foreground-muted">
+              <div className="text-center text-foreground-subtle">
                 <svg className="w-16 h-16 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm14 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path></svg>
-                <p>Đang chờ quét mã QR...</p>
+                <p className="label-mono">Đang chờ quét mã QR...</p>
               </div>
             )}
 
             {scanResult && (
               <div className="scanner-success w-full">
-                <div className="bg-green-50 border border-green-200 rounded-xl p-6 text-center">
-                  <div className="w-16 h-16 bg-green-100 text-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                <div className="bg-ink border-2 border-ink text-paper p-8 text-center rounded-[2px]">
+                  <div className="w-16 h-16 bg-paper text-ink rounded-full flex items-center justify-center mx-auto mb-5 font-heading text-2xl">
                     <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
                   </div>
-                  <h2 className="text-2xl font-bold text-green-700 mb-2">Xác nhận vào thành công!</h2>
-                  <div className="text-left bg-white p-4 rounded-lg mt-4 shadow-sm">
-                    <p className="mb-2"><span className="text-foreground-muted">Mã đặt:</span> <span className="font-semibold">#{scanResult.bookingId}</span></p>
-                    <p className="mb-2"><span className="text-foreground-muted">Tổng tiền:</span> <span className="font-semibold">{scanResult.totalAmount?.toLocaleString('vi-VN')} đ</span></p>
-                    <p className="mb-2"><span className="text-foreground-muted">Trạng thái:</span> <span className="inline-block px-2 py-1 bg-green-100 text-green-800 rounded text-xs font-bold">ĐÃ VÀO SÂN</span></p>
-                    <hr className="my-3" />
-                    <h3 className="font-bold text-gray-700 mb-2">Cơ sở/Sân</h3>
-                    <ul className="list-disc pl-5 text-sm text-gray-600">
+                  <h2 className="font-heading text-2xl uppercase mb-5">Xác nhận vào thành công!</h2>
+                  <div className="text-left bg-paper text-ink p-5 rounded-[2px]">
+                    <p className="mb-2"><span className="text-foreground-subtle">Mã đặt:</span> <span className="font-extrabold">#{scanResult.bookingId}</span></p>
+                    <p className="mb-2"><span className="text-foreground-subtle">Tổng tiền:</span> <span className="font-extrabold">{scanResult.totalAmount?.toLocaleString('vi-VN')} đ</span></p>
+                    <p className="mb-2"><span className="text-foreground-subtle">Trạng thái:</span> <span className="inline-block px-2 py-1 bg-ink text-paper rounded-[2px] label-mono">Đã vào sân</span></p>
+                    <hr className="my-3 border-border-default" />
+                    <h3 className="font-heading text-sm uppercase mb-2">Cơ sở/Sân</h3>
+                    <ul className="list-disc pl-5 text-sm text-foreground-muted">
                       {scanResult.details?.map((d, i) => (
                         <li key={i}>{d.courtName} ({String(d.startTime).slice(0, 5)} - {String(d.endTime).slice(0, 5)})</li>
                       ))}
@@ -142,7 +142,7 @@ export default function EliteScannerPage() {
                   </div>
                   <button
                     onClick={resetScanner}
-                    className="mt-6 w-full py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg transition-colors">
+                    className="mt-6 w-full py-3.5 bg-paper text-ink font-extrabold uppercase tracking-[0.04em] text-sm rounded-[2px] transition-colors hover:bg-accent">
                     Quét khách tiếp theo
                   </button>
                 </div>

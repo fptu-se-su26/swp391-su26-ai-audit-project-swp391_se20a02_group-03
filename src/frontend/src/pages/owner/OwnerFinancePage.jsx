@@ -33,33 +33,33 @@ export default function OwnerFinancePage() {
   if (loading && !data) return <PageLoader label="Đang tải tài chính..." />;
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap justify-between items-end gap-3">
+    <div className="space-y-6">
+      <div className="flex flex-wrap justify-between items-end gap-5">
         <div>
-          <h2 className="text-xl font-bold">Tài chính</h2>
-          <p className="text-xs text-slate-500">Chỉ xem báo cáo — không sửa ledger.</p>
+          <h1 className="font-heading text-3xl md:text-4xl uppercase tracking-tight text-foreground mb-2">Tài chính</h1>
+          <p className="text-sm text-foreground-muted">Chỉ xem báo cáo — không sửa ledger.</p>
         </div>
-        <div className="flex gap-2 items-center text-sm">
-          <input type="date" className="rounded-lg border px-2 py-1" value={range.from} onChange={e => setRange(r => ({ ...r, from: e.target.value }))} />
-          <span>→</span>
-          <input type="date" className="rounded-lg border px-2 py-1" value={range.to} onChange={e => setRange(r => ({ ...r, to: e.target.value }))} />
-          <button type="button" onClick={load} className="px-3 py-1 border rounded-lg bg-white cursor-pointer">Làm mới</button>
+        <div className="flex gap-2 items-center flex-wrap">
+          <input type="date" className="input-base w-auto" value={range.from} onChange={e => setRange(r => ({ ...r, from: e.target.value }))} />
+          <span className="text-foreground-muted">→</span>
+          <input type="date" className="input-base w-auto" value={range.to} onChange={e => setRange(r => ({ ...r, to: e.target.value }))} />
+          <button type="button" onClick={load} className="btn-outline">Làm mới</button>
         </div>
       </div>
-      {error && <div className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{error}</div>}
-      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+      {error && <div className="text-sm text-danger">{error}</div>}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-[2px] bg-[var(--theme-border-strong)] border-2 border-border-strong">
         {[
           ['Doanh thu đặt sân', data?.bookingRevenue],
           ['Doanh thu thuê', data?.rentalRevenue],
           ['Doanh thu SP', data?.productRevenue],
+          ['Doanh thu ròng', data?.netRevenue, true],
           ['Phụ phí thuê', data?.surchargeRevenue],
           ['Hoàn tiền', data?.refundAmount],
           ['Escrow giữ', data?.escrowHeld],
-          ['Doanh thu ròng', data?.netRevenue],
-        ].map(([label, val]) => (
-          <div key={label} className="bg-white border rounded-xl p-4">
-            <p className="text-xs text-slate-500">{label}</p>
-            <p className="text-lg font-bold text-slate-900">{fmt(val)} ₫</p>
+        ].map(([label, val, highlight]) => (
+          <div key={label} className={highlight ? 'bg-[var(--theme-primary)] p-6' : 'bg-surface p-6'}>
+            <p className={`label-mono mb-2.5 ${highlight ? 'text-[var(--theme-secondary)] opacity-80' : 'text-foreground-subtle'}`}>{label}</p>
+            <p className={`font-heading text-2xl ${highlight ? 'text-[var(--theme-secondary)]' : 'text-foreground'}`}>{fmt(val)} ₫</p>
           </div>
         ))}
       </div>

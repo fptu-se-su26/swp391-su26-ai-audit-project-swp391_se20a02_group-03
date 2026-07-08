@@ -64,110 +64,108 @@ export default function AdminBookingsPage() {
 
   return (
     <AdminLayout>
-      <div className="space-y-6">
-        <div className="flex justify-between items-start mb-2">
-          <div>
-            <h1 className="text-2xl font-bold text-slate-900 mb-1">Quản lý Đặt sân</h1>
-            <p className="text-sm text-slate-500">Theo dõi toàn bộ lượt đặt sân, thanh toán và trạng thái.</p>
+      <div className="space-y-7">
+        <div>
+          <h1 className="font-heading text-3xl md:text-4xl uppercase tracking-tight text-foreground mb-2">Quản lý đặt sân</h1>
+          <p className="text-sm text-foreground-muted">Theo dõi toàn bộ lượt đặt sân, thanh toán và trạng thái.</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-[2px] bg-border-strong border-2 border-border-strong">
+          <div className="bg-surface p-6">
+            <p className="font-heading text-3xl text-foreground mb-1.5">{stats.active}</p>
+            <p className="label-mono text-foreground-muted">Lượt đặt đang hoạt động</p>
+          </div>
+          <div className="bg-surface p-6">
+            <p className="font-heading text-3xl text-foreground mb-1.5">{stats.total}</p>
+            <p className="label-mono text-foreground-muted">Tổng số lượt đặt</p>
+          </div>
+          <div className="bg-ink p-6">
+            <p className="font-heading text-3xl text-paper mb-1.5">{stats.pendingPay}</p>
+            <p className="label-mono text-paper/60">Chờ thanh toán</p>
           </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-6 max-md:grid-cols-1">
-          <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
-            <p className="font-['Oswald'] text-[2.5rem] font-bold text-slate-900 leading-none mb-2">{stats.active}</p>
-            <p className="text-sm text-slate-500">Lượt đặt đang hoạt động</p>
+        <div className="flex flex-col md:flex-row md:justify-between gap-3.5">
+          <div className="flex items-center gap-2 bg-surface border-2 border-border-strong px-3.5 h-11 w-full md:min-w-[280px] md:w-auto rounded-[2px] focus-within:border-accent">
+            <Search size={16} className="text-foreground-subtle shrink-0" />
+            <input
+              type="text"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="Tìm mã đặt / sân / người dùng..."
+              className="border-none outline-none text-sm text-foreground w-full bg-transparent placeholder:text-foreground-subtle"
+            />
           </div>
-          <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
-            <p className="font-['Oswald'] text-[2.5rem] font-bold text-slate-900 leading-none mb-2">{stats.total}</p>
-            <p className="text-sm text-slate-500">Tổng số lượt đặt</p>
-          </div>
-          <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
-            <p className="font-['Oswald'] text-[2.5rem] font-bold text-amber-600 leading-none mb-2">{stats.pendingPay}</p>
-            <p className="text-sm text-slate-500">Chờ thanh toán</p>
+          <div className="flex gap-2 flex-wrap">
+            {STATUS_TABS.map(tab => (
+              <button
+                key={tab.key}
+                onClick={() => setStatusFilter(tab.key)}
+                className={`px-4.5 h-11 font-sans text-[11.5px] font-bold uppercase tracking-[0.04em] border-2 rounded-[2px] transition-colors cursor-pointer ${
+                  statusFilter === tab.key
+                    ? 'bg-ink border-ink text-paper'
+                    : 'bg-transparent border-border-hover text-foreground-muted hover:border-foreground'
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
           </div>
         </div>
 
-        <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
-          <div className="flex flex-wrap gap-3 justify-between items-center py-4 px-5 border-b border-slate-200">
-            <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-full py-2 px-4 w-72 focus-within:border-[#14B8A6]">
-              <Search size={16} className="text-slate-400" />
-              <input
-                type="text"
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-                placeholder="Tìm mã đặt / sân / người dùng..."
-                className="border-none outline-none text-sm text-slate-900 w-full bg-transparent"
-              />
-            </div>
-            <div className="flex gap-2 flex-wrap">
-              {STATUS_TABS.map(tab => (
-                <button
-                  key={tab.key}
-                  onClick={() => setStatusFilter(tab.key)}
-                  className={`py-[6px] px-4 rounded-full border text-sm font-medium cursor-pointer transition-colors ${
-                    statusFilter === tab.key
-                      ? 'border-[#e0f2fe] bg-[#e0f2fe] text-[#0284c7]'
-                      : 'border-slate-200 bg-white text-slate-500 hover:bg-slate-50'
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
+        <div className="border-2 border-border-strong bg-surface">
           <div className="overflow-x-auto">
-            <table className="w-full border-collapse">
+            <table className="w-full border-collapse text-sm">
               <thead>
-                <tr className="border-b border-slate-200 bg-slate-50">
-                  <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Mã đặt</th>
-                  <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Khách</th>
-                  <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Sân</th>
-                  <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Ngày & Giờ</th>
-                  <th className="px-5 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Tổng tiền</th>
-                  <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Thanh toán</th>
-                  <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Trạng thái</th>
+                <tr className="bg-ink text-paper">
+                  <th className="px-4.5 py-3.5 text-left label-mono font-bold">Mã đặt</th>
+                  <th className="px-4.5 py-3.5 text-left label-mono font-bold">Khách</th>
+                  <th className="px-4.5 py-3.5 text-left label-mono font-bold">Sân</th>
+                  <th className="px-4.5 py-3.5 text-left label-mono font-bold">Ngày & Giờ</th>
+                  <th className="px-4.5 py-3.5 text-right label-mono font-bold">Tổng tiền</th>
+                  <th className="px-4.5 py-3.5 text-left label-mono font-bold">Thanh toán</th>
+                  <th className="px-4.5 py-3.5 text-left label-mono font-bold">Trạng thái</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody>
                 {loading && (
-                  <tr><td colSpan={7} className="px-5 py-12 text-center text-slate-400">
+                  <tr><td colSpan={7} className="px-4.5 py-12 text-center text-foreground-muted">
                     <Loader2 className="inline animate-spin mr-2" size={18} /> Đang tải...
                   </td></tr>
                 )}
                 {!loading && error && (
-                  <tr><td colSpan={7} className="px-5 py-12 text-center text-red-500">
+                  <tr><td colSpan={7} className="px-4.5 py-12 text-center text-danger">
                     <ShieldAlert className="inline mr-2" size={18} /> {error}
                   </td></tr>
                 )}
                 {!loading && !error && filtered.length === 0 && (
-                  <tr><td colSpan={7} className="px-5 py-12 text-center text-slate-400">Không có lượt đặt nào.</td></tr>
+                  <tr><td colSpan={7} className="px-4.5 py-12 text-center text-foreground-muted">Không có lượt đặt nào.</td></tr>
                 )}
                 {!loading && !error && filtered.map(b => {
                   const d = b.details?.[0]
                   return (
-                    <tr key={b.bookingId} className="hover:bg-slate-50/55 transition-colors">
-                      <td className="px-5 py-4 whitespace-nowrap text-sm font-semibold text-slate-500">#BKG-{b.bookingId}</td>
-                      <td className="px-5 py-4 whitespace-nowrap text-sm text-slate-900">Người dùng #{b.userId}</td>
-                      <td className="px-5 py-4 whitespace-nowrap text-sm font-semibold text-slate-900">{d?.courtName || '—'}</td>
-                      <td className="px-5 py-4 whitespace-nowrap">
+                    <tr key={b.bookingId} className="border-t border-border-default hover:bg-surface-hover transition-colors">
+                      <td className="px-4.5 py-4 whitespace-nowrap font-extrabold text-foreground">#BKG-{b.bookingId}</td>
+                      <td className="px-4.5 py-4 whitespace-nowrap text-foreground">Người dùng #{b.userId}</td>
+                      <td className="px-4.5 py-4 whitespace-nowrap font-bold text-foreground">{d?.courtName || '—'}</td>
+                      <td className="px-4.5 py-4 whitespace-nowrap">
                         {d ? (
                           <>
-                            <p className="text-sm font-semibold text-slate-900 flex items-center gap-1">
-                              <CalendarDays size={13} className="text-slate-400" />
+                            <p className="font-bold text-foreground flex items-center gap-1">
+                              <CalendarDays size={13} className="text-foreground-subtle" />
                               {new Date(d.bookingDate).toLocaleDateString('vi-VN')}
                             </p>
-                            <p className="text-xs text-slate-500">{fmtTime(d.startTime)} – {fmtTime(d.endTime)}</p>
+                            <p className="text-xs text-foreground-muted">{fmtTime(d.startTime)} – {fmtTime(d.endTime)}</p>
                           </>
                         ) : '—'}
                       </td>
-                      <td className="px-5 py-4 whitespace-nowrap text-right text-sm font-semibold text-slate-900">
+                      <td className="px-4.5 py-4 whitespace-nowrap text-right font-extrabold text-foreground">
                         {Number(b.totalAmount).toLocaleString('vi-VN')} ₫
                       </td>
-                      <td className="px-5 py-4 whitespace-nowrap">
+                      <td className="px-4.5 py-4 whitespace-nowrap">
                         <StatusBadge status={b.paymentStatus || 'Unpaid'} />
                       </td>
-                      <td className="px-5 py-4 whitespace-nowrap">
+                      <td className="px-4.5 py-4 whitespace-nowrap">
                         <StatusBadge status={b.status} />
                       </td>
                     </tr>
@@ -177,7 +175,7 @@ export default function AdminBookingsPage() {
             </table>
           </div>
 
-          <div className="py-3 px-5 border-t border-slate-200 bg-white text-sm text-slate-500">
+          <div className="py-3.5 px-4.5 border-t-2 border-border-strong label-mono text-foreground-muted">
             Hiển thị {filtered.length} / {bookings.length} lượt đặt
           </div>
         </div>

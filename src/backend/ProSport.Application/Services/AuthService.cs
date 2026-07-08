@@ -85,18 +85,26 @@ public class AuthService : IAuthService
             });
             
             // SEND REAL EMAIL
-            string emailBody = $@"
-                <div style='font-family: Arial, sans-serif; max-width: 500px; margin: auto; padding: 20px; border: 1px solid #e0ecf0; border-radius: 12px;'>
-                    <h2 style='color: #0d2d3a; text-align: center;'>Chào mừng đến với PRO-SPORT</h2>
-                    <p>Xin chào <strong>{request.FullName}</strong>,</p>
-                    <p>Cảm ơn bạn đã đăng ký tài khoản. Đây là mã xác nhận (OTP) của bạn, có hiệu lực trong 5 phút:</p>
-                    <div style='text-align: center; margin: 30px 0;'>
-                        <span style='font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #00c8aa; background: #e8f2f8; padding: 15px 30px; border-radius: 8px;'>{otpCode}</span>
+            try
+            {
+                _logger.LogInformation($"[DEV ONLY] MÃ OTP ĐĂNG KÝ CỦA EMAIL {request.Email} LÀ: {otpCode}");
+                string emailBody = $@"
+                    <div style='font-family: Arial, sans-serif; max-width: 500px; margin: auto; padding: 20px; border: 1px solid #e0ecf0; border-radius: 12px;'>
+                        <h2 style='color: #0d2d3a; text-align: center;'>Chào mừng đến với PRO-SPORT</h2>
+                        <p>Xin chào <strong>{request.FullName}</strong>,</p>
+                        <p>Cảm ơn bạn đã đăng ký tài khoản. Đây là mã xác nhận (OTP) của bạn, có hiệu lực trong 5 phút:</p>
+                        <div style='text-align: center; margin: 30px 0;'>
+                            <span style='font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #00c8aa; background: #e8f2f8; padding: 15px 30px; border-radius: 8px;'>{otpCode}</span>
+                        </div>
+                        <p style='color: #7b8e98; font-size: 13px; text-align: center;'>Nếu bạn không thực hiện yêu cầu này, vui lòng bỏ qua email này.</p>
                     </div>
-                    <p style='color: #7b8e98; font-size: 13px; text-align: center;'>Nếu bạn không thực hiện yêu cầu này, vui lòng bỏ qua email này.</p>
-                </div>
-            ";
-            await _emailService.SendEmailAsync(request.Email, "PRO-SPORT: Mã Xác Nhận Đăng Ký", emailBody);
+                ";
+                await _emailService.SendEmailAsync(request.Email, "PRO-SPORT: Mã Xác Nhận Đăng Ký", emailBody);
+            }
+            catch (Exception emailEx)
+            {
+                _logger.LogWarning(emailEx, "Lỗi gửi email OTP nhưng vẫn tiếp tục quá trình đăng ký cho {Email}", request.Email);
+            }
 
             return new ApiResponseDto<int>(200, "Registration successful.", userToProcess.UserId);
         }

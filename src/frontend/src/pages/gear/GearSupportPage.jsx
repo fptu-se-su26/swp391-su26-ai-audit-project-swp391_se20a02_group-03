@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import GearLayout from '../../layouts/GearLayout'
+import { Phone, Mail, MessageSquare, ChevronDown, CheckCircle2 } from 'lucide-react'
 
 const faqs = [
   { q: 'Làm sao để gia hạn thời gian thuê?', a: 'Vào trang Thuê thiết bị và nhấn "Gia hạn" trên đơn đang hoạt động. Có thể gia hạn tối đa 30 phút trước giờ kết thúc dự kiến. Bạn cũng có thể gọi hotline để được hỗ trợ ngay.' },
@@ -12,9 +13,9 @@ const faqs = [
 ]
 
 const contactMethods = [
-  { icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.12 6.12l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>, label: 'Điện thoại', value: '+84 28 3456 7890', sub: 'T2 – CN, 8:00 – 22:00', action: 'tel:+84283456789', actionLabel: 'Gọi ngay', color: '#14B8A6' },
-  { icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>, label: 'Email', value: 'gear@prosport.vn', sub: 'Phản hồi trong 2 giờ', action: 'mailto:gear@prosport.vn', actionLabel: 'Gửi email', color: '#6366f1' },
-  { icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>, label: 'Chat trực tiếp', value: 'Trò chuyện với chúng tôi', sub: 'Phản hồi trung bình: 3 phút', action: '#', actionLabel: 'Bắt đầu chat', color: '#f59e0b' },
+  { icon: <Phone size={20} />, label: 'Điện thoại', value: '+84 28 3456 7890', sub: 'T2 – CN, 8:00 – 22:00', action: 'tel:+84283456789', actionLabel: 'Gọi ngay' },
+  { icon: <Mail size={20} />, label: 'Email', value: 'gear@prosport.vn', sub: 'Phản hồi trong 2 giờ', action: 'mailto:gear@prosport.vn', actionLabel: 'Gửi email' },
+  { icon: <MessageSquare size={20} />, label: 'Chat trực tiếp', value: 'Trò chuyện với chúng tôi', sub: 'Phản hồi trung bình: 3 phút', action: '#', actionLabel: 'Bắt đầu chat' },
 ]
 
 export default function GearSupportPage() {
@@ -29,51 +30,51 @@ export default function GearSupportPage() {
 
   return (
     <GearLayout>
-      <div className="px-7 py-10 max-w-[900px] mx-auto">
+      <div className="font-sans max-w-[900px] mx-auto">
 
         {/* Header */}
         <div className="text-center mb-10">
-          <div className="w-14 h-14 bg-[#14B8A6]/10 rounded-2xl flex items-center justify-center mx-auto mb-4 text-[#14B8A6]">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <div className="w-14 h-14 bg-ink text-paper flex items-center justify-center mx-auto mb-4">
+            <MessageSquare size={26} />
           </div>
-          <h1 className="font-['Oswald'] text-3xl font-bold text-foreground mb-2">Trung tâm hỗ trợ</h1>
-          <p className="text-slate-400 text-sm max-w-md mx-auto">Hỗ trợ thuê, trả, bảo trì thiết bị và các vấn đề khác. Chúng tôi phục vụ 7 ngày/tuần.</p>
+          <h1 className="font-heading text-3xl md:text-4xl uppercase tracking-tight text-foreground mb-3">Trung tâm hỗ trợ</h1>
+          <p className="text-foreground-muted text-sm max-w-md mx-auto">Hỗ trợ thuê, trả, bảo trì thiết bị và các vấn đề khác. Chúng tôi phục vụ 7 ngày/tuần.</p>
         </div>
 
         {/* Contact Methods */}
-        <div className="grid grid-cols-3 max-[650px]:grid-cols-1 gap-4 mb-10">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
           {contactMethods.map((c, i) => (
-            <div key={i} className="bg-white rounded-2xl border border-[#e0ecf0] p-5 flex flex-col items-center text-center gap-3">
-              <div className="w-11 h-11 rounded-xl flex items-center justify-center" style={{ background: c.color + '18', color: c.color }}>{c.icon}</div>
+            <div key={i} className="border-2 border-border-strong bg-surface p-5 flex flex-col items-center text-center gap-3">
+              <div className="w-11 h-11 flex items-center justify-center border-2 border-border-strong text-foreground">{c.icon}</div>
               <div>
-                <p className="text-[0.7rem] text-slate-400 uppercase tracking-wider">{c.label}</p>
-                <p className="font-semibold text-foreground text-sm mt-0.5">{c.value}</p>
-                <p className="text-[0.72rem] text-slate-400 mt-0.5">{c.sub}</p>
+                <p className="label-mono text-foreground-muted">{c.label}</p>
+                <p className="font-extrabold text-foreground text-sm mt-1">{c.value}</p>
+                <p className="text-xs text-foreground-muted mt-1">{c.sub}</p>
               </div>
-              <a href={c.action} className="btn-outline text-[0.78rem] py-1.5 px-4 no-underline">{c.actionLabel}</a>
+              <a href={c.action} className="btn-outline text-xs h-9 px-4 no-underline">{c.actionLabel}</a>
             </div>
           ))}
         </div>
 
-        <div className="grid grid-cols-[1fr_360px] max-[800px]:grid-cols-1 gap-7">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-8">
 
           {/* FAQ */}
           <div>
-            <h2 className="font-['Oswald'] text-xl font-bold text-foreground mb-4">Câu hỏi thường gặp</h2>
-            <div className="flex flex-col gap-2">
+            <h2 className="font-heading text-xl uppercase tracking-tight text-foreground mb-5">Câu hỏi thường gặp</h2>
+            <div className="flex flex-col gap-3">
               {faqs.map((faq, i) => (
-                <div key={i} className="bg-white rounded-xl border border-[#e0ecf0] overflow-hidden">
+                <div key={i} className="border-2 border-border-strong bg-surface overflow-hidden">
                   <button onClick={() => setOpen(open === i ? null : i)}
                     className="w-full flex items-center justify-between px-5 py-4 text-left cursor-pointer bg-transparent border-none">
-                    <span className="text-[0.875rem] font-semibold text-foreground pr-4">{faq.q}</span>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#14B8A6" strokeWidth="2.5"
-                      className="shrink-0 transition-transform duration-200"
-                      style={{ transform: open === i ? 'rotate(180deg)' : 'rotate(0deg)' }}>
-                      <polyline points="6 9 12 15 18 9"/>
-                    </svg>
+                    <span className="text-[14px] font-extrabold text-foreground pr-4">{faq.q}</span>
+                    <ChevronDown
+                      size={16}
+                      className="shrink-0 text-accent transition-transform duration-200"
+                      style={{ transform: open === i ? 'rotate(180deg)' : 'rotate(0deg)' }}
+                    />
                   </button>
                   {open === i && (
-                    <div className="px-5 pb-4 text-sm text-slate-500 leading-relaxed border-t border-[#f0f4f8]">
+                    <div className="px-5 pb-4 text-sm text-foreground-muted leading-relaxed border-t-2 border-border-default">
                       <p className="pt-3">{faq.a}</p>
                     </div>
                   )}
@@ -84,37 +85,37 @@ export default function GearSupportPage() {
 
           {/* Contact Form */}
           <div>
-            <h2 className="font-['Oswald'] text-xl font-bold text-foreground mb-4">Gửi tin nhắn</h2>
+            <h2 className="font-heading text-xl uppercase tracking-tight text-foreground mb-5">Gửi tin nhắn</h2>
             {sent ? (
-              <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-8 text-center">
-                <div className="w-14 h-14 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4 text-emerald-600">
-                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <div className="border-2 border-accent bg-surface p-8 text-center">
+                <div className="w-14 h-14 bg-accent text-ink rounded-full flex items-center justify-center mx-auto mb-4">
+                  <CheckCircle2 size={26} />
                 </div>
-                <p className="font-semibold text-emerald-800 mb-1">Đã gửi tin nhắn!</p>
-                <p className="text-sm text-emerald-600">Chúng tôi sẽ phản hồi trong vòng 2 giờ.</p>
-                <button onClick={() => setSent(false)} className="mt-4 text-sm text-emerald-700 underline bg-transparent border-none cursor-pointer">Gửi tin khác</button>
+                <p className="font-extrabold text-foreground mb-1">Đã gửi tin nhắn!</p>
+                <p className="text-sm text-foreground-muted">Chúng tôi sẽ phản hồi trong vòng 2 giờ.</p>
+                <button onClick={() => setSent(false)} className="mt-4 text-sm text-accent underline bg-transparent border-none cursor-pointer font-bold">Gửi tin khác</button>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="bg-white rounded-2xl border border-[#e0ecf0] p-6 flex flex-col gap-4">
+              <form onSubmit={handleSubmit} className="border-2 border-border-strong bg-surface p-6 flex flex-col gap-4">
                 {[
                   { id: 'name', label: 'Họ và tên', placeholder: 'Họ tên đầy đủ', type: 'text' },
                   { id: 'email', label: 'Email', placeholder: 'email@example.com', type: 'email' },
                   { id: 'subject', label: 'Chủ đề', placeholder: 'VD: Trả thiết bị bị hỏng', type: 'text' },
                 ].map(f => (
                   <div key={f.id}>
-                    <label htmlFor={`support-${f.id}`} className="text-[0.75rem] font-semibold text-slate-500 uppercase tracking-wider block mb-1.5">{f.label}</label>
+                    <label htmlFor={`support-${f.id}`} className="label-mono text-foreground-muted block mb-2">{f.label}</label>
                     <input id={`support-${f.id}`} type={f.type} required placeholder={f.placeholder}
-                      value={form[f.id]} onChange={e => setForm({...form, [f.id]: e.target.value})}
-                      className="w-full border border-[#e0ecf0] rounded-xl px-4 py-2.5 text-sm text-foreground outline-none focus:border-[#14B8A6] transition-colors" />
+                      value={form[f.id]} onChange={e => setForm({ ...form, [f.id]: e.target.value })}
+                      className="input-base h-11" />
                   </div>
                 ))}
                 <div>
-                  <label htmlFor="support-message" className="text-[0.75rem] font-semibold text-slate-500 uppercase tracking-wider block mb-1.5">Nội dung</label>
+                  <label htmlFor="support-message" className="label-mono text-foreground-muted block mb-2">Nội dung</label>
                   <textarea id="support-message" required rows={5} placeholder="Mô tả chi tiết vấn đề của bạn..."
-                    value={form.message} onChange={e => setForm({...form, message: e.target.value})}
-                    className="w-full border border-[#e0ecf0] rounded-xl px-4 py-2.5 text-sm text-foreground outline-none focus:border-[#14B8A6] transition-colors resize-none" />
+                    value={form.message} onChange={e => setForm({ ...form, message: e.target.value })}
+                    className="input-base !h-auto py-3 resize-none" />
                 </div>
-                <button type="submit" className="btn-primary w-full justify-center">Gửi yêu cầu</button>
+                <button type="submit" className="btn-primary w-full">Gửi yêu cầu</button>
               </form>
             )}
           </div>

@@ -269,27 +269,23 @@ export default function RegisterPage() {
           backgroundSize: '64px 64px'
         }} />
 
-        {/* Radial glow */}
-        <div className="absolute top-1/3 -left-32 w-[500px] h-[500px] rounded-full bg-accent/8 blur-[120px] pointer-events-none" />
-        <div className="absolute bottom-0 right-0 w-[350px] h-[350px] rounded-full bg-accent/5 blur-[100px] pointer-events-none" />
-
         <div className="relative z-10 flex flex-col items-start max-w-[480px] px-14" key={step}>
           {/* Logo */}
-          <ProSportLogo size="lg" className="mb-16" />
+          <ProSportLogo size="lg" variant="light" className="mb-16" />
 
           {/* Step-based tagline */}
           <div className="auth-animate-in">
-            <h2 className="font-heading text-[clamp(2.2rem,3.5vw,3.4rem)] font-bold leading-[1.05] tracking-[-0.01em] text-[var(--theme-primary)] mb-6 whitespace-pre-line">
+            <h2 className="font-heading text-[clamp(2.2rem,3.5vw,3.4rem)] leading-[0.98] uppercase tracking-[-0.01em] text-paper mb-6 whitespace-pre-line">
               {visualContent[step].title.split('\n').map((line, i) => (
                 <span key={i}>
-                  {i === visualContent[step].title.split('\n').length - 1 
-                    ? <span className="text-accent">{line}</span> 
+                  {i === visualContent[step].title.split('\n').length - 1
+                    ? <span className="text-accent">{line}</span>
                     : line}
                   {i < visualContent[step].title.split('\n').length - 1 && <br />}
                 </span>
               ))}
             </h2>
-            <p className="text-brand-400 text-[0.95rem] leading-relaxed max-w-[380px] mb-12">
+            <p className="text-paper/60 text-[0.95rem] leading-relaxed max-w-[380px] mb-12">
               {visualContent[step].subtitle}
             </p>
           </div>
@@ -299,20 +295,20 @@ export default function RegisterPage() {
             <div className="flex items-center gap-2">
               {steps.map((s, i) => (
                 <div key={s} className="flex items-center gap-2">
-                  <div className={`w-2 h-2 rounded-full transition-all duration-500 ${i <= step ? 'bg-accent scale-100' : 'bg-brand-700 scale-75'}`} />
+                  <div className={`w-2 h-2 rounded-full transition-all duration-500 ${i <= step ? 'bg-accent scale-100' : 'bg-white/20 scale-75'}`} />
                   {i < steps.length - 1 && (
-                    <div className={`w-8 h-px transition-all duration-500 ${i < step ? 'bg-accent' : 'bg-brand-700'}`} />
+                    <div className={`w-8 h-px transition-all duration-500 ${i < step ? 'bg-accent' : 'bg-white/20'}`} />
                   )}
                 </div>
               ))}
-              <span className="ml-3 text-xs font-medium text-brand-500 tracking-wider uppercase">
+              <span className="ml-3 label-mono text-paper/50">
                 Bước {step + 1} / {steps.length}
               </span>
             </div>
           </div>
         </div>
 
-        <p className="absolute bottom-8 left-14 text-brand-600 text-xs font-medium tracking-wider">
+        <p className="absolute bottom-8 left-14 font-mono text-xs text-paper/40 tracking-wider">
           © {new Date().getFullYear()} PRO-SPORT COMPLEX
         </p>
       </div>
@@ -321,32 +317,32 @@ export default function RegisterPage() {
       <section className="auth-form">
         {/* Mobile logo */}
         <div className="lg:hidden absolute top-6 left-6">
-          <ProSportLogo size="sm" variant="dark" />
+          <ProSportLogo size="sm" />
         </div>
 
-        <div className="auth-form-inner auth-animate-in-delayed">
+        <div className="auth-form-inner auth-animate-in-delayed mt-16 lg:mt-0">
           {/* Mobile step indicator */}
           <div className="lg:hidden flex items-center gap-2 mb-6">
             {steps.map((s, i) => (
               <div key={s} className="flex items-center gap-1.5">
-                <div className={`w-2 h-2 rounded-full transition-all duration-500 ${i <= step ? 'bg-accent' : 'bg-brand-300'}`} />
+                <div className={`w-2 h-2 rounded-full transition-all duration-500 ${i <= step ? 'bg-accent' : 'bg-border-default'}`} />
                 {i < steps.length - 1 && (
-                  <div className={`w-6 h-px transition-all duration-500 ${i < step ? 'bg-accent' : 'bg-brand-200'}`} />
+                  <div className={`w-6 h-px transition-all duration-500 ${i < step ? 'bg-accent' : 'bg-border-default'}`} />
                 )}
               </div>
             ))}
-            <span className="ml-2 text-xs font-medium text-brand-400">{step + 1}/{steps.length}</span>
+            <span className="ml-2 text-xs font-medium text-ink/50">{step + 1}/{steps.length}</span>
           </div>
 
           {/* Header */}
           <header className="mb-8">
-            <p className="text-xs font-semibold tracking-[0.15em] uppercase text-accent mb-3">Tạo tài khoản</p>
-            <h1 className="font-heading text-[2rem] font-bold text-brand-900 tracking-tight leading-tight">
+            <p className="label-mono text-accent mb-3">// Tạo tài khoản</p>
+            <h1 className="font-heading text-[2rem] uppercase text-ink tracking-tight leading-tight">
               {step === 0 && <>Bắt đầu với<br />Pro-Sport</>}
               {step === 1 && <>Chọn môn thể thao<br />của bạn</>}
               {step === 2 && <>Xác thực email<br />của bạn</>}
             </h1>
-            <p className="text-sm text-brand-500 mt-3 leading-relaxed">
+            <p className="text-sm text-ink/60 mt-3 leading-relaxed">
               {step === 0 && 'Điền thông tin để tạo tài khoản vận động viên của bạn.'}
               {step === 1 && 'Chọn các môn thể thao bạn chơi để cá nhân hóa bảng tin.'}
               {step === 2 && `Chúng tôi đã gửi mã 6 số đến ${email}`}
@@ -355,21 +351,21 @@ export default function RegisterPage() {
 
           {/* Error */}
           {error && isDuplicateEmailError(error) ? (
-            <div className="bg-amber-50 p-4 rounded-xl border border-amber-200 mb-6 flex flex-col items-center text-center auth-animate-fade">
-              <span className="text-amber-800 text-sm font-semibold mb-3">
+            <div className="bg-warning-bg p-4 rounded-[2px] border-2 border-warning mb-6 flex flex-col items-center text-center auth-animate-fade">
+              <span className="text-warning text-sm font-semibold mb-3">
                 Email này đã được đăng ký.
               </span>
               <div className="flex gap-3 w-full">
-                <Link to="/login" className="flex-1 py-2.5 text-sm font-semibold bg-white text-brand-700 border border-brand-200 rounded-xl text-center hover:bg-brand-50 transition-colors duration-200">
+                <Link to="/login" className="flex-1 py-2.5 text-sm font-bold bg-surface text-ink border-2 border-border-strong rounded-[2px] text-center hover:bg-surface-hover transition-colors duration-200">
                   Đăng nhập ngay
                 </Link>
-                <Link to="/reset-password" className="flex-1 py-2.5 text-sm font-semibold bg-amber-100 text-amber-800 rounded-xl text-center hover:bg-amber-200 transition-colors duration-200">
+                <Link to="/reset-password" className="flex-1 py-2.5 text-sm font-bold bg-warning-bg text-warning border-2 border-warning rounded-[2px] text-center hover:opacity-80 transition-colors duration-200">
                   Quên mật khẩu?
                 </Link>
               </div>
             </div>
           ) : error && (
-            <div className="bg-red-50 text-red-600 text-sm font-medium p-4 rounded-xl border border-red-200 mb-6 text-center auth-animate-fade">
+            <div className="bg-danger-bg text-danger text-sm font-medium p-4 rounded-[2px] border-2 border-danger mb-6 text-center auth-animate-fade">
               {error}
             </div>
           )}

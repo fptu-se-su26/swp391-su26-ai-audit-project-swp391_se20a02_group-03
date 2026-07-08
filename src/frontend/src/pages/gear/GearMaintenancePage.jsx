@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react'
 import GearLayout from '../../layouts/GearLayout'
 import { equipmentApi } from '../../api/equipmentApi'
 import PageLoader from '../../components/ui/PageLoader'
+import { Plus } from 'lucide-react'
 
 const FALLBACK_IMG = 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=80&q=80'
 
@@ -43,16 +44,16 @@ function mapEquipmentToMaintenance(e) {
 }
 
 const statusConfig = {
-  'in-progress': { label: 'Đang xử lý', bg: 'bg-blue-50', text: 'text-blue-700', dot: 'bg-blue-500', border: 'border-blue-200' },
-  'overdue':     { label: 'Quá hạn',     bg: 'bg-red-50',  text: 'text-red-700',  dot: 'bg-red-500',  border: 'border-red-200' },
-  'scheduled':   { label: 'Đã lên lịch',   bg: 'bg-amber-50', text: 'text-amber-700', dot: 'bg-amber-500', border: 'border-amber-200' },
-  'completed':   { label: 'Hoàn tất',   bg: 'bg-emerald-50', text: 'text-emerald-700', dot: 'bg-emerald-500', border: 'border-emerald-200' },
+  'in-progress': { label: 'Đang xử lý' },
+  'overdue': { label: 'Quá hạn' },
+  'scheduled': { label: 'Đã lên lịch' },
+  'completed': { label: 'Hoàn tất' },
 }
 
 const priorityConfig = {
-  high:   { label: 'Cao',   color: 'text-red-500',    bg: 'bg-red-50' },
-  medium: { label: 'Trung bình', color: 'text-amber-600',  bg: 'bg-amber-50' },
-  low:    { label: 'Thấp',    color: 'text-slate-500',  bg: 'bg-slate-100' },
+  high: { label: 'Cao' },
+  medium: { label: 'Trung bình' },
+  low: { label: 'Thấp' },
 }
 
 const tabLabels = {
@@ -106,123 +107,130 @@ export default function GearMaintenancePage() {
   )
 
   const stats = useMemo(() => [
-    { label: 'Đang bảo trì', value: maintenanceItems.filter(i => i.status === 'in-progress').length, color: '#3b82f6' },
-    { label: 'Quá hạn', value: maintenanceItems.filter(i => i.status === 'overdue').length, color: '#ef4444' },
-    { label: 'Đã lên lịch', value: maintenanceItems.filter(i => i.status === 'scheduled').length, color: '#f59e0b' },
-    { label: 'Hoàn tất', value: maintenanceItems.filter(i => i.status === 'completed').length, color: '#10b981' },
+    { label: 'Đang bảo trì', value: maintenanceItems.filter(i => i.status === 'in-progress').length },
+    { label: 'Quá hạn', value: maintenanceItems.filter(i => i.status === 'overdue').length },
+    { label: 'Đã lên lịch', value: maintenanceItems.filter(i => i.status === 'scheduled').length },
+    { label: 'Hoàn tất', value: maintenanceItems.filter(i => i.status === 'completed').length },
   ], [maintenanceItems])
 
   return (
     <GearLayout>
-      <div className="px-7 py-8 max-w-[1100px] mx-auto">
+      <div className="font-sans">
         {/* Header */}
-        <div className="flex items-start justify-between mb-7">
+        <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 mb-8">
           <div>
-            <h1 className="font-['Oswald'] text-2xl font-bold text-foreground">Theo dõi bảo trì</h1>
-            <p className="text-sm text-slate-400 mt-1">Giám sát bảo dưỡng thiết bị và lịch bảo trì</p>
+            <p className="label-mono text-foreground-muted mb-2.5">{'// Vận hành thiết bị'}</p>
+            <h1 className="font-heading text-3xl md:text-4xl uppercase tracking-tight text-foreground">Theo dõi bảo trì</h1>
+            <p className="text-sm text-foreground-muted mt-2">Giám sát bảo dưỡng thiết bị và lịch bảo trì</p>
           </div>
-          <button className="btn-primary text-sm py-2 px-4 flex items-center gap-2">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <button className="btn-primary">
+            <Plus size={14} />
             Ghi nhận bảo trì
           </button>
         </div>
 
         {error && (
-          <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>
+          <div className="mb-6 border-2 border-danger bg-danger-bg px-4 py-3 text-sm text-danger">{error}</div>
         )}
 
-        {loading && <PageLoader label="Đang tải thiết bị..." />}
-
-        {/* Stats */}
-        <div className="grid grid-cols-4 max-[800px]:grid-cols-2 gap-4 mb-7">
-          {stats.map((s, i) => (
-            <div key={i} className="bg-white rounded-2xl border border-[#e0ecf0] px-5 py-4 flex items-center gap-4">
-              <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style={{ background: s.color + '18' }}>
-                <span className="font-['Oswald'] text-lg font-bold" style={{ color: s.color }}>{s.value}</span>
-              </div>
-              <p className="text-sm text-slate-500 leading-tight">{s.label}</p>
-            </div>
-          ))}
-        </div>
-
-        <div className="grid grid-cols-[1fr_280px] max-[900px]:grid-cols-1 gap-6">
-          {/* Main table */}
-          <div>
-            {/* Tabs */}
-            <div className="flex gap-1 flex-wrap mb-4">
-              {tabs.map(tab => (
-                <button key={tab} onClick={() => setActiveTab(tab)}
-                  className={`px-3 py-1.5 rounded-full text-[0.78rem] font-medium capitalize cursor-pointer border transition-all ${activeTab === tab ? 'bg-[#14B8A6] text-[var(--theme-primary)] border-[#14B8A6]' : 'bg-white text-slate-500 border-[#e0ecf0] hover:border-[#14B8A6] hover:text-[#14B8A6]'}`}>
-                  {tab === 'all' ? `${tabLabels.all} (${maintenanceItems.length})` : `${tabLabels[tab]} (${maintenanceItems.filter(i => i.status === tab).length})`}
-                </button>
+        {loading ? (
+          <PageLoader message="Đang tải thiết bị..." />
+        ) : (
+          <>
+            {/* Stats */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+              {stats.map((s, i) => (
+                <div key={i} className="border-2 border-border-strong bg-surface px-5 py-4 flex items-center gap-4">
+                  <span className="font-heading text-2xl text-foreground shrink-0">{s.value}</span>
+                  <p className="label-mono text-foreground-muted leading-tight">{s.label}</p>
+                </div>
               ))}
             </div>
 
-            <div className="bg-white rounded-2xl border border-[#e0ecf0] overflow-hidden">
-              <div className="divide-y divide-[#f0f4f8]">
-                {filtered.map(item => {
-                  const s = statusConfig[item.status]
-                  const p = priorityConfig[item.priority]
-                  return (
-                    <div key={item.id} className="flex items-center gap-4 px-5 py-4 hover:bg-[#f9fbfc] transition-colors">
-                      <img src={item.img} alt="" className="w-12 h-12 rounded-xl object-cover shrink-0" />
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-0.5">
-                          <p className="text-[0.875rem] font-semibold text-foreground truncate">{item.name}</p>
-                          <span className={`text-[0.65rem] font-bold px-2 py-0.5 rounded-full shrink-0 ${p.bg} ${p.color}`}>{p.label}</span>
-                        </div>
-                        <p className="text-[0.75rem] text-slate-400 truncate">{item.issue}</p>
-                        <div className="flex items-center gap-3 mt-1">
-                          <span className="text-[0.68rem] text-slate-400">#{item.id}</span>
-                          <span className="text-[0.68rem] text-slate-400">Bởi {item.technician}</span>
-                          <span className="text-[0.68rem] text-slate-400">Hạn {item.expected}</span>
-                        </div>
-                      </div>
-                      <span className={`text-[0.72rem] font-semibold px-2.5 py-1 rounded-full border shrink-0 flex items-center gap-1.5 ${s.bg} ${s.text} ${s.border}`}>
-                        <span className={`w-1.5 h-1.5 rounded-full ${s.dot}`}></span>
-                        {s.label}
-                      </span>
-                    </div>
-                  )
-                })}
-                {filtered.length === 0 && (
-                  <div className="py-14 text-center text-slate-400 text-sm">Không có mục nào trong danh mục này</div>
-                )}
-              </div>
-            </div>
-          </div>
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-6 items-start">
+              {/* Main table */}
+              <div>
+                {/* Tabs */}
+                <div className="flex gap-2 flex-wrap mb-4">
+                  {tabs.map(tab => (
+                    <button
+                      key={tab}
+                      onClick={() => setActiveTab(tab)}
+                      className={`px-4 h-9 text-xs font-extrabold uppercase tracking-[0.04em] rounded-[2px] border-2 transition-colors ${activeTab === tab ? 'bg-ink text-paper border-ink' : 'bg-transparent text-foreground border-border-hover hover:border-foreground'}`}
+                    >
+                      {tab === 'all' ? `${tabLabels.all} (${maintenanceItems.length})` : `${tabLabels[tab]} (${maintenanceItems.filter(i => i.status === tab).length})`}
+                    </button>
+                  ))}
+                </div>
 
-          {/* Schedule sidebar */}
-          <div className="flex flex-col gap-4">
-            <div className="bg-white rounded-2xl border border-[#e0ecf0] overflow-hidden">
-              <div className="px-5 py-4 border-b border-[#f0f4f8] bg-[#f9fbfc]">
-                <h2 className="font-['Oswald'] text-base font-bold text-foreground">Lịch bảo trì</h2>
-              </div>
-              <div className="divide-y divide-[#f0f4f8]">
-                {schedule.map((s, i) => (
-                  <div key={i} className="px-5 py-4">
-                    <p className="text-[0.72rem] font-bold tracking-wider uppercase text-[#14B8A6] mb-2">{s.month}</p>
-                    <ul className="flex flex-col gap-1.5">
-                      {s.tasks.map((t, j) => (
-                        <li key={j} className="text-[0.78rem] text-slate-500 flex items-start gap-2">
-                          <span className="w-1 h-1 bg-slate-300 rounded-full mt-2 shrink-0"></span>
-                          {t}
-                        </li>
-                      ))}
-                    </ul>
+                <div className="border-2 border-border-strong bg-surface">
+                  <div className="divide-y-2 divide-border-default">
+                    {filtered.map(item => {
+                      const s = statusConfig[item.status]
+                      const p = priorityConfig[item.priority]
+                      return (
+                        <div key={item.id} className="flex items-center gap-4 px-5 py-4 hover:bg-surface-hover transition-colors">
+                          <div className="w-12 h-12 border-2 border-border-strong overflow-hidden shrink-0">
+                            <img src={item.img} alt="" className="w-full h-full object-cover" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1 flex-wrap">
+                              <p className="text-[14px] font-extrabold text-foreground truncate">{item.name}</p>
+                              <span className="label-mono border border-border-strong px-1.5 py-0.5 shrink-0">{p.label}</span>
+                            </div>
+                            <p className="text-[13px] text-foreground-muted truncate">{item.issue}</p>
+                            <div className="flex items-center gap-3 mt-1.5 flex-wrap">
+                              <span className="label-mono text-foreground-subtle">#{item.id}</span>
+                              <span className="label-mono text-foreground-subtle">Bởi {item.technician}</span>
+                              <span className="label-mono text-foreground-subtle">Hạn {item.expected}</span>
+                            </div>
+                          </div>
+                          <span className="label-mono border-2 border-border-strong px-2.5 py-1.5 shrink-0">
+                            {s.label}
+                          </span>
+                        </div>
+                      )
+                    })}
+                    {filtered.length === 0 && (
+                      <div className="py-14 text-center text-foreground-muted text-sm">Không có mục nào trong danh mục này</div>
+                    )}
                   </div>
-                ))}
+                </div>
+              </div>
+
+              {/* Schedule sidebar */}
+              <div className="flex flex-col gap-5">
+                <div className="border-2 border-border-strong bg-surface">
+                  <div className="px-5 py-4 border-b-2 border-border-strong">
+                    <h2 className="font-heading text-base uppercase text-foreground">Lịch bảo trì</h2>
+                  </div>
+                  <div className="divide-y-2 divide-border-default">
+                    {schedule.map((s, i) => (
+                      <div key={i} className="px-5 py-4">
+                        <p className="label-mono text-accent mb-2">{s.month}</p>
+                        <ul className="flex flex-col gap-1.5">
+                          {s.tasks.map((t, j) => (
+                            <li key={j} className="text-[13px] text-foreground-muted flex items-start gap-2">
+                              <span className="w-1 h-1 bg-foreground-subtle rounded-full mt-2 shrink-0"></span>
+                              {t}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Summary */}
+                <div className="card-base">
+                  <h2 className="font-heading text-base uppercase text-foreground mb-3">Tóm tắt</h2>
+                  <p className="text-sm text-foreground-muted">Dữ liệu bảo trì được suy ra từ trạng thái và tồn kho thiết bị thực tế trong hệ thống.</p>
+                  <p className="text-sm font-extrabold text-accent mt-3">{maintenanceItems.length} thiết bị đang theo dõi</p>
+                </div>
               </div>
             </div>
-
-            {/* Technicians */}
-            <div className="bg-white rounded-2xl border border-[#e0ecf0] p-5">
-              <h2 className="font-['Oswald'] text-base font-bold text-foreground mb-3">Tóm tắt</h2>
-              <p className="text-sm text-slate-500">Dữ liệu bảo trì được suy ra từ trạng thái và tồn kho thiết bị thực tế trong hệ thống.</p>
-              <p className="text-sm font-semibold text-[#14B8A6] mt-3">{maintenanceItems.length} thiết bị đang theo dõi</p>
-            </div>
-          </div>
-        </div>
+          </>
+        )}
       </div>
     </GearLayout>
   )
