@@ -87,6 +87,18 @@ public static class DatabaseBootstrap
 
     private static async Task BaselineMigrationsAsync(ProSportDbContext context, CancellationToken cancellationToken)
     {
+        // EnsureCreated does NOT create __EFMigrationsHistory — create it first if missing
+        await context.Database.ExecuteSqlRawAsync(
+            """
+            IF OBJECT_ID(N'[__EFMigrationsHistory]', N'U') IS NULL
+                CREATE TABLE [__EFMigrationsHistory] (
+                    [MigrationId]    nvarchar(150) NOT NULL,
+                    [ProductVersion] nvarchar(32)  NOT NULL,
+                    CONSTRAINT [PK___EFMigrationsHistory] PRIMARY KEY ([MigrationId])
+                );
+            """,
+            cancellationToken);
+
         foreach (var migrationId in AllMigrationIds)
         {
             await context.Database.ExecuteSqlRawAsync(
