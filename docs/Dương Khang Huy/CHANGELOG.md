@@ -98,3 +98,24 @@ Bản báo cáo tiến trình phát triển và kiểm soát phiên bản của 
 * Đóng gói toàn bộ khối lượng công việc thành 12 commit có cấu trúc (tách bạch Frontend redesign / Backend hardening), kiểm tra an toàn trước khi đẩy (xác nhận `.env` nằm trong `.gitignore`, loại trừ cấu hình cá nhân), push lên nhánh `DE190900/audit-module` chờ Leader review và merge qua Pull Request.
 ### Hỗ trợ từ AI (AI-assisted)
 * Claude Code thực hiện chẩn đoán phân lớp sự cố xác thực bằng bằng chứng HTTP tái lập được; hỗ trợ chuẩn hóa quy trình Git (commit message, kiểm tra rò rỉ secrets, hướng dẫn quy trình PR theo template của repo).
+---
+## [2026-07-11] - Giai đoạn: Kiểm toán Truy vết Yêu cầu & Đóng Lỗ hổng Nghiệp vụ (Traceability Audit & Gap Closing)
+**Người thực hiện:** Dương Khang Huy
+### Thêm mới (Added)
+* Biên bản Kiểm toán độ phủ tích hợp API toàn hệ thống: quét 2 chiều ~105 trang Frontend ↔ 38 Controller Backend; xác định ~80 trang đã gắn API thật, ~9 chức năng còn chạy dữ liệu demo, 3 nhóm API Backend chưa được sử dụng (`upload`, `inventory`, `equipment-categories`).
+* Ma trận truy vết 42 ticket kế hoạch (TK-001 → TK-042) đối chiếu mã nguồn: 36/42 hoàn thành có bằng chứng file:dòng; 4 ticket dở dang lập thành Backlog ưu tiên (TK-004, TK-009, TK-036, TK-040); ghi nhận TK-033 vượt chuẩn (dữ liệu thật thay vì mock).
+* Luồng E-KYC End-to-End phía người dùng (TK-004): endpoint `POST /api/kyc/submit` + `GET /api/kyc/me`; thuộc tính `User.IsVerified` dạng computed (`[NotMapped]`, suy từ `EKycStatus` — không cần migration); Component tái sử dụng `EkycPanel.jsx` (upload CCCD 2 mặt có preview, theo dõi trạng thái Pending/Approved/Rejected, hỗ trợ nộp lại khi bị từ chối) gắn vào CustomerProfilePage và ApexSettingsPage.
+* Cơ chế whitelist folder self-service (`ekyc`, `avatars`) cho endpoint `/api/upload/image`: người dùng đăng nhập upload được ảnh hồ sơ cá nhân, folder hệ thống (courts, equipment) vẫn giới hạn Admin/Staff.
+* Bộ dữ liệu mẫu thiết bị thể thao mở rộng trong `DatabaseSeeder` (Vợt/Giày/Phụ kiện cho Badminton, Pickleball, Tennis).
+### Thay đổi (Changed)
+* Tái cấu trúc phân quyền `KycController`: quyền Admin chuyển từ cấp class xuống từng action; ràng buộc route `{id:int}` để endpoint `/kyc/me` hoạt động chính xác.
+* `ApexSettingsPage`: nút "Lưu thay đổi" chuyển từ giả lập (chỉ đổi state) sang gọi API `updateProfile` thật.
+### Sửa lỗi (Fixed)
+* **Lỗ hổng E-KYC "thủng 2 đầu":** trước đây Backend không có endpoint nộp hồ sơ, Frontend chỉ có khung UI chết — trang phê duyệt của Admin vĩnh viễn không có dữ liệu. Nay luồng chạy trọn vẹn: Customer nộp → Pending → Admin duyệt → `IsVerified = true`.
+* **Bug tài chính "Rút khỏi kèo":** nút tại `MatchDetailPage` trước đây chỉ đổi state giao diện khiến người dùng tưởng đã rút kèo nhưng tiền cọc vẫn bị khóa; nay gọi `matchApi.leaveMatch` kích hoạt đúng luồng hoàn cọc Escrow theo chính sách hủy.
+* Loại bỏ đoạn nội dung mồ côi làm hỏng cấu trúc file tài liệu `PROMPTS.md` (một entry bị mất header từ lần chỉnh sửa trước).
+### Quy trình & Phát hành (Process)
+* Cổng kiểm chứng trước phát hành: `dotnet build` ✓, 95/95 unit test Pass, ESLint 0 lỗi, Vite build ✓.
+* Phát hành commit `5247216` (14 file, +526/−79) lên `main` bằng fast-forward sạch; xử lý sự cố tiến trình API cũ khóa DLL và worktree chiếm nhánh main (`git push origin <branch>:main`); loại cấu hình cá nhân `.claude/` khỏi commit.
+### Hỗ trợ từ AI (AI-assisted)
+* Claude Code thực hiện kiểm toán bằng phương pháp quét bằng chứng (grep endpoint, marker TK-0xx) thay vì suy đoán; chủ động **phản biện đề bài** (computed property thay vì thêm cột DB trùng lặp; luồng Admin duyệt thay vì auto-approve); tự kiểm chứng trọn gói trước khi phát hành và hỏi ý kiến con người tại các điểm quyết định (phương án merge lên main).
