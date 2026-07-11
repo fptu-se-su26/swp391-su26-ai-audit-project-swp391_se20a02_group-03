@@ -29,6 +29,23 @@ public class EkycRepository : IEkycRepository
             .FirstOrDefaultAsync(e => e.EkycProfileId == id);
     }
 
+    public async Task<EkycProfile?> GetByUserIdAsync(int userId)
+    {
+        return await _context.EkycProfiles
+            .Include(e => e.User)
+            .FirstOrDefaultAsync(e => e.UserId == userId);
+    }
+
+    public async Task<User?> GetUserByIdAsync(int userId)
+    {
+        return await _context.Users.FirstOrDefaultAsync(u => u.UserId == userId);
+    }
+
+    public async Task AddAsync(EkycProfile profile)
+    {
+        await _context.EkycProfiles.AddAsync(profile);
+    }
+
     public async Task SaveChangesAsync()
     {
         await _context.SaveChangesAsync();

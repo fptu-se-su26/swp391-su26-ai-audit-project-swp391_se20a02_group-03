@@ -7,5 +7,8 @@ public interface IEkycRepository
 {
     Task<List<EkycProfile>> GetAllAsync(string? status = null);
     Task<EkycProfile?> GetByIdAsync(int id);
+    Task<EkycProfile?> GetByUserIdAsync(int userId);
+    Task<User?> GetUserByIdAsync(int userId);
+    Task AddAsync(EkycProfile profile);
     Task SaveChangesAsync();
 }

@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import Navbar from '../../components/Navbar'
 import Footer from '../../components/Footer'
-import { User, ShieldCheck, LogOut, Upload } from 'lucide-react'
+import EkycPanel from '../../components/kyc/EkycPanel'
+import { User, ShieldCheck, LogOut } from 'lucide-react'
 
 export default function CustomerProfilePage() {
   const [activeTab, setActiveTab] = useState('profile')
@@ -74,36 +75,7 @@ export default function CustomerProfilePage() {
 
             {activeTab === 'ekyc' && (
               <div className="auth-animate-fade">
-                <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
-                  <h2 className="font-heading text-xl uppercase text-foreground">Xác thực danh tính (E-KYC)</h2>
-                  <span className="label-mono bg-warning-bg text-warning border border-warning px-3 py-1.5">Chưa xác thực</span>
-                </div>
-
-                <div className="border-2 border-border-strong bg-background-base p-4 flex gap-3 mb-8">
-                  <ShieldCheck size={20} className="text-accent shrink-0 mt-0.5" />
-                  <p className="text-sm text-foreground-muted leading-relaxed">
-                    Xác thực E-KYC là bắt buộc để bạn có thể <b className="text-foreground">Tạo kèo</b> và <b className="text-foreground">Sử dụng ví ký quỹ</b>. Thông tin của bạn được mã hóa an toàn.
-                  </p>
-                </div>
-
-                <div className="space-y-6 mb-8">
-                  <div>
-                    <label className="block label-mono text-foreground-muted mb-2">Mặt trước CMND / CCCD</label>
-                    <div className="border-2 border-dashed border-border-hover h-40 flex flex-col items-center justify-center text-foreground-muted hover:border-accent hover:bg-accent/5 cursor-pointer transition-colors">
-                      <Upload size={32} className="mb-2" />
-                      <span className="text-sm font-medium">Nhấn để tải ảnh lên</span>
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block label-mono text-foreground-muted mb-2">Mặt sau CMND / CCCD</label>
-                    <div className="border-2 border-dashed border-border-hover h-40 flex flex-col items-center justify-center text-foreground-muted hover:border-accent hover:bg-accent/5 cursor-pointer transition-colors">
-                      <Upload size={32} className="mb-2" />
-                      <span className="text-sm font-medium">Nhấn để tải ảnh lên</span>
-                    </div>
-                  </div>
-                </div>
-
-                <button className="btn-primary w-full h-12">Gửi yêu cầu xác thực</button>
+                <EkycPanel />
               </div>
             )}
           </div>

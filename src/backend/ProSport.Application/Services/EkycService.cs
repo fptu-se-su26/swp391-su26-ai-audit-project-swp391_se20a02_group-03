@@ -56,6 +56,49 @@ public class EkycService : IEkycService
         return new ApiResponseDto<EkycProfileDto>(200, "Đã phê duyệt hồ sơ E-KYC.", Map(e));
     }
 
+    // TK-004: Customer nộp hồ sơ E-KYC. Hồ sơ vào trạng thái Pending chờ Admin duyệt
+    // (AdminKycPage); khi Admin Approve thì User.EKycStatus = "Approved" → User.IsVerified = true.
+    // Nộp lại được phép khi hồ sơ trước đó bị Rejected (ghi đè hồ sơ cũ).
+    public async Task<ApiResponseDto<EkycProfileDto>> SubmitAsync(int userId, SubmitEkycDto dto)
+    {
+        var user = await _repository.GetUserByIdAsync(userId);
+        if (user is null)
+            return new ApiResponseDto<EkycProfileDto>(404, "Không tìm thấy tài khoản.");
+
+        var existing = await _repository.GetByUserIdAsync(userId);
+        if (existing is not null && existing.Status == "Pending")
+            return new ApiResponseDto<EkycProfileDto>(400, "Hồ sơ E-KYC của bạn đang chờ duyệt. Vui lòng đợi kết quả.");
+        if (existing is not null && existing.Status == "Approved")
+            return new ApiResponseDto<EkycProfileDto>(400, "Tài khoản đã được xác thực E-KYC.");
+
+        if (existing is null)
+        {
+            existing = new EkycProfile { UserId = userId };
+            await _repository.AddAsync(existing);
+        }
+
+        existing.FullName = dto.FullName.Trim();
+        existing.IdentityNumber = dto.IdentityNumber.Trim();
+        existing.FrontImageUrl = dto.FrontImageUrl;
+        existing.BackImageUrl = dto.BackImageUrl;
+        existing.FaceImageUrl = dto.FaceImageUrl ?? string.Empty;
+        existing.Status = "Pending";
+        existing.RejectionReason = null;
+
+        user.EKycStatus = "Pending";
+
+        await _repository.SaveChangesAsync();
+        return new ApiResponseDto<EkycProfileDto>(201, "Đã gửi hồ sơ E-KYC. Vui lòng chờ quản trị viên phê duyệt.", Map(existing));
+    }
+
+    // TK-004: Customer xem trạng thái hồ sơ E-KYC của chính mình.
+    public async Task<ApiResponseDto<EkycProfileDto>> GetMineAsync(int userId)
+    {
+        var e = await _repository.GetByUserIdAsync(userId);
+        if (e is null) return new ApiResponseDto<EkycProfileDto>(404, "Bạn chưa nộp hồ sơ E-KYC.");
+        return new ApiResponseDto<EkycProfileDto>(200, "Thành công.", Map(e));
+    }
+
     public async Task<ApiResponseDto<EkycProfileDto>> RejectAsync(int id, string reason)
     {
         if (string.IsNullOrWhiteSpace(reason))

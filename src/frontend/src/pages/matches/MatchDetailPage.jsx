@@ -103,6 +103,26 @@ export default function MatchDetailPage() {
     }
   }
 
+  // Rút khỏi kèo: gọi API leave để backend gỡ participant và hoàn cọc Escrow
+  // (trước đây nút chỉ setJoined(false) trên UI — không rút thật, không hoàn tiền).
+  async function handleLeave() {
+    setIsLoading(true)
+    try {
+      const res = await matchApi.leaveMatch(id)
+      if (res.statusCode === 200) {
+        addToast('Đã rút khỏi kèo. Tiền ký quỹ sẽ được hoàn theo chính sách.', 'success')
+        setJoined(false)
+        loadMatch()
+      } else {
+        addToast(res.message || 'Không thể rút khỏi kèo', 'error')
+      }
+    } catch (err) {
+      addToast(typeof err === 'string' ? err : 'Lỗi khi rút khỏi kèo', 'error')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   async function submitRating() {
     if (!ratingTarget) return
     try {
@@ -301,8 +321,12 @@ export default function MatchDetailPage() {
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20 6 9 17 4 12"/></svg>
                     Đã tham gia
                   </button>
-                  <button onClick={() => setJoined(false)} className="w-full h-12 bg-transparent text-danger font-bold text-[13px] uppercase tracking-[0.04em] rounded-[2px] border-2 border-danger hover:bg-danger-bg transition-colors">
-                    Rút khỏi kèo
+                  <button
+                    onClick={handleLeave}
+                    disabled={isLoading}
+                    className="w-full h-12 bg-transparent text-danger font-bold text-[13px] uppercase tracking-[0.04em] rounded-[2px] border-2 border-danger hover:bg-danger-bg transition-colors disabled:opacity-60"
+                  >
+                    {isLoading ? 'Đang xử lý...' : 'Rút khỏi kèo'}
                   </button>
                 </>
               )}

@@ -22,6 +22,13 @@ public class UploadController : ControllerBase
         "image/jpeg", "image/png", "image/webp"
     };
 
+    // TK-004: folder mà mọi tài khoản đã đăng nhập được phép upload (hồ sơ cá nhân).
+    // Các folder khác (courts, equipment…) vẫn giới hạn Admin/Staff.
+    private static readonly HashSet<string> SelfServiceFolders = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "ekyc", "avatars"
+    };
+
     private readonly IStorageService _storageService;
 
     public UploadController(IStorageService storageService)
@@ -30,11 +37,16 @@ public class UploadController : ControllerBase
     }
 
     [HttpPost("image")]
-    [Authorize(Roles = "Admin,Staff")]
+    [Authorize]
     public async Task<IActionResult> UploadImage(IFormFile file, [FromForm] string folder = "courts")
     {
         try
         {
+            // TK-004: Customer chỉ được upload vào folder self-service (ekyc, avatars);
+            // folder hệ thống (courts, equipment…) vẫn yêu cầu Admin/Staff.
+            if (!SelfServiceFolders.Contains(folder) && !User.IsInRole("Admin") && !User.IsInRole("Staff"))
+                return Forbid();
+
             if (file == null || file.Length == 0)
                 return BadRequest(new { Message = "File is required." });
 

@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react'
 import ApexLayout from '../../layouts/ApexLayout'
 import { useTheme } from '../../context/ThemeContext'
 import authApi from '../../api/authApi'
-import { User, ShieldCheck, Bell, Lock, CreditCard, Sun, Plus, Upload, Info } from 'lucide-react'
+import EkycPanel from '../../components/kyc/EkycPanel'
+import { User, ShieldCheck, Bell, Lock, CreditCard, Sun, Plus } from 'lucide-react'
 
 function Toggle({ checked, onChange }) {
   return (
@@ -53,9 +54,20 @@ export default function ApexSettingsPage() {
       .catch(() => {})
   }, [])
 
-  function handleSave() {
-    setSaved(true)
-    setTimeout(() => setSaved(false), 2000)
+  // Lưu hồ sơ về server (trước đây chỉ setSaved giả — TK-004 audit fix)
+  async function handleSave() {
+    try {
+      const res = await authApi.updateProfile({
+        fullName: accountForm.name,
+        phoneNumber: accountForm.phone,
+      })
+      if (res?.statusCode === 200) {
+        setSaved(true)
+        setTimeout(() => setSaved(false), 2000)
+      }
+    } catch {
+      // giữ nút ở trạng thái thường nếu lưu thất bại
+    }
   }
 
   return (
@@ -227,41 +239,10 @@ export default function ApexSettingsPage() {
               </div>
             )}
 
-            {/* E-KYC Panel */}
+            {/* E-KYC Panel (TK-004: gắn API thật qua EkycPanel) */}
             {activeSection === 'Xác thực E-KYC' && (
               <div className="card-base auth-animate-fade">
-                <div className="flex items-center justify-between mb-5 pb-4 border-b border-border-default">
-                  <h2 className="font-heading text-lg uppercase text-foreground">Xác thực danh tính (E-KYC)</h2>
-                  <span className="bg-warning-bg text-warning label-mono px-3 py-1.5 border border-warning">Chưa xác thực</span>
-                </div>
-
-                <div className="flex items-start gap-3 mb-6 border-2 border-border-default bg-background-base p-4">
-                  <Info size={18} className="shrink-0 mt-0.5 text-accent" />
-                  <p className="text-sm text-foreground-muted leading-relaxed">
-                    Xác thực E-KYC là bắt buộc để bạn có thể <strong className="text-foreground">Tạo kèo</strong> và <strong className="text-foreground">Sử dụng ví ký quỹ</strong>. Thông tin của bạn được mã hóa an toàn.
-                  </p>
-                </div>
-
-                <div className="space-y-5 max-w-[480px]">
-                  <div>
-                    <label className="block label-mono text-foreground-muted mb-2">Mặt trước CMND / CCCD</label>
-                    <div className="border-2 border-dashed border-border-hover h-36 flex flex-col items-center justify-center text-foreground-muted hover:border-accent hover:text-accent cursor-pointer transition-colors">
-                      <Upload size={24} className="mb-2" />
-                      <span className="text-sm font-medium">Nhấn để tải ảnh lên</span>
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block label-mono text-foreground-muted mb-2">Mặt sau CMND / CCCD</label>
-                    <div className="border-2 border-dashed border-border-hover h-36 flex flex-col items-center justify-center text-foreground-muted hover:border-accent hover:text-accent cursor-pointer transition-colors">
-                      <Upload size={24} className="mb-2" />
-                      <span className="text-sm font-medium">Nhấn để tải ảnh lên</span>
-                    </div>
-                  </div>
-                </div>
-
-                <button className="mt-6 w-full max-w-[480px] h-11 btn-primary">
-                  Gửi yêu cầu xác thực
-                </button>
+                <EkycPanel />
               </div>
             )}
 

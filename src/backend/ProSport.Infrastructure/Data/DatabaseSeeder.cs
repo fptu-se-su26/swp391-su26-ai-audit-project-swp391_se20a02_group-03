@@ -380,6 +380,66 @@ public static class DatabaseSeeder
             ImageUrl = "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400&q=80",
             Description = "Băng khuỷu tay co giãn, giảm mỏi cơ tay khi đánh liên tục."
         },
+        
+        // --- NEW ITEMS ---
+        new Equipment { EquipmentCategoryId = categoryId,
+            EquipmentName = "Vợt Yonex Arcsaber 11 Pro", Category = "Racket", SportType = "Badminton", RetailPrice = 5800000m,
+            StockQuantity = 10, ImageUrl = "https://images.unsplash.com/photo-1622279457486-62dcc4a631d6?w=400&q=80", Description = "Vợt công thủ toàn diện, độ chính xác cực cao." },
+        new Equipment { EquipmentCategoryId = categoryId,
+            EquipmentName = "Vợt Lining Aeronaut 9000", Category = "Racket", SportType = "Badminton", RetailPrice = 4500000m,
+            StockQuantity = 5, ImageUrl = "https://images.unsplash.com/photo-1622279457486-62dcc4a631d6?w=400&q=80", Description = "Vợt có rãnh thoát khí, giảm sức cản gió." },
+        new Equipment { EquipmentCategoryId = categoryId,
+            EquipmentName = "Vợt Pickleball Joola Ben Johns Hyperion", Category = "Racket", SportType = "Pickleball", RetailPrice = 6500000m,
+            StockQuantity = 8, ImageUrl = "https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=400&q=80", Description = "Vợt carbon cao cấp được thiết kế bởi tay vợt số 1." },
+        new Equipment { EquipmentCategoryId = categoryId,
+            EquipmentName = "Vợt Tennis Babolat Pure Drive", Category = "Racket", SportType = "Tennis", RetailPrice = 5200000m,
+            StockQuantity = 12, ImageUrl = "https://images.unsplash.com/photo-1622279457486-62dcc4a631d6?w=400&q=80", Description = "Vợt trợ lực tốt, phù hợp đánh bóng xoáy và mạnh." },
+        new Equipment { EquipmentCategoryId = categoryId,
+            EquipmentName = "Vợt Tennis Wilson Pro Staff 97", Category = "Racket", SportType = "Tennis", RetailPrice = 6100000m,
+            StockQuantity = 5, ImageUrl = "https://images.unsplash.com/photo-1622279457486-62dcc4a631d6?w=400&q=80", Description = "Vợt kiểm soát tốt, độ chính xác cao." },
+
+        new Equipment { EquipmentCategoryId = categoryId,
+            EquipmentName = "Giày Cầu Lông Lining AYAT001", Category = "Footwear", SportType = "Badminton", RetailPrice = 2500000m,
+            StockQuantity = 15, ImageUrl = "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&q=80", Description = "Giày siêu nhẹ với công nghệ đệm Cloud." },
+        new Equipment { EquipmentCategoryId = categoryId,
+            EquipmentName = "Giày Kawasaki K093", Category = "Footwear", SportType = "Badminton", RetailPrice = 1200000m,
+            StockQuantity = 20, ImageUrl = "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&q=80", Description = "Giày quốc dân, bền bỉ, bám sân cực tốt." },
+        new Equipment { EquipmentCategoryId = categoryId,
+            EquipmentName = "Giày K-Swiss Express Light", Category = "Footwear", SportType = "Pickleball", RetailPrice = 2900000m,
+            StockQuantity = 10, ImageUrl = "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=400&q=80", Description = "Giày chuyên dụng cho Pickleball." },
+        new Equipment { EquipmentCategoryId = categoryId,
+            EquipmentName = "Giày Tennis Asics Gel-Resolution 8", Category = "Footwear", SportType = "Tennis", RetailPrice = 3400000m,
+            StockQuantity = 12, ImageUrl = "https://images.unsplash.com/photo-1606107557195-0a394bbe4a5d?w=400&q=80", Description = "Giày bảo vệ mắt cá chân tuyệt vời." },
+
+        new Equipment { EquipmentCategoryId = categoryId,
+            EquipmentName = "Áo Polo Thể Thao Nam Pro-Sport", Category = "Apparel", SportType = "Badminton", RetailPrice = 4500000m,
+            StockQuantity = 30, ImageUrl = "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=400&q=80", Description = "Áo polo lịch sự, công nghệ dệt thoát nhiệt nhanh." },
+        new Equipment { EquipmentCategoryId = categoryId,
+            EquipmentName = "Quần Váy Thể Thao Nữ Lining", Category = "Apparel", SportType = "Badminton", RetailPrice = 550000m,
+            StockQuantity = 25, ImageUrl = "https://images.unsplash.com/photo-1518310383802-640c2b31135a?w=400&q=80", Description = "Quần váy 2 lớp, chống lộ, co giãn tốt." },
+        new Equipment { EquipmentCategoryId = categoryId,
+            EquipmentName = "Áo T-Shirt Tập Luyện Yonex", Category = "Apparel", SportType = "Badminton", RetailPrice = 350000m,
+            StockQuantity = 40, ImageUrl = "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&q=80", Description = "Áo thun cơ bản, vải mè mềm mịn." },
+        new Equipment { EquipmentCategoryId = categoryId,
+            EquipmentName = "Bộ Quần Áo Thể Thao Nike Court", Category = "Apparel", SportType = "Tennis", RetailPrice = 1400000m,
+            StockQuantity = 15, ImageUrl = "https://images.unsplash.com/photo-1591195853828-11db59a44f6b?w=400&q=80", Description = "Trang phục chuẩn thi đấu của các tay vợt." },
+
+        new Equipment { EquipmentCategoryId = categoryId,
+            EquipmentName = "Bóng Tennis Dunlop Fort (Hộp 4 quả)", Category = "Ball / Birdie", SportType = "Tennis", RetailPrice = 180000m,
+            StockQuantity = 50, ImageUrl = "https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=400&q=80", Description = "Bóng nỉ chất lượng cao, bền bỉ." },
+        new Equipment { EquipmentCategoryId = categoryId,
+            EquipmentName = "Bóng Tennis Wilson US Open (Hộp 3 quả)", Category = "Ball / Birdie", SportType = "Tennis", RetailPrice = 150000m,
+            StockQuantity = 60, ImageUrl = "https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=400&q=80", Description = "Bóng thi đấu chính thức giải US Open." },
+
+        new Equipment { EquipmentCategoryId = categoryId,
+            EquipmentName = "Balo Yonex Pro Backpack", Category = "Accessories", SportType = "Badminton", RetailPrice = 1800000m,
+            StockQuantity = 10, ImageUrl = "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400&q=80", Description = "Balo chuyên dụng thể thao." },
+        new Equipment { EquipmentCategoryId = categoryId,
+            EquipmentName = "Mũ Thể Thao Pro-Sport", Category = "Accessories", SportType = "Tennis", RetailPrice = 250000m,
+            StockQuantity = 30, ImageUrl = "https://images.unsplash.com/photo-1584308972272-9e4e7685e80f?w=400&q=80", Description = "Mũ lưỡi trai che nắng, thoáng khí." },
+        new Equipment { EquipmentCategoryId = categoryId,
+            EquipmentName = "Băng quấn ngón tay thể thao", Category = "Protection", SportType = "Badminton", RetailPrice = 45000m,
+            StockQuantity = 100, ImageUrl = "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400&q=80", Description = "Băng vải tự dính, chống phồng rộp." }
     };
 
     public static async Task SeedCourtsAsync(ProSportDbContext context)
@@ -391,7 +451,8 @@ public static class DatabaseSeeder
 
         var badmintonType = new CourtType { Name = "Badminton", Description = "Sân cầu lông tiêu chuẩn" };
         var pickleballType = new CourtType { Name = "Pickleball", Description = "Sân Pickleball tiêu chuẩn" };
-        context.CourtTypes.AddRange(badmintonType, pickleballType);
+        var tennisType = new CourtType { Name = "Tennis", Description = "Sân Tennis tiêu chuẩn" };
+        context.CourtTypes.AddRange(badmintonType, pickleballType, tennisType);
         await context.SaveChangesAsync();
 
         var courts = new List<Court>
@@ -400,7 +461,13 @@ public static class DatabaseSeeder
             new Court { Name = "Sân Cầu Lông A2", CourtTypeId = badmintonType.CourtTypeId, Status = "Available", Description = "Sân thảm PVC Yonex cao cấp", ImageUrl = "https://images.unsplash.com/photo-1517649763962-0c62306601b7?w=600" },
             new Court { Name = "Sân Cầu Lông A3", CourtTypeId = badmintonType.CourtTypeId, Status = "Available", Description = "Sân thảm gỗ cao cấp", ImageUrl = "https://images.unsplash.com/photo-1521537634581-227f84850b41?w=600" },
             new Court { Name = "Sân Pickleball P1", CourtTypeId = pickleballType.CourtTypeId, Status = "Available", Description = "Sân ngoài trời tiêu chuẩn Mỹ", ImageUrl = "https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?w=600" },
-            new Court { Name = "Sân Pickleball P2", CourtTypeId = pickleballType.CourtTypeId, Status = "Available", Description = "Sân ngoài trời tiêu chuẩn Mỹ", ImageUrl = "https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=600" }
+            new Court { Name = "Sân Pickleball P2", CourtTypeId = pickleballType.CourtTypeId, Status = "Available", Description = "Sân ngoài trời tiêu chuẩn Mỹ", ImageUrl = "https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=600" },
+            new Court { Name = "Sân Cầu Lông A4", CourtTypeId = badmintonType.CourtTypeId, Status = "Available", Description = "Sân thảm PVC chống trượt", ImageUrl = "https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=600" },
+            new Court { Name = "Sân Cầu Lông A5 VIP", CourtTypeId = badmintonType.CourtTypeId, Status = "Available", Description = "Sân VIP có điều hòa", ImageUrl = "https://images.unsplash.com/photo-1521537634581-227f84850b41?w=600" },
+            new Court { Name = "Sân Pickleball P3", CourtTypeId = pickleballType.CourtTypeId, Status = "Available", Description = "Sân trong nhà chuẩn thi đấu", ImageUrl = "https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?w=600" },
+            new Court { Name = "Sân Pickleball P4 VIP", CourtTypeId = pickleballType.CourtTypeId, Status = "Available", Description = "Sân có mái che cao cấp", ImageUrl = "https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=600" },
+            new Court { Name = "Sân Tennis T1", CourtTypeId = tennisType.CourtTypeId, Status = "Available", Description = "Sân cứng (Hard Court)", ImageUrl = "https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=600" },
+            new Court { Name = "Sân Tennis T2", CourtTypeId = tennisType.CourtTypeId, Status = "Available", Description = "Sân đất nện (Clay Court)", ImageUrl = "https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?w=600" }
         };
         context.Courts.AddRange(courts);
         await context.SaveChangesAsync();
@@ -419,8 +486,16 @@ public static class DatabaseSeeder
             new PricingRule { CourtTypeId = pickleballType.CourtTypeId, StartTime = new TimeSpan(5, 0, 0), EndTime = new TimeSpan(22, 0, 0), PricePerHour = 180000m, IsWeekend = true }
         };
 
+        var tennisPricing = new List<PricingRule>
+        {
+            new PricingRule { CourtTypeId = tennisType.CourtTypeId, StartTime = new TimeSpan(5, 0, 0), EndTime = new TimeSpan(17, 0, 0), PricePerHour = 150000m, IsWeekend = false },
+            new PricingRule { CourtTypeId = tennisType.CourtTypeId, StartTime = new TimeSpan(17, 0, 0), EndTime = new TimeSpan(22, 0, 0), PricePerHour = 220000m, IsWeekend = false },
+            new PricingRule { CourtTypeId = tennisType.CourtTypeId, StartTime = new TimeSpan(5, 0, 0), EndTime = new TimeSpan(22, 0, 0), PricePerHour = 250000m, IsWeekend = true }
+        };
+
         context.PricingRules.AddRange(badmintonPricing);
         context.PricingRules.AddRange(pickleballPricing);
+        context.PricingRules.AddRange(tennisPricing);
         await context.SaveChangesAsync();
     }
 }

@@ -39,6 +39,11 @@ public class User : BaseEntity
     [Column("IsLocked")]
     public bool IsLocked { get; set; } = false;
 
+    // TK-004: Cờ xác thực định danh. Suy ra từ EKycStatus để tránh 2 nguồn trạng thái lệch nhau
+    // (EKycStatus đã tồn tại từ trước và được Admin approve/reject cập nhật).
+    [NotMapped]
+    public bool IsVerified => EKycStatus == "Approved";
+
     // Navigation properties
     public EkycProfile? EkycProfile { get; set; }
     public EscrowWallet? EscrowWallet { get; set; }
