@@ -114,3 +114,39 @@ Công việc thực hiện.
 Quyết định kỹ thuật.
 Các lỗi đã phát hiện.
 Vai trò của AI và vai trò trực tiếp của bạn trong quá trình thực hiện.
+
+
+Dưới đây là phần tiếp theo của Báo cáo Nhật ký Tích hợp AI & Đóng góp cá nhân (Changelog), được viết tiếp nối hoàn hảo với văn phong, cấu trúc và nội dung mà bạn đã cung cấp, dựa trên chính xác những công việc chúng ta vừa thực hiện trong phiên làm việc ngày hôm nay (11/07/2026):
+
+[2026-07-11] - Giai đoạn: Quét toàn diện, đánh giá tiến độ API và phân tích lỗ hổng (API Audit & Gap Analysis)
+Người thực hiện: Nguyễn Đăng Phúc
+
+Thêm mới (Added): Xây dựng bộ lệnh (Prompt) quét toàn bộ kiến trúc Backend tại thư mục Controllers để thống kê chính xác số lượng API thực tế đã hoàn thiện (có logic xử lý bên trong). Thiết lập báo cáo Audit dưới dạng Markdown Table bao gồm 123 endpoints.
+
+Sửa lỗi / Tối ưu logic (Fixed): Thực hiện kiểm tra chéo (Cross-check) giữa danh sách API hiện có và tài liệu đặc tả nghiệp vụ. Phát hiện lỗ hổng nghiêm trọng ở module Tài chính: Hệ thống chỉ mới có API nạp tiền giả lập (Mock Deposit), hoàn toàn thiếu API nạp tiền thật qua VNPay, thiếu chức năng thanh toán phí tham gia kèo (Join Match Fee) bằng ví Escrow, và chưa có API Hoàn tiền (Refund) độc lập cho Admin.
+
+Hỗ trợ từ AI (AI-assisted): AntiGravity đóng vai trò Code Auditor, quét trực tiếp workspace để trích xuất danh sách endpoint. Google Gemini hỗ trợ đối chiếu danh sách này với luồng nghiệp vụ để khoanh vùng chính xác các tính năng bị khuyết thiếu.
+
+[2026-07-11] - Giai đoạn: Lập trình bổ sung module Ví Escrow & Thanh toán kèo (Payment & Escrow Implementation)
+Người thực hiện: Nguyễn Đăng Phúc
+
+Thêm mới (Added): Chỉ đạo triển khai 3 API tài chính cốt lõi: Nạp tiền thật (POST /api/escrow/deposit), Thanh toán phí tham gia kèo (POST /api/escrow/pay-match-fee/{matchId}), và Hoàn tiền thủ công (POST /api/escrow/refund). Bổ sung các DTO (EscrowDepositRequestDto, EscrowRefundRequestDto) và tích hợp IVnPayService vào EscrowService.
+
+Thay đổi (Changed): Thay đổi chiến lược sử dụng AI. Thay vì để AI tự do viết code nguyên khối, đã thiết lập một Prompt rào chắn (Step-by-step Prompt). Bắt buộc AI phải phân tích kiến trúc N-Tier trước khi viết code, và phải chạy lệnh dotnet build kiểm tra lỗi biên dịch sau mỗi bước để đảm bảo không phá vỡ hệ thống hiện tại.
+
+Sửa lỗi / Tối ưu logic (Fixed): Trực tiếp yêu cầu và kiểm duyệt các tiêu chuẩn bảo mật dòng tiền vào mã nguồn. Đảm bảo code áp dụng thiết kế Idempotent (kiểm tra VnPayTransactionId và referenceId) để chống nạp/hoàn tiền trùng lặp, đồng thời áp dụng Serializable Isolation (Atomic) để tránh lỗi Race Condition (trừ sai tiền) khi có nhiều giao dịch đồng thời.
+
+Hỗ trợ từ AI (AI-assisted): AntiGravity đóng vai trò Senior .NET Developer, trực tiếp sinh mã C# cho Controller và Service, đồng thời thực thi tự động lệnh build dưới local để nghiệm thu mã nguồn.
+
+[2026-07-11] - Giai đoạn: Quản lý mã nguồn, xử lý lỗi xác thực Git & Tạo Pull Request
+Người thực hiện: Nguyễn Đăng Phúc
+
+Thêm mới (Added): Khởi tạo nhánh tính năng mới feat/DE190130_Hoan_Thien_Escrow&PaymentAPI. Xây dựng nội dung Pull Request chuyên nghiệp, liệt kê rõ ràng các thay đổi (Changes), cải tiến bảo mật (Security Improvements) và danh sách kiểm tra (Checklist) để phục vụ quá trình Code Review.
+
+Sửa lỗi / Tối ưu logic (Fixed):
+
+Xử lý lỗi AI treo (Hang): Phát hiện tiến trình AI chạy ngầm (headless) bị treo khi thực thi git push do vướng xác thực bảo mật GitHub. Đã chủ động hủy lệnh của AI, mở Terminal nội bộ trên VS Code và tự thực thi lệnh đẩy code, thực hiện xác thực thủ công qua trình duyệt.
+
+Xử lý lỗi UI GitHub: Khắc phục lỗi không thể tạo Pull Request trên giao diện GitHub (nút bị mờ) bằng cách định hướng lại cấu hình so sánh nhánh (từ main vs main sang main vs feat/DE190130_Hoan_Thien_Escrow&PaymentAPI).
+
+Hỗ trợ từ AI (AI-assisted): AntiGravity hỗ trợ gom nhóm (stage) và commit các file thay đổi tại local. Google Gemini chẩn đoán chính xác nguyên nhân lỗi xác thực Git ngầm, hướng dẫn cách khắc phục lỗi thao tác trên giao diện GitHub, và soạn thảo sẵn template Pull Request chuẩn Markdown.
