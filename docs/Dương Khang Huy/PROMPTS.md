@@ -144,4 +144,52 @@ Kỹ thuật nhập vai kép (User + Lecturer) ép AI không chỉ bấm thử m
 **Mức độ thành công:** Rất cao.
 Cấu trúc "nghi vấn trước, hành động sau" buộc AI phải **kiểm chứng hiện trạng trước khi thay đổi** (Verify-then-Act): AI truy vấn thực tế và phủ nhận giả định của tôi — schema đã đủ 45 bảng, chỉ có ~20 bảng nghiệp vụ trống. Script seed sinh ra mang tính kỷ luật cao: idempotent (chạy lại không nhân đôi), dùng đúng bộ hằng số trạng thái của Backend, và tự kiểm tra tiếng Việt lưu đúng Unicode. **Can thiệp:** Tôi yêu cầu kiểm chứng cuối bằng API thật thay vì chỉ đếm dòng trong DB.
 ---
-hận `.env` được `.gitignore` che chắn, loại thư mục cấu hình cá nhân khỏi staging. **Can thiệp:** Tôi giữ quyền quyết định cuối với 2 file Backend có sẵn thay đổi dở, xác nhận đó là công việc chủ đích trước khi cho vào commit.
+## Prompt #15 - Kiểm toán Độ phủ Tích hợp API (Integration Coverage Audit)
+**Ngày:** 2026-07-11
+**Công cụ AI:** Claude Code (Claude Fable 5)
+**Mục đích:** Xác định chính xác chức năng nào đã gắn API thật, chức năng nào còn là giao diện chết.
+### Cấu trúc Prompt
+*"Tôi muốn bạn kiểm tra rằng tất cả các chức năng đã được gắn api hết chưa."*
+### Phân tích & Đánh giá (Evaluation)
+**Mức độ thành công:** Rất cao.
+Prompt ngắn và mở, nhưng AI tự thiết kế **phương pháp luận quét 2 chiều**: chiều xuôi phân loại ~105 trang React theo dấu vết import API; chiều ngược trích endpoint từ 38 Controller để tìm API "mồ côi". Giá trị lớn nhất không nằm ở con số (~80 trang đã gắn) mà ở phát hiện **lỗ hổng cấu trúc**: luồng E-KYC thiếu cả endpoint Backend lẫn UI Frontend — loại lỗi vô hình với kiểm thử bấm tay vì "không có gì để bấm". **Bài học:** với câu hỏi kiểm kê, nên để AI tự chọn phương pháp nhưng bắt buộc mọi kết luận kèm bằng chứng truy xuất được (file:dòng).
+---
+## Prompt #16 - Truy vết Kế hoạch với Mã nguồn (Plan-to-Code Traceability)
+**Ngày:** 2026-07-11
+**Công cụ AI:** Claude Code (Claude Fable 5)
+**Mục đích:** Nghiệm thu tiến độ thật của 42 ticket phân công bằng bằng chứng trong mã nguồn.
+### Cấu trúc Prompt
+*"[Dán nguyên văn bảng 42 ticket TK-001 → TK-042] Tất cả nhiệm vụ ở trên đã được triển khai chưa kiểm tra kĩ chi tiết từng cái một cho tôi."*
+### Phân tích & Đánh giá (Evaluation)
+**Mức độ thành công:** Xuất sắc.
+Việc dán **nguyên văn bảng kế hoạch có mã định danh** cho phép AI tận dụng các marker `TK-0xx` nhóm đã ghi trong code như hệ thống truy vết tự nhiên. Kết quả không phải "xong/chưa xong" chung chung mà là ma trận 42 dòng kèm bằng chứng, phân biệt được cả trường hợp tinh tế: ticket **vượt chuẩn** (TK-033 dùng dữ liệu thật thay vì mock được phép) và ticket "trông như xong nhưng thiếu đúng phần lõi" (TK-036 có test booking nhưng thiếu kịch bản trùng giờ). **Bài học:** chuẩn hóa mã ticket trong commit/comment từ đầu dự án giúp nghiệm thu bằng AI về sau gần như tự động.
+---
+## Prompt #17 - Gán Vai trò & Khóa Thứ tự Ưu tiên (Role + Priority-locked Fixing)
+**Ngày:** 2026-07-11
+**Công cụ AI:** Claude Code (Claude Fable 5)
+**Mục đích:** Chuyển biên bản audit thành hành động sửa lỗi theo đúng thứ tự ưu tiên đã chốt.
+### Cấu trúc Prompt
+*"Act as a Senior Full-Stack Developer (.NET Core & React)... Please process the fixes in this EXACT priority order: Priority 1: Fix TK-004 (E-KYC End-to-End Flow) — Add the `IsVerified` field... Priority 2: Fix Minor Bug ('Leave Match' Button)... Please provide the exact file names, the code to add/replace, and brief explanations."*
+### Phân tích & Đánh giá (Evaluation)
+**Mức độ thành công:** Vượt kỳ vọng.
+Cấu trúc "gán vai + khóa thứ tự + yêu cầu nêu rõ file" giúp AI làm việc có kỷ luật thay vì sửa lan man. Điểm đáng giá nhất: AI **không tuân thủ mù quáng** — phát hiện trường `EKycStatus` có sẵn nên đề xuất `IsVerified` dạng computed property (tránh 2 nguồn trạng thái, khỏi migration), và chọn luồng Admin duyệt thay vì auto-approve để không vô hiệu hóa AdminKycPage. Cả hai đề xuất đều kèm phân tích trade-off cho con người quyết. **Bài học:** đề bài tốt nên mô tả *mục tiêu nghiệp vụ*, còn *phương án kỹ thuật* hãy để ngỏ cho AI phản biện.
+---
+## Prompt #18 - Phát hành lên Nhánh chính (Release-to-Main Decision)
+**Ngày:** 2026-07-11
+**Công cụ AI:** Claude Code (Claude Fable 5)
+**Mục đích:** Đưa các thay đổi đã kiểm chứng lên nhánh `main` của repository nhóm.
+### Cấu trúc Prompt
+*"Tôi muốn commit thay đổi lên main thì sao?"*
+### Phân tích & Đánh giá (Evaluation)
+**Mức độ thành công:** Rất cao.
+Prompt mơ hồ có chủ đích ("thì sao?") — và thay vì tự quyết, AI kiểm tra hiện trạng (nhánh đi trước main đúng 1 commit, fast-forward sạch) rồi **trình 3 phương án kèm trade-off** (PR để review / merge thẳng / chỉ push nhánh) cho tôi chọn. Khi thực thi gặp 2 chướng ngại thật: nhánh `main` local bị worktree của công cụ khác chiếm — AI xử lý bằng `git push origin <branch>:main` không cần checkout; thư mục cấu hình cá nhân `.claude/` được chủ động loại khỏi commit. **Bài học:** với thao tác không thể đảo ngược (đẩy lên nhánh chung), AI dừng lại hỏi là hành vi đúng — người dùng nên coi đó là tính năng, không phải sự chậm chạp.
+---
+## Prompt #19 - Tài liệu hóa theo Khuôn mẫu Kế thừa (Format-inheriting Documentation)
+**Ngày:** 2026-07-11
+**Công cụ AI:** Claude Code (Claude Fable 5)
+**Mục đích:** Cập nhật bộ 4 file tài liệu môn học (Audit Log, Changelog, Prompts, Reflection) cho khối công việc mới commit, đúng văn phong và cấu trúc sẵn có.
+### Cấu trúc Prompt
+*"Trong folder docs có 4 file ai-audit-log, changelog, prompt, reflection. Bạn hãy dựa trên các file ấy và làm tiếp cho tôi về những thay đổi mà tôi mới commit lên theo đúng form cũ, nhưng để thầy chấm nhìn nó đầy đủ và chuyên nghiệp — và cho tôi coi trước nội dung bạn làm."*
+### Phân tích & Đánh giá (Evaluation)
+**Mức độ thành công:** Cao.
+Ràng buộc "theo đúng form cũ" buộc AI đọc và mô phỏng đúng cấu trúc mục, văn phong thuật ngữ Anh-Việt của 12 log trước đó thay vì áp khuôn riêng. Yêu cầu "cho coi trước" thiết lập quy trình **Review-before-Write** — mọi nội dung được duyệt bằng mắt người trước khi chạm vào file. Giá trị cộng thêm ngoài dự kiến: trong lúc đọc format, AI phát hiện file `PROMPTS.md` đang bị hỏng cấu trúc (một entry mất header, chỉ còn đoạn văn mồ côi cuối file); **quyết định của con người** là loại bỏ đoạn hỏng để giữ tài liệu sạch thay vì phục dựng nội dung không đầy đủ — minh chứng việc để AI "đọc kỹ trước khi viết" còn kiêm luôn vai trò rà soát chất lượng tài liệu.
