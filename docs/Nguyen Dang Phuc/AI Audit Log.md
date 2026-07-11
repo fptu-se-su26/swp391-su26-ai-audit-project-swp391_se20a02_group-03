@@ -149,3 +149,53 @@ Quyết định & Can thiệp của con người (Human Action):
 Ngăn chặn xung đột (Fixed): Nghiêm cấm AI tự động sinh tài khoản Admin mới hoặc tạo lại Seeder. Trực tiếp định hướng quá trình xác minh bám sát bộ SQL Schema và dữ liệu chính thức của dự án.
 
 Kết quả: Khoanh vùng thành công các rủi ro tiềm ẩn trong luồng Authentication, đảm bảo tính nhất quán tuyệt đối giữa môi trường phát triển (Development) và môi trường triển khai (Production).
+
+Tiếp nối mạch công việc và định dạng của các giai đoạn trước, dưới đây là phần viết tiếp Báo cáo Nhật ký Tích hợp AI dựa trên toàn bộ chuỗi công việc thực tế mà bạn vừa hoàn thành trong phiên làm việc hôm nay:
+
+Giai đoạn 8: Quét toàn diện, đánh giá tiến độ API và phát hiện lỗ hổng (API Audit & Gap Analysis)
+Thời gian: 2026-07-11
+
+Công cụ AI hỗ trợ: AntiGravity, Google Gemini
+
+Mục tiêu: Quét toàn bộ kiến trúc Backend để thống kê số lượng API thực tế đã hoàn thiện (có logic xử lý) và đối chiếu với yêu cầu nghiệp vụ của các module cốt lõi (Admin Court, Match Joiner, Escrow Wallet).
+
+1. Chi tiết Prompt gốc (Input):
+
+Lệnh 1 (Kiểm toán tổng thể): "Bạn là một chuyên gia đánh giá mã nguồn (Code Auditor). Nhiệm vụ của bạn là quét và phân tích mã nguồn backend của dự án .NET này để liệt kê toàn bộ các API endpoint đã được hoàn thiện. Phân tích C# Controllers tại src/backend/ProSport.API/Controllers/... Chỉ ghi nhận những API đã có phần thân hàm... Trình bày dưới dạng Bảng Markdown."
+
+Lệnh 2 (Kiểm tra chéo nghiệp vụ): "Dựa trên báo cáo hãy kiểm tra thử API Quản lý Sân (Admin), API Xin tham gia & Ví Escrow (Joiner), API Xử lý Hủy/Hoàn tiền ví Escrow đã hoàn thiện chưa."
+
+2. Giải pháp từ AI & Đánh giá:
+
+Đề xuất của AI: AI đã quét và thống kê thành công 123 endpoint hoàn thiện. Ở lệnh thứ hai, AI phân tích rạch ròi và phát hiện ra lỗ hổng nghiệp vụ nghiêm trọng: Module Quản lý sân đã hoàn tất, nhưng module Ví Escrow đang thiếu API nạp tiền thật (chỉ có API Mock), thiếu chức năng thanh toán phí tham gia kèo bằng ví và chưa có API Hoàn tiền (Refund) độc lập cho Admin.
+
+Quyết định & Can thiệp của con người (Human Action):
+
+Đánh giá rủi ro (Verified): Xác nhận các lỗ hổng AI báo cáo là chính xác và đây đều là các API liên quan đến dòng tiền cốt lõi.
+
+Lên chiến lược xử lý (Changed): Thay vì tự code thủ công hoặc bắt AI viết một loạt file không kiểm soát, tôi đã chủ động thiết lập một Prompt chiến lược mới. Yêu cầu AI phải đóng vai trò Senior .NET Developer, bắt buộc làm việc theo nguyên tắc "Từng bước một" (Step-by-step), tuân thủ đúng kiến trúc N-Tier của dự án và phải chạy dotnet build xác nhận không lỗi sau mỗi bước mới được làm tiếp.
+
+Giai đoạn 9: Triển khai Code tài chính an toàn & Quản lý Git Flow nâng cao
+Thời gian: 2026-07-11
+
+Công cụ AI hỗ trợ: AntiGravity, Google Gemini, GitHub
+
+Mục tiêu: Lập trình bổ sung 3 API tài chính bị thiếu, đảm bảo các tiêu chuẩn bảo mật dòng tiền và triển khai quy trình đẩy mã nguồn (Push & Pull Request) lên GitHub.
+
+1. Chi tiết Prompt gốc (Input):
+
+Lệnh 1 (Code implementation): Yêu cầu AI thực hiện 3 bước: Xây dựng tính năng Nạp tiền thật (Real Deposit) tích hợp VNPay, Tích hợp ví Escrow thanh toán phí kèo, và Xây dựng API Hoàn tiền độc lập. (Kèm ràng buộc build test).
+
+Lệnh 2 (Git flow): "Hãy thực hiện quy trình Git để lưu (commit) và đẩy (push) toàn bộ các thay đổi code... Đảm bảo chuyển đúng sang nhánh feat/DE190130_Hoan_Thien_Escrow&PaymentAPI..."
+
+2. Giải pháp từ AI & Đánh giá:
+
+Đề xuất của AI: AntiGravity đã viết mã nguồn xuất sắc, tích hợp thành công các tiêu chuẩn tài chính khắt khe như Idempotent (chống gọi API trùng lặp) và Serializable Isolation / Atomic (khóa giao dịch tránh race condition khi trừ tiền ví). AI cũng thực hiện gộp commit thành công. Tuy nhiên, AI bị treo ở bước git push.
+
+Quyết định & Can thiệp của con người (Human Action):
+
+Bắt bệnh hệ thống (Fixed): Nhận diện ngay bản chất vấn đề: Tiến trình AI chạy ngầm (headless) không thể mở trình duyệt hay popup để xác thực tài khoản GitHub. Đã chủ động hủy lệnh của AI, mở Terminal nội bộ trên VS Code và tự thực thi lệnh git push -u origin "feat/DE190130_Hoan_Thien_Escrow&PaymentAPI", sau đó tự xác thực qua trình duyệt.
+
+Chuẩn hóa quy trình Review (Added): Thay vì viết Pull Request sơ sài, đã yêu cầu AI tổng hợp một bản mô tả PR chuyên nghiệp (bao gồm Description, Changes, Security Improvements và Checklist). Đã tự tay xử lý lỗi thao tác chọn sai nhánh (so sánh main với main) trên giao diện GitHub, chuyển đúng sang nhánh tính năng vừa tạo và dán bản báo cáo này vào.
+
+Kết quả: Hoàn thiện 100% module Thanh toán & Ví Escrow đạt chuẩn an toàn giao dịch. Mã nguồn đã được lưu trữ an toàn trên GitHub thông qua Pull Request, sẵn sàng cho công đoạn Code Review và Automation Test.
