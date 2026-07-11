@@ -210,3 +210,80 @@
 - Kế hoạch kiểm thử UAT và tài liệu bàn giao trước bảo vệ đồ án.
 ### Kiểm chứng
 - Mỗi phát hiện đều kèm bằng chứng cụ thể (đường dẫn route, mã HTTP, truy vấn DB đối chứng) — không có phát hiện nào dựa trên suy đoán.
+---
+## Log #13
+- **Ngày:** 2026-07-11
+- **Người thực hiện:** Dương Khang Huy
+- **Công cụ AI:** Claude Code (Claude Fable 5)
+- **Mục đích:** Kiểm toán độ phủ tích hợp API (Integration Coverage Audit) trên toàn bộ ~105 trang Frontend nhằm phân định chức năng "sống" (gắn API thật) và chức năng "chết" (giao diện tĩnh/dữ liệu cứng) trước giai đoạn nước rút.
+- **Tham chiếu Prompt:** *"Tôi muốn bạn kiểm tra rằng tất cả các chức năng đã được gắn api hết chưa."*
+### Tóm tắt kết quả AI
+- AI tự thiết kế phương pháp **quét đối chiếu 2 chiều (Bidirectional Coverage Scan)**: chiều xuôi quét ~105 trang React phân loại theo dấu vết import API/HTTP call; chiều ngược trích toàn bộ endpoint từ 38 Controller Backend rồi dò xem Frontend có gọi tới hay không — đảm bảo không chỉ tìm "trang thiếu API" mà cả "API mồ côi không ai gọi".
+- Kết quả định lượng: **~80/105 trang đã gắn API thật**; ~9 chức năng còn chạy dữ liệu cứng/demo (CustomerProfilePage hardcode "Alex Mercer", MatchProProfilePage, ShopWishlistPage, ApexActivityPage, form Liên hệ/Hỗ trợ submit giả, DashNotifSettings lưu localStorage); 3 nhóm API Backend chưa được sử dụng (`/api/upload/image`, `/api/inventory` stock-in/out, `/api/equipment-categories`).
+- Phát hiện nghiêm trọng nhất: **luồng E-KYC "thủng cả 2 đầu"** — Backend không có endpoint cho user nộp hồ sơ (KycController chỉ có GET/approve/reject cho Admin), Frontend chỉ có khung UI chết; hệ quả là trang phê duyệt KYC của Admin không bao giờ có dữ liệu để duyệt.
+- AI cũng phân định rõ nhóm trang tĩnh hợp lệ (Legal, Status 404/Maintenance, About, trang menu điều hướng) không tính là "thiếu API" — tránh thổi phồng số liệu lỗi.
+### Quyết định & Can thiệp của con người
+- **Chấp nhận:** Dùng biên bản làm căn cứ lập Backlog sửa lỗi có thứ tự ưu tiên (E-KYC trước, các trang demo sau).
+- **Can thiệp kỹ thuật:** Yêu cầu mọi kết luận phải kèm bằng chứng truy xuất được (đường dẫn file + số dòng), chất vấn lại các trang bị nghi "chết" nhưng thực chất dùng Context gắn API gián tiếp (CartPage dùng CartContext) để tránh dương tính giả (False Positive).
+### Áp dụng cho
+- Kế hoạch sprint hoàn thiện trước bảo vệ đồ án; danh sách rủi ro demo.
+### Kiểm chứng
+- Toàn bộ phân loại tái lập được bằng lệnh grep có hệ thống; các trang "chết" được mở code xác nhận trực tiếp (nút bấm không có handler hoặc handler chỉ đổi state cục bộ).
+---
+## Log #14
+- **Ngày:** 2026-07-11
+- **Người thực hiện:** Dương Khang Huy
+- **Công cụ AI:** Claude Code (Claude Fable 5)
+- **Mục đích:** Lập Ma trận truy vết yêu cầu (Requirements Traceability Matrix) đối chiếu 42 ticket kế hoạch (TK-001 → TK-042) với hiện trạng mã nguồn — nghiệm thu tiến độ bằng bằng chứng thay vì báo cáo miệng.
+- **Tham chiếu Prompt:** *"[Dán nguyên văn bảng 42 ticket phân công theo tuần] Tất cả nhiệm vụ ở trên đã được triển khai chưa kiểm tra kĩ chi tiết từng cái một cho tôi."*
+### Tóm tắt kết quả AI
+- AI tận dụng các **marker `TK-0xx` nhóm đã ghi sẵn trong mã nguồn** như hệ thống truy vết tự nhiên (grep toàn dự án tìm chú thích TK-010, TK-015, TK-030, TK-031, TK-035, TK-038, TK-039), kết hợp đối chiếu endpoint/file cụ thể cho các ticket không có marker.
+- Trả về ma trận 42 dòng, mỗi dòng kèm trạng thái + bằng chứng (file:dòng): **36/42 hoàn thành**; 4 ticket dở dang: TK-004 (E-KYC thiếu phần lõi), TK-009 (trang kho Admin chỉ đọc, thiếu nút cập nhật tồn), TK-036 (có test booking nhưng thiếu đúng kịch bản trùng giờ), TK-040 (repositories vẫn Include dày đặc, chưa chuyển Select DTO).
+- Phân biệt được cả trường hợp tinh tế: TK-033 làm **vượt chuẩn** (đề bài cho phép mock dữ liệu Dashboard nhưng code trả dữ liệu thật từ DB), TK-012 xác nhận có Transaction Serializable chống double-booking đúng như cam kết.
+- Phát hiện kèm theo ngoài phạm vi ticket: nút "Rút khỏi kèo" tại `MatchDetailPage.jsx` chỉ đổi state UI (`setJoined(false)`), không gọi API — bug nghiệp vụ tài chính (người dùng tưởng đã rút nhưng cọc vẫn bị khóa).
+### Quyết định & Can thiệp của con người
+- **Chấp nhận:** Toàn bộ ma trận; chốt thứ tự sửa: TK-004 → bug kèo → TK-036 → TK-009 → TK-040.
+- **Can thiệp phạm vi:** Ghi nhận TK-037 (Responsive) ở mức "xác minh gián tiếp" thay vì ép AI kết luận nhị phân, do tiêu chí "hiển thị hoàn hảo" cần kiểm tra tay trên thiết bị thật.
+### Áp dụng cho
+- Báo cáo tiến độ nhóm; tài liệu đối chiếu Rubric SWP391; Backlog sprint cuối.
+### Kiểm chứng
+- Mỗi dòng ma trận đều dẫn được về file/dòng code cụ thể hoặc lệnh grep tái lập — không có kết luận nào dựa trên suy đoán hay trí nhớ.
+---
+## Log #15
+- **Ngày:** 2026-07-11
+- **Người thực hiện:** Dương Khang Huy
+- **Công cụ AI:** Claude Code (Claude Fable 5)
+- **Mục đích:** Vá lỗ hổng E-KYC theo mô hình End-to-End (TK-004) và sửa bug "Rút khỏi kèo" không hoàn cọc — chuyển biên bản audit thành mã nguồn chạy được.
+- **Tham chiếu Prompt:** *"Act as a Senior Full-Stack Developer (.NET Core & React)... Please process the fixes in this EXACT priority order: Priority 1: Fix TK-004 (E-KYC End-to-End Flow)... Priority 2: Fix Minor Bug ('Leave Match' Button)... Please provide the exact file names, the code to add/replace, and brief explanations."*
+### Tóm tắt kết quả AI
+- **Backend:** Bổ sung `POST /api/kyc/submit` + `GET /api/kyc/me` (Customer tự nộp và tra cứu hồ sơ, chặn nộp trùng khi đang Pending/đã Approved, cho nộp lại khi Rejected); tái cấu trúc phân quyền KycController (route `{id:int}` để `/kyc/me` không bị nuốt); mở `/api/upload/image` cho user đăng nhập nhưng giới hạn bằng **whitelist folder self-service** (`ekyc`, `avatars`) — folder hệ thống vẫn yêu cầu Admin/Staff.
+- **Phản biện đề bài (Constructive Pushback):** Đề bài yêu cầu thêm cột `IsVerified` (bool) vào bảng Users, nhưng AI phát hiện trường `EKycStatus` đã tồn tại và đang được luồng Admin duyệt cập nhật → đề xuất **computed property `[NotMapped]`** (`IsVerified => EKycStatus == "Approved"`), tránh 2 nguồn trạng thái lệch nhau và **không cần migration**. Tương tự, chọn luồng "nộp → Pending → Admin duyệt" thay vì auto-approve như gợi ý, vì auto-approve sẽ vô hiệu hóa trang AdminKycPage có sẵn.
+- **Frontend:** Xây Component tái sử dụng `EkycPanel.jsx` (chọn ảnh CCCD 2 mặt có preview bằng ObjectURL kèm thu hồi bộ nhớ, upload song song 2 ảnh, submit, hiển thị 3 trạng thái Pending/Approved/Rejected kèm lý do từ chối) — gắn đồng thời vào CustomerProfilePage và ApexSettingsPage; sửa luôn nút "Lưu thay đổi" giả trong ApexSettingsPage thành gọi `updateProfile` thật.
+- **Bug kèo:** Nối nút "Rút khỏi kèo" vào `matchApi.leaveMatch` với trạng thái loading + toast; xác minh Backend `LeaveMatchAsync` xử lý hoàn cọc đúng chính sách (hoàn 100%/phạt theo thời điểm rút so với giờ đá).
+- Phát hiện phụ trong lúc thi công: route `/customer/profile` đang redirect sang `/apex/profile` — trang KYC "sống" thực tế là ApexSettingsPage; ghi nhận để nhóm quyết định số phận trang cũ.
+### Quyết định & Can thiệp của con người
+- **Chấp nhận:** Phê duyệt cả hai đề xuất "trái đề bài" của AI sau khi nghe phân tích trade-off (computed property thay cột DB; duyệt qua Admin thay vì auto-approve).
+- **Can thiệp kiến trúc:** Chốt phương án Component dùng chung (một `EkycPanel` cho cả 2 trang) thay vì sửa lặp 2 nơi, giảm chi phí bảo trì về sau.
+### Áp dụng cho
+- Phân hệ Xác thực định danh (E-KYC), phân hệ Kèo giao lưu (MatchPro), luồng Upload ảnh.
+### Kiểm chứng
+- AdminKycPage nhận được hồ sơ thật ngay sau khi user nộp (trước đây danh sách vĩnh viễn trống); luồng nghiệm thu đầy đủ: nộp hồ sơ → Admin thấy Pending → Approve → badge user chuyển "Đã xác thực".
+---
+## Log #16
+- **Ngày:** 2026-07-11
+- **Người thực hiện:** Dương Khang Huy
+- **Công cụ AI:** Claude Code (Claude Fable 5)
+- **Mục đích:** Kiểm chứng tự động toàn bộ thay đổi và phát hành an toàn lên nhánh `main` của repository nhóm (Verification & Safe Release).
+- **Tham chiếu Prompt:** *"Tôi muốn commit thay đổi lên main thì sao?"*
+### Tóm tắt kết quả AI
+- **Cổng kiểm chứng trước phát hành:** `dotnet build` toàn solution thành công; `npx eslint` 0 lỗi trên các file thay đổi; `npx vite build` thành công; **95/95 unit test Pass** (4 test SQL Server integration skip theo thiết kế khi không có DB).
+- **Xử lý 2 sự cố môi trường thực tế:** (1) tiến trình `ProSport.API` cũ đang chạy khóa file DLL làm bộ test không build được — AI xác định tiến trình này chạy bản code cũ (đằng nào cũng phải khởi động lại để nhận endpoint mới) rồi mới dừng nó; (2) nhánh `main` local bị một worktree của công cụ khác chiếm giữ, không checkout được — AI dùng `git push origin DE190900/audit-module:main` đẩy fast-forward thẳng lên remote không cần checkout.
+- **Vệ sinh commit:** Loại thư mục cấu hình cá nhân `.claude/` khỏi staging; commit message có cấu trúc mô tả đủ 3 nhóm thay đổi (E-KYC, bug kèo, seed thiết bị); xác nhận fast-forward sạch `500aa2b..5247216` (nhánh đi trước main đúng 1 commit, 0 conflict).
+- AI chủ động **hỏi lại phương án phát hành** (PR để nhóm review / merge thẳng / chỉ push nhánh) kèm phân tích ưu nhược từng phương án thay vì tự quyết.
+### Quyết định & Can thiệp của con người
+- **Quyết định:** Chọn phương án merge thẳng lên `main` (dự án đang giai đoạn nước rút, thành viên đã thống nhất); giữ nguyên tắc nhánh cá nhân `DE190900/audit-module` vẫn được push đầy đủ để truy vết.
+- **Can thiệp quy trình:** Ghi nhận việc thêm `.claude/` vào `.gitignore` và dọn worktree thừa làm việc tồn (Housekeeping Backlog).
+### Áp dụng cho
+- Quy trình phát hành (Release Process) và vệ sinh repository. Commit: `5247216` (14 file, +526/−79 dòng) — đã nằm trên `main`.
+### Kiểm chứng
+- `git log origin/main` xác nhận commit `5247216` là HEAD của main; lịch sử fast-forward không phát sinh merge commit rác.
