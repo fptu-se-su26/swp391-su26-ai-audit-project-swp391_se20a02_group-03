@@ -10,14 +10,21 @@ public class EscrowService : IEscrowService
 {
     private readonly IEscrowRepository _escrowRepository;
     private readonly IBookingRepository _bookingRepository;
+    private readonly IVnPayService _vnPayService;
     private readonly ILogger<EscrowService> _logger;
 
-    public EscrowService(IEscrowRepository escrowRepository, IBookingRepository bookingRepository, ILogger<EscrowService> logger)
+    public EscrowService(
+        IEscrowRepository escrowRepository,
+        IBookingRepository bookingRepository,
+        IVnPayService vnPayService,
+        ILogger<EscrowService> logger)
     {
         _escrowRepository = escrowRepository;
         _bookingRepository = bookingRepository;
+        _vnPayService = vnPayService;
         _logger = logger;
     }
+
 
     public async Task<ApiResponseDto<EscrowWalletDto>> GetWalletAsync(int userId)
     {
@@ -272,4 +279,165 @@ public class EscrowService : IEscrowService
             return new ApiResponseDto<bool>(500, "Lỗi server khi thanh toán đặt sân", false);
         }
     }
-}
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // BƯỚC 1: Tạo URL VNPay để nạp tiền thật vào ví Escrow
+    // ─────────────────────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Tạo URL thanh toán VNPay để nạp tiền thật vào ví Escrow.
+    /// ReferenceId được sinh tự động (DEPOSIT-{userId}-{guid8}) để đảm bảo unique &amp; idempotent ở IPN.
+    /// </summary>
+    public Task<ApiResponseDto<string>> CreateDepositUrlAsync(int userId, decimal amount, string ipAddress)
+    {
+        try
+        {
+            if (amount <= 0)
+                return Task.FromResult(new ApiResponseDto<string>(400, "Số tiền nạp phải lớn hơn 0"));
+
+            // Giới hạn tối thiểu / tối đa để tránh spam
+            const decimal minDeposit = 10_000m;
+            const decimal maxDeposit = 100_000_000m;
+            if (amount < minDeposit)
+                return Task.FromResult(new ApiResponseDto<string>(400, $"Số tiền nạp tối thiểu là {minDeposit:N0} VND"));
+            if (amount > maxDeposit)
+                return Task.FromResult(new ApiResponseDto<string>(400, $"Số tiền nạp tối đa là {maxDeposit:N0} VND"));
+
+            // ReferenceId tự sinh — unique mỗi lần, IPN dùng VnPayTransactionId để idempotent
+            var referenceId = $"DEPOSIT-{userId}-{Guid.NewGuid().ToString("N")[..8].ToUpper()}";
+
+            var url = _vnPayService.CreatePaymentUrl(
+                ipAddress, userId, amount,
+                orderType: Domain.Constants.VnPayOrderType.Deposit,
+                referenceId: referenceId);
+
+            return Task.FromResult(new ApiResponseDto<string>(200, "Tạo URL nạp tiền thành công", url));
+        }
+        catch (InvalidOperationException ex)
+        {
+            // VNPay chưa cấu hình
+            _logger.LogWarning(ex, "VNPay not configured when creating deposit URL for user {UserId}", userId);
+            return Task.FromResult(new ApiResponseDto<string>(503, ex.Message));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error creating deposit URL for user {UserId}", userId);
+            return Task.FromResult(new ApiResponseDto<string>(500, "Lỗi server khi tạo URL nạp tiền"));
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // BƯỚC 2: Thanh toán phí tham gia kèo bằng ví Escrow
+    // ─────────────────────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Trừ tiền ví Escrow (Balance) để thanh toán phí tham gia kèo.
+    /// Atomic: check balance → debit → ghi Transaction trong 1 Serializable DB Transaction.
+    /// </summary>
+    public async Task<ApiResponseDto<bool>> PayMatchFeeAsync(int userId, int matchId, decimal amount, string description)
+    {
+        try
+        {
+            if (amount <= 0)
+                return new ApiResponseDto<bool>(400, "Số tiền phải lớn hơn 0", false);
+
+            return await _escrowRepository.ExecuteInTransactionAsync(async () =>
+            {
+                var wallet = await _escrowRepository.GetWalletByUserIdAsync(userId);
+                if (wallet == null)
+                    return new ApiResponseDto<bool>(404, "Ví Escrow không tồn tại. Vui lòng nạp tiền trước.", false);
+
+                if (wallet.Balance < amount)
+                    return new ApiResponseDto<bool>(400,
+                        $"Số dư không đủ. Cần {amount:N0} VND nhưng ví chỉ có {wallet.Balance:N0} VND.", false);
+
+                var debited = await _escrowRepository.TryDebitWalletAsync(userId, amount);
+                if (!debited)
+                    return new ApiResponseDto<bool>(400, "Số dư không đủ để thanh toán phí tham gia kèo.", false);
+
+                var transaction = new Domain.Entities.Transaction
+                {
+                    EscrowWalletId = wallet.EscrowWalletId,
+                    MatchId = matchId,
+                    Amount = amount,
+                    Type = TransactionType.Payment,
+                    Status = TransactionStatus.Completed,
+                    ReferenceId = $"MATCH-{matchId}",
+                    Description = string.IsNullOrWhiteSpace(description)
+                        ? $"Thanh toán phí tham gia kèo #{matchId}"
+                        : description
+                };
+
+                await _escrowRepository.AddTransactionAsync(transaction);
+
+                return new ApiResponseDto<bool>(200, "Thanh toán phí tham gia kèo thành công", true);
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error paying match fee for user {UserId}, match {MatchId}", userId, matchId);
+            return new ApiResponseDto<bool>(500, "Lỗi server khi thanh toán phí tham gia kèo", false);
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // BƯỚC 3: Hoàn tiền thủ công vào ví Escrow (Admin/Staff)
+    // ─────────────────────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Hoàn tiền thủ công vào ví Escrow của một user (Admin/Staff dùng khi khiếu nại/lỗi hệ thống).
+    /// Idempotent qua referenceId (nếu cung cấp): sẽ không nạp lại nếu referenceId đã tồn tại.
+    /// </summary>
+    public async Task<ApiResponseDto<bool>> RefundToEscrowAsync(
+        int userId, decimal amount, string reason, string? referenceId, int operatorId)
+    {
+        try
+        {
+            if (amount <= 0)
+                return new ApiResponseDto<bool>(400, "Số tiền hoàn phải lớn hơn 0", false);
+
+            if (string.IsNullOrWhiteSpace(reason))
+                return new ApiResponseDto<bool>(400, "Lý do hoàn tiền là bắt buộc", false);
+
+            return await _escrowRepository.ExecuteInTransactionAsync(async () =>
+            {
+                // Idempotent check — nếu referenceId đã tồn tại, không xử lý lại
+                if (!string.IsNullOrWhiteSpace(referenceId))
+                {
+                    var exists = await _escrowRepository.TransactionExistsByReferenceIdAsync($"REFUND-{referenceId}");
+                    if (exists)
+                        return new ApiResponseDto<bool>(200, "Giao dịch hoàn tiền này đã được xử lý trước đó", true);
+                }
+
+                var wallet = await _escrowRepository.CreditWalletAsync(userId, amount);
+
+                var internalRefId = string.IsNullOrWhiteSpace(referenceId)
+                    ? $"REFUND-MANUAL-{operatorId}-{Guid.NewGuid().ToString("N")[..8].ToUpper()}"
+                    : $"REFUND-{referenceId}";
+
+                var transaction = new Domain.Entities.Transaction
+                {
+                    EscrowWalletId = wallet.EscrowWalletId,
+                    Amount = amount,
+                    Type = TransactionType.Refund,
+                    Status = TransactionStatus.Completed,
+                    ReferenceId = internalRefId,
+                    Description = $"[Hoàn tiền thủ công] {reason} (Operator: #{operatorId})"
+                };
+
+                await _escrowRepository.AddTransactionAsync(transaction);
+
+                _logger.LogInformation(
+                    "Manual refund: OperatorId={OperatorId} refunded {Amount} VND to UserId={UserId}. Reason={Reason}, RefId={RefId}",
+                    operatorId, amount, userId, reason, internalRefId);
+
+                return new ApiResponseDto<bool>(200, $"Hoàn tiền {amount:N0} VND vào ví thành công", true);
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error refunding to escrow for user {UserId} by operator {OperatorId}", userId, operatorId);
+            return new ApiResponseDto<bool>(500, "Lỗi server khi hoàn tiền vào ví", false);
+        }
+    }
+}

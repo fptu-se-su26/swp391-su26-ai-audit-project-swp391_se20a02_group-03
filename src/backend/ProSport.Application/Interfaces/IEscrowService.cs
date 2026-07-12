@@ -21,4 +21,14 @@ public interface IEscrowService
     
     // Thanh toán Booking bằng ví Escrow
     Task<ApiResponseDto<bool>> PayForBookingAsync(int userId, int bookingId);
+
+    // Tạo URL VNPay để nạp tiền thật vào ví Escrow
+    Task<ApiResponseDto<string>> CreateDepositUrlAsync(int userId, decimal amount, string ipAddress);
+
+    // Thanh toán phí tham gia kèo bằng ví Escrow (trừ Balance, ghi Transaction)
+    Task<ApiResponseDto<bool>> PayMatchFeeAsync(int userId, int matchId, decimal amount, string description);
+
+    // Hoàn tiền thủ công vào ví Escrow (Admin/Staff)
+    Task<ApiResponseDto<bool>> RefundToEscrowAsync(int userId, decimal amount, string reason, string? referenceId, int operatorId);
 }
+
