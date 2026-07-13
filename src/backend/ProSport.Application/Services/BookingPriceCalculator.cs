@@ -9,9 +9,12 @@ public static class BookingPriceCalculator
         DateTime bookingDate,
         TimeSpan startTime,
         TimeSpan endTime,
-        decimal membershipDiscountPercent = 0)
+        decimal membershipDiscountPercent = 0,
+        IEnumerable<PricingRule>? effectiveRules = null)
     {
-        var basePrice = CalculateBasePrice(court, bookingDate, startTime, endTime);
+        // effectiveRules: danh sách rule đã gộp cả rule theo loại sân (CourtTypeId) từ repository.
+        // Nav court.PricingRules chỉ chứa rule gắn CourtId nên bỏ sót rule theo loại sân (seed mặc định).
+        var basePrice = CalculateBasePrice(court, bookingDate, startTime, endTime, effectiveRules);
         return ApplyMembershipDiscount(basePrice, membershipDiscountPercent);
     }
 
@@ -24,11 +27,11 @@ public static class BookingPriceCalculator
         return Math.Round(amount * multiplier, 0, MidpointRounding.AwayFromZero);
     }
 
-    private static decimal CalculateBasePrice(Court court, DateTime bookingDate, TimeSpan startTime, TimeSpan endTime)
+    private static decimal CalculateBasePrice(Court court, DateTime bookingDate, TimeSpan startTime, TimeSpan endTime, IEnumerable<PricingRule>? effectiveRules = null)
     {
         var isWeekend = bookingDate.DayOfWeek is DayOfWeek.Saturday or DayOfWeek.Sunday;
 
-        var rules = court.PricingRules?
+        var rules = (effectiveRules ?? court.PricingRules)?
             .Where(r => r.IsWeekend == isWeekend && !r.IsDeleted)
             .OrderBy(r => r.StartTime)
             .ToList();

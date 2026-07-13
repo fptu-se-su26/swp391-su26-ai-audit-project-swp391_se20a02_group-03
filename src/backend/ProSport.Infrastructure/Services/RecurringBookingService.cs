@@ -142,7 +142,8 @@ public class RecurringBookingService : IRecurringBookingService
             var discountPercent = court.ComplexId.HasValue
                 ? await _membershipService.GetActiveDiscountPercentAsync(rule.UserId, court.ComplexId.Value, date)
                 : 0m;
-            var price = BookingPriceCalculator.Calculate(court, date, rule.StartTime, rule.EndTime, discountPercent);
+            var effectiveRules = await _courtRepository.GetPricingRulesByCourtIdAsync(court.CourtId);
+            var price = BookingPriceCalculator.Calculate(court, date, rule.StartTime, rule.EndTime, discountPercent, effectiveRules);
             var booking = new Booking
             {
                 UserId = rule.UserId,

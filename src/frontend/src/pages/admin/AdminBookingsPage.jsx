@@ -58,7 +58,8 @@ export default function AdminBookingsPage() {
       const q = search.trim().toLowerCase()
       if (!q) return true
       const court = b.details?.[0]?.courtName?.toLowerCase() || ''
-      return String(b.bookingId).includes(q) || court.includes(q) || String(b.userId).includes(q)
+      const customer = b.customerName?.toLowerCase() || ''
+      return String(b.bookingId).includes(q) || court.includes(q) || customer.includes(q) || String(b.userId).includes(q)
     })
   }, [bookings, search, statusFilter])
 
@@ -146,7 +147,7 @@ export default function AdminBookingsPage() {
                   return (
                     <tr key={b.bookingId} className="border-t border-border-default hover:bg-surface-hover transition-colors">
                       <td className="px-4.5 py-4 whitespace-nowrap font-extrabold text-foreground">#BKG-{b.bookingId}</td>
-                      <td className="px-4.5 py-4 whitespace-nowrap text-foreground">Người dùng #{b.userId}</td>
+                      <td className="px-4.5 py-4 whitespace-nowrap text-foreground">{b.customerName || `Người dùng #${b.userId}`}</td>
                       <td className="px-4.5 py-4 whitespace-nowrap font-bold text-foreground">{d?.courtName || '—'}</td>
                       <td className="px-4.5 py-4 whitespace-nowrap">
                         {d ? (

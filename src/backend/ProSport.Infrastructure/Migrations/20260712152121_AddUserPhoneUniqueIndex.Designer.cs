@@ -12,8 +12,8 @@ using ProSport.Infrastructure.Data;
 namespace ProSport.Infrastructure.Migrations
 {
     [DbContext(typeof(ProSportDbContext))]
-    [Migration("20260701031053_AddPerformanceQueryIndexes")]
-    partial class AddPerformanceQueryIndexes
+    [Migration("20260712152121_AddUserPhoneUniqueIndex")]
+    partial class AddUserPhoneUniqueIndex
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -2937,6 +2937,10 @@ namespace ProSport.Infrastructure.Migrations
                     b.HasIndex("GoogleId")
                         .IsUnique()
                         .HasFilter("[GoogleId] IS NOT NULL");
+
+                    b.HasIndex("PhoneNumber")
+                        .IsUnique()
+                        .HasFilter("[PhoneNumber] IS NOT NULL AND [IsDeleted] = 0");
 
                     b.ToTable("Users", (string)null);
 

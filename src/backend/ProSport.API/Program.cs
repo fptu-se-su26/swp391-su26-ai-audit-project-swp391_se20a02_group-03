@@ -3,6 +3,7 @@ using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.OpenApi.Models;
 using Microsoft.IdentityModel.Tokens;
 using ProSport.Application.Interfaces;
@@ -70,7 +71,13 @@ builder.Services.AddDbContext<ProSportDbContext>(options =>
         {
             sql.MigrationsAssembly(typeof(ProSportDbContext).Assembly.GetName().Name);
             sql.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
-        }));
+        })
+    // Quyết định có chủ đích: BookingDetailEquipment/ConditionCheck/RentalSessionAsset/RentalSurcharge
+    // là bảng LỊCH SỬ/CHỨNG TỪ — phải giữ nguyên record kể cả khi cha (Equipment/RentalAsset/User staff)
+    // bị xóa mềm (thanh lý thiết bị là nghiệp vụ thật). Không áp matching query filter để tránh mất
+    // lịch sử hóa đơn; đổi lại, code đọc lịch sử khi Include cha phải null-check navigation.
+    // Cảnh báo EF 10622 cho các cặp này được tắt tại đây (OtpCode đã có matching filter riêng).
+    .ConfigureWarnings(w => w.Ignore(CoreEventId.PossibleIncorrectRequiredNavigationWithQueryFilterInteractionWarning)));
 
 // Configure Dependency Injection
 builder.Services.AddScoped<IUserRepository, UserRepository>();
@@ -136,6 +143,7 @@ builder.Services.AddScoped<IEkycService, EkycService>();
 // Player features roadmap
 builder.Services.AddScoped<ISplitPaymentService, SplitPaymentService>();
 builder.Services.AddScoped<IRecurringBookingService, RecurringBookingService>();
+builder.Services.AddSingleton(TimeProvider.System); // thời gian inject được — test dùng FakeTimeProvider
 builder.Services.AddScoped<ICancellationPolicyService, CancellationPolicyService>();
 builder.Services.AddScoped<IEloRatingService, EloRatingService>();
 builder.Services.AddScoped<ITournamentService, TournamentService>();

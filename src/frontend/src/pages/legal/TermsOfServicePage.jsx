@@ -18,7 +18,7 @@ export default function TermsOfServicePage() {
       <Navbar theme="light" />
 
       <div className="pt-[140px] pb-[60px] bg-ink text-center px-6">
-        <p className="label-mono text-accent mb-4">// Pháp lý</p>
+        <p className="label-mono text-accent mb-4">{'// Pháp lý'}</p>
         <h1 className="font-heading text-[clamp(2rem,4vw,3rem)] uppercase text-paper mb-4">Điều khoản dịch vụ</h1>
         <p className="text-paper/60 max-w-[500px] mx-auto text-sm">Có hiệu lực từ: 4 tháng 6, 2026</p>
       </div>

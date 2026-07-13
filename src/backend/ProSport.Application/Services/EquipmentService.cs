@@ -69,7 +69,7 @@ public class EquipmentService : IEquipmentService
 
         var created = await _equipmentRepository.CreateAsync(equipment);
         var category = await _categoryRepository.GetByIdAsync(created.EquipmentCategoryId);
-        created.EquipmentCategory = category;
+        created.EquipmentCategory = category!; // MapEquipmentDtoCombined null-check qua ?.Name ?? "Unknown"
 
         return MapEquipmentDtoCombined(created);
     }
@@ -89,7 +89,7 @@ public class EquipmentService : IEquipmentService
 
         await _equipmentRepository.UpdateAsync(equipment);
         var category = await _categoryRepository.GetByIdAsync(equipment.EquipmentCategoryId);
-        equipment.EquipmentCategory = category;
+        equipment.EquipmentCategory = category!; // MapEquipmentDtoCombined null-check qua ?.Name ?? "Unknown"
 
         return MapEquipmentDtoCombined(equipment);
     }

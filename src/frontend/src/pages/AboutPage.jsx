@@ -138,7 +138,7 @@ export default function AboutPage() {
       <section className="relative pt-[76px] bg-ink text-center overflow-hidden">
         <div className="absolute inset-0 opacity-50 bg-[url('https://images.unsplash.com/photo-1547347298-4074fc3086f0?w=1400&q=70')] bg-cover bg-center" />
         <div ref={heroRef} className="relative z-[1] max-w-[900px] mx-auto px-6 py-24 sm:py-[100px]">
-          <p className="label-mono text-paper mb-5">// Về Pro-Sport</p>
+          <p className="label-mono text-paper mb-5">{'// Về Pro-Sport'}</p>
           <h1 className="font-heading text-[clamp(2.2rem,6vw,5.4rem)] leading-[0.96] uppercase tracking-[-0.01em] text-paper mb-6">
             Định hình lại tương lai<br />hiệu suất thể thao.
           </h1>
@@ -161,7 +161,7 @@ export default function AboutPage() {
       <section className="py-20 sm:py-[120px] px-6 sm:px-10 bg-paper">
         <div ref={missionRef} className="max-w-[1400px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           <div>
-            <p className="label-mono text-ink mb-4">// Sứ mệnh</p>
+            <p className="label-mono text-ink mb-4">{'// Sứ mệnh'}</p>
             <h2 className="font-heading text-[clamp(1.6rem,3.6vw,3rem)] leading-[1.02] uppercase tracking-[-0.01em] text-ink mb-7">
               Tiếp sức vận động viên qua công nghệ &amp; cơ sở vật chất cao cấp
             </h2>
@@ -202,7 +202,7 @@ export default function AboutPage() {
       {/* ── Our Journey ── */}
       <section className="py-20 sm:py-[120px] px-6 sm:px-10 bg-paper">
         <div className="max-w-[1400px] mx-auto">
-          <p className="label-mono text-ink mb-4">// Chúng tôi làm gì</p>
+          <p className="label-mono text-ink mb-4">{'// Chúng tôi làm gì'}</p>
           <h2 className="font-heading text-[clamp(1.8rem,4vw,3.2rem)] uppercase tracking-[-0.01em] text-ink mb-12">Hành trình</h2>
           <div ref={journeyRef} className="grid grid-cols-1 md:grid-cols-[1.3fr_1fr] md:grid-rows-2 gap-4 md:h-[480px]">
             {journey.map((item) => (
@@ -226,7 +226,7 @@ export default function AboutPage() {
       <section className="py-20 sm:py-[120px] px-6 sm:px-10 bg-ink">
         <div className="max-w-[1400px] mx-auto">
           <div className="text-center mb-16">
-            <p className="label-mono text-paper mb-4">// Tại sao chọn chúng tôi</p>
+            <p className="label-mono text-paper mb-4">{'// Tại sao chọn chúng tôi'}</p>
             <h2 className="font-heading text-[clamp(1.8rem,4vw,3.2rem)] uppercase tracking-[-0.01em] text-paper">Nguyên tắc cốt lõi</h2>
           </div>
           <div ref={principlesRef} className="grid grid-cols-1 md:grid-cols-3 gap-[2px] bg-white/15">
@@ -249,7 +249,7 @@ export default function AboutPage() {
       <section className="py-20 sm:py-[120px] px-6 sm:px-10 bg-paper">
         <div className="max-w-[760px] mx-auto">
           <div className="text-center mb-16">
-            <p className="label-mono text-ink mb-4">// Câu chuyện</p>
+            <p className="label-mono text-ink mb-4">{'// Câu chuyện'}</p>
             <h2 className="font-heading text-[clamp(1.8rem,4vw,3.2rem)] uppercase tracking-[-0.01em] text-ink">Từ tầm nhìn đến hiện thực</h2>
           </div>
           <div ref={timelineRef}>
@@ -270,7 +270,7 @@ export default function AboutPage() {
       <section className="py-20 sm:py-[120px] px-6 sm:px-10 bg-ink">
         <div className="max-w-[1400px] mx-auto">
           <div className="text-center mb-16">
-            <p className="label-mono text-paper mb-4">// Con người</p>
+            <p className="label-mono text-paper mb-4">{'// Con người'}</p>
             <h2 className="font-heading text-[clamp(1.8rem,4vw,3.2rem)] uppercase tracking-[-0.01em] text-paper">Ban lãnh đạo</h2>
           </div>
           <div ref={teamRef} className="grid grid-cols-2 lg:grid-cols-4 gap-6">

@@ -8,6 +8,7 @@ import 'dayjs/locale/vi'
 import { Clock, MapPin, ChevronRight, Calendar } from 'lucide-react'
 
 import PageLoader from '../../components/ui/PageLoader'
+import { formatTimeUntil, isEventFinished } from '../../utils/date'
 
 export default function ApexHomePage() {
   const [userProfile, setUserProfile] = useState(null)
@@ -48,6 +49,8 @@ export default function ApexHomePage() {
                   : 'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=800&q=80',
               }
             }))
+            // BUG 3: chỉ giữ trận CHƯA kết thúc — booking quá khứ không phải "sự kiện sắp tới"
+            .filter(b => !isEventFinished(b))
             .sort((a, b) => new Date(`${a.date}T${a.startTime}`) - new Date(`${b.date}T${b.startTime}`))
 
           setUpcomingBookings(upcoming)
@@ -129,7 +132,7 @@ export default function ApexHomePage() {
 
                   <div className="p-7">
                     <p className="label-mono text-foreground-subtle mb-2.5 flex items-center gap-2">
-                      <Clock className="w-3.5 h-3.5" /> Bắt đầu sau 2 giờ
+                      <Clock className="w-3.5 h-3.5" /> {formatTimeUntil(nextGame)}
                     </p>
                     <h3 className="font-heading text-2xl uppercase text-foreground mb-2.5">
                       {nextGame.name}

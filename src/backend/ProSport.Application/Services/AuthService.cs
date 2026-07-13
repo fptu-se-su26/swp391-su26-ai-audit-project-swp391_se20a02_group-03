@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using ProSport.Application.DTOs;
 using ProSport.Application.DTOs.Auth;
+using ProSport.Application.Exceptions;
 using ProSport.Application.Interfaces;
 using ProSport.Domain.Entities;
 using BC = BCrypt.Net.BCrypt;
@@ -35,7 +36,7 @@ public class AuthService : IAuthService
         try
         {
             var existingUser = await _userRepository.GetByEmailAsync(request.Email);
-            User userToProcess = null;
+            User? userToProcess = null;
 
             // BUG #3 FIX: Check phone duplicate BEFORE updating/creating user
             if (!string.IsNullOrEmpty(request.PhoneNumber))
@@ -107,6 +108,10 @@ public class AuthService : IAuthService
             }
 
             return new ApiResponseDto<int>(200, "Registration successful.", userToProcess.UserId);
+        }
+        catch (DuplicatePhoneException)
+        {
+            return new ApiResponseDto<int>(400, "Phone number already in use.");
         }
         catch (InvalidOperationException ex) when (ex.Message.Contains("Email chưa được cấu hình", StringComparison.Ordinal))
         {
@@ -219,7 +224,7 @@ public class AuthService : IAuthService
             }
             var settings = new GoogleJsonWebSignature.ValidationSettings()
             {
-                Audience = new List<string>() { clientId }
+                Audience = new List<string>() { clientId! } // IsGoogleClientIdConfigured đã đảm bảo khác null
             };
 
             GoogleJsonWebSignature.Payload payload;
@@ -372,6 +377,10 @@ public class AuthService : IAuthService
             }
 
             return new ApiResponseDto<bool>(200, "Profile completed successfully.", true);
+        }
+        catch (DuplicatePhoneException)
+        {
+            return new ApiResponseDto<bool>(400, "Số điện thoại đã được sử dụng.", false);
         }
         catch (Exception ex)
         {
@@ -549,6 +558,10 @@ public class AuthService : IAuthService
                 IsProfileComplete = !string.IsNullOrEmpty(user.PhoneNumber),
                 AvatarUrl = user.AvatarUrl
             });
+        }
+        catch (DuplicatePhoneException)
+        {
+            return new ApiResponseDto<AuthResponseDto>(400, "Số điện thoại đã được sử dụng.");
         }
         catch (Exception ex)
         {

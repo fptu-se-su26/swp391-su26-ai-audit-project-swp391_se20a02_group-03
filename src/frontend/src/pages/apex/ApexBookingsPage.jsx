@@ -6,6 +6,7 @@ import { bookingApi } from '../../api/bookingApi'
 import { paymentApi } from '../../api/paymentApi'
 import { useToast } from '../../components/Toast'
 import { useConfirm, BOOKING_CANCEL_CONFIRM } from '../../components/ui/ConfirmDialog'
+import { isEventFinished } from '../../utils/date'
 import StatusBadge from '../../components/ui/StatusBadge'
 import EmptyState from '../../components/ui/EmptyState'
 
@@ -210,7 +211,12 @@ export default function ApexBookingsPage() {
                           Thanh toán
                         </button>
                       )}
-                      {(b.status === 'Confirmed' || b.status === 'Pending') && (
+                      {(b.status === 'Confirmed' || b.status === 'Pending') &&
+                        !isEventFinished({
+                          date: b.details?.[0]?.bookingDate,
+                          startTime: b.details?.[0]?.startTime,
+                          endTime: b.details?.[0]?.endTime,
+                        }) && (
                         <button
                           onClick={() => handleCancel(b.bookingId)}
                           className="h-9 px-4 border-2 border-danger text-danger bg-transparent text-xs font-bold uppercase tracking-[0.04em] hover:bg-danger-bg transition-colors"

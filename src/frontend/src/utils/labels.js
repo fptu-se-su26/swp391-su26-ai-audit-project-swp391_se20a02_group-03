@@ -83,9 +83,15 @@ export const matchFormatLabels = {
   Friendly: 'Giao hữu',
 }
 
+// Lookup không phân biệt hoa thường: API có nơi trả 'ACTIVE'/'AVAILABLE' (uppercase)
+// trong khi key ở đây là PascalCase — tránh rơi về 'Không rõ' oan.
+const statusLabelsLower = Object.fromEntries(
+  Object.entries(statusLabels).map(([k, v]) => [k.toLowerCase(), v])
+)
+
 export function translateStatus(status, fallback = 'Không rõ') {
   if (!status) return fallback
-  return statusLabels[status] || fallback
+  return statusLabels[status] || statusLabelsLower[String(status).toLowerCase()] || fallback
 }
 
 export function translatePayment(status, fallback = 'Không rõ') {

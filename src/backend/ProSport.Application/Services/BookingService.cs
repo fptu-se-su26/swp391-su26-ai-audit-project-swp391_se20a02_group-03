@@ -349,7 +349,9 @@ public class BookingService : IBookingService
         if (court.ComplexId.HasValue)
             discountPercent = await _membershipService.GetActiveDiscountPercentAsync(userId, court.ComplexId.Value, bookingDate);
 
-        return BookingPriceCalculator.Calculate(court, bookingDate, startTime, endTime, discountPercent);
+        // Effective rules gồm cả rule theo loại sân — nav court.PricingRules bỏ sót chúng.
+        var effectiveRules = await _courtRepository.GetPricingRulesByCourtIdAsync(court.CourtId);
+        return BookingPriceCalculator.Calculate(court, bookingDate, startTime, endTime, discountPercent, effectiveRules);
     }
 
     public async Task<ApiResponseDto<BookingDto>> ConfirmBookingPaymentAsync(int bookingId, string vnpayTransactionId, decimal paidAmount)
@@ -408,7 +410,7 @@ public class BookingService : IBookingService
                         booking.User.Email,
                         booking.User.FullName,
                         detailsHtml,
-                        booking.CheckInCode);
+                        booking.CheckInCode ?? string.Empty);
                 }
                 catch (Exception emailEx)
                 {
@@ -837,6 +839,7 @@ public class BookingService : IBookingService
         {
             BookingId = booking.BookingId,
             UserId = booking.UserId,
+            CustomerName = booking.User?.FullName,
             TotalAmount = booking.TotalAmount,
             Status = booking.Status,
             PaymentMethod = booking.PaymentMethod,

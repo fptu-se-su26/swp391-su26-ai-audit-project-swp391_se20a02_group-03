@@ -117,9 +117,12 @@ function CourtFormModal({ initial, onClose, onSaved }) {
 
 const STATUS_STYLE = {
   Available: { label: 'TRỐNG', cls: 'bg-ink text-paper' },
+  ACTIVE: { label: 'TRỐNG', cls: 'bg-ink text-paper' }, // API trả 'ACTIVE' (CourtStatuses.ToApiStatus)
   Booked: { label: 'ĐÃ ĐẶT', cls: 'border border-paper text-paper' },
   Maintenance: { label: 'BẢO TRÌ', cls: 'bg-warning-bg text-warning border border-warning' },
+  MAINTENANCE: { label: 'BẢO TRÌ', cls: 'bg-warning-bg text-warning border border-warning' },
   Closed: { label: 'ĐÓNG', cls: 'bg-danger text-paper' },
+  INACTIVE: { label: 'NGƯNG', cls: 'bg-danger text-paper' },
 }
 
 const FALLBACK_IMG = 'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=600&q=80'

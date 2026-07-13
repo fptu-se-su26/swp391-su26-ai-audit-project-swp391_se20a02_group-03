@@ -6,8 +6,9 @@ import { ShieldAlert } from 'lucide-react'
 import PageLoader from '../../components/ui/PageLoader'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts'
 
-const COURT_STATUS_LABELS = { Available: 'Trống', Booked: 'Đã đặt', Maintenance: 'Bảo trì', Closed: 'Đóng' }
-const COURT_STATUS_COLORS = { Available: '#14b8a6', Booked: '#0d1b2a', Maintenance: '#b26a00', Closed: '#b23b3b' }
+// API trả status UPPERCASE (CourtStatuses.ToApiStatus) — thêm alias để không rơi về nhãn/màu raw
+const COURT_STATUS_LABELS = { Available: 'Trống', ACTIVE: 'Trống', Booked: 'Đã đặt', Maintenance: 'Bảo trì', MAINTENANCE: 'Bảo trì', Closed: 'Đóng', INACTIVE: 'Ngưng hoạt động' }
+const COURT_STATUS_COLORS = { Available: '#14b8a6', ACTIVE: '#14b8a6', Booked: '#0d1b2a', Maintenance: '#b26a00', MAINTENANCE: '#b26a00', Closed: '#b23b3b', INACTIVE: '#b23b3b' }
 
 function fmtVnd(n) {
   return `${Number(n || 0).toLocaleString('vi-VN')} ₫`

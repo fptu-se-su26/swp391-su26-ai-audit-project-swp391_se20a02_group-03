@@ -197,7 +197,7 @@ export default function LoginPage() {
         <div className="auth-form-inner auth-animate-in-delayed mt-16 lg:mt-0">
           {/* Header */}
           <header className="mb-10">
-            <p className="label-mono text-accent mb-3">// Chào mừng trở lại</p>
+            <p className="label-mono text-accent mb-3">{'// Chào mừng trở lại'}</p>
             <h1 className="font-heading text-[2rem] uppercase text-ink tracking-tight leading-tight">
               Đăng nhập<br />tài khoản
             </h1>

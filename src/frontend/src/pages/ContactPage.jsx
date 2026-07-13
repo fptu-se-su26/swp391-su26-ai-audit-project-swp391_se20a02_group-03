@@ -70,7 +70,7 @@ export default function ContactPage() {
       {/* ── Hero ── */}
       <section className="pt-[76px] bg-ink text-center">
         <div ref={heroRef} className="max-w-[900px] mx-auto px-6 py-16 sm:py-[100px_70px]">
-          <p className="label-mono text-paper mb-5">// Liên hệ</p>
+          <p className="label-mono text-paper mb-5">{'// Liên hệ'}</p>
           <h1 className="font-heading text-[clamp(2.2rem,5vw,4.4rem)] uppercase tracking-[-0.01em] text-paper mb-5">Kết nối cùng sự hoàn hảo</h1>
           <p className="text-paper/65 text-[15px] leading-[1.7] max-w-[520px] mx-auto">
             Dù bạn đang đặt sân hay tham gia giải đấu, đội ngũ của chúng tôi luôn ở đây để đảm bảo trải nghiệm của bạn đạt được mục tiêu tốt nhất.

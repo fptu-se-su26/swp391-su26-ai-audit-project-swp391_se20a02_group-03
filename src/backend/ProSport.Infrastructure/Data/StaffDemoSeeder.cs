@@ -152,6 +152,27 @@ public static class StaffDemoSeeder
         context.Matches.Add(demoMatch);
         await context.SaveChangesAsync();
 
+        // Ghi thành viên thật khớp CurrentParticipants = 2 (host + 1 joiner) —
+        // thiếu record Host từng cho phép host bấm "Tham gia" kèo của chính mình.
+        context.MatchParticipants.AddRange(
+            new MatchParticipant
+            {
+                MatchId = demoMatch.MatchId,
+                UserId = 4,
+                Role = ProSport.Domain.Constants.MatchParticipantRole.Host,
+                Status = ProSport.Domain.Constants.MatchParticipantStatus.Approved,
+                HasPaidEscrow = false,
+            },
+            new MatchParticipant
+            {
+                MatchId = demoMatch.MatchId,
+                UserId = 5,
+                Role = ProSport.Domain.Constants.MatchParticipantRole.Joiner,
+                Status = ProSport.Domain.Constants.MatchParticipantStatus.Approved,
+                HasPaidEscrow = true,
+            });
+        await context.SaveChangesAsync();
+
         context.Reports.AddRange(
             new Report
             {

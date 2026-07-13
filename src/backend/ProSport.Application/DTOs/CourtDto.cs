@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace ProSport.Application.DTOs;
 
 public class CourtDto
@@ -25,8 +27,17 @@ public class CourtAvailabilityDto
 
 public class CreateCourtDto
 {
+    [Required(ErrorMessage = "Tên sân là bắt buộc.")]
+    [StringLength(100, MinimumLength = 2, ErrorMessage = "Tên sân phải từ 2 đến 100 ký tự.")]
     public string Name { get; set; } = null!;
+
+    [Range(1, int.MaxValue, ErrorMessage = "Loại sân không hợp lệ.")]
     public int CourtTypeId { get; set; }
+
+    [Url(ErrorMessage = "ImageUrl không đúng định dạng URL.")]
+    [StringLength(500)]
     public string? ImageUrl { get; set; }
+
+    [StringLength(1000, ErrorMessage = "Mô tả tối đa 1000 ký tự.")]
     public string? Description { get; set; }
 }

@@ -2935,6 +2935,10 @@ namespace ProSport.Infrastructure.Migrations
                         .IsUnique()
                         .HasFilter("[GoogleId] IS NOT NULL");
 
+                    b.HasIndex("PhoneNumber")
+                        .IsUnique()
+                        .HasFilter("[PhoneNumber] IS NOT NULL AND [IsDeleted] = 0");
+
                     b.ToTable("Users", (string)null);
 
                     b.HasData(

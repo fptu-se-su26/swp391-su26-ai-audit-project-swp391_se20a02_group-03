@@ -6,6 +6,7 @@ public class BookingDto
 {
     public int BookingId { get; set; }
     public int UserId { get; set; }
+    public string? CustomerName { get; set; } // Admin cần tên khách thay vì chỉ "Người dùng #id"
     public decimal TotalAmount { get; set; }
     public string Status { get; set; } = null!;
     public string? PaymentMethod { get; set; }

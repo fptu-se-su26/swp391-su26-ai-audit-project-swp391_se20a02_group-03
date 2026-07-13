@@ -9,8 +9,20 @@ namespace ProSport.Infrastructure.Services;
 public class CancellationPolicyService : ICancellationPolicyService
 {
     private readonly ProSportDbContext _db;
+    private readonly TimeProvider _clock;
 
-    public CancellationPolicyService(ProSportDbContext db) => _db = db;
+    public CancellationPolicyService(ProSportDbContext db, TimeProvider? clock = null)
+    {
+        _db = db;
+        _clock = clock ?? TimeProvider.System;
+    }
+
+    /// <summary>
+    /// "Bây giờ" theo giờ VN — slot (BookingDate/StartTime, matchTime) lưu theo giờ VN
+    /// nên mọi phép so sánh phải cùng hệ quy chiếu; so với UtcNow trần sẽ lệch 7 tiếng.
+    /// </summary>
+    private DateTime VnNow()
+        => TimeZoneInfo.ConvertTimeFromUtc(_clock.GetUtcNow().UtcDateTime, VnTimeHelper.GetVnTimeZone());
 
     public async Task<CancellationPolicyDto> GetOrDefaultAsync(int complexId)
     {
@@ -55,7 +67,11 @@ public class CancellationPolicyService : ICancellationPolicyService
             return NoRefund("Không có chi tiết booking.");
 
         var slotStart = firstSlot.BookingDate.Date.Add(firstSlot.StartTime);
-        var hoursUntil = (slotStart - DateTime.UtcNow).TotalHours;
+        var hoursUntil = (slotStart - VnNow()).TotalHours;
+
+        // Slot đã bắt đầu/kết thúc: không hoàn — việc tất toán thuộc luồng complete, không phải hủy.
+        if (hoursUntil <= 0)
+            return NoRefund("Slot đã bắt đầu — không áp dụng hoàn tiền khi hủy.");
 
         if (hoursUntil >= policy.FullRefundHoursBefore)
             return FullRefund(booking.TotalAmount, $"Hoàn 100% (hủy trước {policy.FullRefundHoursBefore}h).");
@@ -87,7 +103,8 @@ public class CancellationPolicyService : ICancellationPolicyService
     public async Task<(decimal releasePercent, string message)> CalculateMatchLeaveReleaseAsync(int complexId, DateTime matchTime)
     {
         var policy = await GetOrDefaultAsync(complexId);
-        var hoursUntil = (matchTime - DateTime.UtcNow).TotalHours;
+        // matchTime là giờ VN — cùng hệ quy chiếu với VnNow() (không dùng UtcNow trần).
+        var hoursUntil = (matchTime - VnNow()).TotalHours;
 
         if (hoursUntil >= policy.FullRefundHoursBefore)
             return (100m, $"Hoàn 100% cọc (rút trước {policy.FullRefundHoursBefore}h).");
