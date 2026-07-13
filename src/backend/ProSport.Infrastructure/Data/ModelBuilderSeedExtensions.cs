@@ -96,8 +96,8 @@ public static class ModelBuilderSeedExtensions
     private static void SeedStaffAssignments(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<StaffAssignment>().HasData(
-            new StaffAssignment { StaffAssignmentId = 1, StaffUserId = 2, ComplexId = 1, Status = "Active", CanCheckIn = true, CanCreateWalkIn = true, CanManageRental = true, CanApplySurcharge = false, AssignedByUserId = 12, CreatedAt = SeedDate, IsDeleted = false },
-            new StaffAssignment { StaffAssignmentId = 2, StaffUserId = 3, ComplexId = 1, Status = "Active", CanCheckIn = true, CanCreateWalkIn = true, CanManageRental = true, CanApplySurcharge = true, AssignedByUserId = 12, CreatedAt = SeedDate, IsDeleted = false }
+            new StaffAssignment { StaffAssignmentId = 1, StaffUserId = 2, ComplexId = 1, Status = "Active", CanCheckIn = true, CanCreateWalkIn = true, AssignedByUserId = 12, CreatedAt = SeedDate, IsDeleted = false },
+            new StaffAssignment { StaffAssignmentId = 2, StaffUserId = 3, ComplexId = 1, Status = "Active", CanCheckIn = true, CanCreateWalkIn = true, AssignedByUserId = 12, CreatedAt = SeedDate, IsDeleted = false }
         );
     }
 

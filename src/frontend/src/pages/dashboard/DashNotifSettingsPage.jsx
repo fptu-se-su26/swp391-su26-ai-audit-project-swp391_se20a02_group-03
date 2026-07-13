@@ -7,7 +7,6 @@ const NOTIF_SETTINGS_KEY = 'prosport_staff_notif_settings'
 const topics = [
   { id: 'bookings', emoji: '📅', iconBg: '#6366f1', label: 'Đặt sân',    desc: 'Xác nhận, hủy và nhắc lịch đặt sân sắp tới.', push: true,  email: true,  sms: false },
   { id: 'matches',  emoji: '🎾', iconBg: '#22c55e', label: 'Trận xã giao',    desc: 'Lời mời, kết quả trận và cảnh báo đối tác sẵn sàng.',         push: true,  email: false, sms: false },
-  { id: 'rentals',  emoji: '📦', iconBg: '#64748b', label: 'Thuê thiết bị', desc: 'Giờ nhận, hạn trả và thông báo quá hạn.',             push: false, email: true,  sms: true  },
   { id: 'payments', emoji: '💳', iconBg: '#ef4444', label: 'Thanh toán & hóa đơn',desc: 'Hóa đơn, giao dịch thành công và thanh toán thất bại.',             push: true,  email: true,  sms: false },
 ]
 

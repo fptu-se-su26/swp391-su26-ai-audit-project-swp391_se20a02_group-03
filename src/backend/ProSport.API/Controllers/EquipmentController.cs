@@ -12,16 +12,13 @@ namespace ProSport.API.Controllers;
 public class EquipmentController : ControllerBase
 {
     private readonly IEquipmentService _equipmentService;
-    private readonly IEquipmentRentalService _equipmentRentalService;
     private readonly ICartService _cartService;
 
     public EquipmentController(
         IEquipmentService equipmentService,
-        IEquipmentRentalService equipmentRentalService,
         ICartService cartService)
     {
         _equipmentService = equipmentService;
-        _equipmentRentalService = equipmentRentalService;
         _cartService = cartService;
     }
 
@@ -69,19 +66,10 @@ public class EquipmentController : ControllerBase
         return NoContent();
     }
 
-    // Rent/Return Endpoints
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
         var response = await _equipmentService.GetAllAsync();
-        return StatusCode(response.StatusCode, response);
-    }
-
-    [Authorize(Roles = "Admin,Staff")]
-    [HttpGet("rentals")]
-    public async Task<IActionResult> GetRentals([FromQuery] string? status)
-    {
-        var response = await _equipmentRentalService.GetRentalsAsync(status);
         return StatusCode(response.StatusCode, response);
     }
 
@@ -91,30 +79,6 @@ public class EquipmentController : ControllerBase
     {
         var stats = await _equipmentService.GetDashboardStatsAsync();
         return Ok(new { success = true, data = stats });
-    }
-
-    [Authorize(Roles = "Admin,Staff")]
-    [HttpPost("rent")]
-    public async Task<IActionResult> RentAtCounter([FromBody] StaffRentEquipmentRequest request)
-    {
-        var staffIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (string.IsNullOrEmpty(staffIdClaim) || !int.TryParse(staffIdClaim, out int staffId))
-            return Unauthorized(new ApiResponseDto<object>(401, "Unauthorized"));
-
-        var response = await _equipmentRentalService.RentAtCounterAsync(request, staffId);
-        return StatusCode(response.StatusCode, response);
-    }
-
-    [Authorize(Roles = "Admin,Staff")]
-    [HttpPost("rentals/{detailId:int}/return")]
-    public async Task<IActionResult> ReturnEquipment(int detailId, [FromBody] ReturnEquipmentRequest request)
-    {
-        var staffIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (string.IsNullOrEmpty(staffIdClaim) || !int.TryParse(staffIdClaim, out int staffId))
-            return Unauthorized(new ApiResponseDto<object>(401, "Unauthorized"));
-
-        var response = await _equipmentRentalService.ReturnEquipmentAsync(detailId, request, staffId);
-        return StatusCode(response.StatusCode, response);
     }
 
     [Authorize]

@@ -204,82 +204,6 @@ namespace ProSport.Infrastructure.Migrations
                     b.ToTable("BookingDetails");
                 });
 
-            modelBuilder.Entity("ProSport.Domain.Entities.BookingDetailEquipment", b =>
-                {
-                    b.Property<int>("DetailId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DetailId"));
-
-                    b.Property<decimal?>("AdditionalCharge")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int?>("BookingId")
-                        .HasColumnType("int");
-
-                    b.Property<decimal?>("DamageFee")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("DamageNote")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<decimal>("DepositAmount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal?>("DepositRefundAmount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("DepositStatus")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)")
-                        .HasDefaultValue("Held");
-
-                    b.Property<int>("EquipmentId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("EquipmentUnitId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
-                    b.Property<string>("RentalStatus")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)")
-                        .HasDefaultValue("Rented");
-
-                    b.Property<DateTime>("RentedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("SYSDATETIME()");
-
-                    b.Property<string>("ReturnCondition")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<decimal>("UnitPrice")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("DetailId");
-
-                    b.HasIndex("BookingId");
-
-                    b.HasIndex("EquipmentId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("BookingDetails_Equipments", (string)null);
-                });
-
             modelBuilder.Entity("ProSport.Domain.Entities.BookingPaymentShare", b =>
                 {
                     b.Property<int>("BookingPaymentShareId")
@@ -837,54 +761,6 @@ namespace ProSport.Infrastructure.Migrations
                         .HasFilter("[IsDeleted] = 0");
 
                     b.ToTable("ComplexReviews");
-                });
-
-            modelBuilder.Entity("ProSport.Domain.Entities.ConditionCheck", b =>
-                {
-                    b.Property<int>("ConditionCheckId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ConditionCheckId"));
-
-                    b.Property<string>("CheckType")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Condition")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("ImageUrls")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsFinal")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Notes")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("RentalAssetId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("RentalSessionId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("StaffUserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("ConditionCheckId");
-
-                    b.HasIndex("RentalAssetId");
-
-                    b.HasIndex("RentalSessionId");
-
-                    b.HasIndex("StaffUserId");
-
-                    b.ToTable("ConditionChecks");
                 });
 
             modelBuilder.Entity("ProSport.Domain.Entities.Court", b =>
@@ -2323,188 +2199,6 @@ namespace ProSport.Infrastructure.Migrations
                     b.ToTable("RecurringBookingRules");
                 });
 
-            modelBuilder.Entity("ProSport.Domain.Entities.RentalAsset", b =>
-                {
-                    b.Property<int>("RentalAssetId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("RentalAssetId"));
-
-                    b.Property<string>("AssetCode")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("ComplexId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Condition")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("CreatedAt");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit")
-                        .HasColumnName("IsDeleted");
-
-                    b.Property<DateTime?>("LastConditionCheck")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("MaintenanceNote")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("ProductStockId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("RentCount")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("UpdatedAt");
-
-                    b.HasKey("RentalAssetId");
-
-                    b.HasIndex("ProductStockId");
-
-                    b.HasIndex("ComplexId", "AssetCode")
-                        .IsUnique()
-                        .HasFilter("[IsDeleted] = 0");
-
-                    b.ToTable("RentalAssets");
-                });
-
-            modelBuilder.Entity("ProSport.Domain.Entities.RentalSession", b =>
-                {
-                    b.Property<int>("RentalSessionId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("RentalSessionId"));
-
-                    b.Property<int?>("BookingId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("CompletedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("ComplexId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("CreatedAt");
-
-                    b.Property<int>("CustomerUserId")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit")
-                        .HasColumnName("IsDeleted");
-
-                    b.Property<decimal>("RentalFee")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int?>("StaffUserId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal>("SurchargeTotal")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("UpdatedAt");
-
-                    b.HasKey("RentalSessionId");
-
-                    b.HasIndex("BookingId");
-
-                    b.HasIndex("ComplexId");
-
-                    b.HasIndex("CustomerUserId");
-
-                    b.HasIndex("StaffUserId");
-
-                    b.ToTable("RentalSessions");
-                });
-
-            modelBuilder.Entity("ProSport.Domain.Entities.RentalSessionAsset", b =>
-                {
-                    b.Property<int>("RentalSessionAssetId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("RentalSessionAssetId"));
-
-                    b.Property<string>("AfterCondition")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("BeforeCondition")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("RentalAssetId")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("RentalPriceAtTime")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("RentalSessionId")
-                        .HasColumnType("int");
-
-                    b.HasKey("RentalSessionAssetId");
-
-                    b.HasIndex("RentalAssetId");
-
-                    b.HasIndex("RentalSessionId");
-
-                    b.ToTable("RentalSessionAssets");
-                });
-
-            modelBuilder.Entity("ProSport.Domain.Entities.RentalSurcharge", b =>
-                {
-                    b.Property<int>("RentalSurchargeId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("RentalSurchargeId"));
-
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("AppliedByUserId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Reason")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("RentalSessionId")
-                        .HasColumnType("int");
-
-                    b.HasKey("RentalSurchargeId");
-
-                    b.HasIndex("AppliedByUserId");
-
-                    b.HasIndex("RentalSessionId");
-
-                    b.ToTable("RentalSurcharges");
-                });
-
             modelBuilder.Entity("ProSport.Domain.Entities.Report", b =>
                 {
                     b.Property<int>("ReportId")
@@ -2581,16 +2275,10 @@ namespace ProSport.Infrastructure.Migrations
                     b.Property<int?>("AssignedByUserId")
                         .HasColumnType("int");
 
-                    b.Property<bool>("CanApplySurcharge")
-                        .HasColumnType("bit");
-
                     b.Property<bool>("CanCheckIn")
                         .HasColumnType("bit");
 
                     b.Property<bool>("CanCreateWalkIn")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("CanManageRental")
                         .HasColumnType("bit");
 
                     b.Property<int>("ComplexId")
@@ -2634,10 +2322,8 @@ namespace ProSport.Infrastructure.Migrations
                         {
                             StaffAssignmentId = 1,
                             AssignedByUserId = 12,
-                            CanApplySurcharge = false,
                             CanCheckIn = true,
                             CanCreateWalkIn = true,
-                            CanManageRental = true,
                             ComplexId = 1,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             IsDeleted = false,
@@ -2648,10 +2334,8 @@ namespace ProSport.Infrastructure.Migrations
                         {
                             StaffAssignmentId = 2,
                             AssignedByUserId = 12,
-                            CanApplySurcharge = true,
                             CanCheckIn = true,
                             CanCreateWalkIn = true,
-                            CanManageRental = true,
                             ComplexId = 1,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             IsDeleted = false,
@@ -3283,30 +2967,6 @@ namespace ProSport.Infrastructure.Migrations
                     b.Navigation("Court");
                 });
 
-            modelBuilder.Entity("ProSport.Domain.Entities.BookingDetailEquipment", b =>
-                {
-                    b.HasOne("ProSport.Domain.Entities.Booking", "Booking")
-                        .WithMany()
-                        .HasForeignKey("BookingId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.HasOne("ProSport.Domain.Entities.Equipment", "Equipment")
-                        .WithMany()
-                        .HasForeignKey("EquipmentId")
-                        .IsRequired();
-
-                    b.HasOne("ProSport.Domain.Entities.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .IsRequired();
-
-                    b.Navigation("Booking");
-
-                    b.Navigation("Equipment");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("ProSport.Domain.Entities.BookingPaymentShare", b =>
                 {
                     b.HasOne("ProSport.Domain.Entities.Booking", "Booking")
@@ -3464,32 +3124,6 @@ namespace ProSport.Infrastructure.Migrations
                     b.Navigation("Complex");
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("ProSport.Domain.Entities.ConditionCheck", b =>
-                {
-                    b.HasOne("ProSport.Domain.Entities.RentalAsset", "RentalAsset")
-                        .WithMany()
-                        .HasForeignKey("RentalAssetId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("ProSport.Domain.Entities.RentalSession", "RentalSession")
-                        .WithMany("ConditionChecks")
-                        .HasForeignKey("RentalSessionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ProSport.Domain.Entities.User", "Staff")
-                        .WithMany()
-                        .HasForeignKey("StaffUserId")
-                        .IsRequired();
-
-                    b.Navigation("RentalAsset");
-
-                    b.Navigation("RentalSession");
-
-                    b.Navigation("Staff");
                 });
 
             modelBuilder.Entity("ProSport.Domain.Entities.Court", b =>
@@ -3729,92 +3363,6 @@ namespace ProSport.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("ProSport.Domain.Entities.RentalAsset", b =>
-                {
-                    b.HasOne("ProSport.Domain.Entities.Complex", "Complex")
-                        .WithMany()
-                        .HasForeignKey("ComplexId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ProSport.Domain.Entities.ProductStock", "ProductStock")
-                        .WithMany("RentalAssets")
-                        .HasForeignKey("ProductStockId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Complex");
-
-                    b.Navigation("ProductStock");
-                });
-
-            modelBuilder.Entity("ProSport.Domain.Entities.RentalSession", b =>
-                {
-                    b.HasOne("ProSport.Domain.Entities.Booking", "Booking")
-                        .WithMany()
-                        .HasForeignKey("BookingId");
-
-                    b.HasOne("ProSport.Domain.Entities.Complex", "Complex")
-                        .WithMany()
-                        .HasForeignKey("ComplexId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ProSport.Domain.Entities.User", "Customer")
-                        .WithMany()
-                        .HasForeignKey("CustomerUserId")
-                        .IsRequired();
-
-                    b.HasOne("ProSport.Domain.Entities.User", "Staff")
-                        .WithMany()
-                        .HasForeignKey("StaffUserId");
-
-                    b.Navigation("Booking");
-
-                    b.Navigation("Complex");
-
-                    b.Navigation("Customer");
-
-                    b.Navigation("Staff");
-                });
-
-            modelBuilder.Entity("ProSport.Domain.Entities.RentalSessionAsset", b =>
-                {
-                    b.HasOne("ProSport.Domain.Entities.RentalAsset", "RentalAsset")
-                        .WithMany("SessionAssets")
-                        .HasForeignKey("RentalAssetId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("ProSport.Domain.Entities.RentalSession", "RentalSession")
-                        .WithMany("SessionAssets")
-                        .HasForeignKey("RentalSessionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("RentalAsset");
-
-                    b.Navigation("RentalSession");
-                });
-
-            modelBuilder.Entity("ProSport.Domain.Entities.RentalSurcharge", b =>
-                {
-                    b.HasOne("ProSport.Domain.Entities.User", "AppliedBy")
-                        .WithMany()
-                        .HasForeignKey("AppliedByUserId")
-                        .IsRequired();
-
-                    b.HasOne("ProSport.Domain.Entities.RentalSession", "RentalSession")
-                        .WithMany("Surcharges")
-                        .HasForeignKey("RentalSessionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("AppliedBy");
-
-                    b.Navigation("RentalSession");
-                });
-
             modelBuilder.Entity("ProSport.Domain.Entities.Report", b =>
                 {
                     b.HasOne("ProSport.Domain.Entities.Match", "Match")
@@ -4010,25 +3558,6 @@ namespace ProSport.Infrastructure.Migrations
             modelBuilder.Entity("ProSport.Domain.Entities.Match", b =>
                 {
                     b.Navigation("Participants");
-                });
-
-            modelBuilder.Entity("ProSport.Domain.Entities.ProductStock", b =>
-                {
-                    b.Navigation("RentalAssets");
-                });
-
-            modelBuilder.Entity("ProSport.Domain.Entities.RentalAsset", b =>
-                {
-                    b.Navigation("SessionAssets");
-                });
-
-            modelBuilder.Entity("ProSport.Domain.Entities.RentalSession", b =>
-                {
-                    b.Navigation("ConditionChecks");
-
-                    b.Navigation("SessionAssets");
-
-                    b.Navigation("Surcharges");
                 });
 
             modelBuilder.Entity("ProSport.Domain.Entities.Tournament", b =>

@@ -4,15 +4,10 @@ public class OwnerDashboardDto
 {
     public decimal TotalRevenue { get; set; }
     public decimal BookingRevenue { get; set; }
-    public decimal RentalRevenue { get; set; }
-    public decimal ProductRevenue { get; set; }
-    public decimal SurchargeRevenue { get; set; }
     public decimal RefundAmount { get; set; }
     public int BookingCount { get; set; }
     public int PendingBookingCount { get; set; }
     public decimal OccupancyRate { get; set; }
-    public int ActiveRentalCount { get; set; }
-    public int DamagedAssetCount { get; set; }
     public int LowStockCount { get; set; }
     public List<OwnerUpcomingBookingDto> UpcomingBookings { get; set; } = new();
     public List<OwnerRevenuePointDto> RevenueByDate { get; set; } = new();
@@ -57,8 +52,6 @@ public class OwnerStaffDto
     public string Status { get; set; } = null!;
     public bool CanCheckIn { get; set; }
     public bool CanCreateWalkIn { get; set; }
-    public bool CanManageRental { get; set; }
-    public bool CanApplySurcharge { get; set; }
 }
 
 public class CreateStaffAssignmentDto
@@ -67,16 +60,12 @@ public class CreateStaffAssignmentDto
     public int ComplexId { get; set; }
     public bool CanCheckIn { get; set; } = true;
     public bool CanCreateWalkIn { get; set; } = true;
-    public bool CanManageRental { get; set; } = true;
-    public bool CanApplySurcharge { get; set; }
 }
 
 public class UpdateStaffPermissionsDto
 {
     public bool? CanCheckIn { get; set; }
     public bool? CanCreateWalkIn { get; set; }
-    public bool? CanManageRental { get; set; }
-    public bool? CanApplySurcharge { get; set; }
 }
 
 public class UpdateStaffStatusDto

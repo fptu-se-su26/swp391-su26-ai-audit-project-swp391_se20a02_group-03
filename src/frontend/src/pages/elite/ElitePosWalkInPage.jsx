@@ -111,7 +111,7 @@ export default function ElitePosWalkInPage() {
       if (existing) {
         return prev.map(i => i.equipmentId === item.equipmentId ? { ...i, quantity: i.quantity + 1 } : i)
       }
-      return [...prev, { equipmentId: item.equipmentId, name: item.equipmentName || item.name, unitPrice: item.retailPrice || item.rentalPricePerHour || 0, quantity: 1 }]
+      return [...prev, { equipmentId: item.equipmentId, name: item.equipmentName || item.name, unitPrice: item.retailPrice || 0, quantity: 1 }]
     })
   }
 
@@ -429,7 +429,7 @@ export default function ElitePosWalkInPage() {
                   >
                     <p className="text-[13px] font-extrabold text-foreground mb-1 truncate">{item.equipmentName || item.name}</p>
                     <p className="label-mono text-foreground-muted mb-2">
-                      {Number(item.retailPrice || item.rentalPricePerHour || 0).toLocaleString('vi-VN')}đ
+                      {Number(item.retailPrice || 0).toLocaleString('vi-VN')}đ
                     </p>
                     <span className="inline-flex items-center gap-1 text-xs font-bold text-accent">
                       <Plus size={12} /> Thêm vào hóa đơn

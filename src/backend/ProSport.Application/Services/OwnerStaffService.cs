@@ -51,8 +51,6 @@ public class OwnerStaffService : IOwnerStaffService
             Status = "Active",
             CanCheckIn = dto.CanCheckIn,
             CanCreateWalkIn = dto.CanCreateWalkIn,
-            CanManageRental = dto.CanManageRental,
-            CanApplySurcharge = dto.CanApplySurcharge,
             AssignedByUserId = ownerUserId,
             CreatedAt = DateTime.UtcNow,
             IsDeleted = false
@@ -71,8 +69,6 @@ public class OwnerStaffService : IOwnerStaffService
 
         if (dto.CanCheckIn.HasValue) assignment.CanCheckIn = dto.CanCheckIn.Value;
         if (dto.CanCreateWalkIn.HasValue) assignment.CanCreateWalkIn = dto.CanCreateWalkIn.Value;
-        if (dto.CanManageRental.HasValue) assignment.CanManageRental = dto.CanManageRental.Value;
-        if (dto.CanApplySurcharge.HasValue) assignment.CanApplySurcharge = dto.CanApplySurcharge.Value;
         assignment.UpdatedAt = DateTime.UtcNow;
 
         await _staffAssignmentRepository.UpdateAsync(assignment);
@@ -127,8 +123,6 @@ public class OwnerStaffService : IOwnerStaffService
         ComplexId = s.ComplexId,
         Status = s.Status,
         CanCheckIn = s.CanCheckIn,
-        CanCreateWalkIn = s.CanCreateWalkIn,
-        CanManageRental = s.CanManageRental,
-        CanApplySurcharge = s.CanApplySurcharge
+        CanCreateWalkIn = s.CanCreateWalkIn
     };
 }

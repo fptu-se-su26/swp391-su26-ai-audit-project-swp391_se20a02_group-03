@@ -36,122 +36,9 @@ public class UpdateProductStockDto
     public string? Status { get; set; }
 }
 
-public class RentalAssetDto
-{
-    public int RentalAssetId { get; set; }
-    public int ComplexId { get; set; }
-    public int ProductStockId { get; set; }
-    public string ProductName { get; set; } = "";
-    public string AssetCode { get; set; } = "";
-    public string Condition { get; set; } = "";
-    public string Status { get; set; } = "";
-    public int RentCount { get; set; }
-    public DateTime? LastConditionCheck { get; set; }
-    public string? MaintenanceNote { get; set; }
-}
-
-public class CreateRentalAssetDto
-{
-    public int ComplexId { get; set; }
-    public int ProductStockId { get; set; }
-    public string AssetCode { get; set; } = "";
-    public string Condition { get; set; } = "Good";
-    public string? MaintenanceNote { get; set; }
-}
-
-public class UpdateRentalAssetDto
-{
-    public string? Condition { get; set; }
-    public string? MaintenanceNote { get; set; }
-}
-
-public class UpdateRentalAssetStatusDto
-{
-    public string Status { get; set; } = "";
-    public string? MaintenanceNote { get; set; }
-}
-
-public class RentalSessionDto
-{
-    public int RentalSessionId { get; set; }
-    public int ComplexId { get; set; }
-    public int? BookingId { get; set; }
-    public string CustomerName { get; set; } = "";
-    public string? StaffName { get; set; }
-    public string Status { get; set; } = "";
-    public decimal RentalFee { get; set; }
-    public decimal SurchargeTotal { get; set; }
-    public DateTime CreatedAt { get; set; }
-    public DateTime? CompletedAt { get; set; }
-    public List<RentalSessionAssetDto> Assets { get; set; } = new();
-    public List<ConditionCheckDto> ConditionHistory { get; set; } = new();
-    public List<RentalSurchargeDto> Surcharges { get; set; } = new();
-}
-
-public class RentalSessionAssetDto
-{
-    public int RentalAssetId { get; set; }
-    public string AssetCode { get; set; } = "";
-    public string ProductName { get; set; } = "";
-    public decimal RentalPriceAtTime { get; set; }
-    public string BeforeCondition { get; set; } = "";
-    public string? AfterCondition { get; set; }
-}
-
-public class ConditionCheckDto
-{
-    public int ConditionCheckId { get; set; }
-    public int RentalAssetId { get; set; }
-    public string AssetCode { get; set; } = "";
-    public string CheckType { get; set; } = "";
-    public string Condition { get; set; } = "";
-    public string? ImageUrls { get; set; }
-    public string? Notes { get; set; }
-    public string StaffName { get; set; } = "";
-    public bool IsFinal { get; set; }
-    public DateTime CreatedAt { get; set; }
-}
-
-public class CreateConditionCheckDto
-{
-    public int RentalAssetId { get; set; }
-    public string CheckType { get; set; } = "After";
-    public string Condition { get; set; } = "Good";
-    public string? ImageUrls { get; set; }
-    public string? Notes { get; set; }
-    public bool MarkFinal { get; set; }
-}
-
-public class CreateRentalSurchargeDto
-{
-    public decimal Amount { get; set; }
-    public string Reason { get; set; } = "";
-}
-
-public class RentalSurchargeDto
-{
-    public int RentalSurchargeId { get; set; }
-    public decimal Amount { get; set; }
-    public string Reason { get; set; } = "";
-    public string AppliedByName { get; set; } = "";
-    public DateTime CreatedAt { get; set; }
-}
-
-public class CreateRentalSessionDto
-{
-    public int ComplexId { get; set; }
-    public int? BookingId { get; set; }
-    public int CustomerUserId { get; set; }
-    public List<int> RentalAssetIds { get; set; } = new();
-    public decimal RentalFee { get; set; }
-}
-
 public class OwnerReportRevenueDto
 {
     public decimal BookingRevenue { get; set; }
-    public decimal RentalRevenue { get; set; }
-    public decimal ProductRevenue { get; set; }
-    public decimal SurchargeRevenue { get; set; }
     public decimal RefundAmount { get; set; }
     public decimal EscrowHeld { get; set; }
     public decimal NetRevenue { get; set; }
@@ -175,8 +62,6 @@ public class RevenueByCourtDto
 public class OwnerReportOccupancyDto
 {
     public List<CourtOccupancyDto> Courts { get; set; } = new();
-    public decimal RentalUtilization { get; set; }
-    public decimal DamageRate { get; set; }
 }
 
 public class CourtOccupancyDto
@@ -192,10 +77,6 @@ public class OwnerReportInventoryDto
 {
     public int TotalProducts { get; set; }
     public int LowStockCount { get; set; }
-    public int AvailableAssets { get; set; }
-    public int RentedAssets { get; set; }
-    public int DamagedAssets { get; set; }
-    public int MaintenanceAssets { get; set; }
 }
 
 public class ComplexReviewDto
@@ -301,16 +182,6 @@ public class OwnerInventoryQueryDto
     public string? Keyword { get; set; }
     public string? Category { get; set; }
     public string? Status { get; set; }
-    public int Page { get; set; } = 1;
-    public int Size { get; set; } = 20;
-}
-
-public class OwnerRentalQueryDto
-{
-    public int ComplexId { get; set; }
-    public string? Status { get; set; }
-    public int? BookingId { get; set; }
-    public string? Keyword { get; set; }
     public int Page { get; set; } = 1;
     public int Size { get; set; } = 20;
 }

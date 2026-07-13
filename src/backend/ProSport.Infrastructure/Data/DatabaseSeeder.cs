@@ -5,58 +5,6 @@ namespace ProSport.Infrastructure.Data;
 
 public static class DatabaseSeeder
 {
-    public static async Task EnsureEquipmentRentalSchemaAsync(ProSportDbContext context)
-    {
-        // Only run if the legacy table exists; EF migrations may have replaced it
-        await context.Database.ExecuteSqlRawAsync("""
-            IF OBJECT_ID('dbo.BookingDetails_Equipments', 'U') IS NOT NULL
-            BEGIN
-                IF EXISTS (
-                    SELECT 1 FROM sys.columns
-                    WHERE object_id = OBJECT_ID('dbo.BookingDetails_Equipments')
-                      AND name = 'BookingId' AND is_nullable = 0)
-                BEGIN
-                    ALTER TABLE [dbo].[BookingDetails_Equipments] ALTER COLUMN [BookingId] INT NULL;
-                END
-
-                IF COL_LENGTH('dbo.BookingDetails_Equipments', 'UserId') IS NULL
-                    ALTER TABLE [dbo].[BookingDetails_Equipments] ADD [UserId] INT NOT NULL
-                        CONSTRAINT [DF_BookingDetailsEquip_UserId] DEFAULT (1);
-
-                IF COL_LENGTH('dbo.BookingDetails_Equipments', 'DepositAmount') IS NULL
-                    ALTER TABLE [dbo].[BookingDetails_Equipments] ADD [DepositAmount] DECIMAL(18,2) NOT NULL
-                        CONSTRAINT [DF_BookingDetailsEquip_DepositAmount] DEFAULT (0);
-
-                IF COL_LENGTH('dbo.BookingDetails_Equipments', 'DepositStatus') IS NULL
-                    ALTER TABLE [dbo].[BookingDetails_Equipments] ADD [DepositStatus] VARCHAR(20) NOT NULL
-                        CONSTRAINT [DF_BookingDetailsEquip_DepositStatus] DEFAULT ('Held');
-
-                IF COL_LENGTH('dbo.BookingDetails_Equipments', 'RentalStatus') IS NULL
-                    ALTER TABLE [dbo].[BookingDetails_Equipments] ADD [RentalStatus] VARCHAR(20) NOT NULL
-                        CONSTRAINT [DF_BookingDetailsEquip_RentalStatus] DEFAULT ('Rented');
-
-                IF COL_LENGTH('dbo.BookingDetails_Equipments', 'ReturnCondition') IS NULL
-                    ALTER TABLE [dbo].[BookingDetails_Equipments] ADD [ReturnCondition] VARCHAR(20) NULL;
-
-                IF COL_LENGTH('dbo.BookingDetails_Equipments', 'DamageNote') IS NULL
-                    ALTER TABLE [dbo].[BookingDetails_Equipments] ADD [DamageNote] NVARCHAR(500) NULL;
-
-                IF COL_LENGTH('dbo.BookingDetails_Equipments', 'DamageFee') IS NULL
-                    ALTER TABLE [dbo].[BookingDetails_Equipments] ADD [DamageFee] DECIMAL(18,2) NULL;
-
-                IF COL_LENGTH('dbo.BookingDetails_Equipments', 'DepositRefundAmount') IS NULL
-                    ALTER TABLE [dbo].[BookingDetails_Equipments] ADD [DepositRefundAmount] DECIMAL(18,2) NULL;
-
-                IF COL_LENGTH('dbo.BookingDetails_Equipments', 'AdditionalCharge') IS NULL
-                    ALTER TABLE [dbo].[BookingDetails_Equipments] ADD [AdditionalCharge] DECIMAL(18,2) NULL;
-
-                IF COL_LENGTH('dbo.BookingDetails_Equipments', 'RentedAt') IS NULL
-                    ALTER TABLE [dbo].[BookingDetails_Equipments] ADD [RentedAt] DATETIME2(7) NOT NULL
-                        CONSTRAINT [DF_BookingDetailsEquip_RentedAt] DEFAULT (SYSDATETIME());
-            END
-            """);
-    }
-
     public static async Task SeedEquipmentAsync(ProSportDbContext context)
     {
         await EnsureCategoryColumnAsync(context);

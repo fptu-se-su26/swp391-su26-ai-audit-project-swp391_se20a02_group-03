@@ -15,8 +15,6 @@ public class StaffAssignment : BaseEntity
 
     public bool CanCheckIn { get; set; } = true;
     public bool CanCreateWalkIn { get; set; } = true;
-    public bool CanManageRental { get; set; } = true;
-    public bool CanApplySurcharge { get; set; } = false;
 
     public int? AssignedByUserId { get; set; }
 

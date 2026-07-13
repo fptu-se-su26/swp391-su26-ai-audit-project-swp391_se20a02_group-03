@@ -14,10 +14,9 @@ public class OwnerAccessServiceTests
     private readonly Mock<IUserRepository> _userRepo = new();
     private readonly Mock<ICourtRepository> _courtRepo = new();
     private readonly Mock<IBookingRepository> _bookingRepo = new();
-    private readonly Mock<IRentalSessionRepository> _rentalRepo = new();
 
     private OwnerAccessService CreateService() =>
-        new(_complexOwnerRepo.Object, _complexRepo.Object, _userRepo.Object, _courtRepo.Object, _bookingRepo.Object, _rentalRepo.Object);
+        new(_complexOwnerRepo.Object, _complexRepo.Object, _userRepo.Object, _courtRepo.Object, _bookingRepo.Object);
 
     [Fact]
     public async Task HasAccessToComplex_ReturnsTrue_WhenOwnerLinked()
@@ -92,31 +91,5 @@ public class OwnerAccessServiceTests
         var svc = CreateService();
         var ids = await svc.GetManagedComplexIdsAsync(1);
         Assert.Equal(new[] { 1, 3 }, ids);
-    }
-
-    [Fact]
-    public async Task RequireRentalAccess_ThrowsNotFound_WhenSessionMissing()
-    {
-        _rentalRepo.Setup(r => r.GetComplexIdBySessionIdAsync(99)).ReturnsAsync((int?)null);
-        var svc = CreateService();
-        await Assert.ThrowsAsync<OwnerResourceNotFoundException>(() => svc.RequireRentalAccessAsync(1, 99, false));
-    }
-
-    [Fact]
-    public async Task RequireRentalAccess_ThrowsNotFound_WhenOtherComplex()
-    {
-        _rentalRepo.Setup(r => r.GetComplexIdBySessionIdAsync(5)).ReturnsAsync(2);
-        _complexOwnerRepo.Setup(r => r.IsUserOwnerOfComplexAsync(1, 2)).ReturnsAsync(false);
-        var svc = CreateService();
-        await Assert.ThrowsAsync<OwnerResourceNotFoundException>(() => svc.RequireRentalAccessAsync(1, 5, false));
-    }
-
-    [Fact]
-    public async Task RequireRentalAccess_Succeeds_WhenOwnerOfComplex()
-    {
-        _rentalRepo.Setup(r => r.GetComplexIdBySessionIdAsync(5)).ReturnsAsync(2);
-        _complexOwnerRepo.Setup(r => r.IsUserOwnerOfComplexAsync(1, 2)).ReturnsAsync(true);
-        var svc = CreateService();
-        await svc.RequireRentalAccessAsync(1, 5, false);
     }
 }

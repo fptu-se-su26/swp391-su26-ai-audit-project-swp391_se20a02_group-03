@@ -14,5 +14,4 @@ public interface IOwnerAccessService
     Task RequireOwnerOrAdminAccessAsync(int userId, int complexId, bool isAdmin);
     Task RequireCourtAccessAsync(int userId, int courtId, bool isAdmin);
     Task RequireBookingAccessAsync(int userId, int bookingId, bool isAdmin);
-    Task RequireRentalAccessAsync(int userId, int rentalSessionId, bool isAdmin);
 }
