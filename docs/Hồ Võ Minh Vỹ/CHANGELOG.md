@@ -107,6 +107,9 @@ Author: VyHVM
 - Bắt buộc xác thực E-KYC (và kiểm tra tài khoản bị khóa) trước khi Đặt sân và Tham gia kèo ký quỹ, nhằm chống bùng kèo/tài khoản ảo
 - Bổ sung 2 unit test kiểm chứng chặn user chưa xác thực E-KYC (đặt sân, tham gia kèo)
 
+### Fixed
+- Vá lỗ hổng toàn vẹn Trust Score: `RatingService` giờ bắt buộc người chấm và người bị chấm đều là thành viên (Approved) của cùng một trận đấu trước khi ghi đánh giá, chống spam thao túng điểm tín nhiệm
+
 ### AI-assisted
 - Dùng Claude Code (Claude Opus) khảo sát toàn bộ điểm phụ thuộc của rental, thực hiện xóa an toàn, và rà soát backend theo từng actor
-- Quyết định thủ công: chọn phương án regenerate migration; phạm vi enforce E-KYC (đặt sân + join kèo, bỏ qua walk-in); giữ nguyên UI Admin KYC
+- Quyết định thủ công: chọn phương án regenerate migration; phạm vi enforce E-KYC (đặt sân + join kèo, bỏ qua walk-in); giữ nguyên UI Admin KYC; giữ nguyên endpoint công khai leaderboard và quyền voucher của Staff

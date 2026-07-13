@@ -182,3 +182,18 @@ AI khảo sát rất kỹ trước khi sửa: phát hiện có 2 hệ rental tá
 
 ### Evaluation
 AI dựng bản đồ authorization và xác minh từng service. Điểm mạnh của hệ thống (ownership/host check, tenant isolation của Owner, chữ ký VNPay IPN) đều đúng. Phát hiện quan trọng: E-KYC chưa được bắt buộc và trạng thái E-KYC bị lệch. Tôi đồng ý cho AI sửa (chuẩn hóa trạng thái + thêm gate E-KYC cho đặt sân/join kèo), giữ nguyên hành vi walk-in. Build Release + 106 test pass.
+
+## Prompt #13
+- Date: 2026-07-14
+- AI Tool: Claude Code (Claude Opus)
+- Author: VyHVM
+- Purpose: Tiếp tục check backend từng actor và fix lỗi để hoàn thiện phần backend.
+
+### Prompt
+"Tiếp tục check backend các actor và fix lỗi cho hoàn thành luôn phần backend của dự án."
+
+### Expected Output
+- Rà soát sâu các endpoint chưa kiểm kỹ (upload, split-payment, recurring, rating, payment, owner GET) và fix các bug thật còn lại.
+
+### Evaluation
+AI soát thêm và xác nhận phần lớn backend đã chắc (ownership, tenant isolation ở tầng service, payment integrity, upload validation). Phát hiện 1 bug thật: RatingService cho phép đánh giá người không cùng trận đấu — đã fix + thêm 2 test. Các điểm còn lại (quyền voucher của Staff, endpoint leaderboard công khai) được xác định là quyết định thiết kế nên giữ nguyên để tránh phá vỡ Frontend.

@@ -129,3 +129,14 @@
 - Quyết định điều chỉnh (Human Decision): Đồng ý chuẩn hóa trạng thái về "Verified" (giữ EkycProfile.Status cho UI Admin), bắt buộc E-KYC khi đặt sân và join kèo, không chặn luồng walk-in tại quầy (nhân viên đã xác minh trực tiếp).
 - Tập tin áp dụng: src/backend
 - Trạng thái kiểm duyệt: Build Release thành công, 106 unit test pass (thêm 2 test kiểm chứng gate).
+
+##Log##13
+- Ngày thực hiện: 14/07/2026
+- Người thực hiện: VyHVM
+- Công cụ AI hỗ trợ: Claude Code (Claude Opus)
+- Mục tiêu: Tiếp tục rà soát backend theo từng actor và khắc phục lỗ hổng toàn vẹn dữ liệu đánh giá (Trust Score).
+- Tham chiếu Prompt: PROMPTS.md#prompt-13
+- Đề xuất từ AI: Phát hiện RatingService không kiểm tra người chấm/người bị chấm có cùng tham gia trận đấu, cho phép spam đánh giá thao túng Trust Score; đề xuất bắt buộc cả hai là participant Approved của kèo (đồng bộ với EloRatingService vốn đã kiểm đúng).
+- Quyết định điều chỉnh (Human Decision): Đồng ý siết kiểm participant; giữ nguyên leaderboard/trust-score công khai (là route guest cố ý) và quyền voucher của Staff (role nội bộ tin cậy) để không phá vỡ Frontend.
+- Tập tin áp dụng: src/backend
+- Trạng thái kiểm duyệt: Build OK, 108 unit test pass (thêm 2 test cho RatingService).
