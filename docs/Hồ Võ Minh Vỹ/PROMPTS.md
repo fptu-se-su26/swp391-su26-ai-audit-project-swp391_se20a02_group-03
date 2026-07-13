@@ -151,3 +151,34 @@ AI sinh CRUD rất nhanh. Tôi đã tự thêm một số trường trạng thá
 
 ### Evaluation
 AI gộp component tốt, nhưng cần review kỹ để tránh phá vỡ layout giao diện.
+
+## Prompt #11
+- Date: 2026-07-14
+- AI Tool: Claude Code (Claude Opus)
+- Author: VyHVM
+- Purpose: Loại bỏ hoàn toàn chức năng cho thuê đồ, giữ lại cáp kèo ký quỹ, đặt sân và bán dụng cụ.
+
+### Prompt
+"Dựa theo cấu trúc dự án, hãy hiểu hệ thống rồi loại bỏ hoàn toàn chức năng cho thuê đồ vì quá rắc rối; chỉ giữ lại các chức năng như cáp kèo ký quỹ, trung gian đặt sân, bán dụng cụ..."
+
+### Expected Output
+- Xóa toàn bộ code rental ở backend và frontend mà không phá vỡ các chức năng còn lại (đặc biệt là bán dụng cụ vốn dùng chung entity Equipment).
+- Cập nhật database/migration tương ứng; build và test phải xanh.
+
+### Evaluation
+AI khảo sát rất kỹ trước khi sửa: phát hiện có 2 hệ rental tách biệt và entity Equipment dùng chung cho cả bán lẫn thuê nên chỉ bóc đúng phần thuê. Tôi (Human Decision) chọn regenerate migration cho sạch và chỉ sửa code. Kết quả build backend/frontend thành công, 104 unit test pass.
+
+## Prompt #12
+- Date: 2026-07-14
+- AI Tool: Claude Code (Claude Opus)
+- Author: VyHVM
+- Purpose: Rà soát backend theo từng actor để tìm chỗ chưa hợp lý.
+
+### Prompt
+"Check 1 lượt phần backend của từng actor xem chỗ nào chưa hợp lý."
+
+### Expected Output
+- Bản đồ phân quyền của toàn bộ endpoint; chỉ ra lỗ hổng IDOR/logic/nhất quán theo từng actor (Guest, Customer, Staff, CourtOwner, Admin, Payment Gateway).
+
+### Evaluation
+AI dựng bản đồ authorization và xác minh từng service. Điểm mạnh của hệ thống (ownership/host check, tenant isolation của Owner, chữ ký VNPay IPN) đều đúng. Phát hiện quan trọng: E-KYC chưa được bắt buộc và trạng thái E-KYC bị lệch. Tôi đồng ý cho AI sửa (chuẩn hóa trạng thái + thêm gate E-KYC cho đặt sân/join kèo), giữ nguyên hành vi walk-in. Build Release + 106 test pass.

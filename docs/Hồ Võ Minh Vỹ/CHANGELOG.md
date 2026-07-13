@@ -91,3 +91,22 @@ Author: VyHVM
 - Dùng Google Gemini tạo CRUD API thiết bị kho
 - Dùng Cursor để tổ chức lại component Frontend
 - Quyết định thủ công: Gộp các component nhỏ và xóa code dư thừa, bổ sung thuộc tính tình trạng cho thiết bị kho
+
+## [2026-07-14]
+Author: VyHVM
+
+### Removed
+- Gỡ bỏ hoàn toàn chức năng Cho thuê đồ (equipment rental): xóa các entity `RentalAsset`, `RentalSession`, `RentalSessionAsset`, `ConditionCheck`, `RentalSurcharge`, `BookingDetailEquipment` cùng service/repository/controller/DTO liên quan ở cả 2 hệ (thuê tại quầy của Staff và Rental Asset của Owner)
+- Gỡ các trang và route rental phía Frontend (`OwnerRentals`, `OwnerRentalAssets`, `OwnerRentalDetail`, `DashRentals`, `EliteEquipment`) và chuyển trang cửa hàng về chế độ chỉ "Mua"
+
+### Changed
+- Tái tạo (regenerate) migration `InitialCreate` sạch, không còn bảng rental
+- Chuẩn hóa trạng thái xác thực E-KYC của User về bộ giá trị thống nhất (`Unverified`/`Pending`/`Verified`/`Rejected`), khắc phục lệch giữa "Verified" (seed/Google) và "Approved" (luồng duyệt); sửa luôn lỗi hiển thị "chưa xác minh" ở trang Admin Users
+
+### Added
+- Bắt buộc xác thực E-KYC (và kiểm tra tài khoản bị khóa) trước khi Đặt sân và Tham gia kèo ký quỹ, nhằm chống bùng kèo/tài khoản ảo
+- Bổ sung 2 unit test kiểm chứng chặn user chưa xác thực E-KYC (đặt sân, tham gia kèo)
+
+### AI-assisted
+- Dùng Claude Code (Claude Opus) khảo sát toàn bộ điểm phụ thuộc của rental, thực hiện xóa an toàn, và rà soát backend theo từng actor
+- Quyết định thủ công: chọn phương án regenerate migration; phạm vi enforce E-KYC (đặt sân + join kèo, bỏ qua walk-in); giữ nguyên UI Admin KYC

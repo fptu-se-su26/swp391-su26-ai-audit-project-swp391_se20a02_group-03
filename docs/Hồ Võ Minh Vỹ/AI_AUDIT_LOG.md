@@ -107,3 +107,25 @@
 - Quyết định điều chỉnh (Human Decision): Gộp một số component nhỏ lại và xoá code thừa
 - Tập tin áp dụng: src/frontend/src/components
 - Trạng thái kiểm duyệt: chạy không lỗi
+
+##Log##11
+- Ngày thực hiện: 14/07/2026
+- Người thực hiện: VyHVM
+- Công cụ AI hỗ trợ: Claude Code (Claude Opus)
+- Mục tiêu: Loại bỏ hoàn toàn chức năng "Cho thuê đồ" (equipment rental), chỉ giữ cáp kèo ký quỹ, trung gian đặt sân và bán dụng cụ.
+- Tham chiếu Prompt: PROMPTS.md#prompt-11
+- Đề xuất từ AI: Khảo sát toàn bộ điểm phụ thuộc của rental (2 hệ tách biệt: thuê tại quầy của Staff và Rental Asset của Owner), xóa entity/service/controller/DTO/migration liên quan; tách phần dùng chung (Equipment vừa bán vừa thuê) để giữ lại chức năng bán.
+- Quyết định điều chỉnh (Human Decision): Chọn phương án regenerate lại migration InitialCreate cho sạch (thay vì tạo migration drop bảng); chỉ sửa code, tạm chưa cập nhật SRS.
+- Tập tin áp dụng: src/backend, src/frontend
+- Trạng thái kiểm duyệt: Build backend (Release) + frontend đều thành công, 104 unit test pass.
+
+##Log##12
+- Ngày thực hiện: 14/07/2026
+- Người thực hiện: VyHVM
+- Công cụ AI hỗ trợ: Claude Code (Claude Opus)
+- Mục tiêu: Rà soát bảo mật/logic backend theo từng actor và khắc phục lỗ hổng E-KYC.
+- Tham chiếu Prompt: PROMPTS.md#prompt-12
+- Đề xuất từ AI: Dựng bản đồ phân quyền toàn bộ endpoint; phát hiện E-KYC chưa được bắt buộc ở luồng đặt sân/tham gia kèo và trạng thái E-KYC bị lệch ("Verified" ở seed/Google vs "Approved" ở luồng duyệt); đề xuất chuẩn hóa hằng số trạng thái + thêm cơ chế chặn xác thực.
+- Quyết định điều chỉnh (Human Decision): Đồng ý chuẩn hóa trạng thái về "Verified" (giữ EkycProfile.Status cho UI Admin), bắt buộc E-KYC khi đặt sân và join kèo, không chặn luồng walk-in tại quầy (nhân viên đã xác minh trực tiếp).
+- Tập tin áp dụng: src/backend
+- Trạng thái kiểm duyệt: Build Release thành công, 106 unit test pass (thêm 2 test kiểm chứng gate).
