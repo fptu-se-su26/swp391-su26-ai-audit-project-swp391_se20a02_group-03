@@ -103,6 +103,15 @@ public class BookingService : IBookingService
             if (dto.Details == null || !dto.Details.Any())
                 return new ApiResponseDto<BookingDto>(400, "Phải có ít nhất 1 chi tiết đặt sân.");
 
+            // TK-004: Bắt buộc xác thực E-KYC trước khi đặt sân (chống bùng kèo / tài khoản ảo).
+            var bookingUser = await _userRepository.GetByIdAsync(dto.UserId);
+            if (bookingUser == null)
+                return new ApiResponseDto<BookingDto>(404, "Không tìm thấy tài khoản.");
+            if (bookingUser.IsLocked)
+                return new ApiResponseDto<BookingDto>(403, "Tài khoản đang bị khóa.");
+            if (!bookingUser.IsVerified)
+                return new ApiResponseDto<BookingDto>(403, "Tài khoản chưa xác thực E-KYC. Vui lòng hoàn tất xác thực định danh trước khi đặt sân.");
+
             // Anti-spam: Giới hạn tối đa 3 booking Pending chưa thanh toán
             var userBookings = await _bookingRepository.GetByUserIdAsync(dto.UserId);
             var pendingCount = userBookings.Count(b => b.Status == BookingStatus.Pending
@@ -394,7 +403,7 @@ public class BookingService : IBookingService
                 var courtNames = string.Join(", ", booking.BookingDetails.Select(bd => bd.Court?.Name ?? $"Court {bd.CourtId}"));
                 var firstDetail = booking.BookingDetails.FirstOrDefault();
                 var bookingDate = firstDetail?.BookingDate.ToString("dd/MM/yyyy");
-                var timeRange = $"{firstDetail?.StartTime:HH\\:mm} - {firstDetail?.EndTime:HH\\:mm}";
+                var timeRange = $"{firstDetail?.StartTime:hh\\:mm} - {firstDetail?.EndTime:hh\\:mm}";
 
                 var detailsHtml = $@"
                     <p><b>Booking ID:</b> #{booking.BookingId}</p>

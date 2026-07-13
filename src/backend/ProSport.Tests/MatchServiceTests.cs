@@ -16,6 +16,7 @@ public class MatchServiceTests
     private readonly Mock<IMatchRepository> _matchRepoMock;
     private readonly Mock<IBookingRepository> _bookingRepoMock;
     private readonly Mock<IEscrowService> _escrowServiceMock;
+    private readonly Mock<IUserRepository> _userRepoMock;
     private readonly Mock<ILogger<MatchService>> _loggerMock;
     private readonly MatchService _matchService;
 
@@ -34,13 +35,37 @@ public class MatchServiceTests
         courtRepoMock.Setup(c => c.GetByIdAsync(It.IsAny<int>()))
             .ReturnsAsync(new Court { CourtId = 1, ComplexId = 1 });
 
+        _userRepoMock = new Mock<IUserRepository>();
+        // Mặc định: người tham gia kèo đã xác thực E-KYC (gate TK-004).
+        _userRepoMock.Setup(u => u.GetByIdAsync(It.IsAny<int>()))
+            .ReturnsAsync(new User { UserId = 1, Role = "Customer", EKycStatus = "Verified", IsLocked = false });
+
         _matchService = new MatchService(
             _matchRepoMock.Object,
             _bookingRepoMock.Object,
             _escrowServiceMock.Object,
             cancelPolicyMock.Object,
             courtRepoMock.Object,
+            _userRepoMock.Object,
             _loggerMock.Object);
+    }
+
+    [Fact]
+    public async Task JoinMatchAsync_Returns403_WhenJoinerNotEkycVerified()
+    {
+        // TK-004: joiner chưa xác thực E-KYC không được tham gia kèo ký quỹ.
+        var matchId = 1;
+        var joinerId = 9;
+        _matchRepoMock.Setup(x => x.GetMatchByIdAsync(matchId))
+            .ReturnsAsync(new ProSport.Domain.Entities.Match { MatchId = matchId, HostId = 4, Status = "Open" });
+        _userRepoMock.Setup(u => u.GetByIdAsync(joinerId))
+            .ReturnsAsync(new User { UserId = joinerId, Role = "Customer", EKycStatus = "Unverified", IsLocked = false });
+
+        var result = await _matchService.JoinMatchAsync(matchId, joinerId);
+
+        result.StatusCode.Should().Be(403);
+        result.Message.Should().Contain("E-KYC");
+        _matchRepoMock.Verify(x => x.ExecuteJoinMatchTransactionAsync(It.IsAny<int>(), It.IsAny<int>()), Times.Never);
     }
 
     // BUG 5 — host bấm "Tham gia" kèo của chính mình phải bị chặn TẠI SERVICE,

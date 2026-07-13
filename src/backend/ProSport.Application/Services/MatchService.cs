@@ -12,14 +12,16 @@ public class MatchService : IMatchService
     private readonly IEscrowService _escrowService;
     private readonly ICancellationPolicyService _cancellationPolicy;
     private readonly ICourtRepository _courtRepository;
+    private readonly IUserRepository _userRepository;
     private readonly ILogger<MatchService> _logger;
 
     public MatchService(
-        IMatchRepository matchRepository, 
-        IBookingRepository bookingRepository, 
+        IMatchRepository matchRepository,
+        IBookingRepository bookingRepository,
         IEscrowService escrowService,
         ICancellationPolicyService cancellationPolicy,
         ICourtRepository courtRepository,
+        IUserRepository userRepository,
         ILogger<MatchService> logger)
     {
         _matchRepository = matchRepository;
@@ -27,6 +29,7 @@ public class MatchService : IMatchService
         _escrowService = escrowService;
         _cancellationPolicy = cancellationPolicy;
         _courtRepository = courtRepository;
+        _userRepository = userRepository;
         _logger = logger;
     }
 
@@ -122,6 +125,15 @@ public class MatchService : IMatchService
                 return new ApiResponseDto<bool>(400, "Kèo không tồn tại.", false);
             if (match.HostId == userId)
                 return new ApiResponseDto<bool>(400, "Chủ kèo không thể tham gia kèo của chính mình.", false);
+
+            // TK-004: Bắt buộc xác thực E-KYC trước khi tham gia kèo ký quỹ (chống bùng kèo).
+            var joiner = await _userRepository.GetByIdAsync(userId);
+            if (joiner == null)
+                return new ApiResponseDto<bool>(404, "Không tìm thấy tài khoản.", false);
+            if (joiner.IsLocked)
+                return new ApiResponseDto<bool>(403, "Tài khoản đang bị khóa.", false);
+            if (!joiner.IsVerified)
+                return new ApiResponseDto<bool>(403, "Tài khoản chưa xác thực E-KYC. Vui lòng hoàn tất xác thực định danh trước khi tham gia kèo.", false);
 
             // Delegate toàn bộ logic phức tạp (lock, validate, transaction) xuống Repository
             await _matchRepository.ExecuteJoinMatchTransactionAsync(matchId, userId);
