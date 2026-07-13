@@ -88,4 +88,42 @@ public class EscrowServiceTests
         _escrowRepoMock.Verify(x => x.PayFromWalletAtomicAsync(userId, amount, bookingId), Times.Once);
         _bookingRepoMock.Verify(x => x.UpdateAsync(It.IsAny<Booking>()), Times.Never); // Should not happen in Service anymore
     }
+
+    [Fact]
+    public async Task PayMatchFeeAsync_WhenAlreadyPaidByUser_ReturnsSuccessWithoutDebiting()
+    {
+        var userId = 7; var matchId = 3; var amount = 50000m;
+        var wallet = new EscrowWallet { EscrowWalletId = 5, UserId = userId, Balance = 200000m };
+        _escrowRepoMock.Setup(x => x.ExecuteInTransactionAsync(It.IsAny<Func<Task<ApiResponseDto<bool>>>>()))
+            .Returns<Func<Task<ApiResponseDto<bool>>>>(func => func());
+        _escrowRepoMock.Setup(x => x.GetWalletByUserIdAsync(userId)).ReturnsAsync(wallet);
+        _escrowRepoMock.Setup(x => x.TransactionExistsByReferenceIdAsync($"MATCH-{matchId}-{userId}")).ReturnsAsync(true);
+
+        var result = await _escrowService.PayMatchFeeAsync(userId, matchId, amount, "");
+
+        result.StatusCode.Should().Be(200);
+        _escrowRepoMock.Verify(x => x.TryDebitWalletAsync(It.IsAny<int>(), It.IsAny<decimal>()), Times.Never);
+        _escrowRepoMock.Verify(x => x.AddTransactionAsync(It.IsAny<Transaction>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task PayMatchFeeAsync_WritesReferenceIdScopedToUser_SoDifferentUsersDoNotCollide()
+    {
+        var userId = 7; var matchId = 3; var amount = 50000m;
+        var wallet = new EscrowWallet { EscrowWalletId = 5, UserId = userId, Balance = 200000m };
+        _escrowRepoMock.Setup(x => x.ExecuteInTransactionAsync(It.IsAny<Func<Task<ApiResponseDto<bool>>>>()))
+            .Returns<Func<Task<ApiResponseDto<bool>>>>(func => func());
+        _escrowRepoMock.Setup(x => x.GetWalletByUserIdAsync(userId)).ReturnsAsync(wallet);
+        _escrowRepoMock.Setup(x => x.TransactionExistsByReferenceIdAsync(It.IsAny<string>())).ReturnsAsync(false);
+        _escrowRepoMock.Setup(x => x.TryDebitWalletAsync(userId, amount)).ReturnsAsync(true);
+        Transaction? captured = null;
+        _escrowRepoMock.Setup(x => x.AddTransactionAsync(It.IsAny<Transaction>()))
+            .Callback<Transaction>(t => captured = t).Returns(Task.CompletedTask);
+
+        var result = await _escrowService.PayMatchFeeAsync(userId, matchId, amount, "");
+
+        result.StatusCode.Should().Be(200);
+        captured.Should().NotBeNull();
+        captured!.ReferenceId.Should().Be($"MATCH-{matchId}-{userId}");
+    }
 }

@@ -341,11 +341,19 @@ public class EscrowService : IEscrowService
             if (amount <= 0)
                 return new ApiResponseDto<bool>(400, "Số tiền phải lớn hơn 0", false);
 
+            // ReferenceId phải unique theo (match, user): Transaction.ReferenceId có unique index,
+            // nên "MATCH-{matchId}" (thiếu userId) khiến người thứ 2 trả phí cùng kèo bị lỗi.
+            var referenceId = $"MATCH-{matchId}-{userId}";
+
             return await _escrowRepository.ExecuteInTransactionAsync(async () =>
             {
                 var wallet = await _escrowRepository.GetWalletByUserIdAsync(userId);
                 if (wallet == null)
                     return new ApiResponseDto<bool>(404, "Ví Escrow không tồn tại. Vui lòng nạp tiền trước.", false);
+
+                // Idempotent: nếu user đã trả phí kèo này rồi thì không trừ tiền lần nữa.
+                if (await _escrowRepository.TransactionExistsByReferenceIdAsync(referenceId))
+                    return new ApiResponseDto<bool>(200, "Bạn đã thanh toán phí tham gia kèo này trước đó", true);
 
                 if (wallet.Balance < amount)
                     return new ApiResponseDto<bool>(400,
@@ -362,7 +370,7 @@ public class EscrowService : IEscrowService
                     Amount = amount,
                     Type = TransactionType.Payment,
                     Status = TransactionStatus.Completed,
-                    ReferenceId = $"MATCH-{matchId}",
+                    ReferenceId = referenceId,
                     Description = string.IsNullOrWhiteSpace(description)
                         ? $"Thanh toán phí tham gia kèo #{matchId}"
                         : description
