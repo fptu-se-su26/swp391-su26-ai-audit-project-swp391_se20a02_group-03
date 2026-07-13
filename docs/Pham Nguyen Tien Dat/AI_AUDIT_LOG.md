@@ -573,3 +573,64 @@
 - `dotnet ef database update` — migration performance indexes applied.
 - Push: `origin/DE190147/audit-module` @ **`2a0924b`** (`4e0c435..2a0924b`).
 - Smoke test: checkout giỏ thiếu số dư ví → message *"Số dư ví không đủ"*; checkout có `bookingId` chỉ trừ item liên kết; operator cancel booking đã paid → hoàn full amount.
+
+
+
+
+---
+
+## Log #18
+- **Ngày:** 2026-07-13
+- **Người thực hiện:** Phạm Nguyễn Tiến Đạt
+- **Công cụ AI:** Claude Code (Claude Fable 5)
+- **Mục đích:** Tổng kiểm định vận hành toàn hệ thống (Operational Audit): tái cấu trúc hạ tầng Database Migration, sửa 6 lỗi luồng Customer theo quy trình Planning Gate + TDD, audit và vá 5 lỗi Admin Portal, khắc phục lỗi tài chính múi giờ, dọn dẹp secrets/rác repo và phát hành lên nhánh làm việc.
+- **Tham chiếu Prompt:** Prompt #18 — *"Kiểm tra, hoàn thiện và xác minh 6 lỗi thực tế trong toàn bộ luồng customer của hệ thống ProSport (trang chủ, kèo đấu, lịch sử đặt sân, catalog, chi tiết sản phẩm, giỏ hàng, chính sách hủy sân, match participation & escrow wallet, tính toàn vẹn database). Tuân thủ mandatory planning gate: khảo sát working tree, lập root-cause matrix, viết specification và kế hoạch theo từng file, chỉ sửa sau khi được phê duyệt. Áp dụng TDD: viết test tái hiện lỗi, chứng minh test thất bại đúng nguyên nhân, sửa nhỏ nhất, chạy regression suite. Sau đó kiểm tra giao diện và chức năng phần Admin, nêu các điểm chưa ổn định hoặc gây lỗi, nghiên cứu và thực hiện sửa chữa.`."*
+
+### Tóm tắt kết quả AI
+
+**A. Hạ tầng Database & Bootstrap**
+- **Squash migrations:** Gộp 16 migration cũ (không thể dựng DB từ số 0 do thiếu `InitialCreate`) thành `20260712152036_InitialCreate` + tách riêng `AddUserPhoneUniqueIndex` — DB legacy tự nhận index qua đường pending-migration, xuất được SQL script chuẩn cho deploy.
+- **`DatabaseBootstrap` viết lại:** An toàn cho cả 3 trạng thái DB (chưa tồn tại / rỗng / legacy chưa baseline); dùng `IHistoryRepository.GetCreateIfNotExistsScript()` + `ProductInfo.GetVersion()` thay vì hard-code DDL/version; xóa danh sách migration id viết tay (`AllMigrationIds`) từng gây crash "duplicate column" ở lần khởi động thứ hai.
+- **Kiểm chứng 3 kịch bản:** DB mới tinh tự dựng 44 bảng + seed; DB legacy được baseline đúng; khởi động lần 2 boot sạch.
+
+**B. Sáu lỗi luồng Customer (Planning Gate + TDD)**
+- **Bug 1 — Contract API:** `GET /equipment/{id}` trả DTO trần trong khi interceptor unwrap envelope → trang chi tiết sản phẩm trắng. Chuẩn hóa `ApiResponseDto`, HTTP 404 thật + 2 contract tests.
+- **Bug 2 — Giờ kèo 00:00:** UI format giờ từ `matchDate` thay vì `startTime` (TimeSpan). Tách helper `formatSlotTime` (fallback `'—'`, không "Invalid Date").
+- **Bug 3 — Sự kiện quá khứ + countdown hardcode "2 giờ":** Helper `isEventFinished`/`formatTimeUntil` tính thật theo 4 mốc (Sắp bắt đầu/phút/giờ/ngày), lọc booking đã kết thúc khỏi "Sự kiện sắp tới".
+- **Bug 4 — Hoàn tiền lệch 7 tiếng (tài chính):** `CancellationPolicyService` so slot giờ VN với `DateTime.UtcNow` trần → khách được tính "hủy sớm hơn 7h", hưởng mức hoàn cao sai. Refactor nhận `TimeProvider` (DI `TimeProvider.System`), tái sử dụng `VnTimeHelper`, chặn hoàn tiền khi slot đã bắt đầu; sửa luôn `CalculateMatchLeaveReleaseAsync` cùng bug; **14 boundary tests fixed-time** (FakeTimeProvider tự viết, chạy ổn mọi timezone).
+- **Bug 5 — Host tự join kèo + ví escrow chặn sai:** Chặn `HostId == joinerId` tại Service layer (trước mọi side effect, verify repo không được gọi) + lớp phòng thủ thứ hai tại Repository; ví escrow tạo lazily trong transaction Serializable (10/13 user cũ không có ví từng bị chặn bởi lỗi "Ví trung gian không tồn tại"); unique index `IX_EscrowWallets_UserId` chống race.
+- **Bug 6 — `CurrentParticipants` lệch `MatchMembers`:** Xác minh invariant bằng code (count = số member Approved, tính cả host; MatchMembers là source of truth); seeder ghi member thật (host + joiner), idempotent; backfill DB có điều kiện + audit trước/sau.
+
+**C. Audit Admin Portal (8 trang) — 5 lỗi tìm thấy & sửa**
+- **[Nghiêm trọng] Bảng giá "vô hình":** Rules seed gắn `CourtTypeId` nhưng API + `BookingPriceCalculator` chỉ match `CourtId` → trang Cấu hình giá trống và mọi booking tính fallback hardcode 100k/giờ. Sửa query "effective rules" (theo sân HOẶC loại sân) tại repo + calculator + 3 nơi tính giá; FE thêm badge "Theo loại sân", ẩn nút xóa rule dùng chung.
+- **Admin bookings hiện "Người dùng #4":** Thêm `CustomerName` vào `BookingDto` + mapper, FE hiển thị và tìm kiếm theo tên khách.
+- **Badge EKYC "Unverified" tiếng Anh thô:** Bổ sung nhãn `'Chưa xác minh'`.
+- **Khiếu nại hiện "#5 → #6":** FE dùng `reporterName`/`reportedUserName` backend đã trả sẵn.
+- **Widget hiệu suất sân hiện raw "ACTIVE":** Thêm alias UPPERCASE cho label/màu.
+
+**D. Chất lượng mã & vá lỗi bổ sung**
+- Sửa mapping status Court UPPERCASE ở luồng đặt sân customer (mọi sân từng hiện "Tạm ngưng" — khách không đặt được sân); lookup nhãn case-insensitive trong `labels.js`.
+- Sửa noise SignalR "connection stopped during negotiation" (chờ `start()` settle trước khi `stop()` + tắt logger nội bộ); ẩn nút Hủy sân cho booking đã kết thúc.
+- Dọn secrets: JWT key thật trong `appsettings.json` → placeholder (production ép env var); gỡ `.vs/`, `build_errors*.txt`, `*.bak` khỏi Git; cập nhật `.gitignore`; sửa 6 nullable warnings; 18 lỗi ESLint `jsx-no-comment-textnodes`; bổ sung DataAnnotations cho 13 request DTO; suppress có chủ đích EF 10622 cho bảng lịch sử/chứng từ (kèm giải thích nghiệp vụ).
+
+### Quyết định & Can thiệp của con người
+- **Chấp nhận:** Toàn bộ root-cause matrix, kế hoạch triển khai theo planning gate, các bản vá backend/frontend và bộ test mở rộng.
+- **Can thiệp kỹ thuật 1 (Planning Gate):** Ra lệnh khảo sát + lập kế hoạch chi tiết và chờ phê duyệt trước khi sửa; quyết định không thêm dev-dependency Sqlite cho test concurrency (chấp nhận verify API-level + unique index).
+- **Can thiệp kỹ thuật 2 (Tinh chỉnh DatabaseBootstrap):** Trực tiếp hoàn thiện logic bootstrap — fail-fast với thông báo rõ khi DB legacy thiếu bảng (liệt kê bảng thiếu) thay vì baseline mù, dùng API EF chuẩn thay hard-code.
+- **Can thiệp kỹ thuật 3 (Cấu hình Google OAuth):** Cung cấp Client ID thật từ Google Cloud Console (origins `localhost:5173`/`127.0.0.1:5173`) để kích hoạt đăng nhập Google end-to-end trên môi trường dev.
+- **Can thiệp kỹ thuật 4 (Điều phối phạm vi):** Chỉ đạo tuần tự: audit customer → sửa + testing → audit admin → sửa; yêu cầu "làm tất cả" các hạng mục vệ sinh mã (secrets, warnings, validation, lint).
+- **Can thiệp kỹ thuật 5 (Version Control):** Ra lệnh đẩy toàn bộ lên nhánh `DE190147/audit-module`; xác nhận fast-forward an toàn (không force), loại rác session (`.claude/`, `.codex-work/`, `outputs/`) khỏi commit.
+
+### Áp dụng cho
+- **DB & bootstrap:** `Migrations/20260712152036_InitialCreate`, `20260712152121_AddUserPhoneUniqueIndex`, `DatabaseBootstrap.cs`, `StaffDemoSeeder.cs`, `ProSportDbContext.cs`
+- **Backend:** `CancellationPolicyService.cs`, `MatchService.cs`, `MatchRepository.cs`, `EquipmentController.cs`, `CourtRepository.cs`, `BookingPriceCalculator.cs`, `BookingService.cs`, `RecurringBookingService.cs`, `SplitPaymentService.cs`, `BookingDto.cs`, `Program.cs`, 13 request DTOs
+- **Tests:** `CancellationPolicyServiceTests.cs`, `EquipmentControllerTests.cs`, `MatchServiceTests.cs` (backend 95 → **113 tests**); `date.test.js` (frontend 6 → **25 tests**)
+- **Frontend:** `utils/date.js`, `utils/labels.js`, `hooks/useNotifications.js`, `ApexBookingPage/ApexMatchesPage/ApexHomePage/ApexBookingsPage.jsx`, `AdminBookingsPage/AdminUsersPage/AdminComplaintsPage/AdminDashboardPage/AdminCourtsPage/AdminPricingPage.jsx`, 9 trang public (ESLint)
+- **Cấu hình:** `appsettings.json`, `.gitignore`
+
+### Kiểm chứng
+- `dotnet build --no-restore` — **0 error, 0 warning**; `dotnet test` — **113/113 pass** (4 skip SQL Server integration).
+- Frontend: Vitest **25/25 pass**, ESLint **0 lỗi**, `npm run build` OK (~4s).
+- Truy vấn audit DB: **0/9 chỉ số vi phạm** (lệch participant count, duplicate/orphan members, ví âm, orphan transactions, Confirmed-chưa-Paid, count > capacity…).
+- Smoke test browser: đặt sân 3 bước tính đúng giá theo khung giờ; host join kèo bị chặn với message nghiệp vụ; trang chi tiết sản phẩm render đủ; bảng giá admin hiện 3 khung giá + badge; bookings admin hiện tên khách; console 0 lỗi.
+- Push fast-forward thành công: `origin/DE190147/audit-module` @ **`1bf691f`** (`b53e171..1bf691f`, 101 files).

@@ -429,3 +429,179 @@ Song song, nhóm tích hợp **Superpowers** (submodule, quy trình brainstormin
 - **Portal lớn cần hai vòng audit:** Vòng 1 (Owner CRUD + IDOR + báo cáo); vòng 2 (Escrow/cart/Shop kế toán + hiệu năng + regression test) — không gộp vào tuần riêng nếu cùng sprint phát hành trên một nhánh.
 - **Blackbox bổ sung whitebox, không thay thế:** Script `blackbox-api-test.ps1` nên chạy trước mọi merge lớn sau feature sprint.
 - **Regression test theo câu chuyện nghiệp vụ:** Scenario kiểu `CartCheckout_RollsBack_WhenWalletInsufficient` hiệu quả hơn assert HTTP mock rời rạc — con người định nghĩa «câu chuyện tiền» cần bảo vệ.
+
+
+
+
+
+# Reflection - Tuần 9: Operational Audit, Database Bootstrap, Customer Flow & Admin Portal Hardening
+
+## Tổng quan quá trình
+
+Sau khi hoàn thiện Owner Portal và đợt Audit Remediation ở Tuần 8, Tuần 9 chuyển trọng tâm sang **kiểm định vận hành toàn hệ thống (Operational Audit)**. Mục tiêu không còn là mở rộng thêm nhiều tính năng mới mà là đi qua các luồng sử dụng thực tế, đối chiếu Frontend – Backend – Database, phát hiện những lỗi chỉ xuất hiện khi hệ thống được vận hành với dữ liệu thật.
+
+Công việc được tổ chức theo **Mandatory Planning Gate kết hợp TDD**. Trước khi sửa code, AI phải kiểm tra working tree, lập root-cause matrix, viết specification, xác định file ảnh hưởng và trình bày kế hoạch để con người phê duyệt. Sau đó, với từng lỗi, AI phải viết test tái hiện, chứng minh test thất bại đúng nguyên nhân, thực hiện bản sửa nhỏ nhất và chạy regression suite.
+
+Đợt audit tập trung vào bốn phạm vi chính:
+
+**Hạ tầng Database:** gộp 16 migration cũ thành `20260712152036_InitialCreate` và `20260712152121_AddUserPhoneUniqueIndex`; viết lại `DatabaseBootstrap` để hỗ trợ Database mới, Database rỗng và Database legacy chưa baseline; kiểm tra khả năng khởi động lặp lại mà không phát sinh duplicate column.
+
+**Luồng Customer:** đi qua trang chủ, danh sách kèo, lịch sử đặt sân, catalog, chi tiết thiết bị và giỏ hàng; đồng thời kiểm tra chính sách hoàn tiền, Match participation, Escrow Wallet và tính toàn vẹn dữ liệu. Sáu lỗi thực tế được phát hiện và sửa:
+
+1. `GET /equipment/{id}` trả DTO trực tiếp thay vì `ApiResponseDto`, khiến trang chi tiết thiết bị hiển thị sai trạng thái không tìm thấy.
+2. Giao diện lấy giờ kèo từ `matchDate` thay vì `startTime`, khiến mọi kèo hiển thị `00:00`.
+3. Trang chủ hiển thị booking đã kết thúc và sử dụng countdown hardcode “Bắt đầu sau 2 giờ”.
+4. `CancellationPolicyService` so sánh slot giờ Việt Nam với `DateTime.UtcNow`, gây sai lệch hoàn tiền bảy tiếng.
+5. Host có thể tự tham gia kèo của mình; user chưa có Escrow Wallet bị chặn bằng lỗi “Ví trung gian không tồn tại”.
+6. Seeder ghi `CurrentParticipants = 2` nhưng không tạo `MatchMembers` tương ứng.
+
+**Admin Portal:** kiểm tra tám trang quản trị và phát hiện năm lỗi gồm bảng giá không hiển thị do lệch `CourtId`/`CourtTypeId`, Admin Booking chỉ hiện “Người dùng #ID”, E-KYC còn nhãn tiếng Anh, khiếu nại hiển thị ID thay vì tên và widget hiệu suất sân hiển thị raw status `ACTIVE`.
+
+**Chất lượng mã và bảo mật repo:** sửa mapping trạng thái Court viết hoa, SignalR noise, nút hủy booking quá khứ, nullable warnings, Data Annotations và lỗi ESLint; đồng thời loại JWT secret thật khỏi `appsettings.json`, xóa `.vs/`, file backup, build log và cập nhật `.gitignore`.
+
+Kết quả cuối cùng được phát hành tại commit **`1bf691f`** trên nhánh `DE190147/audit-module`, gồm 101 file thay đổi. Backend đạt **113/113 test pass**, Frontend đạt **25/25 test pass**, ESLint không còn lỗi, build không còn warning và truy vấn audit Database không phát hiện vi phạm integrity.
+
+---
+
+## Hạn chế của AI và Khó khăn kỹ thuật
+
+### Migration squash và Database legacy
+
+- **Migration cũ không thể dựng Database từ số 0:** Chuỗi migration ban đầu chỉ chứa các thay đổi tăng dần nhưng thiếu một `InitialCreate` hoàn chỉnh. Unit test nghiệp vụ vẫn có thể pass trong khi một môi trường mới không thể tự dựng Database.
+- **Baseline mù có thể che giấu schema thiếu:** AI có xu hướng đánh dấu migration là đã áp dụng nếu nhận diện Database legacy, nhưng nếu Database thực tế thiếu bảng thì ứng dụng chỉ lỗi muộn tại runtime.
+- **Hardcode migration metadata:** Phiên bản đầu của `DatabaseBootstrap` sử dụng danh sách migration ID và DDL viết tay. Cách làm này dễ lệch với EF Core và từng gây lỗi duplicate column ở lần khởi động thứ hai.
+- **Squash migration là thay đổi có rủi ro cao:** Việc giảm 16 migration thành hai migration mới làm lịch sử gọn hơn nhưng có thể ảnh hưởng các Database đã được triển khai ở trạng thái khác nhau. AI không thể tự xác nhận an toàn nếu không chạy thử trên cả Database mới và Database legacy.
+
+### Luồng Customer và API contract
+
+- **API trả dữ liệu nhưng UI vẫn trắng:** Endpoint chi tiết thiết bị trả HTTP 200 và DTO hợp lệ, nhưng Frontend interceptor kỳ vọng envelope `ApiResponseDto`. Nếu chỉ kiểm tra Network hoặc Backend test đơn lẻ, lỗi này dễ bị đánh giá nhầm là Frontend render sai.
+- **Field ngày và giờ bị sử dụng sai:** `matchDate` chứa phần ngày còn giờ thật nằm trong `startTime` kiểu `TimeSpan`. AI có thể format `matchDate` thành chuỗi hợp lệ nhưng vẫn cho kết quả nghiệp vụ sai là `00:00`.
+- **Countdown giả tạo cảm giác tính năng đã hoàn thiện:** Chuỗi “Bắt đầu sau 2 giờ” được hardcode khiến UI trông đúng khi demo nhưng không phản ánh thời gian thật và không tự loại sự kiện đã kết thúc.
+- **API contract thiếu tính đồng nhất:** Một endpoint trả DTO trần trong khi các endpoint khác trả envelope là đủ để phá vỡ toàn bộ luồng, dù từng lớp riêng lẻ không có lỗi biên dịch.
+
+### Timezone và nghiệp vụ tài chính
+
+- **Sai lệch bảy tiếng không tạo exception:** `CancellationPolicyService` so slot giờ Việt Nam với `DateTime.UtcNow`. Hệ thống vẫn chạy bình thường nhưng tính khách hủy sớm hơn thực tế, dẫn đến mức hoàn tiền cao sai.
+- **Test dùng thời gian thật không ổn định:** Nếu gọi trực tiếp `DateTime.Now` hoặc `DateTime.UtcNow`, các test tại ranh giới hoàn tiền có thể pass hoặc fail tùy thời điểm và timezone của máy chạy.
+- **Cùng một bug tồn tại ở nhiều nghiệp vụ:** Lỗi timezone không chỉ nằm trong refund booking mà còn xuất hiện trong `CalculateMatchLeaveReleaseAsync`. Nếu AI chỉ sửa theo stack trace đầu tiên thì lỗi tương tự vẫn tồn tại.
+- **Sai thời gian là lỗi tài chính:** Đây không chỉ là vấn đề hiển thị. Chênh lệch bảy tiếng có thể làm thay đổi trực tiếp số tiền hoàn cho Customer.
+
+### Match participation, Escrow và concurrency
+
+- **Validation đặt sai thứ tự:** Host tự tham gia kèo không bị chặn từ đầu mà luồng tiếp tục đến kiểm tra số dư. Điều này cho thấy AI có thể triển khai đầy đủ các bước join nhưng bỏ sót invariant nghiệp vụ quan trọng.
+- **Frontend không phải lớp bảo vệ:** Ẩn nút “THAM GIA” đối với Host chỉ cải thiện UX; request thủ công vẫn có thể gọi Backend nếu Service không kiểm tra.
+- **Dữ liệu cũ thiếu Escrow Wallet:** Có 10/13 user trong Database không có ví. Nếu Backend coi wallet là dữ liệu bắt buộc phải tồn tại từ trước, user hợp lệ sẽ bị chặn bằng một lỗi kỹ thuật khó hiểu.
+- **Lazy creation có nguy cơ race condition:** Hai request đồng thời có thể cùng tạo wallet nếu không có transaction và unique index theo `UserId`.
+- **Seeder tạo trạng thái giả:** `CurrentParticipants` được gán trực tiếp nhưng không có `MatchMembers`, khiến UI hiển thị “2/4” trong khi Database không có thành viên thật. Việc chỉ tin vào counter thay vì source of truth che giấu lỗi integrity.
+
+### Admin Portal và pricing rule
+
+- **Có dữ liệu nhưng query không tìm thấy:** Pricing Rules được seed theo `CourtTypeId`, trong khi API và `BookingPriceCalculator` chỉ match `CourtId`. Trang Admin hiển thị bảng giá trống và booking fallback về 100.000 đồng/giờ.
+- **Lỗi cùng lúc ở UI và nghiệp vụ tiền:** Đây không chỉ là lỗi hiển thị Admin; giá booking Customer cũng bị tính sai. AI dễ sửa bảng Admin mà bỏ qua calculator ở Backend.
+- **Tên người dùng đã có nhưng Frontend không sử dụng:** Backend đã trả `reporterName` và `reportedUserName`, nhưng UI vẫn ghép chuỗi `#5 → #6`.
+- **Mapping trạng thái không case-insensitive:** API trả `ACTIVE` nhưng label chỉ xử lý một dạng viết hoa/thường, khiến sân hợp lệ bị hiển thị “Tạm ngưng” và Customer không thể đặt.
+
+### Kiểm thử và vệ sinh repository
+
+- **Build pass không chứng minh đúng nghiệp vụ:** Các lỗi API envelope, participant count, giá theo loại sân và hoàn tiền timezone đều có thể tồn tại dù code biên dịch thành công.
+- **Warnings và lint tích lũy che findings mới:** Nullable warnings và ESLint errors cũ làm log kiểm thử nhiễu, khiến lỗi mới khó được nhận diện.
+- **AI dễ đưa file session vào commit:** `.claude/`, `.codex-work/`, `outputs/`, `.vs/`, file backup và build log có thể bị stage nếu không kiểm tra `git status` và diff trước commit.
+- **Secret trong cấu hình mặc định:** JWT key thật từng nằm trong `appsettings.json`; AI có thể tập trung sửa tính năng nhưng không tự đánh giá đầy đủ rủi ro khi file cấu hình được commit.
+
+---
+
+## Giải pháp và Can thiệp của con người
+
+### Áp dụng Planning Gate và TDD
+
+- **Plan trước khi code:** Yêu cầu AI khảo sát working tree, lập root-cause matrix và kế hoạch theo từng file trước khi được phép sửa.
+- **Không sửa theo biểu hiện:** Với lỗi trang chi tiết sản phẩm, quyết định chuẩn hóa API contract thay vì thêm nhiều nhánh fallback ở Frontend.
+- **Test tái hiện trước:** Bổ sung contract test cho `EquipmentController`, 14 boundary test fixed-time cho `CancellationPolicyService`, test chặn Host tại `MatchService` và mở rộng test utility ngày giờ Frontend.
+- **Regression bắt buộc:** Sau mỗi nhóm sửa, chạy test hẹp trước rồi mới chạy toàn bộ Backend, Frontend, ESLint và build.
+
+### Database Bootstrap an toàn
+
+- **Tạo `InitialCreate` hoàn chỉnh:** Gộp chuỗi migration cũ để môi trường mới có thể dựng đủ 44 bảng và seed dữ liệu.
+- **Tách unique phone index:** Giữ `AddUserPhoneUniqueIndex` thành migration riêng để Database legacy nhận thay đổi qua pending migration.
+- **Dùng API EF Core chuẩn:** Thay DDL/version hardcode bằng `IHistoryRepository.GetCreateIfNotExistsScript()` và `ProductInfo.GetVersion()`.
+- **Fail-fast thay vì baseline mù:** Nếu Database legacy thiếu bảng bắt buộc, bootstrap dừng lại và liệt kê rõ các bảng thiếu.
+- **Kiểm tra ba trạng thái:** Chạy thử Database mới, Database rỗng và Database legacy; sau đó khởi động lần hai để xác nhận bootstrap idempotent.
+
+### Chuẩn hóa Customer flow
+
+- **Equipment API:** Bọc kết quả `GET /equipment/{id}` bằng `ApiResponseDto`; trả HTTP 404 thật khi không tìm thấy.
+- **Định dạng giờ kèo:** Tạo `formatSlotTime`, đọc trực tiếp `startTime`, fallback `—` và không trả `Invalid Date`.
+- **Upcoming events:** Tạo `buildEventDateTime`, `isEventFinished`, `formatTimeUntil`; lọc booking đã kết thúc và tính countdown theo phút/giờ/ngày.
+- **Trạng thái Court:** Chuyển label lookup sang case-insensitive và bổ sung alias cho status viết hoa.
+- **Booking history:** Ẩn nút hủy nếu booking đã kết thúc thay vì để Customer thực hiện thao tác không còn ý nghĩa.
+
+### Sửa timezone tài chính
+
+- **Inject thời gian:** Refactor `CancellationPolicyService` nhận `TimeProvider`, đăng ký `TimeProvider.System` qua Dependency Injection.
+- **Dùng helper thống nhất:** Tái sử dụng `VnTimeHelper` thay vì cộng cứng bảy tiếng ở nhiều service.
+- **Chặn refund sau giờ bắt đầu:** Nếu slot đã bắt đầu hoặc đã qua, kết quả hoàn tiền bằng 0 theo chính sách.
+- **Fixed-time test:** Viết `FakeTimeProvider` để kiểm thử ngay trước và sau từng mốc refund mà không phụ thuộc timezone máy.
+- **Quét logic liên quan:** Sửa cùng lỗi trong `CalculateMatchLeaveReleaseAsync`, tránh chỉ vá một service.
+
+### Bảo vệ Match và Escrow Wallet
+
+- **Chặn Host ở Service:** Kiểm tra `HostId == joinerId` trước mọi side effect; test xác nhận Repository không được gọi.
+- **Defense in depth:** Bổ sung kiểm tra lần hai tại Repository.
+- **Lazy wallet trong transaction:** Tạo Escrow Wallet khi Customer hợp lệ chưa có ví, không tự cấp tiền và không chặn bằng lỗi kỹ thuật.
+- **Chống race:** Transaction `Serializable` kết hợp unique index `IX_EscrowWallets_UserId`.
+- **Đồng bộ participant:** Xác định `MatchMembers` Approved là source of truth; Host được tính vào participant; Seeder tạo record thật cho Host và Joiner.
+- **Backfill có điều kiện:** Audit trước/sau và chỉ sửa những Match xác định được dữ liệu thành viên hợp lệ.
+
+### Audit và sửa Admin Portal
+
+- **Pricing Rule theo sân hoặc loại sân:** Sửa effective-rule query ở Repository, `BookingPriceCalculator` và ba nơi sử dụng giá; không còn fallback sai 100.000 đồng/giờ.
+- **Admin Pricing UX:** Thêm badge “Theo loại sân” và ẩn nút xóa rule dùng chung.
+- **Tên Customer:** Thêm `CustomerName` vào `BookingDto`, cập nhật mapper và chức năng tìm kiếm Admin Booking.
+- **Khiếu nại:** Sử dụng `reporterName` và `reportedUserName` từ Backend.
+- **E-KYC và Court status:** Bổ sung nhãn “Chưa xác minh”, alias/màu cho status `ACTIVE`.
+
+### Chất lượng mã, bảo mật và Version Control
+
+- **Dọn secrets:** Thay JWT key thật trong `appsettings.json` bằng placeholder; production bắt buộc nhận secret từ environment variable.
+- **Làm sạch log kiểm thử:** Sửa sáu nullable warnings, 18 lỗi ESLint và bổ sung Data Annotations cho 13 request DTO.
+- **Suppress có giải thích:** Chỉ suppress EF 10622 cho bảng lịch sử/chứng từ sau khi xác nhận nghiệp vụ không cho phép cascade delete.
+- **SignalR lifecycle:** Chờ `start()` settle trước khi `stop()` và tắt logger nội bộ không cần thiết.
+- **Git hygiene:** Chỉ stage file sản phẩm; loại `.claude/`, `.codex-work/`, `outputs/`, `.vs/`, `*.bak` và build log.
+- **Push an toàn:** Fast-forward lên `DE190147/audit-module`, không force push; commit cuối `1bf691f` gồm 101 file.
+
+### Kiểm chứng toàn hệ thống
+
+- `dotnet build --no-restore`: **0 error, 0 warning**.
+- `dotnet test`: **113/113 pass**; 4 SQL Server integration test skip có điều kiện.
+- Vitest: **25/25 pass**.
+- ESLint: **0 lỗi**.
+- `npm run build`: thành công trong khoảng 4 giây.
+- Database audit: **0/9 chỉ số vi phạm** gồm participant count lệch, duplicate/orphan members, wallet âm, orphan transactions, count vượt capacity và booking Confirmed-chưa-Paid.
+- Smoke test trình duyệt:
+  - Đặt sân ba bước tính đúng giá theo khung giờ.
+  - Host tự join bị chặn bằng thông báo nghiệp vụ.
+  - Trang chi tiết sản phẩm hiển thị đầy đủ.
+  - Admin Pricing hiển thị ba khung giá và badge.
+  - Admin Booking hiển thị tên Customer.
+  - Console không còn lỗi.
+
+---
+
+## Bài học rút ra
+
+- **Operational Audit phải đi xuyên suốt Frontend → API → Service → Repository → Database:** Trang chi tiết sản phẩm trắng không phải do thiếu dữ liệu mà do API contract không nhất quán. Chỉ kiểm tra từng tầng riêng lẻ sẽ không phát hiện được loại lỗi này.
+- **Planning Gate giúp AI không sửa quá sớm:** Root-cause matrix và kế hoạch theo file giảm đáng kể nguy cơ AI refactor ngoài phạm vi hoặc vá biểu hiện thay vì nguyên nhân.
+- **TDD đặc biệt quan trọng với thời gian và tài chính:** `TimeProvider` và fixed-time tests giúp kiểm tra chính xác các ranh giới refund, không phụ thuộc đồng hồ thật hoặc timezone của máy.
+- **Timezone là một phần của nghiệp vụ, không chỉ là formatting:** So sánh sai UTC và giờ Việt Nam có thể làm thay đổi số tiền hoàn; mọi service tài chính cần dùng cùng một abstraction thời gian.
+- **Backend phải bảo vệ invariant, Frontend chỉ hỗ trợ UX:** Ẩn nút Join với Host là chưa đủ. Validation phải nằm ở Service/Repository để chống request thủ công.
+- **Lazy initialization cần concurrency protection:** Tự tạo Escrow Wallet giúp tương thích user cũ, nhưng phải đi cùng transaction và unique index để tránh duplicate khi có request đồng thời.
+- **Counter không nên thay thế source of truth:** `CurrentParticipants` có thể lệch dữ liệu nếu được seed hoặc cập nhật độc lập. `MatchMembers` Approved phải là nguồn xác định participant count.
+- **Dữ liệu seed phải tuân thủ cùng invariant với production:** Seeder không chỉ phục vụ demo; dữ liệu sai có thể che giấu hoặc tạo ra bug nghiệp vụ trong quá trình kiểm thử.
+- **Có bảng giá trong DB không có nghĩa luồng tính giá đang sử dụng:** Pricing Rule phải được trace đến API Admin và `BookingPriceCalculator`; UI hiển thị đúng nhưng calculator sai vẫn là lỗi tài chính.
+- **Build xanh không đồng nghĩa hệ thống đúng:** Sáu lỗi Customer và năm lỗi Admin đều có thể tồn tại trong một codebase build thành công. Cần kết hợp Unit Test, Frontend Test, Database audit và browser smoke test.
+- **Migration squash cần được xem như một thay đổi vận hành rủi ro cao:** Không được đánh dấu baseline Database legacy nếu chưa xác minh schema. Fail-fast có thông báo rõ an toàn hơn cố gắng tự sửa mù.
+- **AI hỗ trợ mạnh ở việc quét diện rộng và mở rộng test suite, nhưng con người phải giữ quyền quyết định ở Database, security, transaction và Version Control:** Những khu vực này có tác động vượt quá phạm vi một file và dễ gây hậu quả nếu AI suy luận sai.
+- **Repo hygiene là một phần của chất lượng sản phẩm:** Secret, file IDE, output AI và build log không liên quan không được phép đi vào commit, dù toàn bộ test đã pass.
+- **Một sprint hardening thành công cần bằng chứng đa tầng:** Commit `1bf691f` chỉ được phát hành sau khi có test tự động, build sạch, audit Database và smoke test trên trình duyệt; đây là quy trình cần duy trì cho các đợt release tiếp theo.
+
+---
