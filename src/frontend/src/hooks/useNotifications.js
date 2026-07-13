@@ -22,20 +22,26 @@ export function useNotifications(enabled = true) {
         accessTokenFactory: () => token,
       })
       .withAutomaticReconnect()
+      // Tắt log nội bộ của SignalR: khi unmount giữa lúc negotiation (StrictMode double-mount)
+      // nó tự console.error "connection was stopped during negotiation" dù ta đã catch.
+      .configureLogging(signalR.LogLevel.None)
       .build();
 
     connection.on('ReceiveNotification', (payload) => {
       push(payload);
     });
 
-    connection.start().catch(() => {
+    const startPromise = connection.start().catch(() => {
       /* hub optional in dev */
     });
 
     connectionRef.current = connection;
 
     return () => {
-      connection.stop();
+      // Chờ start() kết thúc (thành công hoặc thất bại) rồi mới stop — tránh ngắt giữa negotiation.
+      startPromise.finally(() => {
+        connection.stop().catch(() => {});
+      });
     };
   }, [enabled, push]);
 

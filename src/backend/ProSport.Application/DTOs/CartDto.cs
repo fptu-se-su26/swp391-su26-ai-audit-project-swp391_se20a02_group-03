@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace ProSport.Application.DTOs;
 
 public class CartItemDto
@@ -22,12 +24,17 @@ public class CartSummaryDto
 
 public class AddToCartRequest
 {
+    [Range(1, int.MaxValue, ErrorMessage = "Thiết bị không hợp lệ.")]
     public int EquipmentId { get; set; }
+
+    [Range(1, 100, ErrorMessage = "Số lượng phải từ 1 đến 100.")]
     public int Quantity { get; set; }
+
     public int? BookingId { get; set; }
 }
 
 public class UpdateCartItemRequest
 {
+    [Range(1, 100, ErrorMessage = "Số lượng phải từ 1 đến 100.")]
     public int Quantity { get; set; }
 }

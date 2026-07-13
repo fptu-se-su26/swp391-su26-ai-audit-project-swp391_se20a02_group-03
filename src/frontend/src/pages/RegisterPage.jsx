@@ -336,7 +336,7 @@ export default function RegisterPage() {
 
           {/* Header */}
           <header className="mb-8">
-            <p className="label-mono text-accent mb-3">// Tạo tài khoản</p>
+            <p className="label-mono text-accent mb-3">{'// Tạo tài khoản'}</p>
             <h1 className="font-heading text-[2rem] uppercase text-ink tracking-tight leading-tight">
               {step === 0 && <>Bắt đầu với<br />Pro-Sport</>}
               {step === 1 && <>Chọn môn thể thao<br />của bạn</>}

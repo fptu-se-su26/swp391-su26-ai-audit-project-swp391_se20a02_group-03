@@ -78,3 +78,8 @@ src/backend/ProSport.Infrastructure/errors.json
 # Root-level local scripts & docs (audit/tooling — không commit)
 /*.py
 /*.docx
+
+# Editor/IDE junk & stray files
+.vs/
+*.bak
+build_errors*.txt

@@ -5,6 +5,7 @@ import { matchApi } from '../../api/matchApi'
 import authApi from '../../api/authApi'
 import { Search, ClipboardList, History, Plus, Calendar, MapPin, Wallet } from 'lucide-react'
 import { useConfirm } from '../../components/ui/ConfirmDialog'
+import { formatSlotTime } from '../../utils/date'
 import dayjs from 'dayjs'
 import 'dayjs/locale/vi'
 import StatusBadge from '../../components/ui/StatusBadge'
@@ -57,8 +58,9 @@ export default function ApexMatchesPage() {
             host: m.hostName,
             hostImg: m.hostAvatarUrl || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(m.hostName || 'Host'),
             court: m.location || m.notes,
-            date: dayjs(m.matchDate || m.startTime).locale('vi').format('dddd, DD/MM'),
-            time: dayjs(m.matchDate || m.startTime).format('HH:mm'),
+            date: dayjs(m.matchDate).locale('vi').format('dddd, DD/MM'),
+            // BUG 2: giờ nằm ở field startTime riêng ("HH:mm:ss") — matchDate luôn là 00:00.
+            time: formatSlotTime(m.startTime),
             slots: (m.maxParticipants || 0) - (m.currentParticipants || 0),
             maxSlots: m.maxParticipants || 0,
             icon: (m.sportType || '').toLowerCase().includes('pickleball') ? '🏓' : '🏸',
@@ -81,8 +83,8 @@ export default function ApexMatchesPage() {
             id: m.matchId,
             sport: translateSport(m.sportType) || 'Thể thao',
             court: m.location || m.notes || 'Chưa có địa điểm',
-            date: dayjs(m.matchDate || m.startTime).locale('vi').format('dddd, DD/MM'),
-            time: dayjs(m.matchDate || m.startTime).format('HH:mm'),
+            date: dayjs(m.matchDate).locale('vi').format('dddd, DD/MM'),
+            time: formatSlotTime(m.startTime),
             icon: (m.sportType || '').toLowerCase().includes('pickleball') ? '🏓' : '🏸',
             status: m.status,
             participants: m.participants || []

@@ -18,7 +18,7 @@ export default function PrivacyPolicyPage() {
       <Navbar theme="light" />
 
       <div className="pt-[140px] pb-[60px] bg-ink text-center px-6">
-        <p className="label-mono text-accent mb-4">// Pháp lý</p>
+        <p className="label-mono text-accent mb-4">{'// Pháp lý'}</p>
         <h1 className="font-heading text-[clamp(2rem,4vw,3rem)] uppercase text-paper mb-4">Chính sách bảo mật</h1>
         <p className="text-paper/60 max-w-[500px] mx-auto text-sm">Cập nhật lần cuối: 4 tháng 6, 2026</p>
       </div>

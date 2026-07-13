@@ -114,6 +114,15 @@ public class MatchService : IMatchService
     {
         try
         {
+            // BUG 5: chặn host tự tham gia kèo của mình NGAY TẠI SERVICE — trước khi mở
+            // transaction join (không đụng ví, không tạo participant). Repository vẫn giữ
+            // check tương tự làm lớp phòng thủ thứ hai cho dữ liệu cũ/lệch.
+            var match = await _matchRepository.GetMatchByIdAsync(matchId);
+            if (match == null)
+                return new ApiResponseDto<bool>(400, "Kèo không tồn tại.", false);
+            if (match.HostId == userId)
+                return new ApiResponseDto<bool>(400, "Chủ kèo không thể tham gia kèo của chính mình.", false);
+
             // Delegate toàn bộ logic phức tạp (lock, validate, transaction) xuống Repository
             await _matchRepository.ExecuteJoinMatchTransactionAsync(matchId, userId);
 

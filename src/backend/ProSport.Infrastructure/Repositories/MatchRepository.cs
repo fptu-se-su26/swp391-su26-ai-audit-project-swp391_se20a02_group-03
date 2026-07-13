@@ -103,9 +103,18 @@ public class MatchRepository : IMatchRepository
             if (match.Status != MatchStatus.Open) throw new System.Exception("Kèo đã đóng hoặc không thể tham gia.");
             if (match.CurrentParticipants >= match.MaxParticipants) throw new System.Exception("Kèo đã đủ người.");
             if (match.Participants.Any(p => p.UserId == joinerId)) throw new System.Exception("Bạn đã tham gia hoặc đang chờ duyệt kèo này.");
+            // Chặn host tự tham gia kèo của mình (dữ liệu cũ/seed có thể thiếu record Host trong Participants).
+            if (match.HostId == joinerId) throw new System.Exception("Chủ kèo không thể tham gia kèo của chính mình.");
 
-            var wallet = await _context.EscrowWallets.AsNoTracking().FirstOrDefaultAsync(w => w.UserId == joinerId);
-            if (wallet == null) throw new System.Exception("Ví trung gian không tồn tại.");
+            // Ví tạo lazily giống EscrowService/BookingService — user chưa từng mở ví vẫn join được kèo,
+            // sau đó TryLockWalletFunds sẽ báo "Số dư không đủ" nếu ví rỗng (thông báo đúng bản chất hơn).
+            var wallet = await _context.EscrowWallets.FirstOrDefaultAsync(w => w.UserId == joinerId);
+            if (wallet == null)
+            {
+                wallet = new EscrowWallet { UserId = joinerId, Balance = 0, LockedBalance = 0 };
+                _context.EscrowWallets.Add(wallet);
+                await _context.SaveChangesAsync();
+            }
 
             if (!await _escrowRepository.TryLockWalletFundsAsync(joinerId, match.EscrowAmount))
             {

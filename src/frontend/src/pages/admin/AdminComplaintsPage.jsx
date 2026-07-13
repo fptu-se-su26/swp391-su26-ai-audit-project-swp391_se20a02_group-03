@@ -123,7 +123,7 @@ export default function AdminComplaintsPage() {
                     </div>
                     <p className="text-sm font-semibold text-foreground line-clamp-1">{r.reason}</p>
                     <p className="text-xs text-foreground-muted mt-1">
-                      #{r.reporterId} → #{r.reportedUserId} • {new Date(r.createdAt).toLocaleDateString('vi-VN')}
+                      {r.reporterName || `#${r.reporterId}`} → {r.reportedUserName || `#${r.reportedUserId}`} • {new Date(r.createdAt).toLocaleDateString('vi-VN')}
                     </p>
                   </div>
                 )
@@ -149,7 +149,7 @@ export default function AdminComplaintsPage() {
 
                 <div className="flex-1 p-5.5 overflow-y-auto space-y-5">
                   <div className="bg-background-base p-4 border border-border-default">
-                    <p className="label-mono text-foreground-muted mb-2">Người báo cáo #{selected.reporterId} tố cáo người chơi #{selected.reportedUserId}</p>
+                    <p className="label-mono text-foreground-muted mb-2">Người báo cáo {selected.reporterName || `#${selected.reporterId}`} tố cáo người chơi {selected.reportedUserName || `#${selected.reportedUserId}`}</p>
                     <p className="text-sm text-foreground leading-relaxed">{selected.reason}</p>
                     {selected.evidence && (
                       <a href={selected.evidence} target="_blank" rel="noreferrer" className="inline-block mt-3 text-sm text-accent underline break-all">

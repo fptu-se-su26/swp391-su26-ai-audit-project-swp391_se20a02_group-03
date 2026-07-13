@@ -37,8 +37,10 @@ public class EquipmentController : ControllerBase
     public async Task<IActionResult> GetById(int id)
     {
         var result = await _equipmentService.GetByIdAsync(id);
-        if (result == null) return NotFound();
-        return Ok(result);
+        if (result == null)
+            return NotFound(new ApiResponseDto<EquipmentDto?>(404, "Không tìm thấy thiết bị.", null));
+        // Bọc ApiResponseDto cho khớp contract với GET /equipment (list) — FE đọc res.statusCode/res.data.
+        return Ok(new ApiResponseDto<EquipmentDto>(200, "Success", result));
     }
 
     [Authorize(Roles = "Admin")] // TK-039: chỉ Admin được tạo thiết bị

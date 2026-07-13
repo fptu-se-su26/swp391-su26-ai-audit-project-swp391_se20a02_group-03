@@ -43,6 +43,36 @@ public class MatchServiceTests
             _loggerMock.Object);
     }
 
+    // BUG 5 — host bấm "Tham gia" kèo của chính mình phải bị chặn TẠI SERVICE,
+    // trước mọi side effect (không gọi transaction join, không đụng ví/participant).
+    [Fact]
+    public async Task JoinMatchAsync_WhenUserIsHost_Returns400_WithoutSideEffects()
+    {
+        var matchId = 1;
+        var hostId = 4;
+        _matchRepoMock.Setup(x => x.GetMatchByIdAsync(matchId))
+            .ReturnsAsync(new ProSport.Domain.Entities.Match { MatchId = matchId, HostId = hostId, Status = "Open" });
+
+        var result = await _matchService.JoinMatchAsync(matchId, hostId);
+
+        result.StatusCode.Should().Be(400);
+        result.Message.Should().Contain("Chủ kèo");
+        _matchRepoMock.Verify(x => x.ExecuteJoinMatchTransactionAsync(It.IsAny<int>(), It.IsAny<int>()), Times.Never,
+            "chặn host phải xảy ra trước khi chạm transaction join/ví/participant");
+    }
+
+    [Fact]
+    public async Task JoinMatchAsync_WhenMatchNotFound_Returns400_WithoutCallingJoinTransaction()
+    {
+        _matchRepoMock.Setup(x => x.GetMatchByIdAsync(It.IsAny<int>()))
+            .ReturnsAsync((ProSport.Domain.Entities.Match?)null);
+
+        var result = await _matchService.JoinMatchAsync(99, 5);
+
+        result.StatusCode.Should().Be(400);
+        _matchRepoMock.Verify(x => x.ExecuteJoinMatchTransactionAsync(It.IsAny<int>(), It.IsAny<int>()), Times.Never);
+    }
+
     [Fact]
     public async Task LeaveMatchAsync_WhenMatchIsNull_Returns404()
     {
@@ -55,7 +85,7 @@ public class MatchServiceTests
             
         // Setup GetMatchByIdAsync to return null (simulating data inconsistency)
         _matchRepoMock.Setup(x => x.GetMatchByIdAsync(matchId))
-            .ReturnsAsync((ProSport.Domain.Entities.Match)null);
+            .ReturnsAsync((ProSport.Domain.Entities.Match?)null);
 
         // Act
         var result = await _matchService.LeaveMatchAsync(matchId, userId);

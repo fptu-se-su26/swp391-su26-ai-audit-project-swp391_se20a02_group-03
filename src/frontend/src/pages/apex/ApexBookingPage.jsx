@@ -40,7 +40,8 @@ export default function ApexBookingPage() {
             name: c.name,
             type: c.courtTypeName || 'Badminton',
             price: c.pricePerHour > 0 ? c.pricePerHour : 100000,
-            status: c.status?.toLowerCase() === 'available' ? 'available' : 'booked',
+            // API trả 'ACTIVE' (CourtStatuses.ToApiStatus); DB gốc là 'Available' — chấp nhận cả hai
+            status: ['available', 'active'].includes(c.status?.toLowerCase()) ? 'available' : 'booked',
             icon: c.courtTypeName?.toLowerCase().includes('pickleball') ? <Circle size={20} /> : <Swords size={20} />,
             capacity: 4,
             features: c.description ? c.description.split(',').map(s => s.trim()) : ['Tiêu chuẩn'],

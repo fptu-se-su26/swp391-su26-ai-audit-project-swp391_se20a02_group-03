@@ -204,7 +204,7 @@ export default function HomePage() {
         <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/55 to-ink" />
 
         <div ref={heroRef} className="relative z-10 flex flex-col justify-end h-full min-h-[calc(100vh-76px)] max-w-[1400px] mx-auto px-6 sm:px-10 pb-16 sm:pb-24">
-          <p className="hero-fade label-mono text-paper mb-5">// Cầu lông & Pickleball chuyên nghiệp</p>
+          <p className="hero-fade label-mono text-paper mb-5">{'// Cầu lông & Pickleball chuyên nghiệp'}</p>
           <h1 className="font-heading text-[clamp(2.6rem,9vw,9rem)] leading-[0.92] tracking-[-0.01em] text-paper uppercase mb-8 max-w-[1100px]">
             {heroLines.map((line) => (
               <span key={line} className="block overflow-hidden pb-[0.08em] -mb-[0.08em]">
@@ -253,7 +253,7 @@ export default function HomePage() {
         <div className="max-w-[1400px] mx-auto">
           <div className="flex items-end justify-between flex-wrap gap-8 mb-14">
             <div>
-              <p className="label-mono text-ink mb-4">// Cơ sở nổi bật</p>
+              <p className="label-mono text-ink mb-4">{'// Cơ sở nổi bật'}</p>
               <h2 className="font-heading text-[clamp(2rem,5vw,4.5rem)] leading-[0.95] tracking-[-0.01em] uppercase text-ink">
                 Sân đấu đẳng cấp.<br />Sẵn sàng mỗi ngày.
               </h2>
@@ -308,7 +308,7 @@ export default function HomePage() {
       <section id="discover" className="pb-24 sm:pb-[140px] px-6 sm:px-10 bg-paper">
         <div className="max-w-[1400px] mx-auto">
           <div className="mb-16 sm:mb-[72px]">
-            <p className="label-mono text-ink mb-4">// Tính năng hệ thống</p>
+            <p className="label-mono text-ink mb-4">{'// Tính năng hệ thống'}</p>
             <h2 className="font-heading text-[clamp(2rem,5vw,4.5rem)] leading-[0.95] tracking-[-0.01em] uppercase text-ink">
               Mọi thứ bạn cần.<br />Không thừa thãi.
             </h2>
@@ -337,7 +337,7 @@ export default function HomePage() {
       <section className="pb-24 sm:pb-[140px] px-6 sm:px-10 bg-paper">
         <div className="max-w-[1400px] mx-auto grid grid-cols-1 lg:grid-cols-[1fr_1.6fr] gap-12 lg:gap-20">
           <div>
-            <p className="label-mono text-ink mb-4">// Cách hoạt động</p>
+            <p className="label-mono text-ink mb-4">{'// Cách hoạt động'}</p>
             <h2 className="font-heading text-[clamp(1.7rem,4vw,3.2rem)] leading-[0.98] uppercase tracking-[-0.01em] text-ink mb-6">
               Từ đăng ký<br />đến ngày ra sân.
             </h2>
@@ -386,7 +386,7 @@ export default function HomePage() {
           ═══════════════════════════════════════════ */}
       <section className="py-24 sm:py-[140px] px-6 sm:px-10 bg-paper text-center">
         <div ref={ctaRef} className="max-w-[680px] mx-auto">
-          <p className="label-mono text-ink mb-5">// Sẵn sàng ra sân?</p>
+          <p className="label-mono text-ink mb-5">{'// Sẵn sàng ra sân?'}</p>
           <h2 className="font-heading text-[clamp(2rem,6vw,5.5rem)] leading-[0.95] uppercase tracking-[-0.01em] text-ink mb-7">
             Tham gia mạng lưới<br />Pro-Sport ngay hôm nay.
           </h2>

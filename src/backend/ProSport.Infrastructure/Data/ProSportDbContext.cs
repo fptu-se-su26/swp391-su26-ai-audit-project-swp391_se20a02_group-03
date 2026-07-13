@@ -122,7 +122,10 @@ public class ProSportDbContext : DbContext
             entity.HasKey(e => e.UserId);
             entity.HasIndex(e => e.Email).IsUnique();
             entity.HasIndex(e => e.GoogleId).IsUnique().HasFilter("[GoogleId] IS NOT NULL");
-            
+            // Chống trùng số điện thoại ở tầng DB. Filter kèm [IsDeleted] = 0 để đồng nhất với
+            // GetByPhoneAsync (bỏ qua user đã xóa mềm) và các unique index khác trong file này.
+            entity.HasIndex(e => e.PhoneNumber).IsUnique().HasFilter("[PhoneNumber] IS NOT NULL AND [IsDeleted] = 0");
+
             entity.Property(e => e.FullName).IsRequired().HasMaxLength(100);
             entity.Property(e => e.Email).IsRequired().HasMaxLength(255).HasColumnType("varchar(255)");
             entity.Property(e => e.PasswordHash).HasMaxLength(500).HasColumnType("varchar(500)");
@@ -835,6 +838,12 @@ public class ProSportDbContext : DbContext
             var body = Expression.Not(Expression.Property(parameter, nameof(BaseEntity.IsDeleted)));
             modelBuilder.Entity(entityType.ClrType).HasQueryFilter(Expression.Lambda(body, parameter));
         }
+
+        // OtpCode không có IsDeleted (xóa cứng) nhưng nav bắt buộc tới User (có soft-delete filter):
+        // OTP của user đã xóa mềm là vô nghĩa -> áp filter khớp cha để tránh nav null bất ngờ (EF 10622).
+        // Các bảng lịch sử/chứng từ khác (BookingDetailEquipment, ConditionCheck, RentalSessionAsset,
+        // RentalSurcharge) CỐ Ý không áp filter này — xem ConfigureWarnings trong Program.cs.
+        modelBuilder.Entity<OtpCode>().HasQueryFilter(o => !o.User.IsDeleted);
 
         // TK-038: Seed dữ liệu mẫu bằng HasData() (Users, CourtTypes, Courts, PricingRules,
         // EquipmentCategories, Equipments). Dữ liệu sẽ được nhúng vào Migration -> xuất ra file SQL.

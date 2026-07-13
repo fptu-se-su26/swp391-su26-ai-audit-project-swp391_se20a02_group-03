@@ -16,13 +16,36 @@ public class CourtRepository : ICourtRepository
 
     public async Task<IEnumerable<Court>> GetAllAsync()
     {
-        return await _context.Courts
+        var courts = await _context.Courts
             .AsNoTracking()
             .AsSplitQuery()
             .Include(c => c.CourtType)
             .Include(c => c.PricingRules)
             .Where(c => !c.IsDeleted)
             .ToListAsync();
+        await EnrichWithTypePricingRulesAsync(courts);
+        return courts;
+    }
+
+    // Nav PricingRules chỉ chứa rule gắn CourtId; rule theo loại sân (CourtId null,
+    // CourtTypeId khớp — cách seed mặc định) phải được gộp thêm để giá hiển thị/tính đúng.
+    // Chỉ dùng cho query AsNoTracking (gán lại nav trên entity tracked sẽ làm EF hiểu nhầm là update).
+    private async Task EnrichWithTypePricingRulesAsync(List<Court> courts)
+    {
+        if (courts.Count == 0) return;
+        var typeIds = courts.Select(c => c.CourtTypeId).Distinct().ToList();
+        var typeRules = await _context.PricingRules
+            .AsNoTracking()
+            .Where(p => p.CourtId == null && p.CourtTypeId != null && typeIds.Contains(p.CourtTypeId.Value))
+            .ToListAsync();
+        if (typeRules.Count == 0) return;
+        foreach (var court in courts)
+        {
+            court.PricingRules = court.PricingRules
+                .Concat(typeRules.Where(r => r.CourtTypeId == court.CourtTypeId))
+                .OrderBy(r => r.IsWeekend).ThenBy(r => r.StartTime)
+                .ToList();
+        }
     }
 
     public async Task<Court?> GetByIdAsync(int courtId)
@@ -121,6 +144,7 @@ public class CourtRepository : ICourtRepository
             .Take(parameters.PageSize)
             .ToListAsync();
 
+        await EnrichWithTypePricingRulesAsync(items);
         return (items, totalCount);
     }
 
@@ -148,9 +172,20 @@ public class CourtRepository : ICourtRepository
     // Pricing Rules
     public async Task<IEnumerable<PricingRule>> GetPricingRulesByCourtIdAsync(int courtId)
     {
+        // Rule "hiệu lực" của một sân gồm 2 nguồn: gắn trực tiếp CourtId, HOẶC gắn theo
+        // loại sân (CourtId null + CourtTypeId khớp — cách seed dữ liệu mặc định).
+        // Query cũ chỉ lọc CourtId nên toàn bộ rule theo loại sân bị vô hình.
+        var courtTypeId = await _context.Courts
+            .AsNoTracking()
+            .Where(c => c.CourtId == courtId)
+            .Select(c => (int?)c.CourtTypeId)
+            .FirstOrDefaultAsync();
+
         return await _context.PricingRules
             .AsNoTracking()
-            .Where(p => p.CourtId == courtId)
+            .Where(p => p.CourtId == courtId
+                     || (p.CourtId == null && p.CourtTypeId != null && p.CourtTypeId == courtTypeId))
+            .OrderBy(p => p.IsWeekend).ThenBy(p => p.StartTime)
             .ToListAsync();
     }
 

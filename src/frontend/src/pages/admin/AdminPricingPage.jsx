@@ -189,15 +189,26 @@ export default function AdminPricingPage() {
                           {r.isWeekend
                             ? <span className="label-mono bg-ink text-paper px-2 py-0.5 rounded-[2px]">Cuối tuần</span>
                             : <span className="label-mono text-foreground-subtle">Ngày thường</span>}
+                          {r.courtId == null && (
+                            <span
+                              className="label-mono text-foreground-subtle ml-2 border border-border-strong px-1.5 py-0.5 rounded-[2px]"
+                              title="Áp dụng chung cho mọi sân cùng loại"
+                            >
+                              Theo loại sân
+                            </span>
+                          )}
                         </td>
                         <td className="px-5 py-3 text-right">
-                          <button
-                            onClick={() => handleDeleteRule(r.pricingRuleId)}
-                            disabled={deletingId === r.pricingRuleId}
-                            className="inline-flex items-center gap-1 text-danger hover:bg-danger-bg px-2 py-1 rounded-[2px] text-xs font-bold disabled:opacity-50"
-                          >
-                            {deletingId === r.pricingRuleId ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
-                          </button>
+                          {/* Rule theo loại sân (courtId null) áp cho mọi sân cùng loại — backend chặn xóa từ trang sân */}
+                          {r.courtId != null && (
+                            <button
+                              onClick={() => handleDeleteRule(r.pricingRuleId)}
+                              disabled={deletingId === r.pricingRuleId}
+                              className="inline-flex items-center gap-1 text-danger hover:bg-danger-bg px-2 py-1 rounded-[2px] text-xs font-bold disabled:opacity-50"
+                            >
+                              {deletingId === r.pricingRuleId ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
+                            </button>
+                          )}
                         </td>
                       </tr>
                     ))}

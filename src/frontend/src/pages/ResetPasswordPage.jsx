@@ -206,7 +206,7 @@ export default function ResetPasswordPage() {
         <div className="auth-form-inner auth-animate-in-delayed mt-16 lg:mt-0">
           {/* Header */}
           <header className="mb-8">
-            <p className="label-mono text-accent mb-3">// Khôi phục tài khoản</p>
+            <p className="label-mono text-accent mb-3">{'// Khôi phục tài khoản'}</p>
             <h1 className="font-heading text-[2rem] uppercase text-ink tracking-tight leading-tight">
               {step === 0 && <>Đặt lại<br />mật khẩu</>}
               {step === 1 && <>Nhập mã<br />xác thực</>}

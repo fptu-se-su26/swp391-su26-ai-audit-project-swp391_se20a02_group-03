@@ -19,7 +19,7 @@ export default function SitemapPage() {
       <Navbar />
 
       <div className="pt-[140px] pb-[60px] bg-ink text-center px-6">
-        <p className="label-mono text-accent mb-4">// Điều hướng</p>
+        <p className="label-mono text-accent mb-4">{'// Điều hướng'}</p>
         <h1 className="font-heading text-[clamp(2rem,4vw,3rem)] uppercase text-paper mb-4">Sơ đồ trang</h1>
         <p className="text-paper/60 max-w-[500px] mx-auto text-sm">Khám phá cấu trúc và các khu vực chính của nền tảng PRO-SPORT</p>
       </div>

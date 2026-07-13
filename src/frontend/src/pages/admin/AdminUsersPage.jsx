@@ -22,6 +22,7 @@ const EKYC_LABELS = {
   Pending: 'Chờ xác minh',
   Rejected: 'Từ chối',
   NotSubmitted: 'Chưa nộp',
+  Unverified: 'Chưa xác minh', // giá trị mặc định của User.EKycStatus trong backend
 }
 
 const PAGE_SIZE = 10

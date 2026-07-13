@@ -288,7 +288,8 @@ public class SplitPaymentService : ISplitPaymentService
                 var discountPercent = court.ComplexId.HasValue
                     ? await _membership.GetActiveDiscountPercentAsync(dto.UserId, court.ComplexId.Value, d.BookingDate)
                     : 0m;
-                var price = BookingPriceCalculator.Calculate(court, d.BookingDate, d.StartTime, d.EndTime, discountPercent);
+                var effectiveRules = await _courts.GetPricingRulesByCourtIdAsync(court.CourtId);
+                var price = BookingPriceCalculator.Calculate(court, d.BookingDate, d.StartTime, d.EndTime, discountPercent, effectiveRules);
                 total += price;
                 details.Add(new BookingDetail
                 {
