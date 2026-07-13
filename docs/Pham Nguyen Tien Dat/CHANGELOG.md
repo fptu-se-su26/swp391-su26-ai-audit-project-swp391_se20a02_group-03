@@ -389,3 +389,62 @@
 - Cursor (Composer) rà soát P0→P3, WhiteBox + BlackBox, tối ưu hiệu năng, vá kế toán Escrow.
 - **`dotnet test` 95/99 pass** (4 skip SQL Server); Vitest **6/6**; blackbox **14/14 PASS**.
 - Commit **`2a0924b`**, push **`4e0c435..2a0924b`** → `origin/DE190147/audit-module`.
+
+
+
+
+
+---
+
+## [2026-07-13] - Giai đoạn: Tổng kiểm định vận hành — Tái cấu trúc Database Migration, Sửa lỗi luồng Customer (Planning Gate + TDD) & Audit Admin Portal
+
+### Thêm mới (Added)
+
+**Database & Bootstrap**
+- Migration gộp `20260712152036_InitialCreate` (dựng đủ 44 bảng + seed từ DB trống) + `20260712152121_AddUserPhoneUniqueIndex` (unique index filtered cho `Users.PhoneNumber`).
+- `DatabaseBootstrap` phiên bản mới: an toàn cho 3 trạng thái DB (chưa tồn tại / rỗng / legacy chưa baseline); dùng `IHistoryRepository` + `ProductInfo.GetVersion()` thay hard-code DDL; fail-fast kèm danh sách bảng thiếu khi DB legacy không đầy đủ.
+
+**Backend**
+- `CancellationPolicyService` nhận `TimeProvider` (DI `TimeProvider.System`) — thời gian inject được cho test; guard chặn hoàn tiền khi slot đã bắt đầu.
+- `BookingDto.CustomerName` — admin xem tên khách thay vì "Người dùng #id".
+- Query "effective pricing rules" (theo sân HOẶC theo loại sân) tại `CourtRepository`; `BookingPriceCalculator` nhận `effectiveRules`.
+- DataAnnotations cho 13 request DTO (Court, Equipment, Match, Cart, Rental, Chat, PricingRule, …).
+
+**Tests (backend 95 → 113, frontend 6 → 25)**
+- `CancellationPolicyServiceTests.cs` — 14 test fixed-time (FakeTimeProvider tự viết): boundary ±1 phút quanh mốc 48h/24h, regression lệch 7 tiếng, bất biến số tiền.
+- `EquipmentControllerTests.cs` — 2 contract test envelope 200/404.
+- `MatchServiceTests` +2 — host join bị chặn tại Service, verify không side effect.
+- `date.test.js` +19 — `formatSlotTime`, `buildEventDateTime`, `isEventFinished`, `formatTimeUntil` (đủ boundary phút/giờ/ngày).
+
+**Frontend**
+- `utils/date.js` +4 helper thời gian nghiệp vụ (parse không phụ thuộc locale, fallback an toàn, không "Invalid Date").
+- Badge "Theo loại sân" trên trang Cấu hình bảng giá (rule dùng chung ẩn nút xóa).
+
+### Thay đổi (Changed)
+- **Chuẩn hóa contract:** `GET /equipment/{id}` trả envelope `ApiResponseDto` + HTTP 404 thật (đồng nhất với interceptor unwrap của `axiosClient`).
+- **Host join kèo:** validation `HostId == joinerId` chạy tại Service **trước** transaction; Repository giữ check làm lớp phòng thủ thứ hai; ví Escrow tạo lazily trong transaction Serializable (đồng nhất với `EscrowService`/`BookingService`).
+- **`StaffDemoSeeder`:** ghi `MatchParticipants` thật (Host + Joiner, Approved) khớp `CurrentParticipants = 2`; giữ idempotent qua guard `DEMO-QR`.
+- **Secrets & vệ sinh repo:** JWT key thật trong `appsettings.json` → placeholder (non-Development bắt buộc env var); gỡ `.vs/`, `build_errors*.txt`, `*.bak` khỏi Git tracking; bổ sung pattern `.gitignore`.
+- **EF 10622:** suppress có chủ đích cho 4 bảng lịch sử/chứng từ (giữ hồ sơ khi cha soft-delete — kèm comment nghiệp vụ); riêng `OtpCode` áp matching filter `!User.IsDeleted`.
+- Ẩn nút "Hủy sân" cho booking đã kết thúc (backend vốn hoàn 0đ — chỉ là UX).
+
+### Sửa lỗi (Fixed)
+
+| Mức | Nội dung |
+|-----|----------|
+| **P0** | **Hoàn tiền lệch 7 tiếng:** slot giờ VN so với `DateTime.UtcNow` trần → khách hưởng mức hoàn cao sai chính sách; sửa cả `CalculateBookingRefundAsync` lẫn `CalculateMatchLeaveReleaseAsync` dùng `VnTimeHelper` |
+| **P0** | **Khách không đặt được sân:** FE so `status === 'available'` nhưng API trả `'ACTIVE'` → mọi sân hiện "Tạm ngưng", nút chọn khóa |
+| **P0** | **Bảng giá "vô hình":** rules seed gắn `CourtTypeId` nhưng API + calculator chỉ match `CourtId` → trang giá trống, mọi booking tính fallback 100k/giờ thay vì 80k/120k/140k theo khung giờ |
+| **P0** | **Trang chi tiết sản phẩm trắng:** endpoint trả DTO trần → `res.statusCode` undefined → false "KHÔNG TÌM THẤY THIẾT BỊ" |
+| **P1** | Host tự join kèo của mình lọt validation (chỉ chết vì "Số dư không đủ"); 10/13 user cũ thiếu ví bị chặn bởi lỗi "Ví trung gian không tồn tại" |
+| **P1** | Giờ kèo luôn hiển thị "lúc 00:00" (format từ `matchDate` thay vì `startTime`); trang chủ hiện sự kiện quá khứ + countdown hardcode "Bắt đầu sau 2 giờ" |
+| **P1** | `CurrentParticipants = 2` nhưng 0 record `MatchMembers` (seeder) — backfill DB kèm audit trước/sau |
+| **P2** | Admin: tên khách "#4" → tên thật; khiếu nại "#5 → #6" → tên người; badge EKYC "Unverified" → "Chưa xác minh"; widget hiệu suất sân raw "ACTIVE" → "Trống" + màu đúng |
+| **P2** | SignalR noise "connection stopped during negotiation" khi chuyển trang (StrictMode double-mount) — chờ `start()` settle trước khi `stop()` |
+| **P3** | 6 nullable warnings (CS8600/8601/8604) → build 0 warning; 18 lỗi ESLint `jsx-no-comment-textnodes` trên 9 trang |
+
+### Hỗ trợ từ AI (AI-assisted)
+- Claude Code (Claude Fable 5) thực thi theo mandatory planning gate: khảo sát working tree → root-cause matrix 6 bug → kế hoạch từng file → chờ phê duyệt → TDD (test đỏ đúng nguyên nhân → sửa → xanh). Người thực hiện phê duyệt kế hoạch, tinh chỉnh `DatabaseBootstrap` (fail-fast, API EF chuẩn), cung cấp Google OAuth Client ID, quyết định không thêm dependency Sqlite và kiểm soát phạm vi commit (loại rác session khỏi staging).
+- **`dotnet test` 113/113 pass** (4 skip SQL Server); Vitest **25/25**; ESLint **0 lỗi**; build BE/FE **0 warning/0 error**; audit DB **0/9 chỉ số vi phạm**.
+- Smoke test browser: đặt sân 3 bước giá đúng theo khung giờ, host join bị chặn đúng message, bảng giá admin hiển thị đủ, console 0 lỗi.
+- Commit **`1bf691f`** (101 files), push fast-forward **`b53e171..1bf691f`** → `origin/DE190147/audit-module`.
