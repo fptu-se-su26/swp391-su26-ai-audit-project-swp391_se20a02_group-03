@@ -313,9 +313,7 @@ public class DashboardService : IDashboardService
 
         var targetDate = (date ?? vnToday).Date;
 
-        var dayStart = ScheduleDayStart;
-
-        var dayEnd = ScheduleDayEnd;
+        var (dayStart, dayEnd) = await GetScheduleWindowAsync(targetDate);
 
         var totalMinutes = (dayEnd - dayStart).TotalMinutes;
 
@@ -323,7 +321,7 @@ public class DashboardService : IDashboardService
 
         var timeHeaders = new List<string>();
 
-        for (var hour = 6; hour <= 21; hour++)
+        for (var hour = dayStart.Hours; hour < dayEnd.Hours; hour++)
 
         {
 
@@ -428,7 +426,7 @@ public class DashboardService : IDashboardService
 
                 {
 
-                    Time = $"{start:HH\\:mm} - {end:HH\\:mm}",
+                    Time = $"{start:hh\\:mm} - {end:hh\\:mm}",
 
                     Status = status,
 
@@ -440,9 +438,9 @@ public class DashboardService : IDashboardService
 
                     CheckInCode = d.Booking.CheckInCode,
 
-                    StartTime = $"{start:HH\\:mm}",
+                    StartTime = $"{start:hh\\:mm}",
 
-                    EndTime = $"{end:HH\\:mm}",
+                    EndTime = $"{end:hh\\:mm}",
 
                     StartPercent = Math.Max(0, startPercent),
 
@@ -494,6 +492,38 @@ public class DashboardService : IDashboardService
 
         return new ApiResponseDto<CourtScheduleDto>(200, "Lấy lịch sân thành công.", schedule);
 
+    }
+
+
+
+    // Khung giờ hiển thị lịch: gộp giờ mở/đóng cửa thực của các tổ hợp cho ngày đó,
+    // fallback về hằng số khi chưa cấu hình.
+    private async Task<(TimeSpan Start, TimeSpan End)> GetScheduleWindowAsync(DateTime targetDate)
+    {
+        var dayOfWeek = (int)targetDate.DayOfWeek;
+
+        var daySchedules = await _db.ComplexOperatingSchedules
+            .AsNoTracking()
+            .Where(s => s.DayOfWeek == dayOfWeek && !s.IsDeleted)
+            .Select(s => new { s.OpenTime, s.CloseTime })
+            .ToListAsync();
+
+        if (daySchedules.Count == 0)
+        {
+            var complexHours = await _db.Complexes
+                .AsNoTracking()
+                .Where(c => !c.IsDeleted && c.OpeningTime != null && c.ClosingTime != null)
+                .Select(c => new { OpenTime = c.OpeningTime!.Value, CloseTime = c.ClosingTime!.Value })
+                .ToListAsync();
+            daySchedules = complexHours;
+        }
+
+        if (daySchedules.Count == 0)
+            return (ScheduleDayStart, ScheduleDayEnd);
+
+        var start = daySchedules.Min(s => s.OpenTime);
+        var end = daySchedules.Max(s => s.CloseTime);
+        return end > start ? (start, end) : (ScheduleDayStart, ScheduleDayEnd);
     }
 
 
