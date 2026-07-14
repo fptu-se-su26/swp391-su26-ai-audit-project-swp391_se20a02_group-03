@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom'
 import EliteLayout from '../../layouts/EliteLayout'
 import { courtApi } from '../../api/courtApi'
 import { bookingApi } from '../../api/bookingApi'
+import { dashboardApi } from '../../api/dashboardApi'
 import { equipmentApi } from '../../api/equipmentApi'
 import PageLoader from '../../components/ui/PageLoader'
 import EmptyState from '../../components/ui/EmptyState'
@@ -11,7 +12,8 @@ import { Plus, Minus, ShoppingBag } from 'lucide-react'
 
 const FALLBACK_IMG = 'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=600&q=80'
 
-const TIME_SLOTS = [
+// Fallback khi chưa tải được khung giờ vận hành từ API lịch
+const DEFAULT_TIME_SLOTS = [
   '06:00', '07:00', '08:00', '09:00', '10:00', '11:00',
   '12:00', '13:00', '14:00', '15:00', '16:00', '17:00',
   '18:00', '19:00', '20:00', '21:00', '22:00',
@@ -47,6 +49,20 @@ export default function ElitePosWalkInPage() {
   const [invoiceItems, setInvoiceItems] = useState([])
 
   const minDate = useMemo(() => new Date().toISOString().slice(0, 10), [])
+  const [timeSlots, setTimeSlots] = useState(DEFAULT_TIME_SLOTS)
+
+  // Khung giờ theo giờ vận hành thực (timeHeaders của lịch là các giờ bắt đầu slot)
+  useEffect(() => {
+    if (!selectedDate) return
+    dashboardApi.getSchedule(selectedDate)
+      .then(res => {
+        const headers = res.data?.timeHeaders
+        if (res.statusCode === 200 && Array.isArray(headers) && headers.length) {
+          setTimeSlots(headers)
+        }
+      })
+      .catch(() => setTimeSlots(DEFAULT_TIME_SLOTS))
+  }, [selectedDate])
 
   useEffect(() => {
     courtApi.getAll({ pageSize: 24, status: 'Available' })
@@ -276,7 +292,7 @@ export default function ElitePosWalkInPage() {
                   <p className="text-sm text-foreground-muted">Đang tải lịch trống...</p>
                 ) : (
                   <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
-                    {TIME_SLOTS.map(slot => {
+                    {timeSlots.map(slot => {
                       const booked = bookedSlots.includes(slot)
                       const active = selectedSlots.includes(slot)
                       return (

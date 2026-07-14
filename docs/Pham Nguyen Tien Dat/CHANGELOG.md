@@ -396,7 +396,7 @@
 
 ---
 
-## [2026-07-13] - Giai đoạn: Tổng kiểm định vận hành — Tái cấu trúc Database Migration, Sửa lỗi luồng Customer (Planning Gate + TDD) & Audit Admin Portal
+## [2026-07-13] - Giai đoạn: Tổng kiểm định vận hành — Tái cấu trúc Database Migration, Sửa lỗi luồng Customer (Planning Gate + TDD), Audit Admin/Owner/Staff Portal
 
 ### Thêm mới (Added)
 
@@ -420,6 +420,15 @@
 - `utils/date.js` +4 helper thời gian nghiệp vụ (parse không phụ thuộc locale, fallback an toàn, không "Invalid Date").
 - Badge "Theo loại sân" trên trang Cấu hình bảng giá (rule dùng chung ẩn nút xóa).
 
+**Owner Portal**
+- `OwnerComplexController` ghi `AuditLog` khi cập nhật thông tin tổ hợp (`UPDATE Complex`) — hành động ghi dữ liệu duy nhất còn thiếu log trong cổng Owner.
+- `OwnerWalkInPage` sinh khung giờ walk-in từ giờ mở cửa thực của tổ hợp (`ownerApi.getComplex`) thay vì hard-code 06:00–22:00.
+- `ProSportLogo` nhận thêm prop `to`/`onClick` để dùng trực tiếp làm link, không cần bọc `<Link>` ngoài.
+
+**Staff Portal (EliteSport OS + ProSport Dash)**
+- `DashboardService.GetScheduleWindowAsync` (mới) — tính khung giờ hiển thị lịch từ `ComplexOperatingSchedules`/giờ mở cửa tổ hợp thực tế thay vì hard-code 06:00–22:00.
+- `ElitePosWalkInPage` lấy `timeHeaders` từ API `dashboardApi.getSchedule` để đồng bộ khung giờ POS quầy với giờ vận hành thực.
+
 ### Thay đổi (Changed)
 - **Chuẩn hóa contract:** `GET /equipment/{id}` trả envelope `ApiResponseDto` + HTTP 404 thật (đồng nhất với interceptor unwrap của `axiosClient`).
 - **Host join kèo:** validation `HostId == joinerId` chạy tại Service **trước** transaction; Repository giữ check làm lớp phòng thủ thứ hai; ví Escrow tạo lazily trong transaction Serializable (đồng nhất với `EscrowService`/`BookingService`).
@@ -442,9 +451,15 @@
 | **P2** | Admin: tên khách "#4" → tên thật; khiếu nại "#5 → #6" → tên người; badge EKYC "Unverified" → "Chưa xác minh"; widget hiệu suất sân raw "ACTIVE" → "Trống" + màu đúng |
 | **P2** | SignalR noise "connection stopped during negotiation" khi chuyển trang (StrictMode double-mount) — chờ `start()` settle trước khi `stop()` |
 | **P3** | 6 nullable warnings (CS8600/8601/8604) → build 0 warning; 18 lỗi ESLint `jsx-no-comment-textnodes` trên 9 trang |
+| **P0** | Owner: build backend bị chặn — `EscrowServiceTests.cs` không compile do `EscrowService` thêm tham số `IVnPayService` mà test chưa cập nhật |
+| **P0** | Owner: trang "Thông tin tổ hợp" lưu luôn báo lỗi 400 — `GET` trả giờ `HH:mm:ss` nhưng `PUT` chỉ chấp nhận `HH:mm` strict (`OperatingTimeParser.TryParseStrict`) → owner không bao giờ lưu được dù không sửa gì |
+| **P1** | Owner: `<a>` lồng `<a>` trong `OwnerSidebar` (logo bọc trong `<Link>` ngoài) — HTML không hợp lệ, click logo về `/` thay vì `/owner/dashboard` |
+| **P0** | Staff: trang "Lịch thời gian thực" crash trên mọi ngày có booking — `DashboardService` format `TimeSpan` bằng specifier `HH\:mm` (không hợp lệ với `TimeSpan`, chỉ hợp lệ với `DateTime`) → `FormatException`; lỗi âm thầm vì slot trống không kích hoạt code path |
+| **P0** | Staff: walk-in tại quầy trả lỗi 500 khi khách có tài khoản email — cùng lỗi format trong `BookingService` khi build email xác nhận; **booking đã lưu DB trước khi crash**, khách bị giữ chỗ nhưng staff nhận lỗi |
 
 ### Hỗ trợ từ AI (AI-assisted)
 - Claude Code (Claude Fable 5) thực thi theo mandatory planning gate: khảo sát working tree → root-cause matrix 6 bug → kế hoạch từng file → chờ phê duyệt → TDD (test đỏ đúng nguyên nhân → sửa → xanh). Người thực hiện phê duyệt kế hoạch, tinh chỉnh `DatabaseBootstrap` (fail-fast, API EF chuẩn), cung cấp Google OAuth Client ID, quyết định không thêm dependency Sqlite và kiểm soát phạm vi commit (loại rác session khỏi staging).
+- Tiếp đó, audit trực tiếp trên browser (không chỉ đọc code) cho Owner Portal (`courtowner@prosport.vn`) và Staff Portal (`staff1@prosport.vn`): duyệt toàn bộ trang, thao tác thật (lưu form, tạo walk-in, xem lịch) để bắt lỗi mà review tĩnh bỏ sót — kể cả một lỗi escape verbatim string tinh vi (`hh\\:mm` sai trong `$@"..."`, phải dùng `hh\:mm`) chỉ lộ ra khi test lại bằng thao tác thật sau lần sửa đầu.
 - **`dotnet test` 113/113 pass** (4 skip SQL Server); Vitest **25/25**; ESLint **0 lỗi**; build BE/FE **0 warning/0 error**; audit DB **0/9 chỉ số vi phạm**.
-- Smoke test browser: đặt sân 3 bước giá đúng theo khung giờ, host join bị chặn đúng message, bảng giá admin hiển thị đủ, console 0 lỗi.
-- Commit **`1bf691f`** (101 files), push fast-forward **`b53e171..1bf691f`** → `origin/DE190147/audit-module`.
+- Smoke test browser: đặt sân 3 bước giá đúng theo khung giờ, host join bị chặn đúng message, bảng giá admin hiển thị đủ, console 0 lỗi; owner lưu tổ hợp thành công + audit log ghi nhận; staff tạo walk-in (khách vãng lai và khách có email) đều `201 Created`, trang Lịch không còn crash.
+- Commit **`1bf691f`** (101 files), push fast-forward **`b53e171..1bf691f`** → `origin/DE190147/audit-module`. Các commit audit Owner/Staff (`a912fc7`, `5269efa`, `fc46b44`, `89fbc99`) hiện ở local, chưa push.

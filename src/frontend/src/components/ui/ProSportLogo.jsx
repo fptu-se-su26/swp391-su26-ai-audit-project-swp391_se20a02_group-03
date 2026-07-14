@@ -19,6 +19,8 @@ export default function ProSportLogo({
   className = '',
   variant = 'default',
   iconOnly = false,
+  to = '/',
+  onClick,
 }) {
   const s = SIZES[size] || SIZES.md
 
@@ -27,7 +29,8 @@ export default function ProSportLogo({
 
   return (
     <Link
-      to="/"
+      to={to}
+      onClick={onClick}
       className={`prosport-logo group inline-flex items-center ${s.gap} no-underline shrink-0 ${wordmarkClass} transition-opacity duration-150 hover:opacity-80 active:opacity-65 ${className}`}
       aria-label="PRO-SPORT — về trang chủ"
     >
