@@ -227,3 +227,18 @@ AI soát lõi tài chính (EscrowService/EscrowRepository, Cart, MatchRepository
 
 ### Evaluation
 AI soát nốt và phát hiện `ReportService` cùng lớp lỗi với RatingService (cho bịa báo cáo bùng kèo) — đã fix + test. Các service còn lại sạch; `EquipmentService.BuyAsync` được xác định là dead-code (không có endpoint) nên bỏ qua. Kết quả: phủ trọn mọi actor, 113 unit test pass.
+
+## Prompt #16
+- Date: 2026-07-14
+- AI Tool: Claude Code (Claude Opus)
+- Author: VyHVM
+- Purpose: Chuyển sang PayOS cho cửa hàng, bán online có giao hàng (GHN) và bắt buộc địa chỉ/SĐT.
+
+### Prompt
+"Bây giờ tôi muốn dùng hệ thống PayOS thay cho VNPAY sandbox, ở phần cửa hàng tôi muốn bán online nên phải thêm 1 dịch vụ giao hàng của bên thứ 3 như Giao hàng tiết kiệm, giao hàng nhanh, yêu cầu người dùng nhập địa chỉ chính xác và số điện thoại khi mua hàng để giao vận có được không." (kèm quyết định: PayOS chỉ cho đơn shop, dùng GHN, hỗ trợ Ví/COD/PayOS, build kèm mock)
+
+### Expected Output
+- Mô hình đơn hàng + tích hợp PayOS (thanh toán) và GHN (giao vận) cho cửa hàng, bắt buộc địa chỉ + SĐT; chạy được ở chế độ mock khi chưa có credentials.
+
+### Evaluation
+AI lập kế hoạch 4 phase và hỏi rõ phạm vi trước khi code (đúng quy tắc planning gate). Triển khai gọn: đơn hàng atomic, GHN + PayOS có code API thật kèm fallback mock, frontend checkout đầy đủ. Đặc biệt AI tự **chạy end-to-end trên LocalDB** kiểm chứng cả 3 phương thức thanh toán + tạo vận đơn, và trung thực chỉ ra một điểm đồng bộ auth trong test tự động (không phải bug sản phẩm). Secret không commit, cắm key thật sau chỉ qua config.

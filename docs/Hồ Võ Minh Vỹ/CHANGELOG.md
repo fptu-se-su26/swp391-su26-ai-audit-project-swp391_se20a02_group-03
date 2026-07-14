@@ -117,3 +117,20 @@ Author: VyHVM
 ### AI-assisted
 - Dùng Claude Code (Claude Opus) khảo sát toàn bộ điểm phụ thuộc của rental, thực hiện xóa an toàn, và rà soát backend **toàn diện theo từng actor** (Guest/Customer/Staff/CourtOwner/Admin) — tập trung tiền/đồng thời/phân quyền/xác thực
 - Quyết định thủ công: chọn phương án regenerate migration; phạm vi enforce E-KYC (đặt sân + join kèo, bỏ qua walk-in); giữ nguyên UI Admin KYC; giữ nguyên endpoint công khai leaderboard và quyền voucher của Staff
+
+## [2026-07-14] — Bán hàng online (PayOS + GHN)
+Author: VyHVM
+
+### Added
+- Đơn hàng cửa hàng (`Order`/`OrderItem`) + migration `AddShopOrders`; checkout từ giỏ trong transaction Serializable (kiểm tồn kho → trừ ví → trừ kho → xóa item), bắt buộc **địa chỉ giao + SĐT** (validate)
+- Tích hợp **GHN**: báo giá phí ship, tạo vận đơn, master-data Tỉnh/Quận/Phường (chạy mock khi chưa có token)
+- Thanh toán **PayOS** (link + webhook ký HMAC-SHA256, mock) và **COD** bên cạnh **Ví Escrow**; giữ chỗ tồn kho cho mọi phương thức
+- Frontend: trang checkout (form địa chỉ + dropdown Tỉnh/Quận/Phường liên hoàn + chọn phương thức + tự tính phí ship) và trang **Đơn hàng của tôi** (trạng thái + mã vận đơn)
+
+### Changed
+- PayOS **chỉ dùng cho đơn shop**; VNPay giữ nguyên cho đặt sân/nạp ví Escrow
+
+### AI-assisted
+- Dùng Claude Code (Claude Opus) thiết kế + triển khai 4 phase (đơn hàng → GHN → PayOS/COD → frontend), viết code tích hợp thật kèm chế độ mock, và **chạy thử end-to-end trên SQL Server LocalDB** (đăng nhập → nạp ví → thêm giỏ → checkout 3 phương thức → tạo vận đơn GHN → xem đơn)
+- Quyết định thủ công: phạm vi PayOS (chỉ shop), chọn GHN, hỗ trợ Ví/COD/PayOS, chấp nhận mock trước khi có credentials thật; secret không commit (đọc từ config/env)
+- Ghi chú: unit test backend 122 pass, cả 2 build sạch; kiểm thử E2E xác nhận toàn bộ luồng hoạt động
