@@ -211,29 +211,4 @@ public class ComplexScheduleService : IComplexScheduleService
         }
     }
 
-    public async Task<bool> IsSlotWithinOperatingHoursAsync(int complexId, int? courtId, DateTime bookingDate, TimeSpan startTime, TimeSpan endTime)
-    {
-        if (await _db.ComplexClosures.AnyAsync(c => c.ComplexId == complexId && !c.IsDeleted && c.ClosureDate == bookingDate.Date))
-            return false;
-
-        var dayOfWeek = (int)bookingDate.DayOfWeek;
-        var schedule = await _db.ComplexOperatingSchedules
-            .FirstOrDefaultAsync(s => s.ComplexId == complexId && s.DayOfWeek == dayOfWeek && !s.IsDeleted);
-
-        if (schedule != null)
-        {
-            if (startTime < schedule.OpenTime || endTime > schedule.CloseTime)
-                return false;
-        }
-
-        var slotStart = bookingDate.Date.Add(startTime);
-        var slotEnd = bookingDate.Date.Add(endTime);
-
-        var inMaintenance = await _db.ComplexMaintenanceWindows.AnyAsync(m =>
-            m.ComplexId == complexId && !m.IsDeleted
-            && (m.CourtId == null || m.CourtId == courtId)
-            && m.StartAt < slotEnd && m.EndAt > slotStart);
-
-        return !inMaintenance;
-    }
 }

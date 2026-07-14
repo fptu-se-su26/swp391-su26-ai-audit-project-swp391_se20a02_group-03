@@ -161,6 +161,11 @@ public class BookingService : IBookingService
             if (court == null || !CourtStatuses.IsBookable(court.Status))
                     return new ApiResponseDto<BookingDto>(400, $"Sân {d.CourtId} không khả dụng.");
 
+                // Chặn đặt sân ngoài giờ hoạt động / ngày đóng cửa / khung bảo trì (server-side).
+                if (court.ComplexId.HasValue &&
+                    !await _courtRepository.IsSlotWithinOperatingHoursAsync(court.ComplexId.Value, court.CourtId, d.BookingDate, d.StartTime, d.EndTime))
+                    return new ApiResponseDto<BookingDto>(400, $"Sân {d.CourtId} không mở cửa trong khung giờ này (ngoài giờ hoạt động, ngày đóng cửa hoặc đang bảo trì).");
+
                 // C2 & H3 FIX: Removed N+1 and non-atomic GetAvailableCourtsAsync check.
                 // Overlap and availability checking is safely delegated to _bookingRepository.CreateWithTransactionAsync
                 // which uses a Serializable transaction to prevent TOCTOU race conditions.
