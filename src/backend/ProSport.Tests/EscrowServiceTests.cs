@@ -16,6 +16,7 @@ public class EscrowServiceTests
 {
     private readonly Mock<IEscrowRepository> _escrowRepoMock;
     private readonly Mock<IBookingRepository> _bookingRepoMock;
+    private readonly Mock<IVnPayService> _vnPayMock;
     private readonly Mock<ILogger<EscrowService>> _loggerMock;
     private readonly EscrowService _escrowService;
 
@@ -23,12 +24,14 @@ public class EscrowServiceTests
     {
         _escrowRepoMock = new Mock<IEscrowRepository>();
         _bookingRepoMock = new Mock<IBookingRepository>();
+        _vnPayMock = new Mock<IVnPayService>();
         _loggerMock = new Mock<ILogger<EscrowService>>();
 
         _escrowService = new EscrowService(
             _escrowRepoMock.Object,
             _bookingRepoMock.Object,
             Mock.Of<IVnPayService>(),
+            _vnPayMock.Object,
             _loggerMock.Object);
     }
 

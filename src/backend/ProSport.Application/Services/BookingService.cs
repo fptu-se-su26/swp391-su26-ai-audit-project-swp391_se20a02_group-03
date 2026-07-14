@@ -322,7 +322,7 @@ public class BookingService : IBookingService
                     <p><b>Booking ID:</b> #{created.BookingId}</p>
                     <p><b>Courts:</b> {courtNames}</p>
                     <p><b>Date:</b> {firstDetail?.BookingDate:dd/MM/yyyy}</p>
-                    <p><b>Time:</b> {firstDetail?.StartTime:HH\\:mm} - {firstDetail?.EndTime:HH\\:mm}</p>
+                    <p><b>Time:</b> {firstDetail?.StartTime:hh\:mm} - {firstDetail?.EndTime:hh\:mm}</p>
                     <p><b>Total Paid (Cash):</b> {created.TotalAmount:N0} VND</p>";
 
                 try

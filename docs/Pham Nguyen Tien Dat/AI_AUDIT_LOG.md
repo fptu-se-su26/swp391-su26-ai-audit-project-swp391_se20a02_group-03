@@ -575,8 +575,6 @@
 - Smoke test: checkout giỏ thiếu số dư ví → message *"Số dư ví không đủ"*; checkout có `bookingId` chỉ trừ item liên kết; operator cancel booking đã paid → hoàn full amount.
 
 
-
-
 ---
 
 ## Log #18
@@ -613,24 +611,47 @@
 - Sửa noise SignalR "connection stopped during negotiation" (chờ `start()` settle trước khi `stop()` + tắt logger nội bộ); ẩn nút Hủy sân cho booking đã kết thúc.
 - Dọn secrets: JWT key thật trong `appsettings.json` → placeholder (production ép env var); gỡ `.vs/`, `build_errors*.txt`, `*.bak` khỏi Git; cập nhật `.gitignore`; sửa 6 nullable warnings; 18 lỗi ESLint `jsx-no-comment-textnodes`; bổ sung DataAnnotations cho 13 request DTO; suppress có chủ đích EF 10622 cho bảng lịch sử/chứng từ (kèm giải thích nghiệp vụ).
 
+**E. Audit Owner Portal — 5 lỗi tìm thấy & sửa**
+- Build backend bị chặn: `EscrowServiceTests.cs` không compile do `EscrowService` đã thêm tham số `IVnPayService` vào constructor nhưng test chưa cập nhật — toàn bộ suite không chạy được cho đến khi vá.
+- Dọn code chết: `DatabaseBootstrap.cs` còn sót khối insert `__EFMigrationsHistory` thủ công (danh sách migration id viết tay) nằm sau logic baseline mới đã thay thế nó — loại bỏ theo đúng nguyên tắc "chỉ dùng API EF chuẩn" đã lập ở mục A.
+- **[Nghiêm trọng] Trang "Thông tin tổ hợp" lưu luôn báo lỗi 400:** API `GET /owner/complexes/{id}` trả giờ dạng `HH:mm:ss`, còn `PUT` chỉ chấp nhận `HH:mm` strict qua `OperatingTimeParser.TryParseStrict` → owner không bao giờ lưu được dù không sửa gì. Chuẩn hóa giờ trước khi submit, đổi input sang `type="time"`, Việt hóa nhãn (`Name/Address/Phone` → `Tên tổ hợp/Địa chỉ/SĐT`).
+- Walk-in thiếu khung giờ: `OwnerWalkInPage` hard-code slot 06:00–22:00 trong khi tổ hợp mở cửa 05:00–23:00 — owner không tạo được booking lúc 05:00. Sinh khung giờ từ giờ mở cửa thực của tổ hợp qua `ownerApi.getComplex`.
+- Lỗi DOM `<a>` lồng `<a>`: `OwnerSidebar` bọc `ProSportLogo` (vốn tự render thành `<Link>`) trong một `<Link>` khác → HTML không hợp lệ, React log lỗi liên tục, và click logo về `/` thay vì `/owner/dashboard`. Thêm prop `to`/`onClick` cho `ProSportLogo` để dùng trực tiếp.
+- Lỗ hổng audit log: sửa thông tin tổ hợp (`OwnerComplexController.UpdateComplex`) là hành động ghi dữ liệu duy nhất trong Owner Portal không ghi vào `AuditLog` (trong khi courts, giờ mở cửa, kho, voucher... đều ghi). Bổ sung `_auditLogService.LogAsync(...UPDATE, Complex...)`.
+- Đã xác minh trực tiếp trên browser (đăng nhập `courtowner@prosport.vn`): lưu tổ hợp → "Cập nhật tổ hợp thành công" → trang Nhật ký hiện đúng bản ghi `UPDATE Complex #1`. Phần audit log còn thiếu cho pricing/staff/booking/membership/cancellation-policy được tách thành task nền riêng, chưa sửa trong log này.
+
+**F. Audit Staff Portal (EliteSport OS + ProSport Dash) — 3 lỗi tìm thấy & sửa**
+- **[Nghiêm trọng] Trang "Lịch thời gian thực" crash trên mọi ngày có booking:** `DashboardService.GetCourtScheduleAsync` format `TimeSpan` bằng specifier `HH\:mm` — `HH` không hợp lệ với kiểu `TimeSpan` trong .NET (chỉ hợp lệ với `DateTime`), ném `FormatException` bất cứ khi nào ngày được xem có booking; lỗi tồn tại âm thầm vì slot trống không kích hoạt code path này. Sửa `HH` → `hh`, đồng thời thay khung giờ hard-code 06:00–22:00 bằng khung giờ tính từ `ComplexOperatingSchedules`/giờ mở cửa tổ hợp thực tế.
+- **[Nghiêm trọng] Walk-in tại quầy trả lỗi 500 khi khách có tài khoản email:** cùng lỗi format `HH\:mm` trong `BookingService.CreateWalkInBookingAsync` khi build email xác nhận — booking đã được lưu vào DB trước khi crash, khiến khách bị giữ chỗ nhưng staff nhận lỗi 500 và có thể vô tình đặt trùng. Điểm tinh vi: chuỗi là verbatim string (`$@"..."`) nên escape kép `hh\\:mm` (đúng cho string thường) vẫn sai — phải dùng `hh\:mm` (một backslash) mới hợp lệ trong verbatim string; phát hiện được nhờ test lại bằng browser + đọc log thay vì chỉ sửa theo suy đoán.
+- Khung giờ POS quầy hard-code: `ElitePosWalkInPage` cũng hard-code 06:00–22:00; đổi sang lấy `timeHeaders` từ chính API `dashboardApi.getSchedule` (staff đã có quyền gọi) để đồng bộ với giờ vận hành thực.
+- Đã xác minh trực tiếp trên browser (đăng nhập `staff1@prosport.vn`): duyệt đủ 8 trang `/elite/*` + 6 trang `/dashboard/*`; tạo walk-in slot 20:00 cho khách vãng lai và cho khách có email `customer1@prosport.vn` (đều `201 Created`, không còn 500); mở lại trang Lịch — không crash, hiện đúng slot vừa tạo; xác nhận khung giờ 05:00–22:00 khớp giờ mở cửa tổ hợp trên cả Lịch và POS. Phân quyền `[Authorize(Roles = "Admin,Staff")]` xác nhận đúng trên toàn bộ endpoint, không lộ cho Customer/CourtOwner.
+
 ### Quyết định & Can thiệp của con người
 - **Chấp nhận:** Toàn bộ root-cause matrix, kế hoạch triển khai theo planning gate, các bản vá backend/frontend và bộ test mở rộng.
 - **Can thiệp kỹ thuật 1 (Planning Gate):** Ra lệnh khảo sát + lập kế hoạch chi tiết và chờ phê duyệt trước khi sửa; quyết định không thêm dev-dependency Sqlite cho test concurrency (chấp nhận verify API-level + unique index).
 - **Can thiệp kỹ thuật 2 (Tinh chỉnh DatabaseBootstrap):** Trực tiếp hoàn thiện logic bootstrap — fail-fast với thông báo rõ khi DB legacy thiếu bảng (liệt kê bảng thiếu) thay vì baseline mù, dùng API EF chuẩn thay hard-code.
 - **Can thiệp kỹ thuật 3 (Cấu hình Google OAuth):** Cung cấp Client ID thật từ Google Cloud Console (origins `localhost:5173`/`127.0.0.1:5173`) để kích hoạt đăng nhập Google end-to-end trên môi trường dev.
-- **Can thiệp kỹ thuật 4 (Điều phối phạm vi):** Chỉ đạo tuần tự: audit customer → sửa + testing → audit admin → sửa; yêu cầu "làm tất cả" các hạng mục vệ sinh mã (secrets, warnings, validation, lint).
+- **Can thiệp kỹ thuật 4 (Điều phối phạm vi):** Chỉ đạo tuần tự: audit customer → sửa + testing → audit admin → sửa → audit owner → sửa → audit staff → sửa; yêu cầu "làm tất cả" các hạng mục vệ sinh mã (secrets, warnings, validation, lint).
 - **Can thiệp kỹ thuật 5 (Version Control):** Ra lệnh đẩy toàn bộ lên nhánh `DE190147/audit-module`; xác nhận fast-forward an toàn (không force), loại rác session (`.claude/`, `.codex-work/`, `outputs/`) khỏi commit.
+- **Can thiệp kỹ thuật 6 (Không tự ý mở rộng phạm vi audit log):** Chấp nhận chỉ vá lỗ hổng audit log cho `OwnerComplexController` trong đợt audit Owner; các endpoint còn thiếu log (pricing, staff, booking, membership, cancellation policy) được tách thành task nền riêng thay vì gộp vào cùng một đợt sửa để giữ commit nhỏ, dễ review.
+- **Can thiệp kỹ thuật 7 (Bắt lỗi escape verbatim string):** Sau lần sửa đầu `HH\:mm → hh\\:mm` vẫn gây `FormatException` do `BookingService` dùng verbatim string (`$@"`), yêu cầu test lại bằng thao tác thật trên UI thay vì tin vào build pass, từ đó phát hiện và sửa đúng thành `hh\:mm`.
 
 ### Áp dụng cho
 - **DB & bootstrap:** `Migrations/20260712152036_InitialCreate`, `20260712152121_AddUserPhoneUniqueIndex`, `DatabaseBootstrap.cs`, `StaffDemoSeeder.cs`, `ProSportDbContext.cs`
 - **Backend:** `CancellationPolicyService.cs`, `MatchService.cs`, `MatchRepository.cs`, `EquipmentController.cs`, `CourtRepository.cs`, `BookingPriceCalculator.cs`, `BookingService.cs`, `RecurringBookingService.cs`, `SplitPaymentService.cs`, `BookingDto.cs`, `Program.cs`, 13 request DTOs
+- **Owner backend:** `EscrowServiceTests.cs`, `OwnerComplexController.cs`
+- **Staff backend:** `DashboardService.cs` (`GetCourtScheduleAsync`, `GetScheduleWindowAsync` mới)
 - **Tests:** `CancellationPolicyServiceTests.cs`, `EquipmentControllerTests.cs`, `MatchServiceTests.cs` (backend 95 → **113 tests**); `date.test.js` (frontend 6 → **25 tests**)
 - **Frontend:** `utils/date.js`, `utils/labels.js`, `hooks/useNotifications.js`, `ApexBookingPage/ApexMatchesPage/ApexHomePage/ApexBookingsPage.jsx`, `AdminBookingsPage/AdminUsersPage/AdminComplaintsPage/AdminDashboardPage/AdminCourtsPage/AdminPricingPage.jsx`, 9 trang public (ESLint)
+- **Owner frontend:** `OwnerComplexPage.jsx`, `OwnerWalkInPage.jsx`, `OwnerSidebar.jsx`, `ProSportLogo.jsx`
+- **Staff frontend:** `ElitePosWalkInPage.jsx`
 - **Cấu hình:** `appsettings.json`, `.gitignore`
 
 ### Kiểm chứng
-- `dotnet build --no-restore` — **0 error, 0 warning**; `dotnet test` — **113/113 pass** (4 skip SQL Server integration).
+- `dotnet build --no-restore` — **0 error, 0 warning**; `dotnet test` — **113/113 pass** (4 skip SQL Server integration), chạy lại sau mỗi commit audit Owner/Staff (`a912fc7`, `5269efa`, `fc46b44`, `89fbc99`).
 - Frontend: Vitest **25/25 pass**, ESLint **0 lỗi**, `npm run build` OK (~4s).
 - Truy vấn audit DB: **0/9 chỉ số vi phạm** (lệch participant count, duplicate/orphan members, ví âm, orphan transactions, Confirmed-chưa-Paid, count > capacity…).
-- Smoke test browser: đặt sân 3 bước tính đúng giá theo khung giờ; host join kèo bị chặn với message nghiệp vụ; trang chi tiết sản phẩm render đủ; bảng giá admin hiện 3 khung giá + badge; bookings admin hiện tên khách; console 0 lỗi.
-- Push fast-forward thành công: `origin/DE190147/audit-module` @ **`1bf691f`** (`b53e171..1bf691f`, 101 files).
+- Smoke test browser (customer/admin): đặt sân 3 bước tính đúng giá theo khung giờ; host join kèo bị chặn với message nghiệp vụ; trang chi tiết sản phẩm render đủ; bảng giá admin hiện 3 khung giá + badge; bookings admin hiện tên khách; console 0 lỗi.
+- Smoke test browser (owner, `courtowner@prosport.vn`): lưu tổ hợp thành công, khung giờ walk-in đủ 05:00–22:00, logo sidebar không còn cảnh báo `validateDOMNesting`, audit log ghi nhận đúng.
+- Smoke test browser (staff, `staff1@prosport.vn`): 14 trang `/elite/*` + `/dashboard/*` duyệt không lỗi console mới; 2 lần tạo walk-in (khách vãng lai + khách có email) đều `201 Created`; trang Lịch thời gian thực render đúng slot vừa tạo, không crash.
+- Push fast-forward thành công: `origin/DE190147/audit-module` @ **`1bf691f`** (`b53e171..1bf691f`, 101 files); các commit audit Owner/Staff (`a912fc7`, `5269efa`, `fc46b44`, `89fbc99`) hiện ở local, chưa push lên remote — cần `git push` (và có thể `git pull --rebase` trước, vì nhánh đang behind 42 so với remote) để đồng bộ.
