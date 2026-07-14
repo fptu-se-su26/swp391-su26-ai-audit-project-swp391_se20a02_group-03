@@ -40,6 +40,8 @@ public class ProSportDbContext : DbContext
     public DbSet<Report> Reports { get; set; } = null!;
     public DbSet<ChatHistory> ChatHistories { get; set; } = null!;
     public DbSet<CartItem> CartItems { get; set; } = null!;
+    public DbSet<Order> Orders { get; set; } = null!;
+    public DbSet<OrderItem> OrderItems { get; set; } = null!;
     public DbSet<ProductStock> ProductStocks { get; set; } = null!;
     public DbSet<ComplexReview> ComplexReviews { get; set; } = null!;
     public DbSet<BookingPaymentShare> BookingPaymentShares { get; set; } = null!;
@@ -565,6 +567,37 @@ public class ProSportDbContext : DbContext
                   .WithMany()
                   .HasForeignKey(e => e.ApplicableProductId)
                   .OnDelete(DeleteBehavior.ClientSetNull);
+        });
+
+        modelBuilder.Entity<Order>(entity =>
+        {
+            entity.HasKey(e => e.OrderId);
+            entity.HasIndex(e => e.UserId);
+            entity.HasIndex(e => e.CreatedAt);
+            entity.Property(e => e.Status).HasMaxLength(20).HasDefaultValue("Pending");
+            entity.Property(e => e.PaymentMethod).HasMaxLength(20).HasDefaultValue("Wallet");
+            entity.Property(e => e.PaymentStatus).HasMaxLength(20).HasDefaultValue("Pending");
+            entity.Property(e => e.ShippingStatus).HasMaxLength(20).HasDefaultValue("Pending");
+            entity.Property(e => e.RecipientName).HasMaxLength(100);
+            entity.Property(e => e.RecipientPhone).HasMaxLength(15);
+            entity.Property(e => e.ProvinceName).HasMaxLength(100);
+            entity.Property(e => e.DistrictName).HasMaxLength(100);
+            entity.Property(e => e.WardCode).HasMaxLength(20);
+            entity.Property(e => e.WardName).HasMaxLength(100);
+            entity.Property(e => e.AddressDetail).HasMaxLength(255);
+            entity.Property(e => e.Note).HasMaxLength(500);
+            entity.Property(e => e.ShippingProvider).HasMaxLength(20);
+            entity.Property(e => e.TrackingCode).HasMaxLength(50);
+            entity.Property(e => e.PaymentReference).HasMaxLength(100);
+            entity.HasOne(e => e.User).WithMany().HasForeignKey(e => e.UserId).OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<OrderItem>(entity =>
+        {
+            entity.HasKey(e => e.OrderItemId);
+            entity.Property(e => e.EquipmentName).HasMaxLength(150);
+            entity.HasOne(e => e.Order).WithMany(o => o.Items).HasForeignKey(e => e.OrderId).OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(e => e.Equipment).WithMany().HasForeignKey(e => e.EquipmentId).OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<ProductStock>(entity =>
