@@ -13,4 +13,7 @@ public interface IOrderRepository
 
     Task<List<Order>> GetByUserAsync(int userId);
     Task<Order?> GetByIdAsync(int orderId);
+
+    /// <summary>Gắn mã vận đơn + trạng thái giao hàng sau khi tạo vận đơn ở hãng ship.</summary>
+    Task SetTrackingAsync(int orderId, string trackingCode, string shippingStatus);
 }

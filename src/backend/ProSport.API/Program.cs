@@ -113,9 +113,11 @@ builder.Services.AddScoped<IStorageService, LocalStorageService>();
 builder.Services.AddScoped<IChatbotService, ChatbotService>();
 builder.Services.AddScoped<ICartRepository, CartRepository>();
 builder.Services.AddScoped<ICartService, CartService>();
-// Shop online — đơn hàng + giao vận (Phase 1: tạo đơn + thanh toán ví)
+// Shop online — đơn hàng + giao vận
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IOrderService, OrderService>();
+// Giao vận GHN (mock khi chưa cấu hình Ghn:Token)
+builder.Services.AddHttpClient<IShippingService, ProSport.Infrastructure.Services.Shipping.GhnShippingService>();
 // TK-010: quản lý người dùng (Admin)
 builder.Services.AddScoped<IUserService, UserService>();
 // TK-035: đánh giá người chơi + Trust Score

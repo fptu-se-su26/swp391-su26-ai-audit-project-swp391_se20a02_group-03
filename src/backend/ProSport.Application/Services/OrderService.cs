@@ -12,10 +12,12 @@ public class OrderService : IOrderService
     private static readonly Regex VnPhoneRegex = new(@"^0\d{9}$", RegexOptions.Compiled);
 
     private readonly IOrderRepository _orderRepository;
+    private readonly IShippingService _shippingService;
 
-    public OrderService(IOrderRepository orderRepository)
+    public OrderService(IOrderRepository orderRepository, IShippingService shippingService)
     {
         _orderRepository = orderRepository;
+        _shippingService = shippingService;
     }
 
     public async Task<ApiResponseDto<OrderDto>> CheckoutFromCartAsync(int userId, CreateOrderDto dto)
@@ -35,6 +37,12 @@ public class OrderService : IOrderService
             return new ApiResponseDto<OrderDto>(400, "Số điện thoại không hợp lệ (10 số, bắt đầu bằng 0).");
         if (string.IsNullOrWhiteSpace(dto.AddressDetail))
             return new ApiResponseDto<OrderDto>(400, "Vui lòng nhập địa chỉ chi tiết (số nhà, đường).");
+        if (dto.ProvinceId <= 0)
+            return new ApiResponseDto<OrderDto>(400, "Vui lòng chọn Tỉnh/Thành phố.");
+        if (dto.DistrictId <= 0)
+            return new ApiResponseDto<OrderDto>(400, "Vui lòng chọn Quận/Huyện.");
+        if (string.IsNullOrWhiteSpace(dto.WardCode))
+            return new ApiResponseDto<OrderDto>(400, "Vui lòng chọn Phường/Xã.");
 
         var order = new Order
         {
@@ -54,15 +62,29 @@ public class OrderService : IOrderService
             ShippingStatus = ShippingStatuses.Pending
         };
 
+        // Phí ship tính trước khi thanh toán (GHN hoặc mock) — cộng vào tổng đơn.
+        order.ShippingFee = await _shippingService.CalculateFeeAsync(order.DistrictId, order.WardCode);
+
+        Order created;
         try
         {
-            var created = await _orderRepository.CreateFromCartAtomicAsync(order);
-            return new ApiResponseDto<OrderDto>(201, "Đặt hàng thành công.", Map(created));
+            created = await _orderRepository.CreateFromCartAtomicAsync(order);
         }
         catch (InvalidOperationException ex)
         {
             return new ApiResponseDto<OrderDto>(400, ex.Message);
         }
+
+        // Tạo vận đơn ở hãng ship (best-effort — đơn đã thanh toán vẫn giữ, ship có thể retry sau).
+        var shipment = await _shippingService.CreateShipmentAsync(created);
+        if (shipment.Success && !string.IsNullOrWhiteSpace(shipment.TrackingCode))
+        {
+            await _orderRepository.SetTrackingAsync(created.OrderId, shipment.TrackingCode, ShippingStatuses.Created);
+            created.TrackingCode = shipment.TrackingCode;
+            created.ShippingStatus = ShippingStatuses.Created;
+        }
+
+        return new ApiResponseDto<OrderDto>(201, "Đặt hàng thành công.", Map(created));
     }
 
     public async Task<ApiResponseDto<List<OrderDto>>> GetMyOrdersAsync(int userId)

@@ -125,4 +125,14 @@ public class OrderRepository : IOrderRepository
             .Include(o => o.Items)
             .FirstOrDefaultAsync(o => o.OrderId == orderId && !o.IsDeleted);
     }
+
+    public async Task SetTrackingAsync(int orderId, string trackingCode, string shippingStatus)
+    {
+        var order = await _context.Orders.FirstOrDefaultAsync(o => o.OrderId == orderId);
+        if (order == null) return;
+        order.TrackingCode = trackingCode;
+        order.ShippingStatus = shippingStatus;
+        order.UpdatedAt = DateTime.UtcNow;
+        await _context.SaveChangesAsync();
+    }
 }

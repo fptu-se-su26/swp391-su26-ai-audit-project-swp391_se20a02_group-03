@@ -1,7 +1,9 @@
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Moq;
 using ProSport.Application.DTOs;
+using ProSport.Application.Interfaces;
 using ProSport.Application.Services;
 using ProSport.Domain.Constants;
 using ProSport.Domain.Entities;
@@ -22,8 +24,15 @@ public class OrderServiceTests
         return new ProSportDbContext(options);
     }
 
-    private static OrderService CreateService(ProSportDbContext db) =>
-        new(new OrderRepository(db, new EscrowRepository(db)));
+    private static OrderService CreateService(ProSportDbContext db, decimal shippingFee = 20000m, bool shipOk = true)
+    {
+        var shipping = new Mock<IShippingService>();
+        shipping.Setup(s => s.CalculateFeeAsync(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<int>()))
+            .ReturnsAsync(shippingFee);
+        shipping.Setup(s => s.CreateShipmentAsync(It.IsAny<Order>(), It.IsAny<int>()))
+            .ReturnsAsync((Order o, int _) => new ShipmentResult(shipOk, shipOk ? "GHN-TEST-123" : null, o.ShippingFee, shipOk ? null : "err"));
+        return new OrderService(new OrderRepository(db, new EscrowRepository(db)), shipping.Object);
+    }
 
     private static CreateOrderDto ValidDto(string method = "Wallet") => new()
     {
@@ -56,12 +65,29 @@ public class OrderServiceTests
         result.StatusCode.Should().Be(201);
         result.Data!.Status.Should().Be(OrderStatuses.Paid);
         result.Data.PaymentStatus.Should().Be(PaymentStatus.Paid);
-        result.Data.TotalAmount.Should().Be(200_000);
+        result.Data.Subtotal.Should().Be(200_000);
+        result.Data.ShippingFee.Should().Be(20_000);
+        result.Data.TotalAmount.Should().Be(220_000);           // subtotal + phí ship
+        result.Data.TrackingCode.Should().Be("GHN-TEST-123");
+        result.Data.ShippingStatus.Should().Be(ShippingStatuses.Created);
         result.Data.Items.Should().HaveCount(1);
         (await db.Equipments.FirstAsync(e => e.EquipmentId == 1)).StockQuantity.Should().Be(3);
-        (await db.EscrowWallets.FirstAsync(w => w.UserId == 500)).Balance.Should().Be(300_000);
+        (await db.EscrowWallets.FirstAsync(w => w.UserId == 500)).Balance.Should().Be(280_000); // 500k - 220k
         (await db.CartItems.CountAsync(c => c.UserId == 500 && !c.IsDeleted)).Should().Be(0);
         (await db.Orders.CountAsync()).Should().Be(1);
+    }
+
+    [Fact]
+    public async Task Checkout_Returns400_WhenWardNotSelected()
+    {
+        await using var db = CreateDb(nameof(Checkout_Returns400_WhenWardNotSelected));
+        var dto = ValidDto();
+        dto.WardCode = "";
+
+        var result = await CreateService(db).CheckoutFromCartAsync(1, dto);
+
+        result.StatusCode.Should().Be(400);
+        result.Message.Should().Contain("Phường");
     }
 
     [Fact]
