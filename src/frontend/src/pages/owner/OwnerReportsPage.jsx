@@ -73,14 +73,10 @@ export default function OwnerReportsPage() {
       </div>
       {error && <div className="text-sm text-danger bg-danger-bg border-2 border-danger px-3 py-2 rounded-[2px]">{error}</div>}
       {exportError && <div className="text-sm text-danger bg-danger-bg border-2 border-danger px-3 py-2 rounded-[2px]">{exportError}</div>}
-      <div className="grid md:grid-cols-3 gap-[2px] bg-border-strong border-2 border-border-strong">
+      <div className="grid md:grid-cols-2 gap-[2px] bg-border-strong border-2 border-border-strong">
         <div className="bg-surface p-6">
-          <p className="label-mono text-foreground-subtle mb-2.5">Tỷ lệ thuê thiết bị</p>
-          <p className="font-heading text-3xl text-foreground">{occupancy?.rentalUtilization ?? 0}%</p>
-        </div>
-        <div className="bg-surface p-6">
-          <p className="label-mono text-foreground-subtle mb-2.5">Tỷ lệ hư hỏng</p>
-          <p className="font-heading text-3xl text-foreground">{occupancy?.damageRate ?? 0}%</p>
+          <p className="label-mono text-foreground-subtle mb-2.5">Tổng sản phẩm</p>
+          <p className="font-heading text-3xl text-foreground">{inventory?.totalProducts ?? 0}</p>
         </div>
         <div className="bg-[var(--theme-primary)] p-6">
           <p className="label-mono text-foreground-muted mb-2.5">SP tồn thấp</p>

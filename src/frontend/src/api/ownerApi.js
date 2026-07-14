@@ -62,24 +62,6 @@ export const ownerApi = {
   updateProduct: (id, complexId, data) =>
     axiosClient.put(`/owner/inventory/products/${id}`, data, { params: { complexId } }),
 
-  getRentalAssets: (complexId, params = {}) =>
-    axiosClient.get('/owner/inventory/rental-assets', { params: { complexId, ...params } }),
-  createRentalAsset: (data) => axiosClient.post('/owner/inventory/rental-assets', data),
-  updateRentalAsset: (id, complexId, data) =>
-    axiosClient.put(`/owner/inventory/rental-assets/${id}`, data, { params: { complexId } }),
-  updateRentalAssetStatus: (id, complexId, data) =>
-    axiosClient.patch(`/owner/inventory/rental-assets/${id}/status`, data, { params: { complexId } }),
-
-  getRentals: (params) => axiosClient.get('/owner/rentals', { params }),
-  getRental: (id, complexId) => axiosClient.get(`/owner/rentals/${id}`, { params: { complexId } }),
-  createRental: (data) => axiosClient.post('/owner/rentals', data),
-  getConditionHistory: (id, complexId) =>
-    axiosClient.get(`/owner/rentals/${id}/condition-history`, { params: { complexId } }),
-  addConditionCheck: (id, complexId, data) =>
-    axiosClient.post(`/owner/rentals/${id}/condition-check`, data, { params: { complexId } }),
-  addSurcharge: (id, complexId, data) =>
-    axiosClient.post(`/owner/rentals/${id}/surcharge`, data, { params: { complexId } }),
-
   getVouchers: (complexId) => axiosClient.get('/owner/vouchers', { params: { complexId } }),
   createVoucher: (complexId, data) =>
     axiosClient.post('/owner/vouchers', data, { params: { complexId } }),

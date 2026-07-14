@@ -71,13 +71,7 @@ builder.Services.AddDbContext<ProSportDbContext>(options =>
         {
             sql.MigrationsAssembly(typeof(ProSportDbContext).Assembly.GetName().Name);
             sql.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
-        })
-    // Quyết định có chủ đích: BookingDetailEquipment/ConditionCheck/RentalSessionAsset/RentalSurcharge
-    // là bảng LỊCH SỬ/CHỨNG TỪ — phải giữ nguyên record kể cả khi cha (Equipment/RentalAsset/User staff)
-    // bị xóa mềm (thanh lý thiết bị là nghiệp vụ thật). Không áp matching query filter để tránh mất
-    // lịch sử hóa đơn; đổi lại, code đọc lịch sử khi Include cha phải null-check navigation.
-    // Cảnh báo EF 10622 cho các cặp này được tắt tại đây (OtpCode đã có matching filter riêng).
-    .ConfigureWarnings(w => w.Ignore(CoreEventId.PossibleIncorrectRequiredNavigationWithQueryFilterInteractionWarning)));
+        }));
 
 // Configure Dependency Injection
 builder.Services.AddScoped<IUserRepository, UserRepository>();
@@ -96,7 +90,6 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IComplexRepository, ComplexRepository>();
 builder.Services.AddScoped<IComplexOwnerRepository, ComplexOwnerRepository>();
 builder.Services.AddScoped<IStaffAssignmentRepository, StaffAssignmentRepository>();
-builder.Services.AddScoped<IRentalSessionRepository, RentalSessionRepository>();
 builder.Services.AddScoped<IOwnerAccessService, OwnerAccessService>();
 builder.Services.AddScoped<IOwnerDashboardService, OwnerDashboardService>();
 builder.Services.AddScoped<IOwnerStaffService, OwnerStaffService>();
@@ -105,7 +98,6 @@ builder.Services.AddScoped<IAuditLogService, AuditLogService>();
 builder.Services.AddScoped<IComplexScheduleService, ComplexScheduleService>();
 builder.Services.AddScoped<IStaffOperationGuard, StaffOperationGuard>();
 builder.Services.AddScoped<IOwnerInventoryService, OwnerInventoryService>();
-builder.Services.AddScoped<IOwnerRentalService, OwnerRentalService>();
 builder.Services.AddScoped<IOwnerReportService, OwnerReportService>();
 builder.Services.AddScoped<IOwnerReviewService, OwnerReviewService>();
 builder.Services.AddScoped<IOwnerVoucherService, OwnerVoucherService>();
@@ -115,8 +107,6 @@ builder.Services.AddScoped<IMatchService, MatchService>();
 builder.Services.AddScoped<IEscrowService, EscrowService>();
 builder.Services.AddScoped<IEquipmentCategoryService, EquipmentCategoryService>();
 builder.Services.AddScoped<IEquipmentService, EquipmentService>();
-builder.Services.AddScoped<IEquipmentRentalRepository, EquipmentRentalRepository>();
-builder.Services.AddScoped<IEquipmentRentalService, EquipmentRentalService>();
 builder.Services.AddScoped<IInventoryService, InventoryService>();
 builder.Services.AddScoped<IVnPayService, VnPayService>();
 builder.Services.AddScoped<IStorageService, LocalStorageService>();
@@ -257,7 +247,6 @@ using (var scope = app.Services.CreateScope())
     var context = scope.ServiceProvider.GetRequiredService<ProSportDbContext>();
     var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
     await DatabaseBootstrap.ApplyAsync(context, logger);
-    await DatabaseSeeder.EnsureEquipmentRentalSchemaAsync(context);
     await DatabaseSeeder.SeedEquipmentAsync(context);
     await DatabaseSeeder.SeedCourtsAsync(context);
     await SampleUserSeeder.SeedAsync(context, scope.ServiceProvider.GetRequiredService<IConfiguration>(), app.Environment.IsDevelopment(), logger);

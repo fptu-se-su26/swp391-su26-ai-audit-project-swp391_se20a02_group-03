@@ -12,22 +12,19 @@ public class OwnerAccessService : IOwnerAccessService
     private readonly IUserRepository _userRepository;
     private readonly ICourtRepository _courtRepository;
     private readonly IBookingRepository _bookingRepository;
-    private readonly IRentalSessionRepository _rentalSessionRepository;
 
     public OwnerAccessService(
         IComplexOwnerRepository complexOwnerRepository,
         IComplexRepository complexRepository,
         IUserRepository userRepository,
         ICourtRepository courtRepository,
-        IBookingRepository bookingRepository,
-        IRentalSessionRepository rentalSessionRepository)
+        IBookingRepository bookingRepository)
     {
         _complexOwnerRepository = complexOwnerRepository;
         _complexRepository = complexRepository;
         _userRepository = userRepository;
         _courtRepository = courtRepository;
         _bookingRepository = bookingRepository;
-        _rentalSessionRepository = rentalSessionRepository;
     }
 
     public async Task<OwnerContextDto> GetOwnerContextAsync(int userId)
@@ -177,16 +174,5 @@ public class OwnerAccessService : IOwnerAccessService
             if (court?.ComplexId == null || !complexIds.Contains(court.ComplexId.Value))
                 throw new OwnerAccessDeniedException("Bạn không có quyền truy cập booking này.");
         }
-    }
-
-    public async Task RequireRentalAccessAsync(int userId, int rentalSessionId, bool isAdmin)
-    {
-        if (isAdmin) return;
-
-        var complexId = await _rentalSessionRepository.GetComplexIdBySessionIdAsync(rentalSessionId)
-            ?? throw new OwnerResourceNotFoundException("Không tìm thấy phiên thuê.");
-
-        if (!await HasAccessToComplexAsync(userId, complexId))
-            throw new OwnerResourceNotFoundException("Không tìm thấy phiên thuê.");
     }
 }

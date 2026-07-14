@@ -1,5 +1,6 @@
 using ProSport.Application.DTOs;
 using ProSport.Application.Interfaces;
+using ProSport.Domain.Constants;
 using ProSport.Domain.Entities;
 
 namespace ProSport.Application.Services;
@@ -9,11 +10,16 @@ public class RatingService : IRatingService
 {
     private readonly IPlayerRatingRepository _ratingRepository;
     private readonly IUserRepository _userRepository;
+    private readonly IMatchRepository _matchRepository;
 
-    public RatingService(IPlayerRatingRepository ratingRepository, IUserRepository userRepository)
+    public RatingService(
+        IPlayerRatingRepository ratingRepository,
+        IUserRepository userRepository,
+        IMatchRepository matchRepository)
     {
         _ratingRepository = ratingRepository;
         _userRepository = userRepository;
+        _matchRepository = matchRepository;
     }
 
     public async Task<ApiResponseDto<RatingDto>> CreateRatingAsync(int raterId, CreateRatingDto dto)
@@ -32,6 +38,23 @@ public class RatingService : IRatingService
         if (ratedUser is null)
         {
             return new ApiResponseDto<RatingDto>(404, "Không tìm thấy người chơi cần đánh giá.");
+        }
+
+        // TK-035: Chỉ được đánh giá người chơi CÙNG tham gia trận đấu này — cả người
+        // chấm và người bị chấm đều phải là thành viên đã được duyệt (Approved) của kèo.
+        // Nếu thiếu bước này, bất kỳ ai cũng có thể spam đánh giá bất kỳ ai để thao túng Trust Score.
+        var match = await _matchRepository.GetMatchByIdAsync(dto.MatchId);
+        if (match is null)
+        {
+            return new ApiResponseDto<RatingDto>(404, "Không tìm thấy trận đấu.");
+        }
+
+        var raterParticipant = await _matchRepository.GetParticipantAsync(dto.MatchId, raterId);
+        var ratedParticipant = await _matchRepository.GetParticipantAsync(dto.MatchId, dto.RatedUserId);
+        static bool IsActiveMember(MatchParticipant? p) => p is not null && p.Status == MatchParticipantStatus.Approved;
+        if (!IsActiveMember(raterParticipant) || !IsActiveMember(ratedParticipant))
+        {
+            return new ApiResponseDto<RatingDto>(403, "Bạn chỉ được đánh giá người chơi cùng tham gia trận đấu này.");
         }
 
         var alreadyRated = await _ratingRepository.ExistsAsync(raterId, dto.RatedUserId, dto.MatchId);

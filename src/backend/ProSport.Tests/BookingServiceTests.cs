@@ -26,8 +26,15 @@ public class BookingServiceTests
     {
         _bookingRepoMock = new Mock<IBookingRepository>();
         _courtRepoMock = new Mock<ICourtRepository>();
+        // Mặc định: slot nằm trong giờ hoạt động (test happy-path không bị chặn bởi gate giờ mở cửa).
+        _courtRepoMock.Setup(r => r.IsSlotWithinOperatingHoursAsync(
+                It.IsAny<int>(), It.IsAny<int?>(), It.IsAny<DateTime>(), It.IsAny<TimeSpan>(), It.IsAny<TimeSpan>()))
+            .ReturnsAsync(true);
         _escrowRepoMock = new Mock<IEscrowRepository>();
         _userRepoMock = new Mock<IUserRepository>();
+        // Mặc định: người đặt sân đã xác thực E-KYC (gate TK-004) để các test hợp lệ đi tiếp.
+        _userRepoMock.Setup(r => r.GetByIdAsync(It.IsAny<int>()))
+            .ReturnsAsync(new User { UserId = 1, Role = "Customer", EKycStatus = "Verified", IsLocked = false });
         _emailServiceMock = new Mock<IEmailService>();
         _loggerMock = new Mock<ILogger<BookingService>>();
         var staffGuardMock = new Mock<IStaffOperationGuard>();
@@ -59,6 +66,57 @@ public class BookingServiceTests
             cancelPolicyMock.Object,
             membershipMock.Object,
             Mock.Of<INotificationService>());
+    }
+
+    [Fact]
+    public async Task CreateBookingAsync_Returns403_WhenUserNotEkycVerified()
+    {
+        // TK-004: user chưa xác thực E-KYC không được đặt sân.
+        _userRepoMock.Setup(r => r.GetByIdAsync(1))
+            .ReturnsAsync(new User { UserId = 1, Role = "Customer", EKycStatus = "Pending", IsLocked = false });
+
+        var result = await _bookingService.CreateBookingAsync(new CreateBookingDto
+        {
+            UserId = 1,
+            Details = new List<CreateBookingDetailDto>
+            {
+                new() { CourtId = 1, BookingDate = DateTime.UtcNow.Date.AddDays(1), StartTime = new TimeSpan(10, 0, 0), EndTime = new TimeSpan(11, 0, 0) }
+            }
+        });
+
+        result.StatusCode.Should().Be(403);
+        result.Message.Should().Contain("E-KYC");
+    }
+
+    [Fact]
+    public async Task CreateBookingAsync_Returns400_WhenSlotOutsideOperatingHours()
+    {
+        var vnTz = TimeZoneInfo.FindSystemTimeZoneById(OperatingSystem.IsWindows() ? "SE Asia Standard Time" : "Asia/Ho_Chi_Minh");
+        var tomorrow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vnTz).AddDays(1).Date;
+
+        var court = new Court
+        {
+            CourtId = 1, ComplexId = 5, Status = "Available",
+            PricingRules = new List<PricingRule> { new() { StartTime = TimeSpan.Zero, EndTime = new TimeSpan(23, 59, 59), PricePerHour = 100000m } }
+        };
+        _courtRepoMock.Setup(x => x.GetByIdAsync(1)).ReturnsAsync(court);
+        _bookingRepoMock.Setup(x => x.GetByUserIdAsync(1)).ReturnsAsync(new List<Booking>());
+        // Slot rơi vào ngày đóng cửa / bảo trì / ngoài giờ → repo trả false.
+        _courtRepoMock.Setup(r => r.IsSlotWithinOperatingHoursAsync(5, 1, It.IsAny<DateTime>(), It.IsAny<TimeSpan>(), It.IsAny<TimeSpan>()))
+            .ReturnsAsync(false);
+
+        var result = await _bookingService.CreateBookingAsync(new CreateBookingDto
+        {
+            UserId = 1,
+            Details = new List<CreateBookingDetailDto>
+            {
+                new() { CourtId = 1, BookingDate = tomorrow, StartTime = new TimeSpan(10, 0, 0), EndTime = new TimeSpan(11, 0, 0) }
+            }
+        });
+
+        result.StatusCode.Should().Be(400);
+        result.Message.Should().Contain("không mở cửa");
+        _bookingRepoMock.Verify(x => x.CreateWithTransactionAsync(It.IsAny<Booking>()), Times.Never);
     }
 
     [Fact]

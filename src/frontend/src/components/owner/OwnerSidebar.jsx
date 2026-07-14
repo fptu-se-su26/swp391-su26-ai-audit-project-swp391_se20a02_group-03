@@ -12,8 +12,6 @@ const NAV = [
   { path: '/owner/operating-hours', label: 'Giờ mở cửa' },
   { path: '/owner/cancellation-policy', label: 'Chính sách hủy' },
   { path: '/owner/inventory/products', label: 'Kho SP' },
-  { path: '/owner/inventory/rental-assets', label: 'Thiết bị thuê' },
-  { path: '/owner/rentals', label: 'Phiên thuê' },
   { path: '/owner/vouchers', label: 'Voucher' },
   { path: '/owner/finance', label: 'Tài chính' },
   { path: '/owner/reports', label: 'Báo cáo' },

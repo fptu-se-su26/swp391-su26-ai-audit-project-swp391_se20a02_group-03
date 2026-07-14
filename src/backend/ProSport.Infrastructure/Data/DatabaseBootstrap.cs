@@ -18,7 +18,7 @@ namespace ProSport.Infrastructure.Data;
 /// </summary>
 public static class DatabaseBootstrap
 {
-    private const string InitialCreateMigrationId = "20260712152036_InitialCreate";
+    private const string InitialCreateMigrationId = "20260713180046_InitialCreate";
 
     public static async Task ApplyAsync(ProSportDbContext context, ILogger logger, CancellationToken cancellationToken = default)
     {

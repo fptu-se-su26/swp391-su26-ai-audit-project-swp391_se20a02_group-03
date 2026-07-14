@@ -48,7 +48,7 @@ public class OwnerOperationsTests
     {
         var complexRepo = new Mock<IComplexOwnerRepository>();
         complexRepo.Setup(r => r.IsUserOwnerOfComplexAsync(1, 99)).ReturnsAsync(false);
-        var svc = new OwnerAccessService(complexRepo.Object, Mock.Of<IComplexRepository>(), Mock.Of<IUserRepository>(), Mock.Of<ICourtRepository>(), Mock.Of<IBookingRepository>(), Mock.Of<IRentalSessionRepository>());
+        var svc = new OwnerAccessService(complexRepo.Object, Mock.Of<IComplexRepository>(), Mock.Of<IUserRepository>(), Mock.Of<ICourtRepository>(), Mock.Of<IBookingRepository>());
         await Assert.ThrowsAsync<OwnerAccessDeniedException>(() => svc.RequireComplexAccessAsync(1, 99));
     }
 
@@ -71,7 +71,7 @@ public class OwnerOperationsTests
         var courtRepo = new Mock<ICourtRepository>();
         courtRepo.Setup(r => r.GetByIdAsync(5)).ReturnsAsync(new Court { CourtId = 5, ComplexId = 2 });
 
-        var svc = new OwnerAccessService(complexRepo.Object, Mock.Of<IComplexRepository>(), Mock.Of<IUserRepository>(), courtRepo.Object, bookingRepo.Object, Mock.Of<IRentalSessionRepository>());
+        var svc = new OwnerAccessService(complexRepo.Object, Mock.Of<IComplexRepository>(), Mock.Of<IUserRepository>(), courtRepo.Object, bookingRepo.Object);
         await Assert.ThrowsAsync<OwnerAccessDeniedException>(() => svc.RequireBookingAccessAsync(1, 10, false));
     }
 
@@ -184,7 +184,11 @@ public class OwnerOperationsTests
         bookingRepo.Setup(r => r.CreateWithTransactionAsync(It.IsAny<Booking>()))
             .ThrowsAsync(new InvalidOperationException("Sân 1 đã được đặt trong khung giờ 10:00 - 12:00. Vui lòng chọn giờ khác."));
 
-        var svc = CreateBookingService(bookingRepo, courtRepo, Mock.Of<IUserRepository>(), Mock.Of<IStaffOperationGuard>());
+        var userRepo = new Mock<IUserRepository>();
+        userRepo.Setup(r => r.GetByIdAsync(It.IsAny<int>()))
+            .ReturnsAsync(new User { UserId = 1, Role = Roles.Customer, EKycStatus = "Verified", IsLocked = false });
+
+        var svc = CreateBookingService(bookingRepo, courtRepo, userRepo.Object, Mock.Of<IStaffOperationGuard>());
 
         var vnTz = TimeZoneInfo.FindSystemTimeZoneById(OperatingSystem.IsWindows() ? "SE Asia Standard Time" : "Asia/Ho_Chi_Minh");
         var tomorrow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vnTz).AddDays(1).Date;

@@ -25,7 +25,6 @@ export default function ApexShopPage() {
   const [error, setError] = useState(null)
   const [category, setCategory] = useState('All')
   const [cart, setCart] = useState([])
-  const [mode, setMode] = useState('buy')
   const [showCart, setShowCart] = useState(false)
   const pageRef = useRef(null)
 
@@ -44,7 +43,6 @@ export default function ApexShopPage() {
             category: e.category,
             sport: e.type || e.sportType || 'Multi',
             price: e.retailPrice || e.price,
-            rental: e.price !== e.retailPrice ? e.price : null,
             stock: e.stockQuantity,
             img: e.imageUrl || FALLBACK_IMG,
             status: e.status,
@@ -72,9 +70,8 @@ export default function ApexShopPage() {
 
   const filtered = useMemo(() => products.filter(p =>
     (category === 'All' || p.category === category) &&
-    (mode === 'buy' || p.rental !== null) &&
     p.status !== 'Discontinued'
-  ), [products, category, mode])
+  ), [products, category])
 
   function addToCart(product) {
     setCart(prev => {
@@ -87,7 +84,7 @@ export default function ApexShopPage() {
 
   const removeFromCart = (id) => setCart(prev => prev.filter(i => i.id !== id))
 
-  const cartTotal = cart.reduce((sum, i) => sum + (mode === 'rent' && i.rental ? i.rental : i.price) * i.qty, 0)
+  const cartTotal = cart.reduce((sum, i) => sum + i.price * i.qty, 0)
   const cartCount = cart.reduce((s, i) => s + i.qty, 0)
 
   return (
@@ -97,7 +94,7 @@ export default function ApexShopPage() {
         <div className="shop-hero flex items-center justify-between gap-4 flex-wrap mb-6 bg-ink text-paper p-7">
           <div>
             <h1 className="font-heading text-2xl uppercase tracking-[-0.01em] text-paper mb-1">Cửa hàng Pro Gear</h1>
-            <p className="text-sm text-paper/65">Mua hoặc thuê thiết bị cao cấp cho trận đấu tiếp theo của bạn.</p>
+            <p className="text-sm text-paper/65">Mua thiết bị cao cấp cho trận đấu tiếp theo của bạn.</p>
           </div>
           <button className="relative btn-outline !border-paper/30 !text-paper hover:!border-accent hover:!text-accent" onClick={() => setShowCart(!showCart)}>
             <ShoppingCart size={16} />
@@ -108,12 +105,6 @@ export default function ApexShopPage() {
               </span>
             )}
           </button>
-        </div>
-
-        {/* Mode toggle */}
-        <div className="flex gap-1 bg-surface border-2 border-border-strong p-1 w-fit mb-4">
-          <button className={`px-6 h-9 label-mono transition-colors ${mode === 'buy' ? 'bg-ink text-paper' : 'text-foreground-muted hover:text-foreground'}`} onClick={() => setMode('buy')}>Mua</button>
-          <button className={`px-6 h-9 label-mono transition-colors ${mode === 'rent' ? 'bg-ink text-paper' : 'text-foreground-muted hover:text-foreground'}`} onClick={() => setMode('rent')}>Thuê</button>
         </div>
 
         {/* Categories */}
@@ -146,10 +137,7 @@ export default function ApexShopPage() {
                   <h3 className="font-sans font-extrabold text-[15px] text-foreground mb-3 flex-1">{p.name}</h3>
                   <div className="flex items-end justify-between">
                     <div>
-                      {mode === 'rent' && p.rental
-                        ? <span className="block font-heading text-lg text-foreground">{Number(p.rental).toLocaleString('vi-VN')}₫<small className="font-sans text-xs text-foreground-muted font-normal">/ngày</small></span>
-                        : <span className="block font-heading text-lg text-foreground">{Number(p.price).toLocaleString('vi-VN')}₫</span>
-                      }
+                      <span className="block font-heading text-lg text-foreground">{Number(p.price).toLocaleString('vi-VN')}₫</span>
                       <span className="label-mono text-foreground-subtle">Còn {p.stock} sản phẩm</span>
                     </div>
                     <button id={`add-btn-${p.id}`} className="btn-primary !h-9 !px-4 text-xs" onClick={() => addToCart(p)} disabled={p.stock <= 0}>
@@ -183,7 +171,7 @@ export default function ApexShopPage() {
                         <div>
                           <p className="text-[13px] font-semibold text-foreground mb-0.5">{item.name}</p>
                           <p className="text-xs text-foreground-muted">
-                            {mode === 'rent' && item.rental ? `${item.rental.toLocaleString('vi-VN')}₫/ngày` : `${item.price.toLocaleString('vi-VN')}₫`} × {item.qty}
+                            {item.price.toLocaleString('vi-VN')}₫ × {item.qty}
                           </p>
                         </div>
                         <button className="text-foreground-muted hover:text-danger transition-colors shrink-0" onClick={() => removeFromCart(item.id)}>

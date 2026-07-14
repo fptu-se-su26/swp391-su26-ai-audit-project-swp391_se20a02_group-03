@@ -40,13 +40,7 @@ public class ProSportDbContext : DbContext
     public DbSet<Report> Reports { get; set; } = null!;
     public DbSet<ChatHistory> ChatHistories { get; set; } = null!;
     public DbSet<CartItem> CartItems { get; set; } = null!;
-    public DbSet<BookingDetailEquipment> BookingDetailEquipments { get; set; } = null!;
     public DbSet<ProductStock> ProductStocks { get; set; } = null!;
-    public DbSet<RentalAsset> RentalAssets { get; set; } = null!;
-    public DbSet<RentalSession> RentalSessions { get; set; } = null!;
-    public DbSet<RentalSessionAsset> RentalSessionAssets { get; set; } = null!;
-    public DbSet<ConditionCheck> ConditionChecks { get; set; } = null!;
-    public DbSet<RentalSurcharge> RentalSurcharges { get; set; } = null!;
     public DbSet<ComplexReview> ComplexReviews { get; set; } = null!;
     public DbSet<BookingPaymentShare> BookingPaymentShares { get; set; } = null!;
     public DbSet<RecurringBookingRule> RecurringBookingRules { get; set; } = null!;
@@ -280,37 +274,6 @@ public class ProSportDbContext : DbContext
             entity.HasIndex(e => new { e.CourtId, e.BookingDate });
         });
 
-        modelBuilder.Entity<BookingDetailEquipment>(entity =>
-        {
-            entity.ToTable("BookingDetails_Equipments");
-            entity.HasKey(e => e.DetailId);
-            entity.Property(e => e.UnitPrice).HasColumnType("decimal(18,2)");
-            entity.Property(e => e.DepositAmount).HasColumnType("decimal(18,2)");
-            entity.Property(e => e.DamageFee).HasColumnType("decimal(18,2)");
-            entity.Property(e => e.DepositRefundAmount).HasColumnType("decimal(18,2)");
-            entity.Property(e => e.AdditionalCharge).HasColumnType("decimal(18,2)");
-            entity.Property(e => e.DepositStatus).HasMaxLength(20).HasDefaultValue("Held");
-            entity.Property(e => e.RentalStatus).HasMaxLength(20).HasDefaultValue("Rented");
-            entity.Property(e => e.ReturnCondition).HasMaxLength(20);
-            entity.Property(e => e.DamageNote).HasMaxLength(500);
-            entity.Property(e => e.RentedAt).HasDefaultValueSql("SYSDATETIME()");
-
-            entity.HasOne(e => e.Booking)
-                  .WithMany()
-                  .HasForeignKey(e => e.BookingId)
-                  .OnDelete(DeleteBehavior.SetNull);
-
-            entity.HasOne(e => e.User)
-                  .WithMany()
-                  .HasForeignKey(e => e.UserId)
-                  .OnDelete(DeleteBehavior.ClientSetNull);
-
-            entity.HasOne(e => e.Equipment)
-                  .WithMany()
-                  .HasForeignKey(e => e.EquipmentId)
-                  .OnDelete(DeleteBehavior.ClientSetNull);
-        });
-
         // --- Match (FIX: thêm BookingId) ---
         modelBuilder.Entity<Match>(entity =>
         {
@@ -422,7 +385,6 @@ public class ProSportDbContext : DbContext
             entity.Property(e => e.SportType).HasMaxLength(20);
             entity.Property(e => e.RetailPrice).HasColumnType("decimal(18,2)");
             entity.Property(e => e.ImageUrl).HasMaxLength(500);
-            entity.Ignore(e => e.RentalPricePerHour);
 
             entity.HasOne(e => e.EquipmentCategory)
                   .WithMany(c => c.Equipments)
@@ -613,49 +575,6 @@ public class ProSportDbContext : DbContext
             entity.HasOne(e => e.Complex).WithMany().HasForeignKey(e => e.ComplexId).OnDelete(DeleteBehavior.Cascade);
         });
 
-        modelBuilder.Entity<RentalAsset>(entity =>
-        {
-            entity.HasKey(e => e.RentalAssetId);
-            entity.HasIndex(e => new { e.ComplexId, e.AssetCode }).IsUnique().HasFilter("[IsDeleted] = 0");
-            entity.HasOne(e => e.Complex).WithMany().HasForeignKey(e => e.ComplexId).OnDelete(DeleteBehavior.Cascade);
-            entity.HasOne(e => e.ProductStock).WithMany(p => p.RentalAssets).HasForeignKey(e => e.ProductStockId).OnDelete(DeleteBehavior.Restrict);
-        });
-
-        modelBuilder.Entity<RentalSession>(entity =>
-        {
-            entity.HasKey(e => e.RentalSessionId);
-            entity.Property(e => e.RentalFee).HasColumnType("decimal(18,2)");
-            entity.Property(e => e.SurchargeTotal).HasColumnType("decimal(18,2)");
-            entity.HasOne(e => e.Complex).WithMany().HasForeignKey(e => e.ComplexId).OnDelete(DeleteBehavior.Cascade);
-            entity.HasOne(e => e.Booking).WithMany().HasForeignKey(e => e.BookingId).OnDelete(DeleteBehavior.ClientSetNull);
-            entity.HasOne(e => e.Customer).WithMany().HasForeignKey(e => e.CustomerUserId).OnDelete(DeleteBehavior.ClientSetNull);
-            entity.HasOne(e => e.Staff).WithMany().HasForeignKey(e => e.StaffUserId).OnDelete(DeleteBehavior.ClientSetNull);
-        });
-
-        modelBuilder.Entity<RentalSessionAsset>(entity =>
-        {
-            entity.HasKey(e => e.RentalSessionAssetId);
-            entity.Property(e => e.RentalPriceAtTime).HasColumnType("decimal(18,2)");
-            entity.HasOne(e => e.RentalSession).WithMany(s => s.SessionAssets).HasForeignKey(e => e.RentalSessionId).OnDelete(DeleteBehavior.Cascade);
-            entity.HasOne(e => e.RentalAsset).WithMany(a => a.SessionAssets).HasForeignKey(e => e.RentalAssetId).OnDelete(DeleteBehavior.Restrict);
-        });
-
-        modelBuilder.Entity<ConditionCheck>(entity =>
-        {
-            entity.HasKey(e => e.ConditionCheckId);
-            entity.HasOne(e => e.RentalSession).WithMany(s => s.ConditionChecks).HasForeignKey(e => e.RentalSessionId).OnDelete(DeleteBehavior.Cascade);
-            entity.HasOne(e => e.RentalAsset).WithMany().HasForeignKey(e => e.RentalAssetId).OnDelete(DeleteBehavior.Restrict);
-            entity.HasOne(e => e.Staff).WithMany().HasForeignKey(e => e.StaffUserId).OnDelete(DeleteBehavior.ClientSetNull);
-        });
-
-        modelBuilder.Entity<RentalSurcharge>(entity =>
-        {
-            entity.HasKey(e => e.RentalSurchargeId);
-            entity.Property(e => e.Amount).HasColumnType("decimal(18,2)");
-            entity.HasOne(e => e.RentalSession).WithMany(s => s.Surcharges).HasForeignKey(e => e.RentalSessionId).OnDelete(DeleteBehavior.Cascade);
-            entity.HasOne(e => e.AppliedBy).WithMany().HasForeignKey(e => e.AppliedByUserId).OnDelete(DeleteBehavior.ClientSetNull);
-        });
-
         modelBuilder.Entity<ComplexReview>(entity =>
         {
             entity.HasKey(e => e.ComplexReviewId);
@@ -841,8 +760,6 @@ public class ProSportDbContext : DbContext
 
         // OtpCode không có IsDeleted (xóa cứng) nhưng nav bắt buộc tới User (có soft-delete filter):
         // OTP của user đã xóa mềm là vô nghĩa -> áp filter khớp cha để tránh nav null bất ngờ (EF 10622).
-        // Các bảng lịch sử/chứng từ khác (BookingDetailEquipment, ConditionCheck, RentalSessionAsset,
-        // RentalSurcharge) CỐ Ý không áp filter này — xem ConfigureWarnings trong Program.cs.
         modelBuilder.Entity<OtpCode>().HasQueryFilter(o => !o.User.IsDeleted);
 
         // TK-038: Seed dữ liệu mẫu bằng HasData() (Users, CourtTypes, Courts, PricingRules,

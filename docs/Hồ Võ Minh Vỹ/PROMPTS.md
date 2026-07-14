@@ -151,3 +151,79 @@ AI sinh CRUD rất nhanh. Tôi đã tự thêm một số trường trạng thá
 
 ### Evaluation
 AI gộp component tốt, nhưng cần review kỹ để tránh phá vỡ layout giao diện.
+
+## Prompt #11
+- Date: 2026-07-14
+- AI Tool: Claude Code (Claude Opus)
+- Author: VyHVM
+- Purpose: Loại bỏ hoàn toàn chức năng cho thuê đồ, giữ lại cáp kèo ký quỹ, đặt sân và bán dụng cụ.
+
+### Prompt
+"Dựa theo cấu trúc dự án, hãy hiểu hệ thống rồi loại bỏ hoàn toàn chức năng cho thuê đồ vì quá rắc rối; chỉ giữ lại các chức năng như cáp kèo ký quỹ, trung gian đặt sân, bán dụng cụ..."
+
+### Expected Output
+- Xóa toàn bộ code rental ở backend và frontend mà không phá vỡ các chức năng còn lại (đặc biệt là bán dụng cụ vốn dùng chung entity Equipment).
+- Cập nhật database/migration tương ứng; build và test phải xanh.
+
+### Evaluation
+AI khảo sát rất kỹ trước khi sửa: phát hiện có 2 hệ rental tách biệt và entity Equipment dùng chung cho cả bán lẫn thuê nên chỉ bóc đúng phần thuê. Tôi (Human Decision) chọn regenerate migration cho sạch và chỉ sửa code. Kết quả build backend/frontend thành công, 104 unit test pass.
+
+## Prompt #12
+- Date: 2026-07-14
+- AI Tool: Claude Code (Claude Opus)
+- Author: VyHVM
+- Purpose: Rà soát backend theo từng actor để tìm chỗ chưa hợp lý.
+
+### Prompt
+"Check 1 lượt phần backend của từng actor xem chỗ nào chưa hợp lý."
+
+### Expected Output
+- Bản đồ phân quyền của toàn bộ endpoint; chỉ ra lỗ hổng IDOR/logic/nhất quán theo từng actor (Guest, Customer, Staff, CourtOwner, Admin, Payment Gateway).
+
+### Evaluation
+AI dựng bản đồ authorization và xác minh từng service. Điểm mạnh của hệ thống (ownership/host check, tenant isolation của Owner, chữ ký VNPay IPN) đều đúng. Phát hiện quan trọng: E-KYC chưa được bắt buộc và trạng thái E-KYC bị lệch. Tôi đồng ý cho AI sửa (chuẩn hóa trạng thái + thêm gate E-KYC cho đặt sân/join kèo), giữ nguyên hành vi walk-in. Build Release + 106 test pass.
+
+## Prompt #13
+- Date: 2026-07-14
+- AI Tool: Claude Code (Claude Opus)
+- Author: VyHVM
+- Purpose: Tiếp tục check backend từng actor và fix lỗi để hoàn thiện phần backend.
+
+### Prompt
+"Tiếp tục check backend các actor và fix lỗi cho hoàn thành luôn phần backend của dự án."
+
+### Expected Output
+- Rà soát sâu các endpoint chưa kiểm kỹ (upload, split-payment, recurring, rating, payment, owner GET) và fix các bug thật còn lại.
+
+### Evaluation
+AI soát thêm và xác nhận phần lớn backend đã chắc (ownership, tenant isolation ở tầng service, payment integrity, upload validation). Phát hiện 1 bug thật: RatingService cho phép đánh giá người không cùng trận đấu — đã fix + thêm 2 test. Các điểm còn lại (quyền voucher của Staff, endpoint leaderboard công khai) được xác định là quyết định thiết kế nên giữ nguyên để tránh phá vỡ Frontend.
+
+## Prompt #14
+- Date: 2026-07-14
+- AI Tool: Claude Code (Claude Opus)
+- Author: VyHVM
+- Purpose: Truy lùng toàn bộ bug ở backend và fix cho hoàn thiện nhất.
+
+### Prompt
+"Tiếp tục tìm tất cả các lỗi, bug có thể xảy ra ở backend và fix toàn bộ sao cho hoàn hảo nhất."
+
+### Expected Output
+- Soát sâu vùng rủi ro cao (tiền/ví Escrow, đồng thời, null-safety, chuyển trạng thái) và fix các bug thật.
+
+### Evaluation
+AI soát lõi tài chính (EscrowService/EscrowRepository, Cart, MatchRepository, CancellationPolicy) và phát hiện 3 bug thật: (1) mã tham chiếu phí kèo trùng gây lỗi người thứ 2, (2) bypass E-KYC qua split-payment & recurring booking, (3) đặt sân ngoài giờ hoạt động không bị chặn server-side (method mồ côi). Đã fix cả 3 + thêm test. AI nói thẳng không thể đảm bảo "0 bug tuyệt đối" qua review tĩnh — hợp lý.
+
+## Prompt #15
+- Date: 2026-07-14
+- AI Tool: Claude Code (Claude Opus)
+- Author: VyHVM
+- Purpose: Bao phủ review trọn vẹn mọi service theo từng actor.
+
+### Prompt
+"Bao phủ hết các service cho từng actor."
+
+### Expected Output
+- Đọc nốt các service phụ trợ (Report, Chatbot, Voucher, User, Court, Equipment, Dashboard) để phủ đủ mọi actor.
+
+### Evaluation
+AI soát nốt và phát hiện `ReportService` cùng lớp lỗi với RatingService (cho bịa báo cáo bùng kèo) — đã fix + test. Các service còn lại sạch; `EquipmentService.BuyAsync` được xác định là dead-code (không có endpoint) nên bỏ qua. Kết quả: phủ trọn mọi actor, 113 unit test pass.

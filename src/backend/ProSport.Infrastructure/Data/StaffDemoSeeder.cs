@@ -197,21 +197,7 @@ public static class StaffDemoSeeder
                 IsDeleted = false,
             });
 
-        var equipment = await context.Equipments.FirstAsync(e => e.EquipmentId == 1);
-        equipment.StockQuantity = Math.Max(0, equipment.StockQuantity - 1);
-        context.BookingDetailEquipments.Add(new BookingDetailEquipment
-        {
-            UserId = 4,
-            EquipmentId = 1,
-            Quantity = 1,
-            UnitPrice = 30000m,
-            DepositAmount = 100000m,
-            DepositStatus = "Held",
-            RentalStatus = "Rented",
-            RentedAt = nowUtc.AddHours(-1),
-        });
-
         await context.SaveChangesAsync();
-        logger.LogInformation("[StaffDemoSeeder] Created demo bookings, reports, match and equipment rental for {Date}.", today.ToString("yyyy-MM-dd"));
+        logger.LogInformation("[StaffDemoSeeder] Created demo bookings, reports and match for {Date}.", today.ToString("yyyy-MM-dd"));
     }
 }

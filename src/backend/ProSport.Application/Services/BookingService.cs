@@ -103,6 +103,15 @@ public class BookingService : IBookingService
             if (dto.Details == null || !dto.Details.Any())
                 return new ApiResponseDto<BookingDto>(400, "Phải có ít nhất 1 chi tiết đặt sân.");
 
+            // TK-004: Bắt buộc xác thực E-KYC trước khi đặt sân (chống bùng kèo / tài khoản ảo).
+            var bookingUser = await _userRepository.GetByIdAsync(dto.UserId);
+            if (bookingUser == null)
+                return new ApiResponseDto<BookingDto>(404, "Không tìm thấy tài khoản.");
+            if (bookingUser.IsLocked)
+                return new ApiResponseDto<BookingDto>(403, "Tài khoản đang bị khóa.");
+            if (!bookingUser.IsVerified)
+                return new ApiResponseDto<BookingDto>(403, "Tài khoản chưa xác thực E-KYC. Vui lòng hoàn tất xác thực định danh trước khi đặt sân.");
+
             // Anti-spam: Giới hạn tối đa 3 booking Pending chưa thanh toán
             var userBookings = await _bookingRepository.GetByUserIdAsync(dto.UserId);
             var pendingCount = userBookings.Count(b => b.Status == BookingStatus.Pending
@@ -151,6 +160,11 @@ public class BookingService : IBookingService
 
             if (court == null || !CourtStatuses.IsBookable(court.Status))
                     return new ApiResponseDto<BookingDto>(400, $"Sân {d.CourtId} không khả dụng.");
+
+                // Chặn đặt sân ngoài giờ hoạt động / ngày đóng cửa / khung bảo trì (server-side).
+                if (court.ComplexId.HasValue &&
+                    !await _courtRepository.IsSlotWithinOperatingHoursAsync(court.ComplexId.Value, court.CourtId, d.BookingDate, d.StartTime, d.EndTime))
+                    return new ApiResponseDto<BookingDto>(400, $"Sân {d.CourtId} không mở cửa trong khung giờ này (ngoài giờ hoạt động, ngày đóng cửa hoặc đang bảo trì).");
 
                 // C2 & H3 FIX: Removed N+1 and non-atomic GetAvailableCourtsAsync check.
                 // Overlap and availability checking is safely delegated to _bookingRepository.CreateWithTransactionAsync
