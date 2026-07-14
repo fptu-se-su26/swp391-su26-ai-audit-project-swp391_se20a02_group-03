@@ -44,6 +44,16 @@ public class SplitPaymentService : ISplitPaymentService
     {
         try
         {
+            // TK-004: host tạo đơn chia bill cũng là "đặt sân" → phải xác thực E-KYC như
+            // BookingService.CreateBooking, tránh bỏ qua gate qua đường split-payment.
+            var host = await _userRepository.GetByIdAsync(hostUserId);
+            if (host == null)
+                return new ApiResponseDto<BookingDto>(404, "Không tìm thấy tài khoản.");
+            if (host.IsLocked)
+                return new ApiResponseDto<BookingDto>(403, "Tài khoản đang bị khóa.");
+            if (!host.IsVerified)
+                return new ApiResponseDto<BookingDto>(403, "Tài khoản chưa xác thực E-KYC. Vui lòng hoàn tất xác thực định danh trước khi đặt sân.");
+
             if (dto.Participants.Count < 2)
                 return new ApiResponseDto<BookingDto>(400, "Cần ít nhất 2 người tham gia chia bill.");
 

@@ -85,10 +85,15 @@ public class AuditBusinessLogicTests
                 return b;
             });
 
+        var userRepo = new Mock<IUserRepository>();
+        userRepo.Setup(r => r.GetByIdAsync(1))
+            .ReturnsAsync(new User { UserId = 1, Role = Roles.Customer, EKycStatus = "Verified", IsLocked = false });
+
         var svc = new RecurringBookingService(
             db,
             bookingRepo.Object,
             courtRepo.Object,
+            userRepo.Object,
             Mock.Of<IMembershipService>(),
             NullLogger<RecurringBookingService>.Instance);
 
@@ -248,12 +253,16 @@ public class AuditBusinessLogicTests
     [Fact]
     public async Task SplitPayment_DuplicateParticipant_Returns400()
     {
+        var userRepo = new Mock<IUserRepository>();
+        userRepo.Setup(r => r.GetByIdAsync(10))
+            .ReturnsAsync(new User { UserId = 10, Role = Roles.Customer, EKycStatus = "Verified", IsLocked = false });
+
         var svc = new SplitPaymentService(
             CreateDb(nameof(SplitPayment_DuplicateParticipant_Returns400)),
             Mock.Of<IBookingRepository>(),
             Mock.Of<ICourtRepository>(),
             Mock.Of<IEscrowRepository>(),
-            Mock.Of<IUserRepository>(),
+            userRepo.Object,
             Mock.Of<INotificationService>(),
             Mock.Of<IMembershipService>(),
             NullLogger<SplitPaymentService>.Instance);
@@ -273,6 +282,41 @@ public class AuditBusinessLogicTests
 
         result.StatusCode.Should().Be(400);
         result.Message.Should().Contain("một phần chia bill");
+    }
+
+    [Fact]
+    public async Task CreateSplitBooking_Returns403_WhenHostNotEkycVerified()
+    {
+        // TK-004: chặn bypass E-KYC qua đường split-payment.
+        var userRepo = new Mock<IUserRepository>();
+        userRepo.Setup(r => r.GetByIdAsync(10))
+            .ReturnsAsync(new User { UserId = 10, Role = Roles.Customer, EKycStatus = "Pending", IsLocked = false });
+
+        var svc = new SplitPaymentService(
+            CreateDb(nameof(CreateSplitBooking_Returns403_WhenHostNotEkycVerified)),
+            Mock.Of<IBookingRepository>(),
+            Mock.Of<ICourtRepository>(),
+            Mock.Of<IEscrowRepository>(),
+            userRepo.Object,
+            Mock.Of<INotificationService>(),
+            Mock.Of<IMembershipService>(),
+            NullLogger<SplitPaymentService>.Instance);
+
+        var result = await svc.CreateSplitBookingAsync(10, new CreateSplitBookingDto
+        {
+            Details = new List<CreateBookingDetailDto>
+            {
+                new() { CourtId = 1, BookingDate = DateTime.UtcNow.Date.AddDays(7), StartTime = TimeSpan.FromHours(8), EndTime = TimeSpan.FromHours(9) }
+            },
+            Participants = new List<SplitParticipantDto>
+            {
+                new() { UserId = 10, Amount = 50000 },
+                new() { UserId = 11, Amount = 50000 }
+            }
+        });
+
+        result.StatusCode.Should().Be(403);
+        result.Message.Should().Contain("E-KYC");
     }
 
     [Fact]

@@ -21,6 +21,7 @@ public class RecurringBookingService : IRecurringBookingService
     private readonly ProSportDbContext _db;
     private readonly IBookingRepository _bookingRepository;
     private readonly ICourtRepository _courtRepository;
+    private readonly IUserRepository _userRepository;
     private readonly IMembershipService _membershipService;
     private readonly ILogger<RecurringBookingService> _logger;
 
@@ -28,18 +29,29 @@ public class RecurringBookingService : IRecurringBookingService
         ProSportDbContext db,
         IBookingRepository bookingRepository,
         ICourtRepository courtRepository,
+        IUserRepository userRepository,
         IMembershipService membershipService,
         ILogger<RecurringBookingService> logger)
     {
         _db = db;
         _bookingRepository = bookingRepository;
         _courtRepository = courtRepository;
+        _userRepository = userRepository;
         _membershipService = membershipService;
         _logger = logger;
     }
 
     public async Task<ApiResponseDto<RecurringBookingRuleDto>> CreateRuleAsync(int userId, CreateRecurringRuleDto dto)
     {
+        // TK-004: tạo lịch đặt định kỳ cũng sinh ra booking → yêu cầu E-KYC như đặt sân thường.
+        var user = await _userRepository.GetByIdAsync(userId);
+        if (user == null)
+            return new ApiResponseDto<RecurringBookingRuleDto>(404, "Không tìm thấy tài khoản.");
+        if (user.IsLocked)
+            return new ApiResponseDto<RecurringBookingRuleDto>(403, "Tài khoản đang bị khóa.");
+        if (!user.IsVerified)
+            return new ApiResponseDto<RecurringBookingRuleDto>(403, "Tài khoản chưa xác thực E-KYC. Vui lòng hoàn tất xác thực định danh trước khi đặt sân.");
+
         var court = await _courtRepository.GetByIdAsync(dto.CourtId);
         if (court == null || !court.ComplexId.HasValue)
             return new ApiResponseDto<RecurringBookingRuleDto>(404, "Sân không tồn tại.");
