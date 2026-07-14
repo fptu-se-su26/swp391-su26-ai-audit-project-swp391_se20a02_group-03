@@ -30,7 +30,6 @@ public class EscrowServiceTests
         _escrowService = new EscrowService(
             _escrowRepoMock.Object,
             _bookingRepoMock.Object,
-            Mock.Of<IVnPayService>(),
             _vnPayMock.Object,
             _loggerMock.Object);
     }
