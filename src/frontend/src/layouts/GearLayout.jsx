@@ -5,6 +5,7 @@ import ProSportLogo from '../components/ui/ProSportLogo'
 
 const navLinks = [
   { path: '/gear/catalog', label: 'Danh mục' },
+  { path: '/gear/orders', label: 'Đơn hàng' },
 ]
 
 export default function GearLayout({ children }) {

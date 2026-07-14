@@ -33,6 +33,7 @@ const GearPrivacyPage = lazy(() => import('./pages/gear/GearPrivacyPage'))
 const ReportDisputePage = lazy(() => import('./pages/customer/ReportDisputePage'))
 const CartPage = lazy(() => import('./pages/gear/CartPage'))
 const CartCheckoutPage = lazy(() => import('./pages/gear/CartCheckoutPage'))
+const OrdersPage = lazy(() => import('./pages/gear/OrdersPage'))
 
 // PRO-SPORT Apex Portal
 const ApexHomePage = lazy(() => import('./pages/apex/ApexHomePage'))
@@ -226,6 +227,7 @@ function App() {
                     <Route path="/gear/catalog/:id" element={<GearDetailPage />} />
                     <Route path="/gear/cart" element={<ProtectedRoute><CartPage /></ProtectedRoute>} />
                     <Route path="/gear/cart/checkout" element={<ProtectedRoute><CartCheckoutPage /></ProtectedRoute>} />
+                    <Route path="/gear/orders" element={<ProtectedRoute><OrdersPage /></ProtectedRoute>} />
 
                     <Route path="/gear/maintenance" element={<EliteRoute><GearMaintenancePage /></EliteRoute>} />
                     <Route path="/gear/support" element={<GearSupportPage />} />
