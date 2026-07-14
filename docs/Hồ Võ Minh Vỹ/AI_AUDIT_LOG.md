@@ -140,3 +140,47 @@
 - Quyết định điều chỉnh (Human Decision): Đồng ý siết kiểm participant; giữ nguyên leaderboard/trust-score công khai (là route guest cố ý) và quyền voucher của Staff (role nội bộ tin cậy) để không phá vỡ Frontend.
 - Tập tin áp dụng: src/backend
 - Trạng thái kiểm duyệt: Build OK, 108 unit test pass (thêm 2 test cho RatingService).
+
+##Log##14
+- Ngày thực hiện: 14/07/2026
+- Người thực hiện: VyHVM
+- Công cụ AI hỗ trợ: Claude Code (Claude Opus)
+- Mục tiêu: Rà soát lõi tài chính (ví Escrow) và vá lỗi mã tham chiếu giao dịch phí kèo.
+- Tham chiếu Prompt: PROMPTS.md#prompt-14
+- Đề xuất từ AI: `Transaction.ReferenceId` có unique index nhưng `PayMatchFee` đặt `MATCH-{matchId}` (thiếu userId) → người thứ 2 trả phí cùng kèo bị lỗi 500; đề xuất đổi `MATCH-{matchId}-{userId}` + thêm idempotency như luồng Deposit/Refund.
+- Quyết định điều chỉnh (Human Decision): Đồng ý siết mã tham chiếu theo cặp (kèo, người).
+- Tập tin áp dụng: src/backend
+- Trạng thái kiểm duyệt: Build OK, 110 unit test pass (thêm 2 test).
+
+##Log##15
+- Ngày thực hiện: 14/07/2026
+- Người thực hiện: VyHVM
+- Công cụ AI hỗ trợ: Claude Code (Claude Opus)
+- Mục tiêu: Bịt lỗ hổng bỏ qua xác thực E-KYC ở các đường tạo booking khác.
+- Tham chiếu Prompt: PROMPTS.md#prompt-14
+- Đề xuất từ AI: Gate E-KYC mới chỉ có ở `BookingService.CreateBooking`, còn `SplitPaymentService` và `RecurringBookingService` tự dựng booking nên né được gate; đề xuất thêm kiểm E-KYC/khóa tài khoản cho host ở cả hai.
+- Quyết định điều chỉnh (Human Decision): Đồng ý bịt cả hai đường; tài khoản chưa xác thực không tạo được đơn theo mọi luồng.
+- Tập tin áp dụng: src/backend
+- Trạng thái kiểm duyệt: Build OK, 111 unit test pass (thêm test host chưa E-KYC → 403).
+
+##Log##16
+- Ngày thực hiện: 14/07/2026
+- Người thực hiện: VyHVM
+- Công cụ AI hỗ trợ: Claude Code (Claude Opus)
+- Mục tiêu: Bắt buộc kiểm giờ hoạt động/đóng cửa/bảo trì phía server khi đặt sân.
+- Tham chiếu Prompt: PROMPTS.md#prompt-14
+- Đề xuất từ AI: `IsSlotWithinOperatingHoursAsync` tồn tại nhưng mồ côi (không nơi nào gọi) → khách đặt được sân ngoài giờ/đóng cửa/bảo trì qua API; không inject trực tiếp được vào BookingService do vòng lặp DI, đề xuất chuyển logic sang `ICourtRepository`.
+- Quyết định điều chỉnh (Human Decision): Đồng ý wiring server-side qua CourtRepository, xóa method mồ côi.
+- Tập tin áp dụng: src/backend
+- Trạng thái kiểm duyệt: Build OK, 112 unit test pass (thêm 2 test).
+
+##Log##17
+- Ngày thực hiện: 14/07/2026
+- Người thực hiện: VyHVM
+- Công cụ AI hỗ trợ: Claude Code (Claude Opus)
+- Mục tiêu: Phủ trọn review mọi service theo từng actor; vá lỗ hổng toàn vẹn báo cáo bùng kèo.
+- Tham chiếu Prompt: PROMPTS.md#prompt-15
+- Đề xuất từ AI: Soát nốt ReportService/Chatbot/Voucher/User/Court/Equipment/Dashboard. Phát hiện `ReportService` cùng lớp lỗi với RatingService (không kiểm participant) → cho phép bịa báo cáo; đề xuất bắt buộc cả hai là participant Approved của kèo.
+- Quyết định điều chỉnh (Human Decision): Đồng ý siết ReportService; ghi nhận `EquipmentService.BuyAsync` là dead-code (không có endpoint) nên không sửa.
+- Tập tin áp dụng: src/backend
+- Trạng thái kiểm duyệt: Build Release OK, 113 unit test pass (thêm ReportServiceTests).

@@ -197,3 +197,33 @@ AI dựng bản đồ authorization và xác minh từng service. Điểm mạnh
 
 ### Evaluation
 AI soát thêm và xác nhận phần lớn backend đã chắc (ownership, tenant isolation ở tầng service, payment integrity, upload validation). Phát hiện 1 bug thật: RatingService cho phép đánh giá người không cùng trận đấu — đã fix + thêm 2 test. Các điểm còn lại (quyền voucher của Staff, endpoint leaderboard công khai) được xác định là quyết định thiết kế nên giữ nguyên để tránh phá vỡ Frontend.
+
+## Prompt #14
+- Date: 2026-07-14
+- AI Tool: Claude Code (Claude Opus)
+- Author: VyHVM
+- Purpose: Truy lùng toàn bộ bug ở backend và fix cho hoàn thiện nhất.
+
+### Prompt
+"Tiếp tục tìm tất cả các lỗi, bug có thể xảy ra ở backend và fix toàn bộ sao cho hoàn hảo nhất."
+
+### Expected Output
+- Soát sâu vùng rủi ro cao (tiền/ví Escrow, đồng thời, null-safety, chuyển trạng thái) và fix các bug thật.
+
+### Evaluation
+AI soát lõi tài chính (EscrowService/EscrowRepository, Cart, MatchRepository, CancellationPolicy) và phát hiện 3 bug thật: (1) mã tham chiếu phí kèo trùng gây lỗi người thứ 2, (2) bypass E-KYC qua split-payment & recurring booking, (3) đặt sân ngoài giờ hoạt động không bị chặn server-side (method mồ côi). Đã fix cả 3 + thêm test. AI nói thẳng không thể đảm bảo "0 bug tuyệt đối" qua review tĩnh — hợp lý.
+
+## Prompt #15
+- Date: 2026-07-14
+- AI Tool: Claude Code (Claude Opus)
+- Author: VyHVM
+- Purpose: Bao phủ review trọn vẹn mọi service theo từng actor.
+
+### Prompt
+"Bao phủ hết các service cho từng actor."
+
+### Expected Output
+- Đọc nốt các service phụ trợ (Report, Chatbot, Voucher, User, Court, Equipment, Dashboard) để phủ đủ mọi actor.
+
+### Evaluation
+AI soát nốt và phát hiện `ReportService` cùng lớp lỗi với RatingService (cho bịa báo cáo bùng kèo) — đã fix + test. Các service còn lại sạch; `EquipmentService.BuyAsync` được xác định là dead-code (không có endpoint) nên bỏ qua. Kết quả: phủ trọn mọi actor, 113 unit test pass.

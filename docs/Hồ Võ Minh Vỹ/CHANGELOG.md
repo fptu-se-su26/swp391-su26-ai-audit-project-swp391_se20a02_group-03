@@ -109,7 +109,11 @@ Author: VyHVM
 
 ### Fixed
 - Vá lỗ hổng toàn vẹn Trust Score: `RatingService` giờ bắt buộc người chấm và người bị chấm đều là thành viên (Approved) của cùng một trận đấu trước khi ghi đánh giá, chống spam thao túng điểm tín nhiệm
+- Vá lỗi mã tham chiếu giao dịch phí kèo: `EscrowService.PayMatchFee` đổi `ReferenceId` thành `MATCH-{matchId}-{userId}` (unique index cũ khiến người thứ 2 trả phí cùng kèo bị lỗi 500), thêm idempotency
+- Bịt lỗ hổng bỏ qua E-KYC ở 2 đường tạo booking khác: `SplitPaymentService` và `RecurringBookingService` giờ cũng kiểm E-KYC/khóa tài khoản của host như đặt sân thường
+- Bắt buộc kiểm giờ hoạt động/ngày đóng cửa/khung bảo trì phía server khi đặt sân (`IsSlotWithinOperatingHoursAsync` trước đây tồn tại nhưng không được gọi ở đâu — mồ côi)
+- Vá lỗ hổng toàn vẹn báo cáo bùng kèo: `ReportService` bắt buộc người báo cáo và người bị báo cáo cùng tham gia trận đấu, chống bịa báo cáo nhắm vào người không liên quan
 
 ### AI-assisted
-- Dùng Claude Code (Claude Opus) khảo sát toàn bộ điểm phụ thuộc của rental, thực hiện xóa an toàn, và rà soát backend theo từng actor
+- Dùng Claude Code (Claude Opus) khảo sát toàn bộ điểm phụ thuộc của rental, thực hiện xóa an toàn, và rà soát backend **toàn diện theo từng actor** (Guest/Customer/Staff/CourtOwner/Admin) — tập trung tiền/đồng thời/phân quyền/xác thực
 - Quyết định thủ công: chọn phương án regenerate migration; phạm vi enforce E-KYC (đặt sân + join kèo, bỏ qua walk-in); giữ nguyên UI Admin KYC; giữ nguyên endpoint công khai leaderboard và quyền voucher của Staff
