@@ -31,9 +31,7 @@ export default function OwnerSidebar({ open, onClose, displayName, onLogout }) {
   return (
     <aside className={`w-[230px] bg-ink flex flex-col fixed left-0 top-0 bottom-0 z-50 overflow-y-auto transition-transform ${open ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
       <div className="px-6 py-6 border-b border-white/10">
-        <Link to="/owner/dashboard" className="inline-block no-underline" onClick={onClose}>
-          <ProSportLogo size="sm" variant="light" />
-        </Link>
+        <ProSportLogo size="sm" variant="light" to="/owner/dashboard" onClick={onClose} />
         <p className="label-mono text-paper/40 mt-1.5">Cổng chủ sân</p>
       </div>
 
