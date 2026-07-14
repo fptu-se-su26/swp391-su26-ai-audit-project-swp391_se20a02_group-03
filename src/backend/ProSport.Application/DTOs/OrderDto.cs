@@ -55,4 +55,7 @@ public class OrderDto
 
     public DateTime CreatedAt { get; set; }
     public List<OrderItemDto> Items { get; set; } = new();
+
+    /// <summary>Chỉ có khi thanh toán PayOS: URL để khách chuyển tới trang thanh toán.</summary>
+    public string? PaymentUrl { get; set; }
 }

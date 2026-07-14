@@ -118,6 +118,8 @@ builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 // Giao vận GHN (mock khi chưa cấu hình Ghn:Token)
 builder.Services.AddHttpClient<IShippingService, ProSport.Infrastructure.Services.Shipping.GhnShippingService>();
+// Thanh toán PayOS cho đơn shop (mock khi chưa cấu hình PayOS:ChecksumKey)
+builder.Services.AddHttpClient<IPayOsService, ProSport.Infrastructure.Services.Payment.PayOsService>();
 // TK-010: quản lý người dùng (Admin)
 builder.Services.AddScoped<IUserService, UserService>();
 // TK-035: đánh giá người chơi + Trust Score

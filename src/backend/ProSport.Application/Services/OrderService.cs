@@ -13,11 +13,13 @@ public class OrderService : IOrderService
 
     private readonly IOrderRepository _orderRepository;
     private readonly IShippingService _shippingService;
+    private readonly IPayOsService _payOsService;
 
-    public OrderService(IOrderRepository orderRepository, IShippingService shippingService)
+    public OrderService(IOrderRepository orderRepository, IShippingService shippingService, IPayOsService payOsService)
     {
         _orderRepository = orderRepository;
         _shippingService = shippingService;
+        _payOsService = payOsService;
     }
 
     public async Task<ApiResponseDto<OrderDto>> CheckoutFromCartAsync(int userId, CreateOrderDto dto)
@@ -25,10 +27,6 @@ public class OrderService : IOrderService
         // ── Validate phương thức thanh toán ──
         if (!OrderPaymentMethods.IsValid(dto.PaymentMethod))
             return new ApiResponseDto<OrderDto>(400, "Phương thức thanh toán không hợp lệ.");
-
-        // Phase 1 chỉ hỗ trợ Ví Escrow; PayOS/COD sẽ có ở phase sau.
-        if (dto.PaymentMethod != OrderPaymentMethods.Wallet)
-            return new ApiResponseDto<OrderDto>(400, "Hiện chỉ hỗ trợ thanh toán bằng Ví Escrow. PayOS/COD sẽ sớm có.");
 
         // ── Validate địa chỉ giao hàng ──
         if (string.IsNullOrWhiteSpace(dto.RecipientName))
@@ -75,16 +73,55 @@ public class OrderService : IOrderService
             return new ApiResponseDto<OrderDto>(400, ex.Message);
         }
 
-        // Tạo vận đơn ở hãng ship (best-effort — đơn đã thanh toán vẫn giữ, ship có thể retry sau).
-        var shipment = await _shippingService.CreateShipmentAsync(created);
-        if (shipment.Success && !string.IsNullOrWhiteSpace(shipment.TrackingCode))
+        // PayOS: chưa thanh toán → tạo link, trả checkoutUrl; vận đơn tạo sau khi webhook xác nhận.
+        if (created.PaymentMethod == OrderPaymentMethods.PayOS)
         {
-            await _orderRepository.SetTrackingAsync(created.OrderId, shipment.TrackingCode, ShippingStatuses.Created);
-            created.TrackingCode = shipment.TrackingCode;
-            created.ShippingStatus = ShippingStatuses.Created;
+            var link = await _payOsService.CreatePaymentLinkAsync(created);
+            if (!link.Success || string.IsNullOrWhiteSpace(link.CheckoutUrl))
+                return new ApiResponseDto<OrderDto>(502, $"Không tạo được link thanh toán PayOS: {link.Error}");
+
+            if (!string.IsNullOrWhiteSpace(link.PaymentLinkId))
+                await _orderRepository.SetPaymentReferenceAsync(created.OrderId, link.PaymentLinkId);
+
+            var dtoOut = Map(created);
+            dtoOut.PaymentUrl = link.CheckoutUrl;
+            return new ApiResponseDto<OrderDto>(201, "Vui lòng thanh toán qua PayOS để hoàn tất đơn hàng.", dtoOut);
         }
 
+        // Wallet (đã trả) và COD (thu khi giao): tạo vận đơn GHN ngay (best-effort).
+        await CreateShipmentAsync(created);
         return new ApiResponseDto<OrderDto>(201, "Đặt hàng thành công.", Map(created));
+    }
+
+    public async Task<ApiResponseDto<bool>> ConfirmPayOsPaymentAsync(int orderCode, decimal amount)
+    {
+        var order = await _orderRepository.GetByIdAsync(orderCode);
+        if (order == null)
+            return new ApiResponseDto<bool>(404, "Không tìm thấy đơn hàng.", false);
+        if (order.PaymentStatus == Domain.Constants.PaymentStatus.Paid)
+            return new ApiResponseDto<bool>(200, "Đơn hàng đã thanh toán trước đó.", true); // idempotent
+        if (Math.Abs(order.TotalAmount - amount) > 1m)
+            return new ApiResponseDto<bool>(400, "Số tiền thanh toán không khớp.", false);
+
+        await _orderRepository.MarkPaidAsync(orderCode);
+        order.PaymentStatus = Domain.Constants.PaymentStatus.Paid;
+        order.Status = OrderStatuses.Paid;
+
+        // Tạo vận đơn GHN sau khi thanh toán thành công.
+        await CreateShipmentAsync(order);
+        return new ApiResponseDto<bool>(200, "Xác nhận thanh toán thành công.", true);
+    }
+
+    private async Task CreateShipmentAsync(Order order)
+    {
+        if (!string.IsNullOrWhiteSpace(order.TrackingCode)) return; // đã có vận đơn
+        var shipment = await _shippingService.CreateShipmentAsync(order);
+        if (shipment.Success && !string.IsNullOrWhiteSpace(shipment.TrackingCode))
+        {
+            await _orderRepository.SetTrackingAsync(order.OrderId, shipment.TrackingCode, ShippingStatuses.Created);
+            order.TrackingCode = shipment.TrackingCode;
+            order.ShippingStatus = ShippingStatuses.Created;
+        }
     }
 
     public async Task<ApiResponseDto<List<OrderDto>>> GetMyOrdersAsync(int userId)

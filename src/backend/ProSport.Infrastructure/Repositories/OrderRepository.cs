@@ -56,18 +56,33 @@ public class OrderRepository : IOrderRepository
                 CreatedAt = DateTime.UtcNow
             }).ToList();
 
-            // Thanh toán — Phase 1 chỉ Ví Escrow (PayOS/COD chặn ở tầng service).
-            if (order.PaymentMethod == OrderPaymentMethods.Wallet)
+            // Thanh toán theo phương thức. Mọi phương thức đều GIỮ CHỖ tồn kho ngay
+            // (trừ kho bên dưới); PayOS chờ webhook xác nhận, COD thu tiền khi giao.
+            switch (order.PaymentMethod)
             {
-                var refId = $"Order_U{order.UserId}_{Guid.NewGuid():N}";
-                var paid = await _escrowRepository.PayEquipmentPurchaseAsync(
-                    order.UserId, order.TotalAmount, null, refId, "Thanh toán đơn hàng cửa hàng");
-                if (!paid)
-                    throw new InvalidOperationException("Số dư ví không đủ để thanh toán đơn hàng.");
+                case OrderPaymentMethods.Wallet:
+                    var refId = $"Order_U{order.UserId}_{Guid.NewGuid():N}";
+                    var paid = await _escrowRepository.PayEquipmentPurchaseAsync(
+                        order.UserId, order.TotalAmount, null, refId, "Thanh toán đơn hàng cửa hàng");
+                    if (!paid)
+                        throw new InvalidOperationException("Số dư ví không đủ để thanh toán đơn hàng.");
+                    order.PaymentReference = refId;
+                    order.PaymentStatus = PaymentStatus.Paid;
+                    order.Status = OrderStatuses.Paid;
+                    break;
 
-                order.PaymentReference = refId;
-                order.PaymentStatus = PaymentStatus.Paid;
-                order.Status = OrderStatuses.Paid;
+                case OrderPaymentMethods.COD:
+                    order.PaymentStatus = PaymentStatus.Pending; // thu khi giao
+                    order.Status = OrderStatuses.Processing;
+                    break;
+
+                case OrderPaymentMethods.PayOS:
+                    order.PaymentStatus = PaymentStatus.Pending; // chờ webhook PayOS
+                    order.Status = OrderStatuses.Pending;
+                    break;
+
+                default:
+                    throw new InvalidOperationException("Phương thức thanh toán không hợp lệ.");
             }
 
             // Trừ tồn kho atomic + xóa item khỏi giỏ.
@@ -134,5 +149,27 @@ public class OrderRepository : IOrderRepository
         order.ShippingStatus = shippingStatus;
         order.UpdatedAt = DateTime.UtcNow;
         await _context.SaveChangesAsync();
+    }
+
+    public async Task SetPaymentReferenceAsync(int orderId, string reference)
+    {
+        var order = await _context.Orders.FirstOrDefaultAsync(o => o.OrderId == orderId);
+        if (order == null) return;
+        order.PaymentReference = reference;
+        order.UpdatedAt = DateTime.UtcNow;
+        await _context.SaveChangesAsync();
+    }
+
+    /// <summary>Đánh dấu đơn đã thanh toán (idempotent). Trả false nếu đơn không tồn tại.</summary>
+    public async Task<bool> MarkPaidAsync(int orderId)
+    {
+        var order = await _context.Orders.FirstOrDefaultAsync(o => o.OrderId == orderId);
+        if (order == null) return false;
+        if (order.PaymentStatus == PaymentStatus.Paid) return true; // idempotent
+        order.PaymentStatus = PaymentStatus.Paid;
+        order.Status = OrderStatuses.Paid;
+        order.UpdatedAt = DateTime.UtcNow;
+        await _context.SaveChangesAsync();
+        return true;
     }
 }

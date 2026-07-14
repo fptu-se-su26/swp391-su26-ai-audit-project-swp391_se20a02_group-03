@@ -31,7 +31,13 @@ public class OrderServiceTests
             .ReturnsAsync(shippingFee);
         shipping.Setup(s => s.CreateShipmentAsync(It.IsAny<Order>(), It.IsAny<int>()))
             .ReturnsAsync((Order o, int _) => new ShipmentResult(shipOk, shipOk ? "GHN-TEST-123" : null, o.ShippingFee, shipOk ? null : "err"));
-        return new OrderService(new OrderRepository(db, new EscrowRepository(db)), shipping.Object);
+
+        var payos = new Mock<IPayOsService>();
+        payos.SetupGet(p => p.IsMockMode).Returns(true);
+        payos.Setup(p => p.CreatePaymentLinkAsync(It.IsAny<Order>()))
+            .ReturnsAsync((Order o) => new PayOsLinkResult(true, $"https://payos.mock/{o.OrderId}", $"LINK-{o.OrderId}", null));
+
+        return new OrderService(new OrderRepository(db, new EscrowRepository(db)), shipping.Object, payos.Object);
     }
 
     private static CreateOrderDto ValidDto(string method = "Wallet") => new()
@@ -130,13 +136,66 @@ public class OrderServiceTests
     }
 
     [Fact]
-    public async Task Checkout_Returns400_WhenPayOsSelectedInPhase1()
+    public async Task Checkout_Cod_CreatesProcessingOrder_NoWalletDebit_WithShipment()
     {
-        await using var db = CreateDb(nameof(Checkout_Returns400_WhenPayOsSelectedInPhase1));
+        await using var db = CreateDb(nameof(Checkout_Cod_CreatesProcessingOrder_NoWalletDebit_WithShipment));
+        Seed(db, 600, 0, 5);
 
-        var result = await CreateService(db).CheckoutFromCartAsync(1, ValidDto("PayOS"));
+        var result = await CreateService(db).CheckoutFromCartAsync(600, ValidDto("COD"));
 
-        result.StatusCode.Should().Be(400);
-        result.Message.Should().Contain("Ví Escrow");
+        result.StatusCode.Should().Be(201);
+        result.Data!.Status.Should().Be(OrderStatuses.Processing);
+        result.Data.PaymentStatus.Should().Be(PaymentStatus.Pending);
+        result.Data.TrackingCode.Should().Be("GHN-TEST-123");
+        (await db.EscrowWallets.FirstAsync(w => w.UserId == 600)).Balance.Should().Be(0);   // COD không trừ ví
+        (await db.Equipments.FirstAsync()).StockQuantity.Should().Be(3);                     // giữ chỗ tồn kho
+    }
+
+    [Fact]
+    public async Task Checkout_PayOs_ReturnsCheckoutUrl_OrderPending_NoShipmentYet()
+    {
+        await using var db = CreateDb(nameof(Checkout_PayOs_ReturnsCheckoutUrl_OrderPending_NoShipmentYet));
+        Seed(db, 601, 0, 5);
+
+        var result = await CreateService(db).CheckoutFromCartAsync(601, ValidDto("PayOS"));
+
+        result.StatusCode.Should().Be(201);
+        result.Data!.PaymentUrl.Should().NotBeNullOrEmpty();
+        result.Data.Status.Should().Be(OrderStatuses.Pending);
+        result.Data.PaymentStatus.Should().Be(PaymentStatus.Pending);
+        result.Data.TrackingCode.Should().BeNull();                       // vận đơn tạo sau khi PayOS xác nhận
+        (await db.Equipments.FirstAsync()).StockQuantity.Should().Be(3);  // giữ chỗ tồn kho
+    }
+
+    [Fact]
+    public async Task ConfirmPayOs_MarksPaid_AndCreatesShipment()
+    {
+        await using var db = CreateDb(nameof(ConfirmPayOs_MarksPaid_AndCreatesShipment));
+        Seed(db, 602, 0, 5);
+        var svc = CreateService(db);
+
+        var checkout = await svc.CheckoutFromCartAsync(602, ValidDto("PayOS"));
+        var orderId = checkout.Data!.OrderId;
+
+        var confirm = await svc.ConfirmPayOsPaymentAsync(orderId, checkout.Data.TotalAmount);
+
+        confirm.StatusCode.Should().Be(200);
+        var order = await db.Orders.FirstAsync(o => o.OrderId == orderId);
+        order.PaymentStatus.Should().Be(PaymentStatus.Paid);
+        order.Status.Should().Be(OrderStatuses.Paid);
+        order.TrackingCode.Should().Be("GHN-TEST-123");
+    }
+
+    [Fact]
+    public async Task ConfirmPayOs_Returns400_WhenAmountMismatch()
+    {
+        await using var db = CreateDb(nameof(ConfirmPayOs_Returns400_WhenAmountMismatch));
+        Seed(db, 603, 0, 5);
+        var svc = CreateService(db);
+        var checkout = await svc.CheckoutFromCartAsync(603, ValidDto("PayOS"));
+
+        var confirm = await svc.ConfirmPayOsPaymentAsync(checkout.Data!.OrderId, 999m);
+
+        confirm.StatusCode.Should().Be(400);
     }
 }

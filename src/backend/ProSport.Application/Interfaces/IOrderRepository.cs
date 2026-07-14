@@ -16,4 +16,10 @@ public interface IOrderRepository
 
     /// <summary>Gắn mã vận đơn + trạng thái giao hàng sau khi tạo vận đơn ở hãng ship.</summary>
     Task SetTrackingAsync(int orderId, string trackingCode, string shippingStatus);
+
+    /// <summary>Lưu mã tham chiếu thanh toán (PayOS paymentLinkId).</summary>
+    Task SetPaymentReferenceAsync(int orderId, string reference);
+
+    /// <summary>Đánh dấu đơn đã thanh toán (idempotent). false nếu đơn không tồn tại.</summary>
+    Task<bool> MarkPaidAsync(int orderId);
 }
