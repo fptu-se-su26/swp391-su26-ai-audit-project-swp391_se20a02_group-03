@@ -468,6 +468,10 @@ public class AuthService : IAuthService
         var secretKey = _configuration["JwtSettings:SecretKey"]
             ?? Environment.GetEnvironmentVariable("JWT_SECRET_KEY")
             ?? throw new InvalidOperationException("JwtSettings:SecretKey or JWT_SECRET_KEY must be configured.");
+        if (secretKey == "YOUR_JWT_SECRET_KEY_HERE_MIN_256_BITS")
+        {
+            secretKey = "ProSport-Dev-Only-JWT-Secret-Key-256bits-DoNotUseInProduction!!";
+        }
         var expiryMinutesStr = _configuration["JwtSettings:ExpiryInMinutes"]
             ?? throw new InvalidOperationException("JwtSettings:ExpiryInMinutes is not configured.");
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
