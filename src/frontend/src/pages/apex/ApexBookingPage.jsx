@@ -1,5 +1,7 @@
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useState, useEffect } from 'react'
-import { Swords, Circle, CheckCircle, CreditCard, Wallet, Check, ArrowLeft, ArrowRight } from 'lucide-react'
+import { Swords, Circle, CheckCircle, CreditCard, Wallet, Check, ArrowLeft, ArrowRight, Calendar, Users, Info } from 'lucide-react'
+import dayjs from 'dayjs'
 import ApexLayout from '../../layouts/ApexLayout'
 import { bookingApi } from '../../api/bookingApi'
 import { paymentApi } from '../../api/paymentApi'
@@ -11,10 +13,10 @@ const timeSlots = [
   '18:00', '19:00', '20:00', '21:00', '22:00',
 ]
 
-const sportTypes = ['All', 'Badminton', 'Pickleball']
+const sportTypes = ['Tất cả', 'Cầu lông', 'Pickleball']
 
 export default function ApexBookingPage() {
-  const [filter, setFilter] = useState('All')
+  const [filter, setFilter] = useState('Tất cả')
   const [courts, setCourts] = useState([])
   const [selectedCourt, setSelectedCourt] = useState(null)
   const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().slice(0, 10))
@@ -26,8 +28,12 @@ export default function ApexBookingPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [paymentMethod, setPaymentMethod] = useState('vnpay')
   const [escrowBalance, setEscrowBalance] = useState(0)
+  const [createdBookingId, setCreatedBookingId] = useState(null)
 
   const { addToast } = useToast()
+  const [searchParams] = useSearchParams()
+  const navigate = useNavigate()
+  const origin = searchParams.get('origin')
 
   // Load Courts
   useEffect(() => {
@@ -40,12 +46,18 @@ export default function ApexBookingPage() {
             name: c.name,
             type: c.courtTypeName || 'Badminton',
             price: c.pricePerHour > 0 ? c.pricePerHour : 100000,
-            // API trả 'ACTIVE' (CourtStatuses.ToApiStatus); DB gốc là 'Available' — chấp nhận cả hai
             status: ['available', 'active'].includes(c.status?.toLowerCase()) ? 'available' : 'booked',
-            icon: c.courtTypeName?.toLowerCase().includes('pickleball') ? <Circle size={20} /> : <Swords size={20} />,
+            icon: c.courtTypeName?.toLowerCase().includes('pickleball') ? <Circle size={16} /> : <Swords size={16} />,
             capacity: 4,
-            features: c.description ? c.description.split(',').map(s => s.trim()) : ['Tiêu chuẩn'],
-            imageUrl: c.imageUrl
+            features: c.description ? c.description.split(',').map(s => s.trim()) : ['Sân thảm PVC Yonex cao cấp'],
+            imageUrl: (
+              c.name?.toLowerCase().includes('a1') ? '/images/caulong-a1.jpg' :
+              c.name?.toLowerCase().includes('a2') ? '/images/caulong-a3.jpg' :
+              c.name?.toLowerCase().includes('a3') ? '/images/caulong-a3.jpg' :
+              c.name?.toLowerCase().includes('p1') ? '/images/pickleball-p1.jpg' :
+              c.name?.toLowerCase().includes('p2') ? '/images/pickleball-p2.jpg' :
+              (c.imageUrl && c.imageUrl.length > 5 ? c.imageUrl : (c.courtTypeName?.toLowerCase().includes('pickleball') ? '/images/pickleball-p1.jpg' : '/images/caulong-a1.jpg'))
+            )
           }))
           setCourts(mappedCourts)
         }
@@ -77,12 +89,11 @@ export default function ApexBookingPage() {
     }
   }, [selectedCourt, selectedDate])
 
-  const filtered = courts.filter(c => filter === 'All' || c.type === filter)
+  const filtered = courts.filter(c => filter === 'Tất cả' || (filter === 'Cầu lông' && c.type === 'Badminton') || (filter === 'Pickleball' && c.type === 'Pickleball'))
 
   function toggleSlot(slot) {
     if (bookedSlots.includes(slot)) return
 
-    // Đảm bảo chọn giờ liên tiếp
     setSelectedSlots(prev => {
         if (prev.includes(slot)) return prev.filter(s => s !== slot)
 
@@ -104,6 +115,7 @@ export default function ApexBookingPage() {
   const totalPrice = selectedCourt ? selectedSlots.length * selectedCourt.price : 0
 
   function calculateEndTime(lastSlot) {
+    if (!lastSlot) return ''
     const h = parseInt(lastSlot.split(':')[0])
     return `${String(h + 1).padStart(2, '0')}:00`
   }
@@ -149,6 +161,8 @@ export default function ApexBookingPage() {
           const vnpayRes = await paymentApi.createVnPayUrl(0, 'Booking', bookingId)
           if (vnpayRes.statusCode === 200 && vnpayRes.data) {
              addToast('Bạn có 15 phút để hoàn tất thanh toán. Quá hạn sẽ tự động hủy đơn.', 'warning')
+             // Might need special handling to pass origin through VNPay return URL in a real app, 
+             // but assuming we rely on escrow or normal flow here.
              window.location.assign(vnpayRes.data)
              return
           } else {
@@ -157,6 +171,7 @@ export default function ApexBookingPage() {
         } else if (paymentMethod === 'escrow') {
           const escrowRes = await paymentApi.payBookingByEscrow(bookingId)
           if (escrowRes.statusCode === 200) {
+            setCreatedBookingId(bookingId)
             setBooked(true)
           } else {
             addToast("Lỗi thanh toán ví: " + escrowRes.message, "error")
@@ -176,26 +191,37 @@ export default function ApexBookingPage() {
   if (booked) {
     return (
       <ApexLayout>
-        <div className="max-w-[600px] mx-auto mt-12 card-base text-center auth-animate-in">
-          <div className="w-16 h-16 border-2 border-accent flex items-center justify-center mx-auto mb-6">
-            <CheckCircle size={32} className="text-accent" />
-          </div>
-          <h2 className="font-heading text-2xl uppercase text-foreground mb-2">Đặt sân thành công!</h2>
-          <p className="text-lg font-bold text-foreground mb-1">{selectedCourt?.name}</p>
-          <p className="text-foreground-muted mb-6">{selectedDate} · {selectedSlots[0]} – {calculateEndTime(selectedSlots[selectedSlots.length - 1])}</p>
+        <div className="bg-[#F8F9FA] min-h-screen py-12">
+          <div className="max-w-[500px] mx-auto p-10 text-center auth-animate-in bg-white rounded-[24px] shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-gray-100">
+            <div className="w-20 h-20 rounded-full bg-teal-50 flex items-center justify-center mx-auto mb-6">
+              <CheckCircle size={40} className="text-[#14b8a6]" />
+            </div>
+            <h2 className="font-bold text-[24px] text-[#0f172a] mb-2 m-0 tracking-tight">Đặt sân thành công!</h2>
+            <p className="text-[18px] font-bold text-[#14b8a6] mb-2 m-0 uppercase">{selectedCourt?.name}</p>
+            <p className="text-gray-500 mb-8 text-[14px] m-0 font-medium">{dayjs(selectedDate).format('DD/MM/YYYY')} · {selectedSlots[0]} – {calculateEndTime(selectedSlots[selectedSlots.length - 1])}</p>
 
-          <div className="bg-background-base border-2 border-border-strong p-4 mb-8">
-            <p className="label-mono text-foreground-muted mb-1">Đã thanh toán</p>
-            <p className="text-xl font-bold text-accent">{totalPrice.toLocaleString('vi-VN')} VNĐ</p>
-            <p className="label-mono text-foreground-muted mt-1">qua {paymentMethod === 'vnpay' ? 'VNPay' : 'Ví'}</p>
-          </div>
+            <div className="bg-[#F8F9FA] rounded-[16px] p-6 mb-8 text-center border border-gray-100">
+              <p className="text-[13px] text-gray-500 mb-1 m-0 font-bold uppercase tracking-wide">Đã thanh toán</p>
+              <p className="text-3xl font-bold text-[#0f172a] m-0">{totalPrice.toLocaleString('vi-VN')} đ</p>
+              <p className="text-[12px] text-gray-400 mt-2 m-0 font-medium">qua {paymentMethod === 'vnpay' ? 'VNPay' : 'Ví Pro-Sport'}</p>
+            </div>
 
-          <button
-            className="w-full h-11 btn-primary"
-            onClick={() => { setBooked(false); setStep(1); setSelectedCourt(null); setSelectedSlots([]) }}
-          >
-            Đặt sân khác
-          </button>
+            {origin === 'host_match' ? (
+              <button
+                className="w-full bg-[#14b8a6] hover:bg-[#0f9e8c] text-white h-14 rounded-full text-[14px] font-bold uppercase tracking-wide transition-all shadow-[0_4px_14px_rgba(20,184,166,0.25)] border-0 cursor-pointer"
+                onClick={() => navigate(`/matches/create?step=2&new_booking_id=${createdBookingId}`)}
+              >
+                Quay lại hoàn thành tạo trận
+              </button>
+            ) : (
+              <button
+                className="w-full bg-[#14b8a6] hover:bg-[#0f9e8c] text-white h-14 rounded-full text-[14px] font-bold uppercase tracking-wide transition-all shadow-[0_4px_14px_rgba(20,184,166,0.25)] border-0 cursor-pointer"
+                onClick={() => { setBooked(false); setStep(1); setSelectedCourt(null); setSelectedSlots([]) }}
+              >
+                Đặt thêm sân khác
+              </button>
+            )}
+          </div>
         </div>
       </ApexLayout>
     )
@@ -203,320 +229,315 @@ export default function ApexBookingPage() {
 
   return (
     <ApexLayout>
-      <div className="max-w-[1200px] mx-auto auth-animate-in pb-24 lg:pb-0">
-        {/* Header & Stepper */}
-        <div className="flex max-md:flex-col md:items-end justify-between gap-6 mb-8">
-          <div>
-            <h1 className="font-heading text-3xl uppercase tracking-[-0.01em] text-foreground">Đặt sân</h1>
-            <p className="text-sm text-foreground-muted mt-1">Chọn môn thể thao, thời gian và bắt đầu trận đấu.</p>
-          </div>
-
-          <div className="flex items-center gap-2">
-            {['Chọn sân', 'Chọn giờ', 'Xác nhận'].map((s, i) => (
-              <div key={s} className="flex items-center">
-                <div className={`flex items-center gap-2 px-3 py-1.5 label-mono border-2 ${
-                  step > i + 1 ? 'text-accent border-accent' :
-                  step === i + 1 ? 'text-ink bg-accent border-accent' :
-                  'text-foreground-muted border-border-default'
-                }`}>
-                  <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-mono ${
-                    step > i + 1 ? 'bg-accent text-ink' :
-                    step === i + 1 ? 'bg-ink text-paper' :
-                    'bg-surface text-foreground-muted'
-                  }`}>
-                    {step > i + 1 ? <Check size={12} /> : i + 1}
-                  </span>
-                  <span className="hidden sm:inline">{s}</span>
-                </div>
-                {i < 2 && <div className={`w-8 h-[2px] mx-2 ${step > i + 1 ? 'bg-accent' : 'bg-border-default'}`} />}
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Step 1: Select Court */}
-        {step === 1 && (
-          <div className="auth-animate-fade">
-            {/* Filters */}
-            <div className="flex flex-wrap gap-2 mb-6">
-              {sportTypes.map(t => (
-                <button
-                  key={t}
-                  className={`px-4 h-9 label-mono border-2 transition-colors ${
-                    filter === t
-                      ? 'bg-accent text-ink border-accent'
-                      : 'bg-surface border-border-default text-foreground-muted hover:border-border-hover hover:text-foreground'
-                  }`}
-                  onClick={() => setFilter(t)}
-                >
-                  {t === 'All' ? 'Tất cả' : t === 'Badminton' ? 'Cầu lông' : t}
-                </button>
-              ))}
+      <div className="bg-[#F8F9FA] min-h-screen">
+        <div className="max-w-[1200px] mx-auto px-4 md:px-8 py-10 auth-animate-in pb-28 lg:pb-12 font-sans">
+          
+          {/* Header & Stepper */}
+          <div className="flex max-md:flex-col md:items-end justify-between gap-6 mb-10">
+            <div>
+              <h1 className="font-heading text-4xl uppercase tracking-tight text-[#0f172a] mb-2 m-0">ĐẶT SÂN</h1>
+              <p className="text-[14.5px] text-gray-500 m-0">Chọn môn thể thao, thời gian và bắt đầu trận đấu.</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {courts.length === 0 && filtered.length === 0 && (
-                <div className="col-span-full py-12 text-center text-foreground-muted">Đang tải danh sách sân...</div>
-              )}
-              {courts.length > 0 && filtered.length === 0 && (
-                <div className="col-span-full py-12 text-center text-foreground-muted">Không có sân phù hợp với bộ lọc hiện tại.</div>
-              )}
-              {filtered.map(court => (
-                <div
-                  key={court.id}
-                  className={`card-base flex flex-col justify-between transition-colors duration-150 ${
-                    court.status === 'booked' ? 'opacity-50 cursor-not-allowed' :
-                    selectedCourt?.id === court.id ? '!border-accent cursor-pointer' :
-                    'hover:border-border-hover cursor-pointer'
-                  }`}
-                  onClick={() => court.status !== 'booked' && setSelectedCourt(court)}
-                >
-                  <div>
-                    <div className="flex justify-between items-start mb-4">
-                      <span className="w-10 h-10 bg-background-base border-2 border-border-default flex items-center justify-center shrink-0 text-foreground">{court.icon}</span>
-                      <span className={`px-2 py-0.5 label-mono border ${
-                        court.status === 'booked' ? 'bg-transparent text-danger border-danger' : 'bg-transparent text-accent border-accent'
+            <div className="flex items-center gap-3">
+              {['Chọn sân', 'Chọn giờ', 'Xác nhận'].map((s, i) => (
+                <div key={s} className="flex items-center gap-3">
+                  <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full transition-all ${
+                    step === i + 1 ? 'bg-teal-50 text-[#14b8a6]' :
+                    step > i + 1 ? 'bg-gray-100 text-[#0f172a]' : 'text-gray-400'
+                  }`}>
+                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[12px] font-bold ${
+                      step === i + 1 ? 'bg-[#14b8a6] text-white shadow-sm' :
+                      step > i + 1 ? 'bg-[#0f172a] text-white' : 'bg-gray-200 text-gray-500'
+                    }`}>
+                      {step > i + 1 ? <Check size={14} /> : i + 1}
+                    </div>
+                    <span className="text-[13px] font-bold hidden sm:block">{s}</span>
+                  </div>
+                  {i < 2 && <div className="w-8 h-[2px] bg-gray-200 rounded-full" />}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Step 1: Select Court */}
+          {step === 1 && (
+            <div className="auth-animate-fade">
+              {/* Category Filters */}
+              <div className="flex flex-wrap gap-3 mb-8">
+                {sportTypes.map(t => (
+                  <button
+                    key={t}
+                    className={`px-6 py-2.5 rounded-full text-[13.5px] font-bold transition-all cursor-pointer border ${
+                      filter === t
+                        ? 'bg-[#14b8a6] text-white border-[#14b8a6] shadow-[0_4px_12px_rgba(20,184,166,0.25)]'
+                        : 'bg-white text-gray-500 border-gray-200 hover:border-gray-300 hover:text-[#0f172a] shadow-sm'
+                    }`}
+                    onClick={() => setFilter(t)}
+                  >
+                    {t}
+                  </button>
+                ))}
+              </div>
+
+              {/* Court Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {courts.length === 0 && filtered.length === 0 && (
+                  <div className="col-span-full py-20 text-center text-gray-500 text-[14px]">Đang tải danh sách sân...</div>
+                )}
+                {courts.length > 0 && filtered.length === 0 && (
+                  <div className="col-span-full py-20 text-center text-gray-500 text-[14px]">Không có sân phù hợp với bộ lọc hiện tại.</div>
+                )}
+                {filtered.map(court => (
+                  <div
+                    key={court.id}
+                    className={`flex flex-col justify-between overflow-hidden transition-all duration-300 bg-white rounded-[20px] border border-gray-100 ${
+                      court.status === 'booked' ? 'opacity-60 cursor-not-allowed filter grayscale-[0.3]' :
+                      selectedCourt?.id === court.id ? 'ring-2 ring-[#14b8a6] shadow-[0_8px_30px_rgba(20,184,166,0.15)] cursor-pointer -translate-y-1' :
+                      'shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] hover:-translate-y-1 cursor-pointer'
+                    }`}
+                    onClick={() => court.status !== 'booked' && setSelectedCourt(court)}
+                  >
+                    {/* Thumbnail Image */}
+                    <div className="h-[180px] relative bg-gray-100 overflow-hidden">
+                      <img src={court.imageUrl} alt={court.name} className="w-full h-full object-cover transition-transform duration-500 hover:scale-105" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+                      <span className={`absolute top-4 left-4 px-3 py-1.5 rounded-full text-[11px] font-black uppercase tracking-wider shadow-sm ${
+                        court.status === 'booked' ? 'bg-red-500 text-white' : 'bg-green-500 text-white'
                       }`}>
                         {court.status === 'booked' ? 'Tạm ngưng' : 'Khả dụng'}
                       </span>
                     </div>
-                    <h3 className="font-heading text-lg uppercase text-foreground mb-1">{court.name}</h3>
-                    <p className="text-xs text-foreground-muted mb-4">{court.type === 'Badminton' ? 'Cầu lông' : court.type} · Tối đa {court.capacity} người</p>
-                    <div className="flex flex-wrap gap-1.5 mb-6">
-                      {court.features.slice(0, 3).map(f => (
-                        <span key={f} className="px-2 py-1 bg-background-base border border-border-default text-[10px] font-medium text-foreground-muted">{f}</span>
-                      ))}
+
+                    <div className="p-6 flex-1 flex flex-col">
+                      <h3 className="font-bold text-[18px] uppercase tracking-tight text-[#0f172a] m-0 mb-2">{court.name}</h3>
+                      <p className="text-[13px] text-gray-500 mb-4 flex items-center gap-1.5 font-medium m-0">
+                        <span className="text-[#14b8a6]">{court.icon}</span> 
+                        {court.type === 'Badminton' ? 'Cầu lông' : court.type}
+                      </p>
+                      
+                      <div className="flex flex-col gap-2 mt-auto">
+                        <div className="flex items-center gap-2 text-[13px] text-gray-600 font-medium">
+                          <Users size={16} className="text-gray-400" /> Tối đa {court.capacity} người
+                        </div>
+                        <div className="flex items-center gap-2 text-[13px] text-gray-600 font-medium">
+                          <Info size={16} className="text-gray-400" /> <span className="line-clamp-1">{court.features[0] || 'Sân đạt chuẩn'}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between p-6 pt-2 mt-auto">
+                      <div className="flex items-baseline gap-1">
+                        <span className="text-[20px] font-bold text-[#0f172a] m-0">{court.price.toLocaleString('vi-VN')}đ</span>
+                        <span className="text-[13px] text-gray-500 font-medium">/h</span>
+                      </div>
+                      {court.status !== 'booked' && (
+                        <button
+                          className={`h-10 px-5 rounded-full text-[13px] font-bold uppercase tracking-wide transition-all border-0 cursor-pointer shadow-sm ${
+                            selectedCourt?.id === court.id
+                              ? 'bg-[#0f172a] text-white'
+                              : 'bg-[#14b8a6] hover:bg-[#0f9e8c] text-white shadow-[0_4px_12px_rgba(20,184,166,0.25)]'
+                          }`}
+                          onClick={(e) => { e.stopPropagation(); setSelectedCourt(court); setStep(2) }}
+                        >
+                          {selectedCourt?.id === court.id ? 'Đã chọn' : 'Chọn sân'}
+                        </button>
+                      )}
                     </div>
                   </div>
+                ))}
+              </div>
+            </div>
+          )}
 
-                  <div className="flex items-center justify-between pt-4 border-t border-border-default">
-                    <span className="text-[13px] text-foreground-muted"><strong className="text-foreground font-bold">{court.price.toLocaleString('vi-VN')} đ</strong> /giờ</span>
-                    {court.status !== 'booked' && (
+          {/* Step 2: Pick Time */}
+          {step === 2 && (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 auth-animate-fade">
+              {/* Left: Time Picker */}
+              <div className="lg:col-span-2 bg-white rounded-[24px] shadow-[0_4px_24px_rgba(0,0,0,0.04)] border border-gray-100 p-8">
+                <div className="flex max-sm:flex-col sm:items-center justify-between gap-6 mb-8 pb-6 border-b border-gray-100">
+                  <h2 className="text-[20px] font-bold uppercase tracking-tight text-[#0f172a] m-0">Chọn khung giờ</h2>
+                  <div className="flex items-center gap-3 bg-[#F8F9FA] p-1.5 rounded-full border border-gray-200">
+                    <span className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-gray-500"><Calendar size={16} /></span>
+                    <input
+                      id="booking-date"
+                      type="date"
+                      value={selectedDate}
+                      min={minDate}
+                      onChange={e => { setSelectedDate(e.target.value); setSelectedSlots([]); }}
+                      className="h-8 pr-4 bg-transparent text-[14px] font-bold text-[#0f172a] cursor-pointer outline-none transition-all appearance-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-6 mb-8 text-[13px] font-bold text-gray-500">
+                  <div className="flex items-center gap-2"><span className="w-4 h-4 rounded-full bg-[#F8F9FA] border border-gray-200" /> Trống</div>
+                  <div className="flex items-center gap-2"><span className="w-4 h-4 rounded-full bg-[#14b8a6] shadow-[0_0_10px_rgba(20,184,166,0.3)]" /> Đang chọn</div>
+                  <div className="flex items-center gap-2"><span className="w-4 h-4 rounded-full bg-gray-200" /> Kín chỗ / Quá hạn</div>
+                </div>
+
+                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
+                  {timeSlots.map(slot => {
+                    const isBooked = bookedSlots.includes(slot)
+                    const isSelected = selectedSlots.includes(slot)
+                    const isPast = selectedDate === minDate && slot < new Date().toTimeString().slice(0, 5)
+                    const isDisabled = isBooked || isPast
+
+                    return (
                       <button
-                        className={`h-8 px-4 label-mono border-2 transition-colors ${
-                          selectedCourt?.id === court.id
-                            ? 'bg-accent text-ink border-accent'
-                            : 'bg-transparent text-foreground border-border-default hover:border-foreground'
+                        key={slot}
+                        className={`h-12 rounded-[12px] text-[15px] font-bold transition-all border cursor-pointer ${
+                          isDisabled
+                            ? 'bg-gray-50 border-gray-100 text-gray-400 cursor-not-allowed opacity-50'
+                            : isSelected
+                            ? 'bg-[#14b8a6] border-[#14b8a6] text-white shadow-[0_4px_12px_rgba(20,184,166,0.3)] transform -translate-y-0.5'
+                            : 'bg-white border-gray-200 text-gray-600 hover:border-[#14b8a6] hover:text-[#14b8a6] hover:bg-teal-50'
                         }`}
-                        onClick={(e) => { e.stopPropagation(); setSelectedCourt(court); setStep(2) }}
+                        onClick={() => toggleSlot(slot)}
+                        disabled={isDisabled}
                       >
-                        {selectedCourt?.id === court.id ? 'Đã chọn' : 'Chọn'}
+                        {slot}
                       </button>
-                    )}
+                    )
+                  })}
+                </div>
+              </div>
+
+              {/* Right: Summary Panel */}
+              <div className="bg-white rounded-[24px] shadow-[0_4px_24px_rgba(0,0,0,0.04)] border border-gray-100 p-8 h-fit sticky top-24">
+                <h3 className="text-[18px] font-bold uppercase tracking-tight text-[#0f172a] mb-6 m-0">Tóm tắt đặt sân</h3>
+
+                <div className="flex items-center gap-4 mb-8 bg-[#F8F9FA] p-4 rounded-[16px] border border-gray-100">
+                  <img src={selectedCourt.imageUrl} alt="" className="w-16 h-16 rounded-[12px] object-cover shrink-0 shadow-sm" />
+                  <div>
+                    <p className="text-[15px] font-bold uppercase text-[#0f172a] leading-tight m-0 mb-1">{selectedCourt.name}</p>
+                    <p className="text-[13px] font-bold text-[#14b8a6] m-0">{selectedCourt.type === 'Badminton' ? 'Cầu lông' : selectedCourt.type}</p>
                   </div>
                 </div>
-              ))}
-            </div>
 
-            {/* Bottom Bar */}
-            {selectedCourt && (
-              <div className="fixed bottom-0 left-0 right-0 lg:left-[260px] bg-surface border-t-2 border-border-strong p-4 z-50 flex flex-wrap items-center justify-between gap-4 auth-animate-fade">
-                <div className="flex max-sm:flex-col sm:items-center sm:gap-4 ml-2 lg:ml-4">
-                  <span className="text-sm text-foreground-muted">Đã chọn: <strong className="text-foreground ml-1">{selectedCourt.name}</strong></span>
-                  <span className="label-mono text-accent">{selectedCourt.price.toLocaleString('vi-VN')} đ/giờ</span>
+                <div className="space-y-5 mb-8">
+                  <div className="flex items-center justify-between text-[14.5px]">
+                    <span className="text-gray-500 font-medium">Ngày chơi</span>
+                    <strong className="text-[#0f172a]">{dayjs(selectedDate).format('DD/MM/YYYY')}</strong>
+                  </div>
+                  <div className="flex items-center justify-between text-[14.5px]">
+                    <span className="text-gray-500 font-medium">Khung giờ</span>
+                    <strong className="text-[#0f172a] text-right max-w-[140px] truncate">{selectedSlots.length > 0 ? selectedSlots.join(', ') : '—'}</strong>
+                  </div>
+                  <div className="flex items-center justify-between text-[14.5px]">
+                    <span className="text-gray-500 font-medium">Thời lượng</span>
+                    <strong className="text-[#0f172a]">{selectedSlots.length} tiếng</strong>
+                  </div>
                 </div>
-                <button
-                  className="btn-primary mr-2 lg:mr-4"
-                  onClick={() => setStep(2)}
-                >
-                  Chọn giờ <ArrowRight size={16} />
-                </button>
-              </div>
-            )}
-          </div>
-        )}
 
-        {/* Step 2: Pick Time */}
-        {step === 2 && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 auth-animate-fade">
-            {/* Left: Time Picker */}
-            <div className="lg:col-span-2 card-base">
-              <div className="flex max-sm:flex-col sm:items-center justify-between gap-4 mb-6 pb-6 border-b border-border-default">
-                <h2 className="font-heading text-lg uppercase text-foreground">Chọn khung giờ</h2>
-                <div className="flex items-center gap-3">
-                  <label htmlFor="booking-date" className="label-mono text-foreground-muted">Ngày</label>
-                  <input
-                    id="booking-date"
-                    type="date"
-                    value={selectedDate}
-                    min={minDate}
-                    onChange={e => { setSelectedDate(e.target.value); setSelectedSlots([]); }}
-                    className="input-base w-auto h-10 cursor-pointer"
-                  />
+                <div className="pt-6 border-t border-gray-100 mb-8">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[14px] font-bold uppercase tracking-wide text-gray-500 m-0">Tổng tiền</span>
+                    <strong className="text-[24px] font-black text-[#14b8a6]">{totalPrice.toLocaleString('vi-VN')} đ</strong>
+                  </div>
                 </div>
-              </div>
 
-              <div className="flex items-center gap-4 mb-6 label-mono text-foreground-muted">
-                <div className="flex items-center gap-1.5"><span className="w-3 h-3 bg-surface border border-border-hover" /> Trống</div>
-                <div className="flex items-center gap-1.5"><span className="w-3 h-3 bg-accent" /> Đã chọn</div>
-                <div className="flex items-center gap-1.5"><span className="w-3 h-3 bg-surface-hover border border-border-default opacity-50" /> Đã đặt</div>
-              </div>
-
-              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
-                {timeSlots.map(slot => {
-                  const isBooked = bookedSlots.includes(slot)
-                  const isSelected = selectedSlots.includes(slot)
-                  const isPast = selectedDate === minDate && slot < new Date().toTimeString().slice(0, 5)
-                  const isDisabled = isBooked || isPast
-
-                  return (
-                    <button
-                      key={slot}
-                      className={`h-12 text-sm font-bold transition-colors border-2 ${
-                        isDisabled
-                          ? 'bg-surface border-border-default text-foreground-muted cursor-not-allowed opacity-60'
-                          : isSelected
-                          ? 'bg-accent border-accent text-ink'
-                          : 'bg-transparent border-border-hover text-foreground-muted hover:border-accent hover:text-accent'
-                      }`}
-                      onClick={() => toggleSlot(slot)}
-                      disabled={isDisabled}
-                    >
-                      {slot}
-                    </button>
-                  )
-                })}
+                <div className="flex flex-col gap-3">
+                  <button
+                    className={`h-12 rounded-full text-[14px] font-bold uppercase tracking-wide transition-all flex items-center justify-center gap-2 border-0 ${
+                      selectedSlots.length === 0
+                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                        : 'bg-[#14b8a6] hover:bg-[#0f9e8c] text-white shadow-[0_4px_14px_rgba(20,184,166,0.3)] cursor-pointer'
+                    }`}
+                    disabled={selectedSlots.length === 0}
+                    onClick={() => setStep(3)}
+                  >
+                    Tiếp tục thanh toán <ArrowRight size={18} />
+                  </button>
+                  <button
+                    className="bg-white text-gray-500 hover:text-[#0f172a] h-12 rounded-full text-[13px] font-bold uppercase tracking-wide transition-colors cursor-pointer flex items-center justify-center gap-2 border border-transparent hover:bg-gray-50"
+                    onClick={() => { setStep(1); setSelectedSlots([]) }}
+                  >
+                    <ArrowLeft size={16} /> Đổi sân khác
+                  </button>
+                </div>
               </div>
             </div>
+          )}
 
-            {/* Right: Summary Panel */}
-            <div className="card-base h-fit sticky top-24">
-              <h3 className="font-heading text-lg uppercase text-foreground mb-5 pb-4 border-b border-border-default">Tóm tắt đặt sân</h3>
+          {/* Step 3: Confirm */}
+          {step === 3 && (
+            <div className="max-w-[700px] mx-auto auth-animate-fade">
+              <h2 className="text-[20px] font-bold uppercase tracking-tight text-[#0f172a] mb-8 m-0 text-center">Xác nhận thanh toán</h2>
 
-              <div className="flex items-center gap-3 mb-6 bg-background-base p-3 border-2 border-border-default">
-                <span className="w-10 h-10 bg-surface flex items-center justify-center border border-border-default shrink-0 text-foreground">{selectedCourt.icon}</span>
-                <div>
-                  <p className="text-sm font-bold text-foreground leading-tight">{selectedCourt.name}</p>
-                  <p className="text-xs text-foreground-muted mt-0.5">{selectedCourt.type === 'Badminton' ? 'Cầu lông' : selectedCourt.type}</p>
+              <div className="bg-white rounded-[24px] shadow-[0_4px_24px_rgba(0,0,0,0.04)] border border-gray-100 p-8 mb-8">
+                <div className="space-y-6 mb-8">
+                  <div className="flex max-sm:flex-col sm:items-center justify-between pb-4 border-b border-gray-100">
+                    <span className="text-[14px] font-medium text-gray-500 mb-1 sm:mb-0">Sân bãi</span>
+                    <strong className="text-[16px] font-bold uppercase text-[#0f172a] flex items-center gap-2"><span className="text-[#14b8a6]">{selectedCourt.icon}</span> {selectedCourt.name}</strong>
+                  </div>
+                  <div className="flex max-sm:flex-col sm:items-center justify-between pb-4 border-b border-gray-100">
+                    <span className="text-[14px] font-medium text-gray-500 mb-1 sm:mb-0">Ngày chơi</span>
+                    <strong className="text-[16px] font-bold text-[#0f172a] flex items-center gap-2"><Calendar size={18} className="text-gray-400" /> {dayjs(selectedDate).format('DD/MM/YYYY')}</strong>
+                  </div>
+                  <div className="flex max-sm:flex-col sm:items-center justify-between pb-4 border-b border-gray-100">
+                    <span className="text-[14px] font-medium text-gray-500 mb-1 sm:mb-0">Khung giờ</span>
+                    <strong className="text-[16px] font-bold text-[#14b8a6]">{selectedSlots[0]} – {calculateEndTime(selectedSlots[selectedSlots.length - 1])}</strong>
+                  </div>
+                  <div className="flex max-sm:flex-col sm:items-center justify-between">
+                    <span className="text-[14px] font-medium text-gray-500 mb-1 sm:mb-0">Thời lượng</span>
+                    <strong className="text-[16px] font-bold text-[#0f172a]">{selectedSlots.length} tiếng</strong>
+                  </div>
                 </div>
-              </div>
 
-              <div className="space-y-3 mb-6">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-foreground-muted font-medium">Ngày</span>
-                  <strong className="text-foreground">{selectedDate}</strong>
+                <div className="p-6 bg-[#F8F9FA] rounded-[16px] flex items-center justify-between mb-8 border border-gray-100">
+                  <span className="text-[15px] font-bold uppercase tracking-wide text-gray-500 m-0">Tổng thanh toán</span>
+                  <strong className="text-[28px] font-black text-[#14b8a6]">{totalPrice.toLocaleString('vi-VN')} đ</strong>
                 </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-foreground-muted font-medium">Khung giờ</span>
-                  <strong className="text-foreground text-right max-w-[140px] truncate">{selectedSlots.length > 0 ? selectedSlots.join(', ') : '—'}</strong>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-foreground-muted font-medium">Thời lượng</span>
-                  <strong className="text-foreground">{selectedSlots.length} giờ</strong>
-                </div>
-              </div>
 
-              <div className="pt-4 border-t border-dashed border-border-hover mb-6">
-                <div className="flex items-center justify-between">
-                  <span className="font-heading text-base uppercase text-foreground">Tổng thanh toán</span>
-                  <strong className="text-lg font-bold text-accent">{totalPrice.toLocaleString('vi-VN')} đ</strong>
+                <div className="mb-8">
+                  <h3 className="text-[15px] font-bold text-[#0f172a] mb-4 m-0">Chọn nguồn tiền thanh toán</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <label className={`flex items-center gap-4 p-5 rounded-[16px] border-2 cursor-pointer transition-all ${
+                      paymentMethod === 'vnpay' ? 'border-[#14b8a6] bg-teal-50/50 shadow-sm' : 'border-gray-100 hover:border-gray-200 hover:bg-[#F8F9FA]'
+                    }`}>
+                      <input type="radio" name="payment" checked={paymentMethod === 'vnpay'} onChange={() => setPaymentMethod('vnpay')} className="w-4 h-4 accent-[#14b8a6]" />
+                      <span className="text-[15px] font-bold text-[#0f172a] flex items-center gap-3"><CreditCard size={20} className="text-[#14b8a6]" /> VNPay</span>
+                    </label>
+                    <label className={`flex flex-col justify-center p-5 rounded-[16px] border-2 cursor-pointer transition-all ${
+                      paymentMethod === 'escrow' ? 'border-[#14b8a6] bg-teal-50/50 shadow-sm' : 'border-gray-100 hover:border-gray-200 hover:bg-[#F8F9FA]'
+                    }`}>
+                      <div className="flex items-center gap-4 mb-1">
+                        <input type="radio" name="payment" checked={paymentMethod === 'escrow'} onChange={() => setPaymentMethod('escrow')} className="w-4 h-4 accent-[#14b8a6]" />
+                        <span className="text-[15px] font-bold text-[#0f172a] flex items-center gap-3"><Wallet size={20} className="text-[#14b8a6]" /> Ví cá nhân</span>
+                      </div>
+                      <span className="text-[13px] font-medium text-gray-500 ml-9">Số dư khả dụng: {escrowBalance.toLocaleString('vi-VN')} đ</span>
+                    </label>
+                  </div>
                 </div>
-              </div>
 
-              <div className="flex flex-col gap-3">
-                <button
-                  className={`h-11 text-sm font-bold transition-colors ${
-                    selectedSlots.length === 0
-                      ? 'bg-surface text-foreground-muted cursor-not-allowed border-2 border-border-default'
-                      : 'btn-primary'
-                  }`}
-                  disabled={selectedSlots.length === 0}
-                  onClick={() => setStep(3)}
-                >
-                  Tiếp tục thanh toán <ArrowRight size={16} />
-                </button>
-                <button
-                  className="btn-outline h-11"
-                  onClick={() => { setStep(1); setSelectedSlots([]) }}
-                >
-                  <ArrowLeft size={16} /> Quay lại chọn sân
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Step 3: Confirm */}
-        {step === 3 && (
-          <div className="max-w-[700px] mx-auto auth-animate-fade">
-            <h2 className="font-heading text-lg uppercase text-foreground mb-5">Xác nhận &amp; Thanh toán</h2>
-
-            <div className="card-base mb-6">
-              <div className="space-y-4 mb-8">
-                <div className="flex max-sm:flex-col sm:items-center justify-between py-3 border-b border-border-default">
-                  <span className="text-sm font-medium text-foreground-muted mb-1 sm:mb-0">Sân</span>
-                  <strong className="text-sm text-foreground flex items-center gap-1.5">{selectedCourt.icon} {selectedCourt.name}</strong>
+                <div className="flex flex-col sm:flex-row gap-4 pt-4">
+                  <button
+                    className="bg-white text-gray-600 hover:text-[#0f172a] border border-gray-200 hover:border-gray-300 hover:bg-gray-50 w-full sm:w-1/3 h-14 rounded-full text-[14px] font-bold uppercase tracking-wide transition-colors cursor-pointer flex items-center justify-center gap-2"
+                    disabled={isLoading}
+                    onClick={() => setStep(2)}
+                  >
+                    <ArrowLeft size={18} /> Đổi giờ
+                  </button>
+                  <button
+                    className="bg-[#14b8a6] hover:bg-[#0f9e8c] text-white flex-1 h-14 rounded-full text-[15px] font-bold uppercase tracking-wide transition-all shadow-[0_4px_16px_rgba(20,184,166,0.3)] border-0 cursor-pointer flex items-center justify-center"
+                    disabled={isLoading}
+                    onClick={handleConfirm}
+                  >
+                    {isLoading ? (
+                      <span className="flex items-center gap-2">
+                        <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                        Đang xử lý...
+                      </span>
+                    ) : (
+                      `Thanh toán ngay`
+                    )}
+                  </button>
                 </div>
-                <div className="flex max-sm:flex-col sm:items-center justify-between py-3 border-b border-border-default">
-                  <span className="text-sm font-medium text-foreground-muted mb-1 sm:mb-0">Ngày</span>
-                  <strong className="text-sm text-foreground">{selectedDate}</strong>
-                </div>
-                <div className="flex max-sm:flex-col sm:items-center justify-between py-3 border-b border-border-default">
-                  <span className="text-sm font-medium text-foreground-muted mb-1 sm:mb-0">Giờ</span>
-                  <strong className="text-sm text-foreground">{selectedSlots[0]} – {calculateEndTime(selectedSlots[selectedSlots.length - 1])}</strong>
-                </div>
-                <div className="flex max-sm:flex-col sm:items-center justify-between py-3 border-b border-border-default">
-                  <span className="text-sm font-medium text-foreground-muted mb-1 sm:mb-0">Thời lượng</span>
-                  <strong className="text-sm text-foreground">{selectedSlots.length} giờ</strong>
-                </div>
-                <div className="flex max-sm:flex-col sm:items-center justify-between py-3">
-                  <span className="text-sm font-medium text-foreground-muted mb-1 sm:mb-0">Giá thuê</span>
-                  <strong className="text-sm text-foreground">{selectedCourt.price.toLocaleString('vi-VN')} đ/giờ</strong>
-                </div>
-              </div>
-
-              <div className="p-4 bg-background-base border-2 border-border-strong flex items-center justify-between mb-8">
-                <span className="font-heading text-base uppercase text-foreground">Tổng thanh toán</span>
-                <strong className="text-2xl font-bold text-accent">{totalPrice.toLocaleString('vi-VN')} đ</strong>
-              </div>
-
-              <div className="mb-8">
-                <h3 className="label-mono text-foreground-muted mb-3">Phương thức thanh toán</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <label className={`flex items-center gap-3 p-4 border-2 cursor-pointer transition-colors ${
-                    paymentMethod === 'vnpay' ? 'border-accent' : 'border-border-default hover:border-border-hover'
-                  }`}>
-                    <input type="radio" name="payment" checked={paymentMethod === 'vnpay'} onChange={() => setPaymentMethod('vnpay')} className="w-4 h-4 accent-[var(--color-accent)]" />
-                    <span className="text-sm font-semibold text-foreground flex items-center gap-2"><CreditCard size={16} /> VNPay</span>
-                  </label>
-                  <label className={`flex flex-col justify-center p-4 border-2 cursor-pointer transition-colors ${
-                    paymentMethod === 'escrow' ? 'border-accent' : 'border-border-default hover:border-border-hover'
-                  }`}>
-                    <div className="flex items-center gap-3 mb-1">
-                      <input type="radio" name="payment" checked={paymentMethod === 'escrow'} onChange={() => setPaymentMethod('escrow')} className="w-4 h-4 accent-[var(--color-accent)]" />
-                      <span className="text-sm font-semibold text-foreground flex items-center gap-2"><Wallet size={16} /> Ví cá nhân</span>
-                    </div>
-                    <span className="text-[11px] text-foreground-muted ml-7">Số dư: {escrowBalance.toLocaleString('vi-VN')} đ</span>
-                  </label>
-                </div>
-              </div>
-
-              <div className="flex gap-3">
-                <button
-                  className="btn-outline w-1/3 h-12"
-                  disabled={isLoading}
-                  onClick={() => setStep(2)}
-                >
-                  <ArrowLeft size={16} /> Chỉnh sửa
-                </button>
-                <button
-                  className="btn-primary flex-1 h-12"
-                  disabled={isLoading}
-                  onClick={handleConfirm}
-                >
-                  {isLoading ? (
-                    <span className="flex items-center gap-2">
-                      <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                      Đang xử lý...
-                    </span>
-                  ) : (
-                    `Thanh toán ${totalPrice.toLocaleString('vi-VN')} đ & Xác nhận`
-                  )}
-                </button>
               </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </ApexLayout>
   )

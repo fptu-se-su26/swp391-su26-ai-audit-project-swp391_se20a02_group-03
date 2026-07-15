@@ -5,10 +5,12 @@ import authApi from '../../api/authApi'
 import { bookingApi } from '../../api/bookingApi'
 import dayjs from 'dayjs'
 import 'dayjs/locale/vi'
-import { Clock, MapPin, ChevronRight, Calendar } from 'lucide-react'
+import { Clock, MapPin, ChevronRight, Calendar, UserPlus, PackageSearch } from 'lucide-react'
 
 import PageLoader from '../../components/ui/PageLoader'
 import { formatTimeUntil, isEventFinished } from '../../utils/date'
+
+const modernCardClass = "bg-white rounded-[12px] shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] border border-gray-100"
 
 export default function ApexHomePage() {
   const [userProfile, setUserProfile] = useState(null)
@@ -49,7 +51,6 @@ export default function ApexHomePage() {
                   : 'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=800&q=80',
               }
             }))
-            // BUG 3: chỉ giữ trận CHƯA kết thúc — booking quá khứ không phải "sự kiện sắp tới"
             .filter(b => !isEventFinished(b))
             .sort((a, b) => new Date(`${a.date}T${a.startTime}`) - new Date(`${b.date}T${b.startTime}`))
 
@@ -58,7 +59,6 @@ export default function ApexHomePage() {
           if (upcoming.length > 0) {
             setNextGame(upcoming[0])
 
-            // Generate timeline for remaining items
             const remaining = upcoming.slice(1).map(b => ({
               ...b,
               title: `Trận tại ${b.name}`,
@@ -96,89 +96,94 @@ export default function ApexHomePage() {
 
   return (
     <ApexLayout>
-      <div className="auth-animate-in">
+      <div className="bg-[#F6F8FA] min-h-screen">
+      <div className="auth-animate-in max-w-[1200px] mx-auto px-4 md:px-8 py-8 font-sans">
         {/* Header */}
-        <div className="mb-12">
-          <h1 className="font-heading text-3xl sm:text-4xl uppercase tracking-[-0.01em] text-foreground mb-3">
+        <div className="mb-10">
+          <h1 className="font-heading text-3xl sm:text-4xl uppercase tracking-wider text-gray-900 mb-2 m-0">
             {greeting}, {firstName}
           </h1>
-          <p className="label-mono text-foreground-subtle">
+          <p className="text-[14px] text-gray-500 m-0">
             Hôm nay, {dayjs().locale('vi').format('dddd, D MMMM YYYY')}
           </p>
         </div>
 
-        {/* Asymmetric Layout */}
+        {/* Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-8 items-start">
 
-          {/* ─── LEFT COLUMN: Main Stage ─── */}
+          {/* LEFT COLUMN: Main Stage */}
           <div className="flex flex-col gap-8">
 
-            {/* 1. Next Game Hero */}
+            {/* Next Game Hero */}
             <section>
-              <h2 className="font-heading text-lg uppercase text-foreground mb-4 border-b-2 border-border-strong pb-3">Sự kiện sắp tới</h2>
+              <h2 className="font-heading text-[18px] uppercase tracking-wider text-gray-900 mb-4 m-0 flex items-center gap-2">
+                <span className="w-2 h-6 bg-[#14b8a6] rounded-[4px] block"></span> Sự kiện sắp tới
+              </h2>
 
               {nextGame ? (
-                <div className="card-base !p-0 overflow-hidden">
-                  <div className="relative h-[200px] border-b-2 border-border-strong">
+                <div className={`overflow-hidden ${modernCardClass}`}>
+                  <div className="relative h-[200px]">
                     <img
                       src={nextGame.imageUrl}
                       alt={nextGame.name}
                       className="w-full h-full object-cover"
                     />
-                    <span className="absolute top-4 right-4 label-mono bg-ink text-paper px-3 py-1.5">
-                      {nextGame.status === 'Confirmed' ? 'ĐÃ XÁC NHẬN' : 'CHỜ XÁC NHẬN'}
+                    <span className="absolute top-4 right-4 bg-white/90 backdrop-blur text-[#14b8a6] px-3 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider shadow-sm">
+                      {nextGame.status === 'Confirmed' ? 'Đã xác nhận' : 'Chờ xác nhận'}
                     </span>
                   </div>
 
                   <div className="p-7">
-                    <p className="label-mono text-foreground-subtle mb-2.5 flex items-center gap-2">
-                      <Clock className="w-3.5 h-3.5" /> {formatTimeUntil(nextGame)}
+                    <p className="text-[13px] font-bold text-[#14b8a6] mb-3 m-0 flex items-center gap-1.5">
+                      <Clock size={16} /> {formatTimeUntil(nextGame)}
                     </p>
-                    <h3 className="font-heading text-2xl uppercase text-foreground mb-2.5">
+                    <h3 className="font-heading text-2xl uppercase text-gray-900 mb-3 m-0">
                       {nextGame.name}
                     </h3>
-                    <p className="text-foreground-muted mb-7 flex items-center gap-2">
-                      <MapPin className="w-4 h-4" />
+                    <p className="text-gray-500 text-[14px] mb-7 flex items-center gap-2 font-medium m-0">
+                      <MapPin size={16} />
                       {dayjs(nextGame.date).locale('vi').format('dddd, DD/MM')} • {nextGame.startTime} – {nextGame.endTime}
                     </p>
-                    <div className="flex gap-3.5 flex-wrap">
-                      <Link to="/apex/booking" className="btn-primary">
+                    <div className="flex gap-3 flex-wrap">
+                      <Link to="/apex/booking" className="bg-[#14b8a6] hover:bg-[#15c3b0] text-white px-6 py-2.5 rounded-[8px] text-[13px] font-bold uppercase tracking-wide transition-colors no-underline cursor-pointer">
                         Xem chi tiết
                       </Link>
-                      <button className="btn-outline">
+                      <button className="bg-white text-gray-700 border border-gray-300 hover:border-gray-400 hover:bg-gray-50 px-6 py-2.5 rounded-[8px] text-[13px] font-bold uppercase tracking-wide transition-colors cursor-pointer">
                         Chỉ đường
                       </button>
                     </div>
                   </div>
                 </div>
               ) : (
-                <div className="card-base text-center flex flex-col items-center py-14">
-                  <div className="w-14 h-14 border-2 border-border-strong flex items-center justify-center mb-5">
-                    <Calendar className="w-7 h-7 text-foreground-muted" />
+                <div className={`text-center flex flex-col items-center py-16 px-6 ${modernCardClass}`}>
+                  <div className="w-16 h-16 rounded-full bg-teal-50 text-[#14b8a6] flex items-center justify-center mb-5">
+                    <Calendar size={32} />
                   </div>
-                  <h3 className="font-heading text-xl uppercase text-foreground mb-2">Chưa có lịch đặt sân</h3>
-                  <p className="text-foreground-muted mb-7 max-w-sm text-sm">Đặt sân ngay để duy trì phong độ và theo dõi lịch tập của bạn.</p>
-                  <Link to="/apex/booking" className="btn-primary">
-                    Đặt sân
+                  <h3 className="font-bold text-[18px] text-gray-900 mb-2 m-0">Chưa có lịch đặt sân</h3>
+                  <p className="text-gray-500 mb-8 max-w-sm text-[14px] m-0">Đặt sân ngay để duy trì phong độ và theo dõi lịch tập của bạn trên hệ thống.</p>
+                  <Link to="/apex/booking" className="bg-[#14b8a6] hover:bg-[#15c3b0] text-white px-8 py-3 rounded-[8px] text-[14px] font-bold uppercase tracking-wide transition-colors shadow-[0_4px_12px_rgba(20,184,166,0.3)] no-underline">
+                    Đặt sân ngay
                   </Link>
                 </div>
               )}
             </section>
 
-            {/* 2. Timeline Feed */}
+            {/* Timeline Feed */}
             {timelineEvents.length > 0 && (
               <section>
-                <h2 className="font-heading text-lg uppercase text-foreground mb-4 border-b-2 border-border-strong pb-3">Lịch trình</h2>
+                <h2 className="font-heading text-[18px] uppercase tracking-wider text-gray-900 mb-4 m-0 flex items-center gap-2">
+                  <span className="w-2 h-6 bg-[#14b8a6] rounded-[4px] block"></span> Lịch trình tiếp theo
+                </h2>
 
-                <div className="card-base flex flex-col gap-5">
+                <div className={`p-6 flex flex-col gap-6 ${modernCardClass}`}>
                   {timelineEvents.map((event, i) => (
-                    <div key={i} className={`flex justify-between items-center gap-4 flex-wrap ${i < timelineEvents.length - 1 ? 'pb-5 border-b border-border-default' : ''}`}>
+                    <div key={i} className={`flex justify-between items-center gap-4 flex-wrap ${i < timelineEvents.length - 1 ? 'pb-6 border-b border-gray-100' : ''}`}>
                       <div>
-                        <p className="text-sm font-bold text-foreground mb-1">{event.title}</p>
-                        <p className="label-mono text-foreground-subtle">{event.subtitle}</p>
+                        <p className="text-[15px] font-bold text-gray-900 mb-1.5 m-0">{event.title}</p>
+                        <p className="text-[13px] text-gray-500 m-0 font-medium">{event.subtitle}</p>
                       </div>
                       {event.type === 'booking' && (
-                        <span className="label-mono bg-surface border border-border-strong px-2.5 py-1">
+                        <span className="bg-teal-50 text-teal-600 px-3 py-1 rounded-full text-[12px] font-bold">
                           Đã xác nhận
                         </span>
                       )}
@@ -189,38 +194,52 @@ export default function ApexHomePage() {
             )}
           </div>
 
-          {/* ─── RIGHT COLUMN: Side Actions ─── */}
+          {/* RIGHT COLUMN: Side Actions */}
           <div className="flex flex-col gap-8">
 
-            {/* 3. Action Required: Match Invites */}
+            {/* Action Required: Match Invites */}
             <section>
-              <div className="flex items-center justify-between mb-4 border-b-2 border-border-strong pb-3">
-                <h2 className="font-heading text-lg uppercase text-foreground">Cần xử lý</h2>
-                <span className="w-6 h-6 rounded-full bg-ink text-paper text-xs font-mono flex items-center justify-center">0</span>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="font-heading text-[18px] uppercase tracking-wider text-gray-900 m-0 flex items-center gap-2">
+                  <span className="w-2 h-6 bg-[#14b8a6] rounded-[4px] block"></span> Cần xử lý
+                </h2>
+                <span className="w-6 h-6 rounded-full bg-gray-200 text-gray-500 text-[11px] font-bold flex items-center justify-center">0</span>
               </div>
 
-              <div className="card-base text-center text-sm">
-                <p className="mb-1 font-bold text-foreground">Chưa có lời mời kèo</p>
-                <p className="text-foreground-muted">Tính năng mời kèo trực tiếp đang được phát triển.</p>
+              <div className={`p-8 text-center flex flex-col items-center justify-center ${modernCardClass}`}>
+                <div className="w-12 h-12 rounded-full bg-teal-50 text-[#14b8a6] flex items-center justify-center mb-4">
+                  <UserPlus size={24} />
+                </div>
+                <p className="mb-2 font-bold text-[14px] text-gray-900 m-0">Chưa có lời mời kèo</p>
+                <p className="text-[13px] text-gray-500 m-0">Bạn hiện không có lời mời tham gia trận đấu nào.</p>
               </div>
             </section>
 
-            {/* 4. Active Gear */}
+            {/* Active Gear */}
             <section>
-              <div className="flex items-center justify-between mb-4 border-b-2 border-border-strong pb-3">
-                <h2 className="font-heading text-lg uppercase text-foreground">Thuê đồ đang dùng</h2>
-                <Link to="/gear/catalog" className="label-mono text-foreground hover:text-accent transition-colors flex items-center gap-1">
-                  Cửa hàng <ChevronRight className="w-3 h-3" />
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="font-heading text-[18px] uppercase tracking-wider text-gray-900 m-0 flex items-center gap-2">
+                  <span className="w-2 h-6 bg-[#14b8a6] rounded-[4px] block"></span> Thuê đồ
+                </h2>
+                <Link to="/gear/catalog" className="text-[12px] font-bold text-[#14b8a6] hover:underline transition-colors flex items-center gap-1 no-underline">
+                  Cửa hàng <ChevronRight size={14} />
                 </Link>
               </div>
 
-              <div className="card-base text-center text-sm text-foreground-muted">
-                Bạn chưa thuê thiết bị nào. <Link to="/gear/catalog" className="text-accent no-underline font-bold">Khám phá cửa hàng →</Link>
+              <div className={`p-8 text-center flex flex-col items-center justify-center ${modernCardClass}`}>
+                <div className="w-12 h-12 rounded-full bg-teal-50 text-[#14b8a6] flex items-center justify-center mb-4">
+                  <PackageSearch size={24} />
+                </div>
+                <p className="text-[13px] text-gray-500 mb-4 m-0 leading-relaxed">Bạn chưa thuê thiết bị hay dụng cụ nào từ hệ thống.</p>
+                <Link to="/gear/catalog" className="text-[#14b8a6] text-[13px] font-bold hover:underline no-underline">
+                  Khám phá cửa hàng →
+                </Link>
               </div>
             </section>
 
           </div>
         </div>
+      </div>
       </div>
     </ApexLayout>
   )
