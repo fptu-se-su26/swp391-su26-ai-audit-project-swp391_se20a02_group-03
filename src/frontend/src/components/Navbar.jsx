@@ -63,8 +63,9 @@ export default function Navbar() {
                 className={`block w-full lg:inline-flex items-center justify-center px-3 py-2 transition-colors font-bold text-[13px] uppercase tracking-[0.06em]
                   ${isActive(link.path)
                     ? 'text-paper border-b-2 border-paper'
-                    : 'text-paper/50 hover:text-paper'
+                    : 'hover:text-paper'
                   }`}
+                style={!isActive(link.path) ? {color:'rgba(255,255,255,0.80)'} : {}}
                 onClick={() => setMenuOpen(false)}
               >
                 {link.label}

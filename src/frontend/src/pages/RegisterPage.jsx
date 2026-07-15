@@ -262,53 +262,47 @@ export default function RegisterPage() {
   return (
     <div className="auth-layout">
       {/* ── Visual Panel (Left) ── */}
-      <div className="auth-visual">
+      <div className="auth-visual" style={{ position: 'relative' }}>
+        {/* Sports hero background image */}
+        <div className="absolute inset-0 z-0" style={{
+          backgroundImage: 'url(/sports-hero-bg.png)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+        }} />
+
+        {/* Dark gradient overlay for readability */}
+        <div className="absolute inset-0 z-[1]" style={{
+          background: 'linear-gradient(135deg, rgba(10,18,30,0.82) 0%, rgba(10,18,30,0.55) 60%, rgba(10,18,30,0.75) 100%)',
+        }} />
+
         {/* Decorative grid pattern */}
-        <div className="absolute inset-0 opacity-[0.03]" style={{
-          backgroundImage: 'linear-gradient(rgba(255,255,255,.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.1) 1px, transparent 1px)',
+        <div className="absolute inset-0 z-[2] opacity-[0.04]" style={{
+          backgroundImage: 'linear-gradient(rgba(255,255,255,.15) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.15) 1px, transparent 1px)',
           backgroundSize: '64px 64px'
         }} />
 
-        <div className="relative z-10 flex flex-col items-start max-w-[480px] px-14" key={step}>
+        <div className="relative z-10 flex flex-col items-start max-w-[480px] px-14">
           {/* Logo */}
           <ProSportLogo size="lg" variant="light" className="mb-16" />
 
-          {/* Step-based tagline */}
+          {/* Tagline — fixed, not step-dependent */}
           <div className="auth-animate-in">
             <h2 className="font-heading text-[clamp(2.2rem,3.5vw,3.4rem)] leading-[0.98] uppercase tracking-[-0.01em] text-paper mb-6 whitespace-pre-line">
-              {visualContent[step].title.split('\n').map((line, i) => (
+              {'THAM GIA\nMẠNG LƯỚI\nĐỈNH CAO.'.split('\n').map((line, i, arr) => (
                 <span key={i}>
-                  {i === visualContent[step].title.split('\n').length - 1
-                    ? <span className="text-accent">{line}</span>
-                    : line}
-                  {i < visualContent[step].title.split('\n').length - 1 && <br />}
+                  {i === arr.length - 1 ? <span className="text-accent">{line}</span> : line}
+                  {i < arr.length - 1 && <br />}
                 </span>
               ))}
             </h2>
-            <p className="text-paper/60 text-[0.95rem] leading-relaxed max-w-[380px] mb-12">
-              {visualContent[step].subtitle}
+            <p className="text-paper/60 text-[0.95rem] leading-relaxed max-w-[380px]">
+              Tạo tài khoản và bắt đầu đặt sân, kết nối với người chơi và hơn thế nữa.
             </p>
-          </div>
-
-          {/* Progress indicator */}
-          <div className="w-full flex flex-col gap-3">
-            <div className="flex items-center gap-2">
-              {steps.map((s, i) => (
-                <div key={s} className="flex items-center gap-2">
-                  <div className={`w-2 h-2 rounded-full transition-all duration-500 ${i <= step ? 'bg-accent scale-100' : 'bg-white/20 scale-75'}`} />
-                  {i < steps.length - 1 && (
-                    <div className={`w-8 h-px transition-all duration-500 ${i < step ? 'bg-accent' : 'bg-white/20'}`} />
-                  )}
-                </div>
-              ))}
-              <span className="ml-3 label-mono text-paper/50">
-                Bước {step + 1} / {steps.length}
-              </span>
-            </div>
           </div>
         </div>
 
-        <p className="absolute bottom-8 left-14 font-mono text-xs text-paper/40 tracking-wider">
+        <p className="absolute bottom-8 left-14 font-mono text-xs text-paper/40 tracking-wider z-10">
           © {new Date().getFullYear()} PRO-SPORT COMPLEX
         </p>
       </div>
@@ -321,28 +315,42 @@ export default function RegisterPage() {
         </div>
 
         <div className="auth-form-inner auth-animate-in-delayed mt-16 lg:mt-0">
-          {/* Mobile step indicator */}
-          <div className="lg:hidden flex items-center gap-2 mb-6">
-            {steps.map((s, i) => (
-              <div key={s} className="flex items-center gap-1.5">
-                <div className={`w-2 h-2 rounded-full transition-all duration-500 ${i <= step ? 'bg-accent' : 'bg-border-default'}`} />
-                {i < steps.length - 1 && (
-                  <div className={`w-6 h-px transition-all duration-500 ${i < step ? 'bg-accent' : 'bg-border-default'}`} />
-                )}
-              </div>
-            ))}
-            <span className="ml-2 text-xs font-medium text-ink/50">{step + 1}/{steps.length}</span>
+
+          {/* ── Linear 3-step Progress Bar ── */}
+          <div className="mb-8">
+            {/* Step bars */}
+            <div className="flex gap-1.5 mb-3">
+              {steps.map((_, i) => (
+                <div key={i} className="flex-1 h-1 rounded-full overflow-hidden" style={{backgroundColor:'rgba(255,255,255,0.1)'}}>
+                  <div
+                    className="h-full rounded-full transition-all duration-500 ease-out"
+                    style={{
+                      width: i < step ? '100%' : i === step ? '100%' : '0%',
+                      backgroundColor: i <= step ? '#14b8a6' : 'transparent',
+                    }}
+                  />
+                </div>
+              ))}
+            </div>
+            {/* Step label */}
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold tracking-wide" style={{color:'#14b8a6'}}>
+                {step === 0 && 'Bước 1/3: Thông tin cá nhân'}
+                {step === 1 && 'Bước 2/3: Sở thích thể thao'}
+                {step === 2 && 'Bước 3/3: Xác thực email'}
+              </span>
+              <span className="text-xs" style={{color:'rgba(255,255,255,0.3)'}}>✓ {step}/3 hoàn thành</span>
+            </div>
           </div>
 
           {/* Header */}
-          <header className="mb-8">
-            <p className="label-mono text-accent mb-3">{'// Tạo tài khoản'}</p>
-            <h1 className="font-heading text-[2rem] uppercase text-ink tracking-tight leading-tight">
+          <header className="mb-7">
+            <h1 className="font-heading text-[2rem] uppercase tracking-tight leading-tight" style={{color:'#f3f2ee'}}>
               {step === 0 && <>Bắt đầu với<br />Pro-Sport</>}
               {step === 1 && <>Chọn môn thể thao<br />của bạn</>}
               {step === 2 && <>Xác thực email<br />của bạn</>}
             </h1>
-            <p className="text-sm text-ink/60 mt-3 leading-relaxed">
+            <p className="text-sm mt-2 leading-relaxed" style={{color:'rgba(255,255,255,0.5)'}}>
               {step === 0 && 'Điền thông tin để tạo tài khoản vận động viên của bạn.'}
               {step === 1 && 'Chọn các môn thể thao bạn chơi để cá nhân hóa bảng tin.'}
               {step === 2 && `Chúng tôi đã gửi mã 6 số đến ${email}`}
@@ -378,43 +386,43 @@ export default function RegisterPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   {/* Full Name */}
                   <div className="flex flex-col gap-2 relative">
-                    <label htmlFor="reg-name" className="text-sm font-semibold text-brand-900">Họ và Tên</label>
+                    <label htmlFor="reg-name" className="text-sm font-semibold" style={{color:'rgba(255,255,255,0.85)'}}>Họ và Tên</label>
                     <div className="relative group">
-                      <svg className={`absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none transition-colors duration-300 ${fieldErrors.fullName ? 'text-red-400' : 'text-brand-400 group-focus-within:text-accent'}`} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                      <svg className={`absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none transition-colors duration-300 ${fieldErrors.fullName ? 'text-red-400' : 'text-accent'}`} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                       <input id="reg-name" name="fullName" type="text" value={fullName} onBlur={handleBlur} onChange={e => { setFullName(e.target.value); if (fieldErrors.fullName) validateField('fullName', e.target.value) }} required placeholder="Nguyễn Văn A" className={`auth-input pl-11 ${fieldErrors.fullName ? 'border-red-400 focus:border-red-500 focus:ring-red-400/20' : ''}`} />
                     </div>
-                    {fieldErrors.fullName && <span className="text-xs text-red-500 font-medium">{fieldErrors.fullName}</span>}
+                    {fieldErrors.fullName && <span className="text-xs text-red-400 font-medium">{fieldErrors.fullName}</span>}
                   </div>
 
                   {/* Phone */}
                   <div className="flex flex-col gap-2 relative">
-                    <label htmlFor="reg-phone" className="text-sm font-semibold text-brand-900">Số điện thoại</label>
+                    <label htmlFor="reg-phone" className="text-sm font-semibold" style={{color:'rgba(255,255,255,0.85)'}}>Số điện thoại</label>
                     <div className="relative group">
-                      <svg className={`absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none transition-colors duration-300 ${fieldErrors.phoneNumber ? 'text-red-400' : 'text-brand-400 group-focus-within:text-accent'}`} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13.5 19.79 19.79 0 0 1 1.61 5 2 2 0 0 1 3.59 3h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 10.9a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 18z"/></svg>
+                      <svg className={`absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none transition-colors duration-300 ${fieldErrors.phoneNumber ? 'text-red-400' : 'text-accent'}`} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13.5 19.79 19.79 0 0 1 1.61 5 2 2 0 0 1 3.59 3h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 10.9a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 18z"/></svg>
                       <input id="reg-phone" name="phoneNumber" type="tel" value={phoneNumber} onBlur={handleBlur} onChange={e => { setPhoneNumber(e.target.value); if (fieldErrors.phoneNumber) validateField('phoneNumber', e.target.value) }} placeholder="+84 0000 0000" className={`auth-input pl-11 ${fieldErrors.phoneNumber ? 'border-red-400 focus:border-red-500 focus:ring-red-400/20' : ''}`} />
                     </div>
-                    {fieldErrors.phoneNumber && <span className="text-xs text-red-500 font-medium">{fieldErrors.phoneNumber}</span>}
+                    {fieldErrors.phoneNumber && <span className="text-xs text-red-400 font-medium">{fieldErrors.phoneNumber}</span>}
                   </div>
                 </div>
 
                 {/* Email */}
                 <div className="flex flex-col gap-2 relative">
-                  <label htmlFor="reg-email" className="text-sm font-semibold text-brand-900">Thư điện tử</label>
+                  <label htmlFor="reg-email" className="text-sm font-semibold" style={{color:'rgba(255,255,255,0.85)'}}>Thư điện tử</label>
                   <div className="relative group">
-                    <svg className={`absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none transition-colors duration-300 ${fieldErrors.email ? 'text-red-400' : 'text-brand-400 group-focus-within:text-accent'}`} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                    <svg className={`absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none transition-colors duration-300 ${fieldErrors.email ? 'text-red-400' : 'text-accent'}`} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
                     <input id="reg-email" name="email" type="email" value={email} onBlur={handleBlur} onChange={e => { setEmail(e.target.value); if (fieldErrors.email) validateField('email', e.target.value) }} required placeholder="nguyenvana@example.com" className={`auth-input pl-11 ${fieldErrors.email ? 'border-red-400 focus:border-red-500 focus:ring-red-400/20' : ''}`} />
                   </div>
-                  {fieldErrors.email && <span className="text-xs text-red-500 font-medium">{fieldErrors.email}</span>}
+                  {fieldErrors.email && <span className="text-xs text-red-400 font-medium">{fieldErrors.email}</span>}
                 </div>
 
                 {/* Password + Confirm */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   <div className="flex flex-col gap-2 relative">
-                    <label htmlFor="reg-password" className="text-sm font-semibold text-brand-900">Mật khẩu</label>
+                    <label htmlFor="reg-password" className="text-sm font-semibold" style={{color:'rgba(255,255,255,0.85)'}}>Mật khẩu</label>
                     <div className="relative group">
-                      <svg className={`absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none transition-colors duration-300 ${fieldErrors.password ? 'text-red-400' : 'text-brand-400 group-focus-within:text-accent'}`} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                      <svg className={`absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none transition-colors duration-300 ${fieldErrors.password ? 'text-red-400' : 'text-accent'}`} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                       <input id="reg-password" name="password" type={showPass ? 'text' : 'password'} value={password} onBlur={handleBlur} onChange={e => { setPassword(e.target.value); if (fieldErrors.password) validateField('password', e.target.value); if (confirmPassword) validateField('confirmPassword', confirmPassword) }} required placeholder="••••••••" className={`auth-input pl-11 pr-11 ${fieldErrors.password ? 'border-red-400 focus:border-red-500 focus:ring-red-400/20' : ''}`} />
-                      <button type="button" className="absolute right-4 top-1/2 -translate-y-1/2 text-brand-400 hover:text-accent transition-colors duration-300" onClick={() => setShowPass(!showPass)} aria-label="Hiện/ẩn mật khẩu">
+                      <button type="button" className="absolute right-4 top-1/2 -translate-y-1/2 text-accent/60 hover:text-accent transition-colors duration-300" onClick={() => setShowPass(!showPass)} aria-label="Hiện/ẩn mật khẩu">
                         {showPass
                           ? <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="1" y1="1" x2="23" y2="23"/><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/></svg>
                           : <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
@@ -422,32 +430,38 @@ export default function RegisterPage() {
                       </button>
                     </div>
                     {password && <PasswordStrengthMeter password={password} />}
-                    {fieldErrors.password && !password && <span className="text-xs text-red-500 font-medium">{fieldErrors.password}</span>}
+                    {fieldErrors.password && !password && <span className="text-xs text-red-400 font-medium">{fieldErrors.password}</span>}
                   </div>
 
                   <div className="flex flex-col gap-2 relative">
-                    <label htmlFor="reg-confirm" className="text-sm font-semibold text-brand-900">Xác nhận mật khẩu</label>
+                    <label htmlFor="reg-confirm" className="text-sm font-semibold" style={{color:'rgba(255,255,255,0.85)'}}>Xác nhận mật khẩu</label>
                     <div className="relative group">
-                      <svg className={`absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none transition-colors duration-300 ${fieldErrors.confirmPassword ? 'text-red-400' : 'text-brand-400 group-focus-within:text-accent'}`} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                      <svg className={`absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none transition-colors duration-300 ${fieldErrors.confirmPassword ? 'text-red-400' : 'text-accent'}`} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                       <input id="reg-confirm" name="confirmPassword" type={showConfirm ? 'text' : 'password'} value={confirmPassword} onBlur={handleBlur} onChange={e => { setConfirmPassword(e.target.value); if (fieldErrors.confirmPassword) validateField('confirmPassword', e.target.value) }} required placeholder="••••••••" className={`auth-input pl-11 pr-11 ${fieldErrors.confirmPassword ? 'border-red-400 focus:border-red-500 focus:ring-red-400/20' : ''}`} />
-                      <button type="button" className="absolute right-4 top-1/2 -translate-y-1/2 text-brand-400 hover:text-accent transition-colors duration-300" onClick={() => setShowConfirm(!showConfirm)} aria-label="Hiện/ẩn mật khẩu">
+                      <button type="button" className="absolute right-4 top-1/2 -translate-y-1/2 text-accent/60 hover:text-accent transition-colors duration-300" onClick={() => setShowConfirm(!showConfirm)} aria-label="Hiện/ẩn mật khẩu">
                         {showConfirm
                           ? <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="1" y1="1" x2="23" y2="23"/><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/></svg>
                           : <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                         }
                       </button>
                     </div>
-                    {fieldErrors.confirmPassword && <span className="text-xs text-red-500 font-medium">{fieldErrors.confirmPassword}</span>}
+                    {fieldErrors.confirmPassword && <span className="text-xs text-red-400 font-medium">{fieldErrors.confirmPassword}</span>}
                   </div>
                 </div>
 
                 {/* Terms */}
-                <label className="flex items-start gap-3 cursor-pointer text-sm text-brand-600 select-none group mt-1" htmlFor="agree-terms">
+                <label
+                  className="flex items-center gap-3 cursor-pointer select-none group mt-1 px-3 py-2.5 rounded-lg transition-all duration-200"
+                  style={{color:'rgba(255,255,255,0.72)'}}
+                  htmlFor="agree-terms"
+                  onMouseEnter={e => e.currentTarget.style.backgroundColor='rgba(20,184,166,0.06)'}
+                  onMouseLeave={e => e.currentTarget.style.backgroundColor='transparent'}
+                >
                   <input type="checkbox" id="agree-terms" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} className="sr-only" />
-                  <span className={`w-[18px] h-[18px] border-[1.5px] rounded flex items-center justify-center transition-all duration-200 shrink-0 mt-0.5 ${agreed ? 'bg-accent border-accent' : 'border-brand-300 group-hover:border-accent'}`}>
-                    {agreed && <span className="w-2 h-1.5 border-l-2 border-b-2 border-white -rotate-45 -translate-y-px" />}
+                  <span className={`w-[18px] h-[18px] border-[1.5px] rounded flex items-center justify-center transition-all duration-200 shrink-0 ${agreed ? 'bg-accent border-accent' : 'border-white/30 group-hover:border-accent'}`} style={{flexShrink:0}}>
+                    {agreed && <span className="w-2 h-1.5 border-l-2 border-b-2 border-ink -rotate-45 -translate-y-px" />}
                   </span>
-                  <span className="leading-relaxed">Tôi đồng ý với <Link to="/terms" className="text-accent font-semibold hover:underline">Điều khoản dịch vụ</Link> và <Link to="/privacy" className="text-accent font-semibold hover:underline">Chính sách bảo mật</Link></span>
+                  <span className="leading-relaxed" style={{fontSize:'15px'}}>Tôi đồng ý với <Link to="/terms" className="text-accent font-semibold hover:underline" onClick={e => e.stopPropagation()}>Điều khoản dịch vụ</Link> và <Link to="/privacy" className="text-accent font-semibold hover:underline" onClick={e => e.stopPropagation()}>Chính sách bảo mật</Link></span>
                 </label>
               </div>
             )}
@@ -455,9 +469,9 @@ export default function RegisterPage() {
             {/* ── Step 1: Preferences ── */}
             {step === 1 && (
               <div className="flex flex-col gap-4 auth-animate-slide" key="step-1">
-                <p className="text-sm font-semibold text-brand-900 mb-1">Chọn sở thích thể thao của bạn</p>
+                <p className="text-sm font-semibold mb-1" style={{color:'rgba(255,255,255,0.85)'}}>Chọn sở thích thể thao của bạn</p>
                 {['Cầu lông', 'Pickleball'].map(sport => (
-                  <label key={sport} className={`group flex items-center gap-4 cursor-pointer p-5 border rounded-xl transition-all duration-300 ${sportPreferences.includes(sport) ? 'bg-accent/5 border-accent text-accent shadow-sm' : 'bg-brand-50/50 border-brand-200/70 text-brand-700 hover:border-brand-300 hover:bg-white hover:-translate-y-px hover:shadow-sm'}`}>
+                  <label key={sport} className={`group flex items-center gap-4 cursor-pointer p-5 border rounded-xl transition-all duration-300 ${sportPreferences.includes(sport) ? 'bg-accent/10 border-accent text-accent' : 'border-white/15 hover:border-white/30 hover:-translate-y-px'}`} style={!sportPreferences.includes(sport) ? {backgroundColor:'rgba(255,255,255,0.04)', color:'rgba(255,255,255,0.8)'} : {}}>
                     <input 
                       type="checkbox" 
                       className="sr-only peer" 
@@ -471,7 +485,7 @@ export default function RegisterPage() {
                       }}
                     />
                     {/* Sport icon */}
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors duration-300 ${sportPreferences.includes(sport) ? 'bg-accent/10' : 'bg-brand-100'}`}>
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors duration-300 ${sportPreferences.includes(sport) ? 'bg-accent/20 text-accent' : 'text-white/50'}`} style={!sportPreferences.includes(sport) ? {backgroundColor:'rgba(255,255,255,0.08)'} : {}}>
                       {sport === 'Cầu lông' ? (
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="m8 12 4-8 4 8"/><path d="M12 4v16"/></svg>
                       ) : (
@@ -480,12 +494,12 @@ export default function RegisterPage() {
                     </div>
                     <div className="flex-1">
                       <span className="font-semibold text-sm">{sport}</span>
-                      <p className={`text-xs mt-0.5 ${sportPreferences.includes(sport) ? 'text-accent/70' : 'text-brand-400'}`}>
+                      <p className={`text-xs mt-0.5 ${sportPreferences.includes(sport) ? 'text-accent/70' : 'text-white/40'}`}>
                         {sport === 'Cầu lông' ? 'Sân cầu lông & các trận đấu' : 'Sân Pickleball & cộng đồng'}
                       </p>
                     </div>
-                    <span className={`w-5 h-5 border-[1.5px] rounded flex items-center justify-center transition-all duration-200 shrink-0 ${sportPreferences.includes(sport) ? 'bg-accent border-accent' : 'border-brand-300'}`}>
-                       {sportPreferences.includes(sport) && <span className="w-2 h-1.5 border-l-2 border-b-2 border-white -rotate-45 -translate-y-px" />}
+                    <span className={`w-5 h-5 border-[1.5px] rounded flex items-center justify-center transition-all duration-200 shrink-0 ${sportPreferences.includes(sport) ? 'bg-accent border-accent' : 'border-white/25'}`}>
+                       {sportPreferences.includes(sport) && <span className="w-2 h-1.5 border-l-2 border-b-2 border-ink -rotate-45 -translate-y-px" />}
                     </span>
                   </label>
                 ))}
@@ -496,10 +510,10 @@ export default function RegisterPage() {
             {step === 2 && (
               <div className="flex flex-col items-center gap-6 auth-animate-slide" key="step-2">
                 {/* Email icon */}
-                <div className="w-16 h-16 rounded-2xl bg-accent/10 flex items-center justify-center text-accent">
+                <div className="w-16 h-16 rounded-2xl bg-accent/10 flex items-center justify-center text-accent" style={{border:'1px solid rgba(20,184,166,0.2)'}}>
                   <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
                 </div>
-                <p className="text-sm text-brand-600 font-medium text-center">Nhập mã xác thực đã được gửi đến<br /><span className="font-semibold text-brand-900">{email}</span></p>
+                <p className="text-sm font-medium text-center" style={{color:'rgba(255,255,255,0.6)'}}>Nhập mã xác thực đã được gửi đến<br /><span className="font-semibold" style={{color:'#f3f2ee'}}>{email}</span></p>
                 <div className="flex gap-2.5">
                   {[0,1,2,3,4,5].map(i => (
                     <input 
@@ -514,7 +528,10 @@ export default function RegisterPage() {
                       onChange={(e) => handleOtpChange(i, e.target.value)}
                       onKeyDown={(e) => handleKeyDown(i, e)}
                       onPaste={i === 0 ? handlePaste : undefined}
-                      className="w-12 h-14 text-center text-xl font-bold border-2 border-brand-200 rounded-xl font-sans text-brand-900 outline-none transition-all duration-300 focus:border-accent focus:ring-2 focus:ring-accent/20 bg-brand-50/50 focus:bg-white" 
+                      className="w-12 h-14 text-center text-xl font-bold rounded-xl font-sans outline-none transition-all duration-300 focus:ring-2 focus:ring-accent/25"
+                      style={{backgroundColor:'#1c2028', border:'2px solid rgba(255,255,255,0.15)', color:'#f3f2ee'}}
+                      onFocus={e => e.target.style.borderColor='#14b8a6'}
+                      onBlur={e => e.target.style.borderColor='rgba(255,255,255,0.15)'}
                     />
                   ))}
                 </div>
@@ -535,7 +552,10 @@ export default function RegisterPage() {
               <button 
                 type="button" 
                 onClick={() => setStep(2)} 
-                className="w-full py-3 text-sm font-semibold text-brand-500 hover:text-brand-900 transition-colors duration-200"
+                className="w-full py-3 text-sm font-semibold transition-colors duration-200"
+                style={{color:'rgba(255,255,255,0.4)'}}
+                onMouseEnter={e => e.target.style.color='rgba(255,255,255,0.85)'}
+                onMouseLeave={e => e.target.style.color='rgba(255,255,255,0.4)'}
               >
                 Bỏ qua bước này
               </button>
@@ -543,7 +563,7 @@ export default function RegisterPage() {
           </form>
 
           {step === 2 && (
-            <button onClick={handleResendOtp} disabled={loading} className="mt-6 text-sm font-semibold text-brand-500 hover:text-accent transition-colors duration-200 self-center">
+            <button onClick={handleResendOtp} disabled={loading} className="mt-6 text-sm font-semibold hover:text-accent transition-colors duration-200 self-center" style={{color:'rgba(255,255,255,0.45)'}}>
               Không nhận được mã? <span className="text-accent">Gửi lại mã OTP</span>
             </button>
           )}
@@ -552,9 +572,9 @@ export default function RegisterPage() {
             <div className="flex flex-col items-center mt-2">
               {/* Divider */}
               <div className="flex items-center gap-4 w-full my-6">
-                <div className="flex-1 h-px bg-brand-200" />
-                <span className="text-xs font-medium text-brand-400 tracking-wider uppercase">hoặc</span>
-                <div className="flex-1 h-px bg-brand-200" />
+                <div className="flex-1 h-px" style={{backgroundColor:'rgba(255,255,255,0.12)'}} />
+                <span className="text-xs font-medium tracking-wider uppercase" style={{color:'rgba(255,255,255,0.35)'}}>hoặc</span>
+                <div className="flex-1 h-px" style={{backgroundColor:'rgba(255,255,255,0.12)'}} />
               </div>
 
               <div className="w-full mb-8">
@@ -566,9 +586,9 @@ export default function RegisterPage() {
                 />
               </div>
 
-              <p className="text-sm text-brand-500 text-center">
+              <p className="text-sm text-center" style={{color:'rgba(255,255,255,0.45)'}}>
                 Đã có tài khoản?{' '}
-                <Link to="/login" className="text-accent font-semibold hover:text-accent-hover transition-colors duration-200">Đăng nhập</Link>
+                <Link to="/login" className="text-accent font-semibold hover:underline transition-colors duration-200">Đăng nhập</Link>
               </p>
             </div>
           )}
