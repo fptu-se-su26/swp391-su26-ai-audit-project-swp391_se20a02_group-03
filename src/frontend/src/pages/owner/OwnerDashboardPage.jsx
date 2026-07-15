@@ -54,9 +54,7 @@ export default function OwnerDashboardPage() {
     { label: 'Đặt sân', value: data?.bookingRevenue != null ? formatVnd(data.bookingRevenue) : formatVnd(data?.totalRevenue) },
     { label: 'Lượt đặt', value: data?.bookingCount ?? 0 },
     { label: 'Lấp sân', value: `${data?.occupancyRate ?? 0}%` },
-    { label: 'Thuê TB', value: data?.activeRentalCount ?? 0 },
     { label: 'Chờ TT', value: data?.pendingBookingCount ?? 0 },
-    { label: 'TB hỏng', value: data?.damagedAssetCount ?? 0 },
     { label: 'Tồn thấp', value: data?.lowStockCount ?? 0 },
   ];
 

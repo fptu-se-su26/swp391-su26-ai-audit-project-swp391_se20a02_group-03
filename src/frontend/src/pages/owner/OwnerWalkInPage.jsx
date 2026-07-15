@@ -5,11 +5,19 @@ import { ownerApi } from '../../api/ownerApi';
 import PageLoader from '../../components/ui/PageLoader';
 import EmptyState from '../../components/ui/EmptyState';
 
-const TIME_SLOTS = [
-  '06:00', '07:00', '08:00', '09:00', '10:00', '11:00',
-  '12:00', '13:00', '14:00', '15:00', '16:00', '17:00',
-  '18:00', '19:00', '20:00', '21:00', '22:00',
-];
+// Fallback khi chưa tải được giờ mở cửa của tổ hợp
+const DEFAULT_HOURS = { open: 6, close: 23 };
+
+function parseHour(time, fallback) {
+  const h = parseInt(String(time ?? '').split(':')[0], 10);
+  return Number.isNaN(h) ? fallback : h;
+}
+
+function buildTimeSlots(openHour, closeHour) {
+  const slots = [];
+  for (let h = openHour; h < closeHour; h++) slots.push(`${String(h).padStart(2, '0')}:00`);
+  return slots;
+}
 
 function slotEndTime(lastSlot) {
   const h = parseInt(lastSlot.split(':')[0], 10);
@@ -39,6 +47,26 @@ export default function OwnerWalkInPage() {
   const [submitting, setSubmitting] = useState(false);
 
   const minDate = useMemo(() => new Date().toISOString().slice(0, 10), []);
+  const [complexHours, setComplexHours] = useState(DEFAULT_HOURS);
+
+  useEffect(() => {
+    if (!complexId) return;
+    ownerApi.getComplex(complexId)
+      .then(res => {
+        if (res.statusCode === 200 && res.data) {
+          setComplexHours({
+            open: parseHour(res.data.openingTime, DEFAULT_HOURS.open),
+            close: parseHour(res.data.closingTime, DEFAULT_HOURS.close),
+          });
+        }
+      })
+      .catch(() => setComplexHours(DEFAULT_HOURS));
+  }, [complexId]);
+
+  const timeSlots = useMemo(
+    () => buildTimeSlots(complexHours.open, complexHours.close),
+    [complexHours],
+  );
 
   useEffect(() => {
     if (!complexId) return;
@@ -181,7 +209,7 @@ export default function OwnerWalkInPage() {
           <div className="border-2 border-border-strong bg-surface p-6">
             <p className="text-sm font-extrabold text-foreground mb-3.5">Chọn khung giờ {slotsLoading && <span className="text-foreground-subtle font-normal">(đang tải...)</span>}</p>
             <div className="flex flex-wrap gap-2">
-              {TIME_SLOTS.map(slot => {
+              {timeSlots.map(slot => {
                 const booked = bookedSlots.includes(slot);
                 const selected = selectedSlots.includes(slot);
                 return (

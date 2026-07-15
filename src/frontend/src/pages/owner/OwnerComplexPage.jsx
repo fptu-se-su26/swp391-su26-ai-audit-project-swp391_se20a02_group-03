@@ -26,7 +26,13 @@ export default function OwnerComplexPage() {
     setSaving(true);
     setMessage(null);
     try {
-      const res = await ownerApi.updateComplex(complexId, form);
+      // Backend chỉ chấp nhận HH:mm — GET có thể trả về HH:mm:ss
+      const payload = {
+        ...form,
+        openingTime: form.openingTime ? String(form.openingTime).substring(0, 5) : form.openingTime,
+        closingTime: form.closingTime ? String(form.closingTime).substring(0, 5) : form.closingTime,
+      };
+      const res = await ownerApi.updateComplex(complexId, payload);
       setMessage(res.message || 'Đã lưu.');
     } catch (err) {
       setMessage(typeof err === 'string' ? err : 'Lỗi lưu.');
@@ -45,7 +51,7 @@ export default function OwnerComplexPage() {
         {message && <p className="text-sm text-accent">{message}</p>}
 
         <div>
-          <label className="block label-mono text-foreground mb-1.5">Name</label>
+          <label className="block label-mono text-foreground mb-1.5">Tên tổ hợp</label>
           <input
             className="input-base"
             value={form.name || ''}
@@ -53,7 +59,7 @@ export default function OwnerComplexPage() {
           />
         </div>
         <div>
-          <label className="block label-mono text-foreground mb-1.5">Address</label>
+          <label className="block label-mono text-foreground mb-1.5">Địa chỉ</label>
           <input
             className="input-base"
             value={form.address || ''}
@@ -62,7 +68,7 @@ export default function OwnerComplexPage() {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
           <div>
-            <label className="block label-mono text-foreground mb-1.5">Phone</label>
+            <label className="block label-mono text-foreground mb-1.5">Số điện thoại</label>
             <input
               className="input-base"
               value={form.phone || ''}
@@ -80,18 +86,20 @@ export default function OwnerComplexPage() {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
           <div>
-            <label className="block label-mono text-foreground mb-1.5">OpeningTime</label>
+            <label className="block label-mono text-foreground mb-1.5">Giờ mở cửa</label>
             <input
+              type="time"
               className="input-base"
-              value={form.openingTime || ''}
+              value={(form.openingTime || '').substring(0, 5)}
               onChange={e => setForm({ ...form, openingTime: e.target.value })}
             />
           </div>
           <div>
-            <label className="block label-mono text-foreground mb-1.5">ClosingTime</label>
+            <label className="block label-mono text-foreground mb-1.5">Giờ đóng cửa</label>
             <input
+              type="time"
               className="input-base"
-              value={form.closingTime || ''}
+              value={(form.closingTime || '').substring(0, 5)}
               onChange={e => setForm({ ...form, closingTime: e.target.value })}
             />
           </div>

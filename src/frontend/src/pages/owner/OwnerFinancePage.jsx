@@ -50,10 +50,7 @@ export default function OwnerFinancePage() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-[2px] bg-[var(--theme-border-strong)] border-2 border-border-strong">
         {[
           ['Doanh thu đặt sân', data?.bookingRevenue],
-          ['Doanh thu thuê', data?.rentalRevenue],
-          ['Doanh thu SP', data?.productRevenue],
           ['Doanh thu ròng', data?.netRevenue, true],
-          ['Phụ phí thuê', data?.surchargeRevenue],
           ['Hoàn tiền', data?.refundAmount],
           ['Escrow giữ', data?.escrowHeld],
         ].map(([label, val, highlight]) => (

@@ -47,7 +47,6 @@ export default function EliteDashboardPage() {
     { to: '/elite/scanner', icon: '▦', label: 'Quét QR' },
     { to: '/elite/disputes', icon: '!', label: `Khiếu nại (${stats?.openDisputes ?? 0})` },
     { to: '/elite/bookings', icon: '▤', label: 'Đặt sân hôm nay' },
-    { to: '/elite/equipment', icon: '◫', label: 'Thuê thiết bị' },
   ]
 
   return (

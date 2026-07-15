@@ -14,6 +14,30 @@ public class CourtRepository : ICourtRepository
         _context = context;
     }
 
+    public async Task<bool> IsSlotWithinOperatingHoursAsync(int complexId, int? courtId, DateTime bookingDate, TimeSpan startTime, TimeSpan endTime)
+    {
+        // Ngày đóng cửa toàn tổ hợp
+        if (await _context.ComplexClosures.AnyAsync(c => c.ComplexId == complexId && !c.IsDeleted && c.ClosureDate == bookingDate.Date))
+            return false;
+
+        // Giờ mở-đóng theo thứ trong tuần (nếu có cấu hình)
+        var dayOfWeek = (int)bookingDate.DayOfWeek;
+        var schedule = await _context.ComplexOperatingSchedules
+            .FirstOrDefaultAsync(s => s.ComplexId == complexId && s.DayOfWeek == dayOfWeek && !s.IsDeleted);
+        if (schedule != null && (startTime < schedule.OpenTime || endTime > schedule.CloseTime))
+            return false;
+
+        // Khung bảo trì (toàn tổ hợp hoặc riêng sân) chồng lấn slot
+        var slotStart = bookingDate.Date.Add(startTime);
+        var slotEnd = bookingDate.Date.Add(endTime);
+        var inMaintenance = await _context.ComplexMaintenanceWindows.AnyAsync(m =>
+            m.ComplexId == complexId && !m.IsDeleted
+            && (m.CourtId == null || m.CourtId == courtId)
+            && m.StartAt < slotEnd && m.EndAt > slotStart);
+
+        return !inMaintenance;
+    }
+
     public async Task<IEnumerable<Court>> GetAllAsync()
     {
         var courts = await _context.Courts

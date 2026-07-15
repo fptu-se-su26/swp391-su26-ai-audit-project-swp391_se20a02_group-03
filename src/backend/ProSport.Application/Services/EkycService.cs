@@ -1,5 +1,6 @@
 using ProSport.Application.DTOs;
 using ProSport.Application.Interfaces;
+using ProSport.Domain.Constants;
 using ProSport.Domain.Entities;
 
 namespace ProSport.Application.Services;
@@ -50,14 +51,16 @@ public class EkycService : IEkycService
 
         e.Status = "Approved";
         e.RejectionReason = null;
-        if (e.User is not null) e.User.EKycStatus = "Approved";
+        // Hồ sơ (EkycProfile.Status) giữ "Approved" cho UI Admin KYC; trạng thái xác thực
+        // của User chuẩn hoá về "Verified" để khớp seed/Google và cờ User.IsVerified.
+        if (e.User is not null) e.User.EKycStatus = EKycStatuses.Verified;
 
         await _repository.SaveChangesAsync();
         return new ApiResponseDto<EkycProfileDto>(200, "Đã phê duyệt hồ sơ E-KYC.", Map(e));
     }
 
     // TK-004: Customer nộp hồ sơ E-KYC. Hồ sơ vào trạng thái Pending chờ Admin duyệt
-    // (AdminKycPage); khi Admin Approve thì User.EKycStatus = "Approved" → User.IsVerified = true.
+    // (AdminKycPage); khi Admin Approve thì User.EKycStatus = "Verified" → User.IsVerified = true.
     // Nộp lại được phép khi hồ sơ trước đó bị Rejected (ghi đè hồ sơ cũ).
     public async Task<ApiResponseDto<EkycProfileDto>> SubmitAsync(int userId, SubmitEkycDto dto)
     {
@@ -85,7 +88,7 @@ public class EkycService : IEkycService
         existing.Status = "Pending";
         existing.RejectionReason = null;
 
-        user.EKycStatus = "Pending";
+        user.EKycStatus = EKycStatuses.Pending;
 
         await _repository.SaveChangesAsync();
         return new ApiResponseDto<EkycProfileDto>(201, "Đã gửi hồ sơ E-KYC. Vui lòng chờ quản trị viên phê duyệt.", Map(existing));
@@ -109,7 +112,7 @@ public class EkycService : IEkycService
 
         e.Status = "Rejected";
         e.RejectionReason = reason;
-        if (e.User is not null) e.User.EKycStatus = "Rejected";
+        if (e.User is not null) e.User.EKycStatus = EKycStatuses.Rejected;
 
         await _repository.SaveChangesAsync();
         return new ApiResponseDto<EkycProfileDto>(200, "Đã từ chối hồ sơ E-KYC.", Map(e));

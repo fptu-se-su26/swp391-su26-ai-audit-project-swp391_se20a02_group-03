@@ -72,14 +72,6 @@ public class OwnerDashboardService : IOwnerDashboardService
             .Where(b => paidBookingIds.Contains(b.BookingId))
             .SumAsync(b => (decimal?)b.TotalAmount) ?? 0m;
 
-        var rentalRevenue = await _db.BookingDetailEquipments
-            .Where(r => r.RentalStatus == "Returned" || r.RentalStatus == "Rented")
-            .SumAsync(r => (decimal?)(r.UnitPrice * r.Quantity)) ?? 0m;
-
-        var surchargeRevenue = await _db.BookingDetailEquipments
-            .Where(r => (r.DamageFee ?? 0) > 0 || (r.AdditionalCharge ?? 0) > 0)
-            .SumAsync(r => (decimal?)((r.DamageFee ?? 0) + (r.AdditionalCharge ?? 0))) ?? 0m;
-
         var refundAmount = await _db.Bookings
             .Where(b => paidBookingIds.Contains(b.BookingId) && b.PaymentStatus == "Refunded")
             .SumAsync(b => (decimal?)b.TotalAmount) ?? 0m;
@@ -89,12 +81,6 @@ public class OwnerDashboardService : IOwnerDashboardService
             .Where(b => !b.IsDeleted && (b.Status == "Pending" || b.PaymentStatus == "Pending"))
             .Where(b => b.BookingDetails.Any(d => courtIds.Contains(d.CourtId)))
             .CountAsync();
-
-        var activeRentals = await _db.BookingDetailEquipments
-            .CountAsync(r => r.RentalStatus == "Rented");
-
-        var damagedAssets = await _db.BookingDetailEquipments
-            .CountAsync(r => r.ReturnCondition == "Damaged" || (r.DamageFee ?? 0) > 0);
 
         var lowStock = await _db.Equipments.CountAsync(e => e.StockQuantity <= 5 && !e.IsDeleted);
 
@@ -167,17 +153,12 @@ public class OwnerDashboardService : IOwnerDashboardService
 
         var dto = new OwnerDashboardDto
         {
-            TotalRevenue = bookingRevenue + rentalRevenue + surchargeRevenue - refundAmount,
+            TotalRevenue = bookingRevenue - refundAmount,
             BookingRevenue = bookingRevenue,
-            RentalRevenue = rentalRevenue,
-            ProductRevenue = 0,
-            SurchargeRevenue = surchargeRevenue,
             RefundAmount = refundAmount,
             BookingCount = bookingCount,
             PendingBookingCount = pendingCount,
             OccupancyRate = occupancyRate,
-            ActiveRentalCount = activeRentals,
-            DamagedAssetCount = damagedAssets,
             LowStockCount = lowStock,
             UpcomingBookings = upcoming,
             RevenueByDate = revenueByDate,

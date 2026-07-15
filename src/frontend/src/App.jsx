@@ -66,7 +66,6 @@ const AdminBookingsPage     = lazy(() => import('./pages/admin/AdminBookingsPage
 const ElitePosWalkInPage  = lazy(() => import('./pages/elite/ElitePosWalkInPage'))
 const EliteDashboardPage  = lazy(() => import('./pages/elite/EliteDashboardPage'))
 const EliteBookingsPage   = lazy(() => import('./pages/elite/EliteBookingsPage'))
-const EliteEquipmentPage  = lazy(() => import('./pages/elite/EliteEquipmentPage'))
 const EliteSchedulePage   = lazy(() => import('./pages/elite/EliteSchedulePage'))
 const EliteVouchersPage   = lazy(() => import('./pages/elite/EliteVouchersPage'))
 const EliteDisputesPage   = lazy(() => import('./pages/elite/EliteDisputesPage'))
@@ -77,7 +76,6 @@ const DashInboxPage       = lazy(() => import('./pages/dashboard/DashInboxPage')
 const DashBroadcastPage   = lazy(() => import('./pages/dashboard/DashBroadcastPage'))
 const DashBookingsPage    = lazy(() => import('./pages/dashboard/DashBookingsPage'))
 const DashMatchesPage     = lazy(() => import('./pages/dashboard/DashMatchesPage'))
-const DashRentalsPage     = lazy(() => import('./pages/dashboard/DashRentalsPage'))
 const DashPaymentsPage    = lazy(() => import('./pages/dashboard/DashPaymentsPage'))
 const DashNotifSettingsPage = lazy(() => import('./pages/dashboard/DashNotifSettingsPage'))
 
@@ -94,9 +92,6 @@ const OwnerBookingDetailPage = lazy(() => import('./pages/owner/OwnerBookingDeta
 const OwnerWalkInPage = lazy(() => import('./pages/owner/OwnerWalkInPage'))
 const OwnerStaffPage       = lazy(() => import('./pages/owner/OwnerStaffPage'))
 const OwnerProductsPage    = lazy(() => import('./pages/owner/OwnerProductsPage'))
-const OwnerRentalAssetsPage = lazy(() => import('./pages/owner/OwnerRentalAssetsPage'))
-const OwnerRentalsPage     = lazy(() => import('./pages/owner/OwnerRentalsPage'))
-const OwnerRentalDetailPage = lazy(() => import('./pages/owner/OwnerRentalDetailPage'))
 const OwnerVouchersPage    = lazy(() => import('./pages/owner/OwnerVouchersPage'))
 const OwnerFinancePage     = lazy(() => import('./pages/owner/OwnerFinancePage'))
 const OwnerReportsPage     = lazy(() => import('./pages/owner/OwnerReportsPage'))
@@ -288,9 +283,6 @@ function App() {
                         <Route path="bookings/:bookingId" element={<OwnerBookingDetailPage />} />
                         <Route path="staff" element={<OwnerStaffPage />} />
                         <Route path="inventory/products" element={<OwnerProductsPage />} />
-                        <Route path="inventory/rental-assets" element={<OwnerRentalAssetsPage />} />
-                        <Route path="rentals" element={<OwnerRentalsPage />} />
-                        <Route path="rentals/:rentalId" element={<OwnerRentalDetailPage />} />
                         <Route path="vouchers" element={<OwnerVouchersPage />} />
                         <Route path="finance" element={<OwnerFinancePage />} />
                         <Route path="reports" element={<OwnerReportsPage />} />
@@ -309,7 +301,6 @@ function App() {
                     <Route path="/elite" element={<Navigate to="/elite/dashboard" replace />} />
                     <Route path="/elite/dashboard" element={<EliteRoute><EliteDashboardPage /></EliteRoute>} />
                     <Route path="/elite/bookings" element={<EliteRoute><EliteBookingsPage /></EliteRoute>} />
-                    <Route path="/elite/equipment" element={<EliteRoute><EliteEquipmentPage /></EliteRoute>} />
                     <Route path="/elite/pos" element={<EliteRoute><ElitePosWalkInPage /></EliteRoute>} />
                     <Route path="/elite/schedule" element={<EliteRoute><EliteSchedulePage /></EliteRoute>} />
                     <Route path="/elite/vouchers" element={<EliteRoute><EliteVouchersPage /></EliteRoute>} />
@@ -322,7 +313,6 @@ function App() {
                     <Route path="/dashboard/broadcast" element={<EliteRoute><DashBroadcastPage /></EliteRoute>} />
                     <Route path="/dashboard/bookings" element={<EliteRoute><DashBookingsPage /></EliteRoute>} />
                     <Route path="/dashboard/matches" element={<EliteRoute><DashMatchesPage /></EliteRoute>} />
-                    <Route path="/dashboard/rentals" element={<EliteRoute><DashRentalsPage /></EliteRoute>} />
                     <Route path="/dashboard/payments" element={<EliteRoute><DashPaymentsPage /></EliteRoute>} />
                     <Route path="/dashboard/settings" element={<EliteRoute><DashNotifSettingsPage /></EliteRoute>} />
 

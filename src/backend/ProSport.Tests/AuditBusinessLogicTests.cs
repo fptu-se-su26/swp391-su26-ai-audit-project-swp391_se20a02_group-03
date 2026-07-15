@@ -41,51 +41,6 @@ public class AuditBusinessLogicTests
     }
 
     [Fact]
-    public async Task ReturnEquipment_GoodCondition_SetsAdditionalChargeToZero()
-    {
-        var rentalRepo = new Mock<IEquipmentRentalRepository>();
-        var equipmentRepo = new Mock<IEquipmentRepository>();
-
-        var rental = new BookingDetailEquipment
-        {
-            DetailId = 1,
-            EquipmentId = 10,
-            Quantity = 2,
-            UnitPrice = 50000,
-            DepositAmount = 100000,
-            RentalStatus = "Rented"
-        };
-
-        rentalRepo.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(rental);
-        rentalRepo.Setup(r => r.UpdateAsync(It.IsAny<BookingDetailEquipment>()))
-            .Callback<BookingDetailEquipment>(r => { })
-            .Returns(Task.CompletedTask);
-
-        equipmentRepo.Setup(e => e.GetByIdAsync(10)).ReturnsAsync(new Equipment
-        {
-            EquipmentId = 10,
-            StockQuantity = 0,
-            Status = "Out of Stock"
-        });
-        equipmentRepo.Setup(e => e.UpdateAsync(It.IsAny<Equipment>())).Returns(Task.CompletedTask);
-
-        rentalRepo.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(() => rental);
-
-        var svc = new EquipmentRentalService(
-            rentalRepo.Object,
-            equipmentRepo.Object,
-            Mock.Of<IBookingRepository>(),
-            Mock.Of<IUserRepository>(),
-            NullLogger<EquipmentRentalService>.Instance);
-
-        var result = await svc.ReturnEquipmentAsync(1, new ReturnEquipmentRequest { ReturnCondition = "Good" }, 99);
-
-        result.StatusCode.Should().Be(200);
-        rental.AdditionalCharge.Should().Be(0);
-        rental.DepositRefundAmount.Should().Be(100000);
-    }
-
-    [Fact]
     public async Task RecurringBooking_Biweekly_SkipsOffWeekOccurrences()
     {
         await using var db = CreateDb(nameof(RecurringBooking_Biweekly_SkipsOffWeekOccurrences));
@@ -130,10 +85,15 @@ public class AuditBusinessLogicTests
                 return b;
             });
 
+        var userRepo = new Mock<IUserRepository>();
+        userRepo.Setup(r => r.GetByIdAsync(1))
+            .ReturnsAsync(new User { UserId = 1, Role = Roles.Customer, EKycStatus = "Verified", IsLocked = false });
+
         var svc = new RecurringBookingService(
             db,
             bookingRepo.Object,
             courtRepo.Object,
+            userRepo.Object,
             Mock.Of<IMembershipService>(),
             NullLogger<RecurringBookingService>.Instance);
 
@@ -209,93 +169,6 @@ public class AuditBusinessLogicTests
             100000m,
             "Hủy bởi operator",
             "OperatorCancel_42"), Times.Once);
-    }
-
-    [Fact]
-    public async Task ReturnEquipment_DamagedAtDepositAmount_DoesNotDoubleCharge()
-    {
-        var rental = new BookingDetailEquipment
-        {
-            DetailId = 2,
-            EquipmentId = 10,
-            Quantity = 1,
-            UnitPrice = 50000,
-            DepositAmount = 100000,
-            RentalStatus = "Rented"
-        };
-
-        var rentalRepo = new Mock<IEquipmentRentalRepository>();
-        rentalRepo.Setup(r => r.GetByIdAsync(2)).ReturnsAsync(rental);
-        rentalRepo.Setup(r => r.UpdateAsync(It.IsAny<BookingDetailEquipment>())).Returns(Task.CompletedTask);
-
-        var equipmentRepo = new Mock<IEquipmentRepository>();
-        equipmentRepo.Setup(e => e.GetByIdAsync(10)).ReturnsAsync(new Equipment
-        {
-            EquipmentId = 10,
-            StockQuantity = 0,
-            Status = "Available"
-        });
-        equipmentRepo.Setup(e => e.UpdateAsync(It.IsAny<Equipment>())).Returns(Task.CompletedTask);
-
-        var svc = new EquipmentRentalService(
-            rentalRepo.Object,
-            equipmentRepo.Object,
-            Mock.Of<IBookingRepository>(),
-            Mock.Of<IUserRepository>(),
-            NullLogger<EquipmentRentalService>.Instance);
-
-        var result = await svc.ReturnEquipmentAsync(2, new ReturnEquipmentRequest
-        {
-            ReturnCondition = "Damaged",
-            DamageFee = 100000
-        }, 99);
-
-        result.StatusCode.Should().Be(200);
-        rental.DepositStatus.Should().Be("Forfeited");
-        rental.AdditionalCharge.Should().Be(0);
-    }
-
-    [Fact]
-    public async Task ReturnEquipment_DamagedAboveDeposit_ChargesOnlyDelta()
-    {
-        var rental = new BookingDetailEquipment
-        {
-            DetailId = 3,
-            EquipmentId = 10,
-            Quantity = 1,
-            UnitPrice = 50000,
-            DepositAmount = 100000,
-            RentalStatus = "Rented"
-        };
-
-        var rentalRepo = new Mock<IEquipmentRentalRepository>();
-        rentalRepo.Setup(r => r.GetByIdAsync(3)).ReturnsAsync(rental);
-        rentalRepo.Setup(r => r.UpdateAsync(It.IsAny<BookingDetailEquipment>())).Returns(Task.CompletedTask);
-
-        var equipmentRepo = new Mock<IEquipmentRepository>();
-        equipmentRepo.Setup(e => e.GetByIdAsync(10)).ReturnsAsync(new Equipment
-        {
-            EquipmentId = 10,
-            StockQuantity = 0,
-            Status = "Available"
-        });
-        equipmentRepo.Setup(e => e.UpdateAsync(It.IsAny<Equipment>())).Returns(Task.CompletedTask);
-
-        var svc = new EquipmentRentalService(
-            rentalRepo.Object,
-            equipmentRepo.Object,
-            Mock.Of<IBookingRepository>(),
-            Mock.Of<IUserRepository>(),
-            NullLogger<EquipmentRentalService>.Instance);
-
-        var result = await svc.ReturnEquipmentAsync(3, new ReturnEquipmentRequest
-        {
-            ReturnCondition = "Damaged",
-            DamageFee = 150000
-        }, 99);
-
-        result.StatusCode.Should().Be(200);
-        rental.AdditionalCharge.Should().Be(50000);
     }
 
     [Fact]
@@ -380,12 +253,16 @@ public class AuditBusinessLogicTests
     [Fact]
     public async Task SplitPayment_DuplicateParticipant_Returns400()
     {
+        var userRepo = new Mock<IUserRepository>();
+        userRepo.Setup(r => r.GetByIdAsync(10))
+            .ReturnsAsync(new User { UserId = 10, Role = Roles.Customer, EKycStatus = "Verified", IsLocked = false });
+
         var svc = new SplitPaymentService(
             CreateDb(nameof(SplitPayment_DuplicateParticipant_Returns400)),
             Mock.Of<IBookingRepository>(),
             Mock.Of<ICourtRepository>(),
             Mock.Of<IEscrowRepository>(),
-            Mock.Of<IUserRepository>(),
+            userRepo.Object,
             Mock.Of<INotificationService>(),
             Mock.Of<IMembershipService>(),
             NullLogger<SplitPaymentService>.Instance);
@@ -405,6 +282,41 @@ public class AuditBusinessLogicTests
 
         result.StatusCode.Should().Be(400);
         result.Message.Should().Contain("một phần chia bill");
+    }
+
+    [Fact]
+    public async Task CreateSplitBooking_Returns403_WhenHostNotEkycVerified()
+    {
+        // TK-004: chặn bypass E-KYC qua đường split-payment.
+        var userRepo = new Mock<IUserRepository>();
+        userRepo.Setup(r => r.GetByIdAsync(10))
+            .ReturnsAsync(new User { UserId = 10, Role = Roles.Customer, EKycStatus = "Pending", IsLocked = false });
+
+        var svc = new SplitPaymentService(
+            CreateDb(nameof(CreateSplitBooking_Returns403_WhenHostNotEkycVerified)),
+            Mock.Of<IBookingRepository>(),
+            Mock.Of<ICourtRepository>(),
+            Mock.Of<IEscrowRepository>(),
+            userRepo.Object,
+            Mock.Of<INotificationService>(),
+            Mock.Of<IMembershipService>(),
+            NullLogger<SplitPaymentService>.Instance);
+
+        var result = await svc.CreateSplitBookingAsync(10, new CreateSplitBookingDto
+        {
+            Details = new List<CreateBookingDetailDto>
+            {
+                new() { CourtId = 1, BookingDate = DateTime.UtcNow.Date.AddDays(7), StartTime = TimeSpan.FromHours(8), EndTime = TimeSpan.FromHours(9) }
+            },
+            Participants = new List<SplitParticipantDto>
+            {
+                new() { UserId = 10, Amount = 50000 },
+                new() { UserId = 11, Amount = 50000 }
+            }
+        });
+
+        result.StatusCode.Should().Be(403);
+        result.Message.Should().Contain("E-KYC");
     }
 
     [Fact]

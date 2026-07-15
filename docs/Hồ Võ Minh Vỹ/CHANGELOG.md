@@ -91,3 +91,29 @@ Author: VyHVM
 - Dùng Google Gemini tạo CRUD API thiết bị kho
 - Dùng Cursor để tổ chức lại component Frontend
 - Quyết định thủ công: Gộp các component nhỏ và xóa code dư thừa, bổ sung thuộc tính tình trạng cho thiết bị kho
+
+## [2026-07-14]
+Author: VyHVM
+
+### Removed
+- Gỡ bỏ hoàn toàn chức năng Cho thuê đồ (equipment rental): xóa các entity `RentalAsset`, `RentalSession`, `RentalSessionAsset`, `ConditionCheck`, `RentalSurcharge`, `BookingDetailEquipment` cùng service/repository/controller/DTO liên quan ở cả 2 hệ (thuê tại quầy của Staff và Rental Asset của Owner)
+- Gỡ các trang và route rental phía Frontend (`OwnerRentals`, `OwnerRentalAssets`, `OwnerRentalDetail`, `DashRentals`, `EliteEquipment`) và chuyển trang cửa hàng về chế độ chỉ "Mua"
+
+### Changed
+- Tái tạo (regenerate) migration `InitialCreate` sạch, không còn bảng rental
+- Chuẩn hóa trạng thái xác thực E-KYC của User về bộ giá trị thống nhất (`Unverified`/`Pending`/`Verified`/`Rejected`), khắc phục lệch giữa "Verified" (seed/Google) và "Approved" (luồng duyệt); sửa luôn lỗi hiển thị "chưa xác minh" ở trang Admin Users
+
+### Added
+- Bắt buộc xác thực E-KYC (và kiểm tra tài khoản bị khóa) trước khi Đặt sân và Tham gia kèo ký quỹ, nhằm chống bùng kèo/tài khoản ảo
+- Bổ sung 2 unit test kiểm chứng chặn user chưa xác thực E-KYC (đặt sân, tham gia kèo)
+
+### Fixed
+- Vá lỗ hổng toàn vẹn Trust Score: `RatingService` giờ bắt buộc người chấm và người bị chấm đều là thành viên (Approved) của cùng một trận đấu trước khi ghi đánh giá, chống spam thao túng điểm tín nhiệm
+- Vá lỗi mã tham chiếu giao dịch phí kèo: `EscrowService.PayMatchFee` đổi `ReferenceId` thành `MATCH-{matchId}-{userId}` (unique index cũ khiến người thứ 2 trả phí cùng kèo bị lỗi 500), thêm idempotency
+- Bịt lỗ hổng bỏ qua E-KYC ở 2 đường tạo booking khác: `SplitPaymentService` và `RecurringBookingService` giờ cũng kiểm E-KYC/khóa tài khoản của host như đặt sân thường
+- Bắt buộc kiểm giờ hoạt động/ngày đóng cửa/khung bảo trì phía server khi đặt sân (`IsSlotWithinOperatingHoursAsync` trước đây tồn tại nhưng không được gọi ở đâu — mồ côi)
+- Vá lỗ hổng toàn vẹn báo cáo bùng kèo: `ReportService` bắt buộc người báo cáo và người bị báo cáo cùng tham gia trận đấu, chống bịa báo cáo nhắm vào người không liên quan
+
+### AI-assisted
+- Dùng Claude Code (Claude Opus) khảo sát toàn bộ điểm phụ thuộc của rental, thực hiện xóa an toàn, và rà soát backend **toàn diện theo từng actor** (Guest/Customer/Staff/CourtOwner/Admin) — tập trung tiền/đồng thời/phân quyền/xác thực
+- Quyết định thủ công: chọn phương án regenerate migration; phạm vi enforce E-KYC (đặt sân + join kèo, bỏ qua walk-in); giữ nguyên UI Admin KYC; giữ nguyên endpoint công khai leaderboard và quyền voucher của Staff

@@ -12,9 +12,4 @@ export const equipmentApi = {
 
   // Dashboard stats
   getDashboard: () => axiosClient.get('/equipment/dashboard'),
-
-  // Staff cho thuê / trả tại quầy
-  getRentals: (status) => axiosClient.get('/equipment/rentals', { params: status ? { status } : {} }),
-  rentAtCounter: (data) => axiosClient.post('/equipment/rent', data),
-  returnRental: (detailId, data) => axiosClient.post(`/equipment/rentals/${detailId}/return`, data),
 };

@@ -1,5 +1,6 @@
 using ProSport.Application.DTOs;
 using ProSport.Application.Interfaces;
+using ProSport.Domain.Constants;
 using ProSport.Domain.Entities;
 
 namespace ProSport.Application.Services;
@@ -11,11 +12,13 @@ public class ReportService : IReportService
 
     private readonly IReportRepository _repository;
     private readonly IUserRepository _userRepository;
+    private readonly IMatchRepository _matchRepository;
 
-    public ReportService(IReportRepository repository, IUserRepository userRepository)
+    public ReportService(IReportRepository repository, IUserRepository userRepository, IMatchRepository matchRepository)
     {
         _repository = repository;
         _userRepository = userRepository;
+        _matchRepository = matchRepository;
     }
 
     private static ReportDto Map(Report r) => new ReportDto
@@ -42,6 +45,19 @@ public class ReportService : IReportService
         var reported = await _userRepository.GetByIdAsync(dto.ReportedUserId);
         if (reported is null)
             return new ApiResponseDto<ReportDto>(404, "Không tìm thấy người bị báo cáo.");
+
+        // Chỉ được báo cáo người CÙNG tham gia trận đấu này — chống bịa báo cáo (bùng kèo)
+        // nhắm vào người không liên quan. Cả người báo cáo và người bị báo cáo phải là
+        // thành viên đã duyệt (Approved) của kèo. Đồng bộ với RatingService/EloRatingService.
+        var match = await _matchRepository.GetMatchByIdAsync(dto.MatchId);
+        if (match is null)
+            return new ApiResponseDto<ReportDto>(404, "Không tìm thấy trận đấu.");
+
+        var reporterPart = await _matchRepository.GetParticipantAsync(dto.MatchId, reporterId);
+        var reportedPart = await _matchRepository.GetParticipantAsync(dto.MatchId, dto.ReportedUserId);
+        static bool IsActiveMember(MatchParticipant? p) => p is not null && p.Status == MatchParticipantStatus.Approved;
+        if (!IsActiveMember(reporterPart) || !IsActiveMember(reportedPart))
+            return new ApiResponseDto<ReportDto>(403, "Bạn chỉ được báo cáo người chơi cùng tham gia trận đấu này.");
 
         var duplicated = await _repository.ExistsAsync(reporterId, dto.ReportedUserId, dto.MatchId);
         if (duplicated)

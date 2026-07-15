@@ -531,8 +531,6 @@ namespace ProSport.Infrastructure.Migrations
                     Status = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false, defaultValue: "Active"),
                     CanCheckIn = table.Column<bool>(type: "bit", nullable: false),
                     CanCreateWalkIn = table.Column<bool>(type: "bit", nullable: false),
-                    CanManageRental = table.Column<bool>(type: "bit", nullable: false),
-                    CanApplySurcharge = table.Column<bool>(type: "bit", nullable: false),
                     AssignedByUserId = table.Column<int>(type: "int", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -584,41 +582,6 @@ namespace ProSport.Infrastructure.Migrations
                         principalTable: "Users",
                         principalColumn: "UserId",
                         onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "RentalAssets",
-                columns: table => new
-                {
-                    RentalAssetId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    ComplexId = table.Column<int>(type: "int", nullable: false),
-                    ProductStockId = table.Column<int>(type: "int", nullable: false),
-                    AssetCode = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Condition = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    RentCount = table.Column<int>(type: "int", nullable: false),
-                    LastConditionCheck = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    MaintenanceNote = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_RentalAssets", x => x.RentalAssetId);
-                    table.ForeignKey(
-                        name: "FK_RentalAssets_Complexes_ComplexId",
-                        column: x => x.ComplexId,
-                        principalTable: "Complexes",
-                        principalColumn: "ComplexId",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_RentalAssets_ProductStocks_ProductStockId",
-                        column: x => x.ProductStockId,
-                        principalTable: "ProductStocks",
-                        principalColumn: "ProductStockId",
-                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -911,49 +874,6 @@ namespace ProSport.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "BookingDetails_Equipments",
-                columns: table => new
-                {
-                    DetailId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    BookingId = table.Column<int>(type: "int", nullable: true),
-                    UserId = table.Column<int>(type: "int", nullable: false),
-                    EquipmentId = table.Column<int>(type: "int", nullable: false),
-                    Quantity = table.Column<int>(type: "int", nullable: false),
-                    UnitPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    DepositAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    DepositStatus = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false, defaultValue: "Held"),
-                    RentalStatus = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false, defaultValue: "Rented"),
-                    ReturnCondition = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
-                    DamageNote = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
-                    DamageFee = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
-                    DepositRefundAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
-                    AdditionalCharge = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
-                    RentedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "SYSDATETIME()"),
-                    EquipmentUnitId = table.Column<int>(type: "int", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_BookingDetails_Equipments", x => x.DetailId);
-                    table.ForeignKey(
-                        name: "FK_BookingDetails_Equipments_Bookings_BookingId",
-                        column: x => x.BookingId,
-                        principalTable: "Bookings",
-                        principalColumn: "BookingId",
-                        onDelete: ReferentialAction.SetNull);
-                    table.ForeignKey(
-                        name: "FK_BookingDetails_Equipments_Equipments_EquipmentId",
-                        column: x => x.EquipmentId,
-                        principalTable: "Equipments",
-                        principalColumn: "EquipmentId");
-                    table.ForeignKey(
-                        name: "FK_BookingDetails_Equipments_Users_UserId",
-                        column: x => x.UserId,
-                        principalTable: "Users",
-                        principalColumn: "UserId");
-                });
-
-            migrationBuilder.CreateTable(
                 name: "BookingPaymentShares",
                 columns: table => new
                 {
@@ -1057,50 +977,6 @@ namespace ProSport.Infrastructure.Migrations
                     table.ForeignKey(
                         name: "FK_Matches_Users_HostId",
                         column: x => x.HostId,
-                        principalTable: "Users",
-                        principalColumn: "UserId");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "RentalSessions",
-                columns: table => new
-                {
-                    RentalSessionId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    ComplexId = table.Column<int>(type: "int", nullable: false),
-                    BookingId = table.Column<int>(type: "int", nullable: true),
-                    CustomerUserId = table.Column<int>(type: "int", nullable: false),
-                    StaffUserId = table.Column<int>(type: "int", nullable: true),
-                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    RentalFee = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    SurchargeTotal = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    CompletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_RentalSessions", x => x.RentalSessionId);
-                    table.ForeignKey(
-                        name: "FK_RentalSessions_Bookings_BookingId",
-                        column: x => x.BookingId,
-                        principalTable: "Bookings",
-                        principalColumn: "BookingId");
-                    table.ForeignKey(
-                        name: "FK_RentalSessions_Complexes_ComplexId",
-                        column: x => x.ComplexId,
-                        principalTable: "Complexes",
-                        principalColumn: "ComplexId",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_RentalSessions_Users_CustomerUserId",
-                        column: x => x.CustomerUserId,
-                        principalTable: "Users",
-                        principalColumn: "UserId");
-                    table.ForeignKey(
-                        name: "FK_RentalSessions_Users_StaffUserId",
-                        column: x => x.StaffUserId,
                         principalTable: "Users",
                         principalColumn: "UserId");
                 });
@@ -1305,101 +1181,6 @@ namespace ProSport.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ConditionChecks",
-                columns: table => new
-                {
-                    ConditionCheckId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    RentalSessionId = table.Column<int>(type: "int", nullable: false),
-                    RentalAssetId = table.Column<int>(type: "int", nullable: false),
-                    CheckType = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Condition = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ImageUrls = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Notes = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    StaffUserId = table.Column<int>(type: "int", nullable: false),
-                    IsFinal = table.Column<bool>(type: "bit", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ConditionChecks", x => x.ConditionCheckId);
-                    table.ForeignKey(
-                        name: "FK_ConditionChecks_RentalAssets_RentalAssetId",
-                        column: x => x.RentalAssetId,
-                        principalTable: "RentalAssets",
-                        principalColumn: "RentalAssetId",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_ConditionChecks_RentalSessions_RentalSessionId",
-                        column: x => x.RentalSessionId,
-                        principalTable: "RentalSessions",
-                        principalColumn: "RentalSessionId",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_ConditionChecks_Users_StaffUserId",
-                        column: x => x.StaffUserId,
-                        principalTable: "Users",
-                        principalColumn: "UserId");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "RentalSessionAssets",
-                columns: table => new
-                {
-                    RentalSessionAssetId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    RentalSessionId = table.Column<int>(type: "int", nullable: false),
-                    RentalAssetId = table.Column<int>(type: "int", nullable: false),
-                    BeforeCondition = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    AfterCondition = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    RentalPriceAtTime = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_RentalSessionAssets", x => x.RentalSessionAssetId);
-                    table.ForeignKey(
-                        name: "FK_RentalSessionAssets_RentalAssets_RentalAssetId",
-                        column: x => x.RentalAssetId,
-                        principalTable: "RentalAssets",
-                        principalColumn: "RentalAssetId",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_RentalSessionAssets_RentalSessions_RentalSessionId",
-                        column: x => x.RentalSessionId,
-                        principalTable: "RentalSessions",
-                        principalColumn: "RentalSessionId",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "RentalSurcharges",
-                columns: table => new
-                {
-                    RentalSurchargeId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    RentalSessionId = table.Column<int>(type: "int", nullable: false),
-                    Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    Reason = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    AppliedByUserId = table.Column<int>(type: "int", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_RentalSurcharges", x => x.RentalSurchargeId);
-                    table.ForeignKey(
-                        name: "FK_RentalSurcharges_RentalSessions_RentalSessionId",
-                        column: x => x.RentalSessionId,
-                        principalTable: "RentalSessions",
-                        principalColumn: "RentalSessionId",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_RentalSurcharges_Users_AppliedByUserId",
-                        column: x => x.AppliedByUserId,
-                        principalTable: "Users",
-                        principalColumn: "UserId");
-                });
-
-            migrationBuilder.CreateTable(
                 name: "TournamentRegistrations",
                 columns: table => new
                 {
@@ -1577,11 +1358,11 @@ namespace ProSport.Infrastructure.Migrations
 
             migrationBuilder.InsertData(
                 table: "StaffAssignments",
-                columns: new[] { "StaffAssignmentId", "AssignedByUserId", "CanApplySurcharge", "CanCheckIn", "CanCreateWalkIn", "CanManageRental", "ComplexId", "CreatedAt", "IsDeleted", "StaffUserId", "Status", "UpdatedAt" },
+                columns: new[] { "StaffAssignmentId", "AssignedByUserId", "CanCheckIn", "CanCreateWalkIn", "ComplexId", "CreatedAt", "IsDeleted", "StaffUserId", "Status", "UpdatedAt" },
                 values: new object[,]
                 {
-                    { 1, 12, false, true, true, true, 1, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false, 2, "Active", null },
-                    { 2, 12, true, true, true, true, 1, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false, 3, "Active", null }
+                    { 1, 12, true, true, 1, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false, 2, "Active", null },
+                    { 2, 12, true, true, 1, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false, 3, "Active", null }
                 });
 
             migrationBuilder.CreateIndex(
@@ -1603,21 +1384,6 @@ namespace ProSport.Infrastructure.Migrations
                 name: "IX_BookingDetails_CourtId_BookingDate",
                 table: "BookingDetails",
                 columns: new[] { "CourtId", "BookingDate" });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_BookingDetails_Equipments_BookingId",
-                table: "BookingDetails_Equipments",
-                column: "BookingId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_BookingDetails_Equipments_EquipmentId",
-                table: "BookingDetails_Equipments",
-                column: "EquipmentId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_BookingDetails_Equipments_UserId",
-                table: "BookingDetails_Equipments",
-                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_BookingPaymentShares_BookingId_UserId",
@@ -1738,21 +1504,6 @@ namespace ProSport.Infrastructure.Migrations
                 name: "IX_ComplexReviews_UserId",
                 table: "ComplexReviews",
                 column: "UserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ConditionChecks_RentalAssetId",
-                table: "ConditionChecks",
-                column: "RentalAssetId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ConditionChecks_RentalSessionId",
-                table: "ConditionChecks",
-                column: "RentalSessionId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ConditionChecks_StaffUserId",
-                table: "ConditionChecks",
-                column: "StaffUserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Courts_ComplexId_Code",
@@ -1915,58 +1666,6 @@ namespace ProSport.Infrastructure.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_RentalAssets_ComplexId_AssetCode",
-                table: "RentalAssets",
-                columns: new[] { "ComplexId", "AssetCode" },
-                unique: true,
-                filter: "[IsDeleted] = 0");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_RentalAssets_ProductStockId",
-                table: "RentalAssets",
-                column: "ProductStockId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_RentalSessionAssets_RentalAssetId",
-                table: "RentalSessionAssets",
-                column: "RentalAssetId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_RentalSessionAssets_RentalSessionId",
-                table: "RentalSessionAssets",
-                column: "RentalSessionId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_RentalSessions_BookingId",
-                table: "RentalSessions",
-                column: "BookingId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_RentalSessions_ComplexId",
-                table: "RentalSessions",
-                column: "ComplexId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_RentalSessions_CustomerUserId",
-                table: "RentalSessions",
-                column: "CustomerUserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_RentalSessions_StaffUserId",
-                table: "RentalSessions",
-                column: "StaffUserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_RentalSurcharges_AppliedByUserId",
-                table: "RentalSurcharges",
-                column: "AppliedByUserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_RentalSurcharges_RentalSessionId",
-                table: "RentalSurcharges",
-                column: "RentalSessionId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Reports_MatchId",
                 table: "Reports",
                 column: "MatchId");
@@ -2059,6 +1758,13 @@ namespace ProSport.Infrastructure.Migrations
                 filter: "[GoogleId] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Users_PhoneNumber",
+                table: "Users",
+                column: "PhoneNumber",
+                unique: true,
+                filter: "[PhoneNumber] IS NOT NULL AND [IsDeleted] = 0");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_UserSkillRatings_UserId_SportType",
                 table: "UserSkillRatings",
                 columns: new[] { "UserId", "SportType" },
@@ -2096,9 +1802,6 @@ namespace ProSport.Infrastructure.Migrations
                 name: "BookingDetails");
 
             migrationBuilder.DropTable(
-                name: "BookingDetails_Equipments");
-
-            migrationBuilder.DropTable(
                 name: "BookingPaymentShares");
 
             migrationBuilder.DropTable(
@@ -2129,9 +1832,6 @@ namespace ProSport.Infrastructure.Migrations
                 name: "ComplexReviews");
 
             migrationBuilder.DropTable(
-                name: "ConditionChecks");
-
-            migrationBuilder.DropTable(
                 name: "EkycProfiles");
 
             migrationBuilder.DropTable(
@@ -2156,12 +1856,6 @@ namespace ProSport.Infrastructure.Migrations
                 name: "PricingRules");
 
             migrationBuilder.DropTable(
-                name: "RentalSessionAssets");
-
-            migrationBuilder.DropTable(
-                name: "RentalSurcharges");
-
-            migrationBuilder.DropTable(
                 name: "Reports");
 
             migrationBuilder.DropTable(
@@ -2180,22 +1874,16 @@ namespace ProSport.Infrastructure.Migrations
                 name: "Equipments");
 
             migrationBuilder.DropTable(
-                name: "RentalAssets");
-
-            migrationBuilder.DropTable(
-                name: "RentalSessions");
-
-            migrationBuilder.DropTable(
                 name: "Tournaments");
 
             migrationBuilder.DropTable(
                 name: "Transactions");
 
             migrationBuilder.DropTable(
-                name: "EquipmentCategories");
+                name: "ProductStocks");
 
             migrationBuilder.DropTable(
-                name: "ProductStocks");
+                name: "EquipmentCategories");
 
             migrationBuilder.DropTable(
                 name: "EscrowWallets");

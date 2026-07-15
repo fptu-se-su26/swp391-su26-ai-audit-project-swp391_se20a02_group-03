@@ -13,5 +13,4 @@ public class ProductStock : BaseEntity
     public string Status { get; set; } = "Active";
 
     public Complex Complex { get; set; } = null!;
-    public ICollection<RentalAsset> RentalAssets { get; set; } = new List<RentalAsset>();
 }

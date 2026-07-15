@@ -16,14 +16,17 @@ public class OwnerComplexController : OwnerControllerBase
 {
     private readonly IOwnerAccessService _ownerAccessService;
     private readonly IComplexRepository _complexRepository;
+    private readonly IAuditLogService _auditLogService;
 
     public OwnerComplexController(
         ICurrentUserContext currentUser,
         IOwnerAccessService ownerAccessService,
-        IComplexRepository complexRepository) : base(currentUser)
+        IComplexRepository complexRepository,
+        IAuditLogService auditLogService) : base(currentUser)
     {
         _ownerAccessService = ownerAccessService;
         _complexRepository = complexRepository;
+        _auditLogService = auditLogService;
     }
 
     [HttpGet]
@@ -116,6 +119,7 @@ public class OwnerComplexController : OwnerControllerBase
             existing.UpdatedAt = DateTime.UtcNow;
 
             await _complexRepository.UpdateAsync(existing);
+            await _auditLogService.LogAsync(userId, "UPDATE", "Complex", id.ToString(), id, null, existing.Name);
             return ToResult(new ApiResponseDto<Complex>(200, "Cập nhật tổ hợp thành công", existing));
         }
         catch (Exception ex)

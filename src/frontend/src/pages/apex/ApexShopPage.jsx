@@ -63,7 +63,6 @@ export default function ApexShopPage() {
             category: e.category,
             sport: e.type || e.sportType || 'Multi',
             price: e.retailPrice || e.price,
-            rental: e.price !== e.retailPrice ? e.price : null,
             stock: e.stockQuantity,
             img: e.imageUrl || CATEGORY_FALLBACKS[e.category] || FALLBACK_IMG,
             status: e.status,
@@ -82,6 +81,7 @@ export default function ApexShopPage() {
     return () => { active = false }
   }, [])
 
+ feat/DE190130_Hoan_Thien_Frontend
 
 
   const filtered = useMemo(() => products.filter(p => {
@@ -92,6 +92,22 @@ export default function ApexShopPage() {
   }), [products, category, sportFilter, statusFilter])
 
   function addToCart(product, qty = 1) {
+
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      gsap.from('.shop-hero', { opacity: 0, y: 24, duration: 0.6, ease: 'power3.out' })
+      gsap.from('.product-card', { opacity: 0, y: 40, stagger: 0.07, duration: 0.5, ease: 'power2.out', delay: 0.2 })
+    }, pageRef)
+    return () => ctx.revert()
+  }, [category])
+
+  const filtered = useMemo(() => products.filter(p =>
+    (category === 'All' || p.category === category) &&
+    p.status !== 'Discontinued'
+  ), [products, category])
+
+  function addToCart(product) {
+ main
     setCart(prev => {
       const existing = prev.find(i => i.id === product.id)
       if (existing) return prev.map(i => i.id === product.id ? { ...i, qty: i.qty + qty } : i)
@@ -103,6 +119,7 @@ export default function ApexShopPage() {
   }
 
   const removeFromCart = (id) => setCart(prev => prev.filter(i => i.id !== id))
+< feat/DE190130_Hoan_Thien_Frontend
   const cartTotal = cart.reduce((sum, i) => sum + i.price * i.qty, 0)
   const cartCount = cart.reduce((s, i) => s + i.qty, 0)
 
@@ -122,6 +139,35 @@ export default function ApexShopPage() {
               <h1 className="font-heading text-4xl uppercase tracking-tight text-white m-0 mb-2">DANH MỤC THIẾT BỊ</h1>
               <p className="text-[14px] text-white/60 m-0">Khám phá dụng cụ cao cấp cho cầu lông và pickleball.</p>
             </div>
+
+
+  const cartTotal = cart.reduce((sum, i) => sum + i.price * i.qty, 0)
+  const cartCount = cart.reduce((s, i) => s + i.qty, 0)
+
+  return (
+    <ApexLayout title="Cửa hàng">
+      <div className="max-w-[1200px] mx-auto auth-animate-in" ref={pageRef}>
+        {/* Hero */}
+        <div className="shop-hero flex items-center justify-between gap-4 flex-wrap mb-6 bg-ink text-paper p-7">
+          <div>
+            <h1 className="font-heading text-2xl uppercase tracking-[-0.01em] text-paper mb-1">Cửa hàng Pro Gear</h1>
+            <p className="text-sm text-paper/65">Mua thiết bị cao cấp cho trận đấu tiếp theo của bạn.</p>
+          </div>
+          <button className="relative btn-outline !border-paper/30 !text-paper hover:!border-accent hover:!text-accent" onClick={() => setShowCart(!showCart)}>
+            <ShoppingCart size={16} />
+            Giỏ hàng
+            {cartCount > 0 && (
+              <span className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-accent text-ink text-[11px] font-bold flex items-center justify-center">
+                {cartCount}
+              </span>
+            )}
+          </button>
+        </div>
+
+        {/* Categories */}
+        <div className="flex flex-wrap gap-2 mb-6">
+          {categories.map(c => (
+ main
             <button
               className="relative flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white border border-white/20 px-5 py-2.5 rounded-[8px] text-[13px] font-bold transition-all cursor-pointer shrink-0 backdrop-blur-sm"
               onClick={() => setShowCart(!showCart)}
@@ -136,6 +182,7 @@ export default function ApexShopPage() {
             </button>
           </div>
 
+ feat/DE190130_Hoan_Thien_Frontend
           {/* ── PILL CATEGORY TABS ── */}
           <div className="flex flex-wrap gap-2 mb-8">
             {categories.map(c => (
@@ -186,6 +233,28 @@ export default function ApexShopPage() {
                       <input type="radio" className="sr-only" checked={sportFilter === s} onChange={() => setSportFilter(s)} />
                     </label>
                   ))}
+
+        {error && <div className="mb-4 p-4 border-2 border-danger bg-danger-bg text-danger text-sm">{error}</div>}
+        {loading && <PageLoader message="Đang tải sản phẩm..." />}
+
+        <div className="flex flex-col lg:flex-row gap-6 items-start">
+          <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5 w-full">
+            {!loading && filtered.map(p => (
+              <div key={p.id} className="product-card card-base !p-0 overflow-hidden flex flex-col">
+                <img src={p.img} alt={p.name} className="w-full h-40 object-cover border-b-2 border-border-strong" />
+                <div className="p-4 flex-1 flex flex-col">
+                  <p className="label-mono text-foreground-subtle mb-1">{categoryLabels[p.category] || p.category} · {p.sport}</p>
+                  <h3 className="font-sans font-extrabold text-[15px] text-foreground mb-3 flex-1">{p.name}</h3>
+                  <div className="flex items-end justify-between">
+                    <div>
+                      <span className="block font-heading text-lg text-foreground">{Number(p.price).toLocaleString('vi-VN')}₫</span>
+                      <span className="label-mono text-foreground-subtle">Còn {p.stock} sản phẩm</span>
+                    </div>
+                    <button id={`add-btn-${p.id}`} className="btn-primary !h-9 !px-4 text-xs" onClick={() => addToCart(p)} disabled={p.stock <= 0}>
+                      + Thêm
+                    </button>
+                  </div>
+ main
                 </div>
               </div>
 
@@ -250,8 +319,15 @@ export default function ApexShopPage() {
 
                       <div className="flex justify-between items-end mt-auto">
                         <div>
+ feat/DE190130_Hoan_Thien_Frontend
                           <span className="text-lg font-bold text-gray-800 block">{Number(p.price).toLocaleString('vi-VN')}₫</span>
                           <span className="text-xs text-gray-500 mt-1 block">Còn {p.stock} sản phẩm</span>
+
+                          <p className="text-[13px] font-semibold text-foreground mb-0.5">{item.name}</p>
+                          <p className="text-xs text-foreground-muted">
+                            {item.price.toLocaleString('vi-VN')}₫ × {item.qty}
+                          </p>
+ main
                         </div>
 
                         <button

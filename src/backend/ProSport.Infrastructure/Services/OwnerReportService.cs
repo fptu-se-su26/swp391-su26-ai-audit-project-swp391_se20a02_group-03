@@ -33,21 +33,6 @@ public class OwnerReportService : IOwnerReportService
                 && d.Booking.CreatedAt >= fromUtc && d.Booking.CreatedAt <= toUtc)
             .SumAsync(d => (decimal?)d.Price) ?? 0m;
 
-        var rentalRevenue = await _db.RentalSessions
-            .Where(r => r.ComplexId == complexId && !r.IsDeleted && r.CreatedAt >= fromUtc && r.CreatedAt <= toUtc)
-            .SumAsync(r => (decimal?)r.RentalFee) ?? 0m;
-
-        var productRevenue = await _db.BookingDetailEquipments
-            .Where(e => e.BookingId != null
-                && e.Booking!.BookingDetails.Any(d => courtIds.Contains(d.CourtId))
-                && !e.Booking.IsDeleted
-                && e.RentedAt >= fromUtc && e.RentedAt <= toUtc)
-            .SumAsync(e => (decimal?)(e.Quantity * e.UnitPrice + (e.DamageFee ?? 0) + (e.AdditionalCharge ?? 0))) ?? 0m;
-
-        var surchargeRevenue = await _db.RentalSessions
-            .Where(r => r.ComplexId == complexId && !r.IsDeleted && r.CreatedAt >= fromUtc && r.CreatedAt <= toUtc)
-            .SumAsync(r => (decimal?)r.SurchargeTotal) ?? 0m;
-
         var refundAmount = await _db.Bookings
             .Where(b => !b.IsDeleted && b.PaymentStatus == "Refunded"
                 && b.BookingDetails.Any(d => courtIds.Contains(d.CourtId))
@@ -61,7 +46,7 @@ public class OwnerReportService : IOwnerReportService
                 && _db.BookingDetails.Any(d => d.BookingId == t.BookingId && courtIds.Contains(d.CourtId)))
             .SumAsync(t => (decimal?)t.Amount) ?? 0m;
 
-        var net = bookingRevenue + rentalRevenue + productRevenue + surchargeRevenue - refundAmount;
+        var net = bookingRevenue - refundAmount;
 
         var paidBookingRows = await _db.Bookings
             .Where(b => !b.IsDeleted && b.PaymentStatus == "Paid"
@@ -90,9 +75,6 @@ public class OwnerReportService : IOwnerReportService
         return new ApiResponseDto<OwnerReportRevenueDto>(200, "Success", new OwnerReportRevenueDto
         {
             BookingRevenue = bookingRevenue,
-            RentalRevenue = rentalRevenue,
-            ProductRevenue = productRevenue,
-            SurchargeRevenue = surchargeRevenue,
             RefundAmount = refundAmount,
             EscrowHeld = escrowHeld,
             NetRevenue = net,
@@ -134,15 +116,9 @@ public class OwnerReportService : IOwnerReportService
             };
         }).ToList();
 
-        var totalAssets = await _db.RentalAssets.CountAsync(a => a.ComplexId == complexId && !a.IsDeleted);
-        var rentedAssets = await _db.RentalAssets.CountAsync(a => a.ComplexId == complexId && a.Status == RentalAssetStatuses.Rented && !a.IsDeleted);
-        var damaged = await _db.RentalAssets.CountAsync(a => a.ComplexId == complexId && a.Status == RentalAssetStatuses.Damaged && !a.IsDeleted);
-
         return new ApiResponseDto<OwnerReportOccupancyDto>(200, "Success", new OwnerReportOccupancyDto
         {
-            Courts = courtOccupancy,
-            RentalUtilization = totalAssets > 0 ? Math.Round(100m * rentedAssets / totalAssets, 1) : 0,
-            DamageRate = totalAssets > 0 ? Math.Round(100m * damaged / totalAssets, 1) : 0
+            Courts = courtOccupancy
         });
     }
 
@@ -151,11 +127,7 @@ public class OwnerReportService : IOwnerReportService
         return new ApiResponseDto<OwnerReportInventoryDto>(200, "Success", new OwnerReportInventoryDto
         {
             TotalProducts = await _db.ProductStocks.CountAsync(p => p.ComplexId == complexId && !p.IsDeleted),
-            LowStockCount = await _db.ProductStocks.CountAsync(p => p.ComplexId == complexId && !p.IsDeleted && p.Quantity <= p.LowStockThreshold),
-            AvailableAssets = await _db.RentalAssets.CountAsync(a => a.ComplexId == complexId && a.Status == RentalAssetStatuses.Available && !a.IsDeleted),
-            RentedAssets = await _db.RentalAssets.CountAsync(a => a.ComplexId == complexId && a.Status == RentalAssetStatuses.Rented && !a.IsDeleted),
-            DamagedAssets = await _db.RentalAssets.CountAsync(a => a.ComplexId == complexId && a.Status == RentalAssetStatuses.Damaged && !a.IsDeleted),
-            MaintenanceAssets = await _db.RentalAssets.CountAsync(a => a.ComplexId == complexId && a.Status == RentalAssetStatuses.Maintenance && !a.IsDeleted)
+            LowStockCount = await _db.ProductStocks.CountAsync(p => p.ComplexId == complexId && !p.IsDeleted && p.Quantity <= p.LowStockThreshold)
         });
     }
 
@@ -165,9 +137,6 @@ public class OwnerReportService : IOwnerReportService
         var sb = new StringBuilder();
         sb.AppendLine("Metric,Amount");
         sb.AppendLine($"Booking Revenue,{revenue.Data?.BookingRevenue}");
-        sb.AppendLine($"Rental Revenue,{revenue.Data?.RentalRevenue}");
-        sb.AppendLine($"Product Revenue,{revenue.Data?.ProductRevenue}");
-        sb.AppendLine($"Surcharge Revenue,{revenue.Data?.SurchargeRevenue}");
         sb.AppendLine($"Refund,{revenue.Data?.RefundAmount}");
         sb.AppendLine($"Net Revenue,{revenue.Data?.NetRevenue}");
         return new ApiResponseDto<byte[]>(200, "Export thành công.", Encoding.UTF8.GetBytes(sb.ToString()));

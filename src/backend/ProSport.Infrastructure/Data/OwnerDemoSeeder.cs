@@ -113,16 +113,12 @@ public static class OwnerDemoSeeder
         Complex complex,
         CancellationToken cancellationToken)
     {
-        var staffSpecs = new[]
-        {
-            new { Email = "staff1@prosport.vn", CanApplySurcharge = false },
-            new { Email = "staff2@prosport.vn", CanApplySurcharge = true }
-        };
+        var staffEmails = new[] { "staff1@prosport.vn", "staff2@prosport.vn" };
 
-        foreach (var spec in staffSpecs)
+        foreach (var email in staffEmails)
         {
             var staff = await context.Users.AsNoTracking()
-                .FirstOrDefaultAsync(u => u.Email == spec.Email, cancellationToken);
+                .FirstOrDefaultAsync(u => u.Email == email, cancellationToken);
             if (staff == null)
                 continue;
 
@@ -139,8 +135,6 @@ public static class OwnerDemoSeeder
                 Status = "Active",
                 CanCheckIn = true,
                 CanCreateWalkIn = true,
-                CanManageRental = true,
-                CanApplySurcharge = spec.CanApplySurcharge,
                 AssignedByUserId = owner.UserId,
                 CreatedAt = DateTime.UtcNow,
                 IsDeleted = false

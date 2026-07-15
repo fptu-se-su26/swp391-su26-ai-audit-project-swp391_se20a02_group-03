@@ -16,11 +16,10 @@ namespace ProSport.Tests;
 public class EquipmentControllerTests
 {
     private readonly Mock<IEquipmentService> _equipmentServiceMock = new();
-    private readonly Mock<IEquipmentRentalService> _rentalServiceMock = new();
     private readonly Mock<ICartService> _cartServiceMock = new();
 
     private EquipmentController CreateController() =>
-        new(_equipmentServiceMock.Object, _rentalServiceMock.Object, _cartServiceMock.Object);
+        new(_equipmentServiceMock.Object, _cartServiceMock.Object);
 
     [Fact]
     public async Task GetById_WhenFound_ReturnsHttp200_WithEnvelope()
