@@ -47,6 +47,15 @@ export default function AdminComplaintsPage() {
     [reports, filter]
   )
 
+  // Khi đổi filter (hoặc reload danh sách), nếu khiếu nại đang chọn không còn nằm trong danh
+  // sách đang hiển thị, phải bỏ chọn — tránh panel chi tiết hiển thị "lơ lửng" một item đã bị
+  // filter ẩn đi, gây hiểu nhầm là item đó vẫn nằm trong danh sách đang xem.
+  useEffect(() => {
+    if (selectedId != null && !filtered.some(r => r.reportId === selectedId)) {
+      setSelectedId(null)
+    }
+  }, [filtered, selectedId])
+
   const selected = useMemo(
     () => reports.find(r => r.reportId === selectedId) || null,
     [reports, selectedId]
@@ -82,11 +91,13 @@ export default function AdminComplaintsPage() {
           <p className="text-sm text-foreground-muted">Xử lý các báo cáo bùng kèo và tranh chấp giao dịch.</p>
         </div>
 
-        <div className="flex gap-2 flex-wrap">
+        <div className="flex gap-2 flex-wrap" role="group" aria-label="Lọc theo trạng thái">
           {FILTERS.map(f => (
             <button
               key={f.key}
+              type="button"
               onClick={() => setFilter(f.key)}
+              aria-pressed={filter === f.key}
               className={`px-4.5 h-11 font-sans text-[11.5px] font-bold uppercase tracking-[0.04em] border-2 rounded-[2px] transition-colors cursor-pointer ${
                 filter === f.key
                   ? 'bg-ink border-ink text-paper'
@@ -112,10 +123,12 @@ export default function AdminComplaintsPage() {
                 const meta = STATUS_META[r.status] || STATUS_META.Pending
                 const active = r.reportId === selectedId
                 return (
-                  <div
+                  <button
                     key={r.reportId}
+                    type="button"
                     onClick={() => setSelectedId(r.reportId)}
-                    className={`p-4.5 cursor-pointer border-l-4 transition-colors ${active ? 'bg-background-base ' + meta.border : 'hover:bg-surface-hover border-transparent'}`}
+                    aria-current={active ? 'true' : undefined}
+                    className={`w-full text-left p-4.5 cursor-pointer border-l-4 transition-colors bg-transparent ${active ? 'bg-background-base ' + meta.border : 'hover:bg-surface-hover border-transparent'}`}
                   >
                     <div className="flex justify-between items-center mb-1.5">
                       <span className="font-extrabold text-foreground text-sm">#RP-{r.reportId}</span>
@@ -125,7 +138,7 @@ export default function AdminComplaintsPage() {
                     <p className="text-xs text-foreground-muted mt-1">
                       {r.reporterName || `#${r.reporterId}`} → {r.reportedUserName || `#${r.reportedUserId}`} • {new Date(r.createdAt).toLocaleDateString('vi-VN')}
                     </p>
-                  </div>
+                  </button>
                 )
               })}
             </div>

@@ -655,3 +655,55 @@
 - Smoke test browser (owner, `courtowner@prosport.vn`): lưu tổ hợp thành công, khung giờ walk-in đủ 05:00–22:00, logo sidebar không còn cảnh báo `validateDOMNesting`, audit log ghi nhận đúng.
 - Smoke test browser (staff, `staff1@prosport.vn`): 14 trang `/elite/*` + `/dashboard/*` duyệt không lỗi console mới; 2 lần tạo walk-in (khách vãng lai + khách có email) đều `201 Created`; trang Lịch thời gian thực render đúng slot vừa tạo, không crash.
 - Push fast-forward thành công: `origin/DE190147/audit-module` @ **`1bf691f`** (`b53e171..1bf691f`, 101 files); các commit audit Owner/Staff (`a912fc7`, `5269efa`, `fc46b44`, `89fbc99`) hiện ở local, chưa push lên remote — cần `git push` (và có thể `git pull --rebase` trước, vì nhánh đang behind 42 so với remote) để đồng bộ.
+
+---
+
+## Log #19
+- **Ngày:** 2026-07-16
+- **Người thực hiện:** Phạm Nguyễn Tiến Đạt
+- **Công cụ AI:** Claude Code (Claude Sonnet 5)
+- **Mục đích:** Tiếp nối Tổng kiểm định vận hành sau Log #18 — tích hợp nhánh song song đang làm dở (worktree Codex/Antigravity), vá 5 lỗi P1 xuyên portal (Gear, Admin) theo TDD, và bắt đầu xử lý các lỗi accessibility/contract còn sót ở Admin/Owner Portal.
+- **Tham chiếu Prompt:** Prompt #19
+- **Trạng thái:** **Chưa commit** — toàn bộ thay đổi còn ở working tree, dừng giữa chừng theo yêu cầu để kiểm tra tình trạng hệ thống trước khi quyết định chốt commit.
+
+### Tóm tắt kết quả AI
+
+**A. Tích hợp nhánh song song & 3 lỗi merge chặn build (phát sinh sau Log #18, không thuộc phạm vi log đó)**
+- Xác nhận `implement-ui-from-design` (worktree Codex/Antigravity) là nhánh con của working branch hiện tại (`git merge-base --is-ancestor`) rồi `git merge --ff-only` an toàn (~170 commit, không rebase/force).
+- `DatabaseBootstrap.cs`: 2 dòng text thô là tên nhánh git (`feat/DE190130_Hoan_Thien_Frontend`, `main`) sót lại giữa thân hàm `BaselineAsync` do gỡ conflict-marker thủ công không sạch — lỗi biên dịch CS1002, chặn toàn bộ `dotnet build`/`dotnet test`.
+- `EscrowServiceTests.cs`: dòng `Mock.Of<IVnPayService>()` bị nhân đôi khi merge, khiến constructor `EscrowService` (4 tham số) nhận 5 đối số — lỗi CS1729.
+- `ApexShopPage.jsx`: hai nhánh JSX/logic trùng lặp chưa resolve, còn nguyên text tên nhánh git giữa file — ESLint parser lỗi fatal, chặn `npm run lint`/`npm run build` toàn dự án. Đọc lại toàn bộ ~486 dòng, đối chiếu contract thật (`EquipmentDto`, seed data) và viết lại thành một component thống nhất.
+
+**B. Năm lỗi P1 (mỗi lỗi có regression test viết trước/song song khi sửa)**
+1. **CartCheckoutPage:** checkout theo `bookingId` gọi `clearCart()` (xóa toàn bộ giỏ) thay vì chỉ thanh toán các item đã chọn; điều kiện thành công chỉ nhận đúng `response?.success === true`; `grandTotal` tính lại có fallback an toàn từ `itemsToCheckout`. Đổi sang gọi `refreshCart()`.
+2. **AdminUsersPage:** effect debounce cũ phụ thuộc cả `page`, tự reset về trang 1 sau ~400ms bất kể người dùng đang ở trang nào. Gộp `search/role/page` thành một state `query` nguyên tử, `fetchUsers` viết lại thành `useCallback` thuần với `AbortController` chống race điều kiện.
+3. **Court status contract:** `CourtService.UpdateCourtAsync` lưu thẳng `dto.Status` dạng API-casing (`"ACTIVE"`) vào DB thay vì chuẩn hóa qua `CourtStatuses.NormalizeApiStatus` — chỉ cần admin sửa tên sân (không đụng trạng thái) là `IsBookable` âm thầm sai vì DB lưu literal "ACTIVE" thay vì "Available". FE `<select>` cũng dùng sai casing và còn 2 option không tồn tại thật (Booked/Closed).
+4. **AdminKycPage:** dùng ảnh Unsplash ngẫu nhiên làm fallback khi thiếu/lỗi ảnh bằng chứng CCCD — Admin có thể nhầm ảnh giả là hồ sơ thật. Thay bằng trạng thái rõ ràng "Chưa có bằng chứng"/"Không tải được ảnh" theo dõi riêng từng ảnh, khóa nút Phê duyệt cho đến khi ảnh bắt buộc tải xong, thêm `ConfirmDialog` trước khi duyệt, chặn double-click.
+5. **GearCatalogPage:** tham chiếu `CATEGORY_FALLBACKS` chưa import (crash runtime) + nguy cơ lặp vô hạn sự kiện `onError` khi ảnh fallback cũng lỗi.
+
+**C. Task III — Vá lỗi Admin còn sót (đang làm, chưa hết danh sách)**
+- **AdminComplaintsPage:** đổi filter không bỏ chọn khiếu nại đang xem — panel chi tiết hiển thị "lơ lửng" một khiếu nại không còn nằm trong danh sách đã lọc. Thêm effect bỏ chọn khi item rớt khỏi `filtered`.
+- **`aria-pressed`/`role="group"`** cho toàn bộ nhóm filter-pill trên Admin (Complaints, Users, Courts, Bookings, Kyc) — trước đó là nút thường, không có ngữ nghĩa toggle cho trình đọc màn hình.
+- **AdminUsersPage:** bổ sung role `CourtOwner` (đối chiếu đúng hằng số `Roles.cs` backend) vào tab lọc — trước đó chỉ có Admin/Staff/Customer nên Admin không lọc được tài khoản chủ sân.
+- Bổ sung `aria-label` cho 4 ô tìm kiếm chỉ có placeholder (Users/Inventory/Courts/Bookings) — placeholder không phải tên truy cập hợp lệ.
+- Đổi dòng danh sách clickable từ `<div onClick>` sang `<button>` thật (Complaints, Kyc) để dùng được bằng bàn phím.
+- Thêm focus-trap thật + Escape-to-close + `role="dialog"`/`aria-labelledby`/khóa cuộn body cho 2 modal overlay còn lại (`CourtFormModal`, hộp thoại từ chối trong AdminKycPage), dùng chung hook `useFocusTrap` mới viết.
+- Mở rộng đúng fix mobile-sidebar accessibility đã áp cho `AdminLayout` (inert/aria-hidden khi đóng, focus trap, Escape, trả focus về nút hamburger) sang `OwnerSidebar`/`OwnerHeader`/`OwnerLayout`, qua hook `useIsDesktop` mới (dùng `matchMedia` thay vì suy luận từ state "đang mở").
+
+### Quyết định & Can thiệp của con người
+- **Chỉ đạo phạm vi:** Yêu cầu tiếp nhận và hoàn thiện phần Codex/Antigravity đang làm dở, xử lý tận gốc (không chỉ để build/test xanh), không dừng sau vài lỗi đầu tiên, viết test trước cho mỗi bug.
+- **Chấp nhận việc mở rộng phạm vi ngoài danh sách gốc:** Đồng ý để AI tự vá 3 lỗi merge-corruption phát hiện qua audit (không nằm trong yêu cầu ban đầu) vì đây là điều kiện tiên quyết để chạy được `dotnet test`/`npm run build`/`npm run lint` theo đúng yêu cầu kiểm chứng.
+- **Dừng đúng lúc để kiểm tra tình trạng hệ thống:** Sau khi hỏi ước lượng khối lượng công việc/token còn lại, chủ động yêu cầu tạm dừng và hỏi thẳng "hệ thống có bug gì không, dùng để review được chưa" — buộc AI chạy lại `npx eslint .`, `npx vitest run`, `npm run build` toàn dự án để xác nhận trạng thái thật thay vì suy đoán.
+- **Không chấp nhận báo cáo mập mờ:** Yêu cầu ghi rõ cả phần **chưa xong** (AdminPricingPage mobile-overflow 320px mới phân tích chưa vá; Task IV/V/VI/VII chưa bắt đầu) thay vì chỉ liệt kê phần đã làm.
+
+### Áp dụng cho
+- **Backend:** `CourtService.cs`, `DatabaseBootstrap.cs`, `EscrowServiceTests.cs`; test mới `CourtServiceTests.cs` (4 method, 8 test case qua Theory).
+- **Frontend:** `api/userApi.js`, `components/owner/OwnerHeader.jsx`, `components/owner/OwnerSidebar.jsx`, `layouts/AdminLayout.jsx`, `layouts/OwnerLayout.jsx`, `pages/admin/{AdminBookingsPage,AdminComplaintsPage,AdminCourtsPage,AdminInventoryPage,AdminKycPage,AdminUsersPage}.jsx`, `pages/apex/ApexShopPage.jsx`, `pages/gear/{CartCheckoutPage,GearCatalogPage}.jsx`, `vite.config.js`, `package.json` (thêm devDependency `@testing-library/react` + `jest-dom` + `user-event`).
+- **Frontend (mới):** `hooks/useFocusTrap.js`, `hooks/useIsDesktop.js`, `test/setup.js` (RTL `afterEach(cleanup)`), 7 file test (`AdminComplaintsPage`, `AdminCourtsPage`, `AdminKycPage`, `AdminUsersPage`, `ApexShopPage`, `CartCheckoutPage`, `GearCatalogPage`).
+
+### Kiểm chứng
+- Frontend: ESLint toàn dự án — **0 lỗi**; Vitest — **62/62 pass** (9 file test, gồm cả 7 test mới); `npm run build` — thành công.
+- Backend: sau khi vá 2 lỗi merge-corruption, build lại được; `CourtServiceTests` mới (8/8 pass qua Theory) xác nhận round-trip trạng thái sân không còn regressive.
+- Đã khởi động backend thật (`dotnet run`, kết nối SQL Server thật) để chuẩn bị smoke test bằng browser ở viewport 320px — **phiên browser bị treo/mất tab giữa chừng**, chưa hoàn tất xác minh trực quan; đã tắt sạch process `dotnet` chạy nền trước khi dừng phiên.
+- **Chưa làm / còn tồn đọng (không được báo cáo là xong):** fix AdminPricingPage mobile-overflow 320px (mới chẩn đoán, chưa áp code); toàn bộ Task IV (Owner còn sót), Task V (Cart drawer/CartPage/Gear routes), Task VI (Mobile + Staff/Elite — theo đúng brief gốc là phần gần như chưa động tới), Task VII (verification cuối + bảng PASS/FAIL route) của bản yêu cầu 9 phần vẫn chưa bắt đầu.
+- **Chưa commit:** toàn bộ thay đổi trên vẫn ở working tree của nhánh `DE190147/audit-module`, dừng theo yêu cầu người dùng để đánh giá tình trạng trước khi quyết định chốt một mốc commit.
