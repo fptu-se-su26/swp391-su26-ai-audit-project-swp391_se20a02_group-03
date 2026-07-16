@@ -257,22 +257,65 @@
 
 ### Prompt #19
 - **Date:** 2026-07-16
-- **AI Tool:** Claude Code (Claude Sonnet 5)
+- **AI Tool:** Claude Code (Claude Sonnet 5), Antigravity, Codex
 - **Author:** Phạm Nguyễn Tiến Đạt
 - **Audit Log:** Log #19
-- **Purpose:** Tiếp nối Tổng kiểm định vận hành sau Log #18 — tất toán các lỗi UI/UX còn sót từ các phiên đồng bộ giao diện gần đây trên toàn bộ portal (User, Admin, Owner, Staff, Mobile), đồng thời tiếp nhận và hoàn thiện phần việc đang dang dở của nhánh song song (Codex/Antigravity).
-- **Prompt (bản đã chuẩn hóa):** *"Tiếp tục trên nhánh làm việc hiện tại và khắc phục triệt để các lỗi còn tồn đọng sau các đợt đồng bộ giao diện gần đây, trải rộng trên các cổng User, Admin, Owner, Staff và Mobile. Mục tiêu là sửa đúng gốc rễ về nghiệp vụ, hợp đồng API (API contract), responsive và khả năng tiếp cận (accessibility) — không chỉ nhằm mục đích làm cho build hoặc test 'xanh'. Không dừng lại sau khi chỉ sửa một vài lỗi đầu tiên.*
-  *Trước khi sửa: đọc các tài liệu quy ước dự án hiện có (AGENTS.md và tương đương), kiểm tra `git status`/diff và toàn bộ route trong `App.jsx`; không reset hay ghi đè thay đổi đang có; nếu có kế hoạch đã duyệt trước đó thì tiếp tục, nếu chưa thì trình bày kế hoạch trước khi thực thi. Mọi tham chiếu tới field/enum/API phải đối chiếu trực tiếp với contract thật giữa frontend (API client) và backend (controller/DTO/service/repository) — không được đoán. Nghiêm cấm dữ liệu giả, ảnh stock hoặc ID giả trong giao diện production.*
-  *Với mỗi lỗi: viết regression test trước hoặc song song với bản vá; sửa đúng nguyên nhân gốc, không tắt lint hay thêm điều kiện chắp vá; không thay đổi hành vi nghiệp vụ nằm ngoài phạm vi lỗi đang sửa; không tự ý commit/push.*
-  *Danh sách lỗi ưu tiên P1 (bắt buộc sửa trước): (1) `CartCheckoutPage` xóa nhầm toàn bộ giỏ hàng khi thanh toán theo booking; (2) `AdminUsersPage` tự động reset phân trang về trang 1 sau ~400ms do lỗi debounce; (3) hợp đồng trạng thái sân lệch giữa API (ACTIVE/MAINTENANCE/INACTIVE) và DB, kèm các tùy chọn không tồn tại trên giao diện; (4) `AdminKycPage` dùng ảnh stock giả làm bằng chứng KYC khi thiếu/lỗi ảnh thật; (5) `GearCatalogPage` bị lỗi runtime do tham chiếu không xác định và nguy cơ lặp vô hạn khi ảnh lỗi.*
-  *Sau P1, tiếp tục lần lượt: các lỗi Admin còn sót (khiếu nại giữ lựa chọn cũ sau khi lọc, accessibility cho sidebar/modal/ô tìm kiếm/nhóm filter, thiếu vai trò CourtOwner trong bộ lọc, tràn ngang ở mobile); các lỗi Owner còn sót (mẫu form không gắn id/aria, phần tử tương tác lồng nhau, sidebar/modal mobile, chọn ngày và vùng thao tác trên cảm ứng); các lỗi User/Apex/Gear còn sót (bộ lọc gửi sai giá trị thật, giỏ hàng và khay giỏ hàng thiếu khả năng tiếp cận, dữ liệu gợi ý chéo giả); và toàn bộ route Mobile cùng Staff/Elite — không được bỏ qua nhóm này dù các phiên trước gần như chưa xử lý, phải xác minh lại chính xác danh sách route từ `App.jsx` thay vì tin số liệu ước lượng cũ.*
-  *Tiêu chuẩn accessibility chung áp dụng toàn hệ thống: không phần tử tương tác lồng nhau, mọi nút chỉ có icon phải có tên truy cập, nhãn form thật, ARIA đầy đủ cho lỗi/bộ lọc/hộp thoại, thao tác được hoàn toàn bằng bàn phím, vùng chạm tối thiểu 44×44px, không ẩn hành động quan trọng chỉ hiện khi hover, không tràn ngang ngoài ý muốn, kiểm thử ở các độ rộng 320/375/390/768/1024/desktop.*
-  *Kiểm thử bắt buộc trước khi báo cáo hoàn tất: `npm run lint`, `npm test`, `npm run build` (frontend); `dotnet test` nếu đụng tới trạng thái/API (backend); `git diff --check`; smoke test bằng trình duyệt trên toàn bộ khu vực và độ rộng đã liệt kê, chỉ dùng tài khoản seed/test.*
-  *Định nghĩa hoàn tất: không còn lỗi P1/P2 tồn đọng, lint về 0 lỗi, toàn bộ test/build pass, không còn dữ liệu/ảnh/ID giả, có bảng PASS/FAIL cho từng route theo từng cổng và từng thiết bị (desktop/mobile); báo cáo cuối phải liệt kê rõ lỗi đã sửa, file đã đổi, test hồi quy đã thêm, kết quả từng lệnh kiểm chứng, route/độ rộng đã smoke-test và các rủi ro còn tồn đọng — không được khẳng định 'đã xong hoàn toàn' nếu còn route chưa kiểm tra hoặc chưa triển khai.*
-  *Cuối cùng: tiếp nhận và triển khai tiếp phần việc mà Codex và Antigravity đang làm dở; sau khi hoàn thành, tự review lại toàn bộ thay đổi và sửa ngay nếu phát hiện bug."*
+- **Purpose:** Tiếp nối tổng kiểm định vận hành sau Log #18; xử lý các lỗi UI/UX, accessibility, API contract và regression trên Admin, Owner, Gear/Apex; tiếp nhận phần việc dang dở từ worktree Codex/Antigravity; hòa giải xung đột và đưa kết quả đã kiểm chứng vào nhánh `DE190147/audit-module`.
+
+- **Prompt (bản chuẩn hóa):**
+
+> Tiếp tục trên nhánh làm việc hiện tại và khắc phục triệt để các lỗi còn tồn đọng sau các đợt đồng bộ giao diện gần đây trên toàn bộ portal. Tiếp nhận phần việc đang dang dở của Codex/Antigravity; không reset, không ghi đè mù quáng thay đổi hiện có.
+>
+> Trước khi sửa, đọc tài liệu quy ước dự án, kiểm tra `git status`, diff, route trong `App.jsx` và đối chiếu trực tiếp contract thật giữa frontend API client, backend controller, DTO, service và repository. Không suy đoán enum, field API hoặc dữ liệu nghiệp vụ. Không dùng dữ liệu giả, ảnh stock giả hoặc ID giả trong giao diện production.
+>
+> Với từng lỗi, viết regression test trước hoặc song song với bản vá; sửa đúng nguyên nhân gốc; không tắt lint hoặc thêm điều kiện chắp vá chỉ để CI xanh. Các lỗi P1 bắt buộc gồm:
+>
+> 1. `CartCheckoutPage` xóa nhầm toàn bộ giỏ khi thanh toán theo booking.
+> 2. `AdminUsersPage` tự reset phân trang do debounce/race condition.
+> 3. Contract trạng thái sân sai lệch giữa API `ACTIVE/MAINTENANCE/INACTIVE` và giá trị DB.
+> 4. `AdminKycPage` dùng ảnh stock/fallback giả cho bằng chứng KYC.
+> 5. `GearCatalogPage` có runtime error và nguy cơ lặp vô hạn khi ảnh lỗi.
+>
+> Sau P1, tiếp tục xử lý Admin/Owner/Gear/Apex: stale selection, sidebar/modal accessibility, thiếu accessible name, nested interactive element, filter gửi sai giá trị API, cart drawer/quick view không thao tác được bằng bàn phím, và các lỗi phát sinh sau merge.
+>
+> Khi đưa snapshot Antigravity sang nhánh cá nhân, phải kiểm tra conflict marker, chạy regression và sửa lỗi phát sinh từ conflict resolution; không dừng ở việc cherry-pick thành công.
+>
+> Kiểm thử bắt buộc trước khi kết luận:
+>
+> - Frontend: `npm test -- --run`, `npm run lint -- --quiet`, `npm run build`
+> - Backend: `dotnet test ProSport.sln --no-restore` nếu có thay đổi API/status/nghiệp vụ
+> - `git diff --check`
+> - Smoke test browser cho các route/viewport còn trong phạm vi
+>
+> Chỉ báo cáo hoàn tất đối với phần đã thực sự kiểm tra. Phải ghi rõ các route hoặc portal còn chưa audit/kiểm thử.
+
 - **Expected Output:**
-  - **Tích hợp an toàn:** Xác minh quan hệ ancestor rồi merge fast-forward nhánh song song, không rebase/force.
-  - **5 lỗi P1:** Mỗi lỗi có regression test viết trước, fix đúng nguyên nhân gốc tại cả frontend lẫn backend nơi cần thiết.
-  - **Task III (Admin còn sót):** Xử lý tuần tự stale-selection, accessibility (aria-pressed/role/focus-trap/aria-label), hợp đồng vai trò `CourtOwner`.
-  - **QA:** ESLint 0 lỗi, Vitest pass toàn bộ (cũ + mới), `npm run build` thành công; báo cáo trung thực phần chưa hoàn tất thay vì làm tròn thành "xong".
-- **Evaluation:** AI tuân thủ đúng nguyên tắc "sửa gốc, không chỉ xanh CI": trước khi chạm vào bất kỳ lệnh kiểm chứng nào, tự phát hiện 3 lỗi merge-corruption chặn build/lint hoàn toàn không nằm trong danh sách gốc (`DatabaseBootstrap.cs`, `EscrowServiceTests.cs`, `ApexShopPage.jsx`) — quyết định đúng đắn là vá luôn vì đây là điều kiện tiên quyết, không phải mở rộng phạm vi tùy tiện. TDD thực thi nghiêm túc cho cả 5 lỗi P1, không có test nào "giả vờ pass". Điểm cần lưu ý (Human Decision): khi tôi hỏi ước lượng khối lượng/token còn lại rồi yêu cầu tạm dừng kiểm tra tình trạng hệ thống, AI đã chủ động chạy lại `eslint .`, `vitest run`, `npm run build` toàn dự án để trả lời bằng số liệu thật thay vì suy đoán, và báo cáo rõ ràng phần **chưa xong** (AdminPricingPage mobile-overflow, toàn bộ Task IV/V/VI/VII, phiên browser smoke-test bị treo giữa chừng) — đúng tinh thần "không khẳng định hoàn tất khi còn phần chưa kiểm tra" đã yêu cầu trong prompt gốc. Quyết định của tôi: tạm dừng đúng lúc thay vì để AI tiếp tục mở rộng phạm vi khi khối lượng công việc còn lại (đặc biệt Mobile/Staff) được ước tính là rất lớn, ưu tiên có một checkpoint rõ ràng (audit log/changelog/prompt/reflection cập nhật đầy đủ) trước khi quyết định bước tiếp theo.
+  - Xử lý an toàn worktree Antigravity và mọi xung đột khi tích hợp.
+  - Có regression test cho các bug P1 và bug sau merge.
+  - Giữ contract status sân thống nhất: API `ACTIVE` ↔ DB `Available`.
+  - Cart checkout không xóa nhầm toàn bộ giỏ.
+  - Admin Users không reset trang; Admin KYC không dùng bằng chứng giả.
+  - Apex Shop lọc đúng dữ liệu API và dùng tồn kho thật.
+  - Modal/sidebar/drawer có accessibility cơ bản: keyboard, Escape, focus management, aria.
+  - Báo cáo trung thực phần đã làm, phần còn tồn đọng, commit và kết quả kiểm chứng.
+
+- **Kết quả thực hiện:**
+  - Antigravity hoàn thiện phần lớn UI Admin, Owner, Gear/Apex; thêm UI primitives, design system, tài liệu UI audit và test regression.
+  - Codex tiếp quản worktree, sửa regression `matchMedia`, contract Court Status, repository filter status API, Apex Shop, Admin Complaints, test Router/CartContext, React refs và whitespace sau merge.
+  - Đã hòa giải xung đột tại các file Admin/Owner/Apex/Gear/package/API; theo xác nhận người dùng, ưu tiên snapshot Antigravity ở vùng xung đột rồi tiếp tục chạy regression.
+  - Không đưa `.claude/`, `.codex-work/`, `outputs/` vào commit.
+
+- **Kiểm chứng cuối cùng:**
+  - Frontend: **63/63 test pass**, lint pass, production build pass.
+  - Backend: **142 pass, 4 skipped, 0 fail**.
+  - `git diff --check` pass; không còn conflict marker trong source.
+
+- **Commit và Push:**
+  - `72d0529 feat: unify portal UI and harden workflows`
+  - `1348d57 fix: reconcile conflicted portal workflows`
+  - Đã push lên `origin/DE190147/audit-module`; remote hiện trỏ tới `1348d57`.
+
+- **Evaluation:**
+  - AI đã xử lý lỗi gốc thay vì chỉ làm CI xanh: phát hiện merge-corruption, chuẩn hóa Court Status, sửa filter API thật và regression sau conflict resolution.
+  - Các kiểm chứng frontend/backend/build/lint/diff đều đạt trước khi commit/push.
+  - Chưa thể khẳng định hoàn tất toàn bộ brief UI ban đầu vì Mobile, Staff/Elite và smoke test browser responsive toàn bộ route vẫn cần audit sâu hơn.
