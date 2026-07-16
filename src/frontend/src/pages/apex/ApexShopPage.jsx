@@ -1,12 +1,14 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { gsap } from 'gsap'
 import ApexLayout from '../../layouts/ApexLayout'
+import { Link } from 'react-router-dom'
+import { useCart } from '../../context/CartContext'
 import { equipmentApi } from '../../api/equipmentApi'
 import PageLoader from '../../components/ui/PageLoader'
 import EmptyState from '../../components/ui/EmptyState'
 import { useToast } from '../../components/Toast'
 import { ShoppingCart, X, Frown, RotateCcw, Package } from 'lucide-react'
-import { useCart } from '../../context/CartContext'
+
 import { useNavigate } from 'react-router-dom'
 
 // Fallback: clean white-bg studio product shot
@@ -113,20 +115,16 @@ export default function ApexShopPage() {
   const [category, setCategory] = useState('All')
   const [sportFilter, setSportFilter] = useState('')
   const [stockFilter, setStockFilter] = useState('all')
-  const [showCart, setShowCart] = useState(false)
   const [selectedProduct, setSelectedProduct] = useState(null)
   const [quantity, setQuantity] = useState(1)
   const { addToast } = useToast()
   const pageRef = useRef(null)
-  const cartTriggerRef = useRef(null)
-  const cartDialogRef = useRef(null)
   const quickViewTriggerRef = useRef(null)
   const quickViewDialogRef = useRef(null)
 
   const navigate = useNavigate()
-  const { cartItems, cartCount, addToCart: ctxAddToCart, removeFromCart: ctxRemoveFromCart } = useCart()
+  const { cartCount, addToCart: globalAddToCart } = useCart()
 
-  useDialogFocus(showCart, cartDialogRef, cartTriggerRef, () => setShowCart(false))
   useDialogFocus(Boolean(selectedProduct), quickViewDialogRef, quickViewTriggerRef, () => setSelectedProduct(null))
 
   useEffect(() => {
@@ -144,6 +142,7 @@ export default function ApexShopPage() {
             category: e.category,
             sport: e.type || e.sportType || 'Multi',
             price: e.retailPrice || e.price,
+            rental: e.price !== e.retailPrice ? e.price : null,
             stock: e.stockQuantity,
             img: e.imageUrl || CATEGORY_FALLBACKS[e.category] || FALLBACK_IMG,
             status: e.status,
@@ -179,7 +178,7 @@ export default function ApexShopPage() {
   }), [products, category, sportFilter, stockFilter])
 
   async function addToCart(product, qty = 1) {
-    const res = await ctxAddToCart(product.id, qty);
+    const res = await globalAddToCart(product.id, qty)
     if (res && res.success) {
       gsap.from(`#add-btn-${product.id}`, { scale: 0.8, duration: 0.25, ease: 'back.out(2)' })
       addToast(`Đã thêm ${product.name} vào giỏ hàng`, 'success')
@@ -188,9 +187,6 @@ export default function ApexShopPage() {
       addToast(res?.message || 'Có lỗi xảy ra', 'error')
     }
   }
-
-  const handleRemoveFromCart = (cartItemId) => ctxRemoveFromCart(cartItemId)
-  const cartTotal = cartItems.reduce((sum, i) => sum + (i.unitPrice || i.price) * (i.quantity || i.qty), 0)
 
   const resetFilters = () => { setCategory('All'); setSportFilter(''); setStockFilter('all') }
 
@@ -208,13 +204,9 @@ export default function ApexShopPage() {
               <h1 className="font-heading text-4xl uppercase tracking-tight text-white m-0 mb-2">DANH MỤC THIẾT BỊ</h1>
               <p className="text-[14px] text-white/60 m-0">Khám phá dụng cụ cao cấp cho cầu lông và pickleball.</p>
             </div>
-            <button
-              ref={cartTriggerRef}
-              aria-haspopup="dialog"
-              aria-expanded={showCart}
-              aria-controls={showCart ? 'apex-cart-drawer' : undefined}
-              className="relative flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white border border-white/20 px-5 py-2.5 rounded-[8px] text-[13px] font-bold transition-all cursor-pointer shrink-0 backdrop-blur-sm"
-              onClick={() => setShowCart(!showCart)}
+            <Link
+              to="/gear/cart"
+              className="relative flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white border border-white/20 px-5 py-2.5 rounded-[8px] text-[13px] font-bold transition-all cursor-pointer shrink-0 backdrop-blur-sm no-underline"
             >
               <ShoppingCart size={16} />
               Giỏ hàng
@@ -223,7 +215,7 @@ export default function ApexShopPage() {
                   {cartCount}
                 </span>
               )}
-            </button>
+            </Link>
           </div>
           {/* ── PILL CATEGORY TABS ── */}
           <div className="flex flex-wrap gap-2 mb-8">
@@ -378,73 +370,7 @@ export default function ApexShopPage() {
         </div>
       </div>
 
-      {/* CART DRAWER */}
-      {showCart && <div className="fixed inset-0 z-[999] animate-in fade-in duration-200">
-        <div
-          className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-          onClick={() => setShowCart(false)}
-        />
-        <div
-          id="apex-cart-drawer"
-          ref={cartDialogRef}
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="apex-cart-title"
-          tabIndex={-1}
-          className="absolute top-0 right-0 h-full w-full sm:w-[400px] bg-white shadow-2xl flex flex-col animate-in slide-in-from-right duration-300"
-        >
-          <div className="flex items-center justify-between p-6 border-b border-gray-100 bg-white relative z-10">
-            <h3 id="apex-cart-title" className="font-heading text-lg uppercase tracking-wider text-gray-900 m-0">Giỏ hàng ({cartCount})</h3>
-            <button aria-label="Đóng giỏ hàng" className="bg-gray-100 border-0 text-gray-500 hover:text-gray-900 hover:bg-gray-200 cursor-pointer p-2 rounded-full transition-colors" onClick={() => setShowCart(false)}>
-              <X size={18} />
-            </button>
-          </div>
 
-          <div className="flex-1 overflow-y-auto p-6 scrollbar-hide bg-gray-50/50">
-            {cartItems.length === 0 ? (
-              <div className="text-center py-20 text-gray-400 text-[14px]">
-                <ShoppingCart size={48} className="mx-auto mb-4 opacity-20" />
-                Giỏ hàng của bạn đang trống
-              </div>
-            ) : (
-              <div className="flex flex-col gap-4">
-                {cartItems.map(item => (
-                  <div key={item.cartItemId || item.id} className="flex items-start gap-4 p-4 bg-white rounded-xl border border-gray-100 shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
-                    <img src={item.imageUrl || item.img || FALLBACK_IMG} alt={item.equipmentName || item.name} className="w-20 h-20 object-contain bg-gray-50 rounded-lg p-2 border border-gray-100 shrink-0" />
-                    <div className="flex-1 min-w-0 py-1">
-                      <p className="text-[13px] font-bold text-gray-900 m-0 mb-1 leading-tight">{item.equipmentName || item.name}</p>
-                      <p className="text-[12px] text-gray-500 font-medium m-0 mb-3">
-                        {(item.unitPrice || item.price).toLocaleString('vi-VN')}₫
-                      </p>
-                      <div className="flex items-center justify-between">
-                        <span className="text-[11px] font-bold text-[#14b8a6] bg-teal-50 px-2.5 py-1 rounded-md">SL: {item.quantity || item.qty}</span>
-                        <button aria-label={`Xóa ${item.equipmentName || item.name} khỏi giỏ`} className="text-gray-400 hover:text-red-500 transition-colors cursor-pointer bg-transparent border-0 p-1 rounded hover:bg-red-50" onClick={() => handleRemoveFromCart(item.cartItemId || item.id)}>
-                          <X size={16} />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {cartItems.length > 0 && (
-            <div className="p-6 border-t border-gray-100 bg-white relative z-10 shadow-[0_-4px_20px_rgba(0,0,0,0.03)]">
-              <div className="flex items-center justify-between mb-5">
-                <span className="text-[13px] font-bold uppercase tracking-wider text-gray-500">Tổng thanh toán</span>
-                <strong className="text-[24px] font-bold text-gray-900">{cartTotal.toLocaleString('vi-VN')}₫</strong>
-              </div>
-              <button
-                className="w-full h-12 bg-[#14b8a6] hover:bg-[#0f9e8c] text-white rounded-xl text-[14px] font-bold uppercase tracking-wide transition-colors shadow-lg shadow-[#14b8a6]/30 cursor-pointer border-0"
-                onClick={() => navigate('/gear/cart/checkout')}
-              >
-                Thanh toán ngay
-              </button>
-            </div>
-          )}
-        </div>
-      </div>}
 
       {/* QUICK VIEW MODAL */}
       {selectedProduct && (

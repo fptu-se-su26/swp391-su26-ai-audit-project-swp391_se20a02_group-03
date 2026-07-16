@@ -73,7 +73,7 @@ export default function CartPage() {
                     {/* ── HEADER ── */}
                     <div className="mb-8">
                         <div className="flex items-center gap-2 text-[12px] font-bold uppercase tracking-wider text-gray-400 mb-3">
-                            <Link to="/gear/catalog" className="hover:text-[#14b8a6] transition-colors no-underline text-gray-400">
+                            <Link to="/apex/shop" className="hover:text-[#14b8a6] transition-colors no-underline text-gray-400">
                                 Cửa tiệm
                             </Link>
                             <span>/</span>
@@ -88,7 +88,7 @@ export default function CartPage() {
                             </p>
                         </div>
                         <Link
-                            to="/gear/catalog"
+                            to="/apex/shop"
                             className="inline-flex items-center gap-2 text-[13px] font-bold text-gray-500 hover:text-[#14b8a6] transition-colors no-underline w-fit"
                         >
                             <ArrowLeft size={14} />

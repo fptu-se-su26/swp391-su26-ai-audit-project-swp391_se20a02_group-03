@@ -9,8 +9,6 @@ import bannerImage from '../../assets/pickleball_banner.png'
 
 const sidebarLinks = [
   { label: 'Bảng tin kèo', icon: TrendingUp, active: true, path: '/matches' },
-  { label: 'Sân gần bạn', icon: MapPin, path: '/matches/nearby' },
-  { label: 'Cộng đồng', icon: Users, path: '/matches/community' },
   { label: 'Xếp hạng', icon: Trophy, path: '/matches/leaderboard' },
 ]
 
@@ -57,14 +55,6 @@ export default function MatchProFeedPage() {
 
         {/* ── CỘT TRÁI (Sidebar Điều hướng) ── */}
         <aside className="flex flex-col gap-6 max-md:hidden shrink-0 sticky top-[100px]">
-          {/* Nút CTA nổi bật lên đầu với Hover/Active states */}
-          <Link 
-            to="/matches/create" 
-            className="flex items-center justify-center w-full bg-[#14b8a6] hover:bg-[#15c3b0] text-white py-4 px-4 rounded-[12px] text-[14px] font-bold uppercase tracking-wider transition-all duration-300 shadow-[0_4px_14px_rgba(20,184,166,0.3)] hover:shadow-[0_6px_20px_rgba(20,184,166,0.45)] hover:-translate-y-0.5 active:translate-y-0 active:shadow-[0_2px_8px_rgba(20,184,166,0.3)] no-underline"
-          >
-            + Tạo trận đấu mới
-          </Link>
-
           <nav className={`flex flex-col gap-2 p-4 ${modernCardClass}`}>
             {sidebarLinks.map(link => (
               <Link

@@ -284,7 +284,7 @@ export default function CourtDetailPage() {
               </Link>
 
               <p className="text-center label-mono text-foreground-subtle mt-6">
-                Thanh toán bảo mật qua VNPay & Stripe
+                Thanh toán bảo mật qua PayOS & Stripe
               </p>
 
               {/* Receipt / Invoice Preview */}

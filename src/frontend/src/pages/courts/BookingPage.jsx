@@ -32,7 +32,7 @@ export default function BookingPage() {
   const slot = searchParams.get('slot') || '10:00'
   const date = searchParams.get('date') || new Date().toISOString().split('T')[0]
 
-  const [paymentMethod, setPaymentMethod] = useState('vnpay')
+  const [paymentMethod, setPaymentMethod] = useState('payos')
   const [splitMode, setSplitMode] = useState(false)
   const [partnerEmail, setPartnerEmail] = useState('')
   const [isSuccess, setIsSuccess] = useState(false)
@@ -156,13 +156,13 @@ export default function BookingPage() {
           setCourt(prev => ({ ...prev, price: res.data.totalAmount, serviceFee: 0 }));
         }
 
-        if (paymentMethod === 'vnpay') {
-          const vnpayRes = await paymentApi.createVnPayUrl(0, 'Booking', bookingId);
-          if (vnpayRes.statusCode === 200 && vnpayRes.data) {
-             window.location.assign(vnpayRes.data);
-             return;
+        if (paymentMethod === 'payos') {
+          const payosRes = await paymentApi.createPayOsUrl(0, 'Booking', bookingId);
+          if (payosRes.statusCode === 200 && payosRes.data) {
+             window.location.assign(payosRes.data);
           } else {
-             addToast("Không thể mở Truyền Tống Trận: " + (vnpayRes.message || 'Lỗi không xác định'), "error");
+             setIsLoading(false);
+             addToast("Không thể mở Truyền Tống Trận: " + (payosRes.message || 'Lỗi không xác định'), "error");
           }
         } else if (paymentMethod === 'escrow') {
           const escrowRes = await paymentApi.payBookingByEscrow(bookingId);
@@ -269,11 +269,11 @@ export default function BookingPage() {
                   </div>
                 </label>
 
-                <label className={`flex items-start gap-4 p-5 border-2 cursor-pointer transition-colors ${paymentMethod === 'vnpay' ? 'border-accent bg-accent/10' : 'border-border-default hover:border-border-hover'}`}>
-                  <input type="radio" name="payment" value="vnpay" checked={paymentMethod === 'vnpay'} onChange={() => setPaymentMethod('vnpay')} className="mt-1 w-5 h-5 accent-accent" />
+                <label className={`flex items-start gap-4 p-5 border-2 cursor-pointer transition-colors ${paymentMethod === 'payos' ? 'border-accent bg-accent/10' : 'border-border-default hover:border-border-hover'}`}>
+                  <input type="radio" name="payment" value="payos" checked={paymentMethod === 'payos'} onChange={() => setPaymentMethod('payos')} className="mt-1 w-5 h-5 accent-accent" />
                   <div className="flex-1 flex justify-between items-center">
                     <div>
-                      <p className="font-bold text-foreground">Mã Trận VNPay</p>
+                      <p className="font-bold text-foreground">Mã Trận PayOS</p>
                       <p className="text-sm mt-1.5 font-medium text-foreground-muted">Thẻ Ngọc / Thẻ Tín Dụng / QR Trận</p>
                     </div>
                   </div>

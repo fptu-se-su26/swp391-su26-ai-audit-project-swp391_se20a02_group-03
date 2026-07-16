@@ -4,7 +4,7 @@ import { ArrowLeft, ShoppingBag, Store } from 'lucide-react'
 import ProSportLogo from '../components/ui/ProSportLogo'
 
 const navLinks = [
-  { path: '/gear/catalog', label: 'Danh mục' },
+  { path: '/apex/shop', label: 'Danh mục' },
 ]
 
 export default function GearLayout({ children }) {
@@ -18,14 +18,16 @@ export default function GearLayout({ children }) {
       <header className="h-[76px] bg-ink border-b border-white/10 flex items-center px-6 md:px-10 gap-6 sticky top-0 z-[100]">
         <div className="flex items-center gap-6">
           <ProSportLogo size="sm" variant="light" iconOnly className="hidden sm:inline-flex" />
-          <Link
-            to={location.pathname === '/gear/catalog' ? '/apex' : '/gear/catalog'}
-            title={location.pathname === '/gear/catalog' ? 'Về trang chủ' : 'Quay lại cửa tiệm'}
-            className="w-9 h-9 rounded-[2px] flex items-center justify-center text-paper/60 hover:text-paper transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </Link>
-          <Link to="/gear/catalog" className="font-heading text-lg uppercase tracking-tight text-paper flex items-center gap-2 no-underline">
+          {location.pathname !== '/apex/shop' && (
+            <Link
+              to="/apex/shop"
+              title="Quay lại cửa tiệm"
+              className="w-9 h-9 rounded-[2px] flex items-center justify-center text-paper/60 hover:text-paper transition-colors"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Link>
+          )}
+          <Link to="/apex/shop" className="font-heading text-lg uppercase tracking-tight text-paper flex items-center gap-2 no-underline">
             <Store className="w-5 h-5 text-accent" />
             Pro Gear
           </Link>
