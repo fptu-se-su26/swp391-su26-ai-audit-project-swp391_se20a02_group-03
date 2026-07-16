@@ -661,49 +661,140 @@
 ## Log #19
 - **Ngày:** 2026-07-16
 - **Người thực hiện:** Phạm Nguyễn Tiến Đạt
-- **Công cụ AI:** Claude Code (Claude Sonnet 5)
-- **Mục đích:** Tiếp nối Tổng kiểm định vận hành sau Log #18 — tích hợp nhánh song song đang làm dở (worktree Codex/Antigravity), vá 5 lỗi P1 xuyên portal (Gear, Admin) theo TDD, và bắt đầu xử lý các lỗi accessibility/contract còn sót ở Admin/Owner Portal.
+- **Công cụ AI:** Claude Code (Claude Sonnet 5), Antigravity, Codex
+- **Mục đích:** Tiếp nối tổng kiểm định vận hành sau Log #18; tiếp quản và hoàn thiện phần UI/UX Admin, Owner, Gear/Apex đang làm dở; xử lý lỗi merge, lỗi contract dữ liệu và regression; hòa giải các xung đột khi đưa thay đổi vào nhánh `DE190147/audit-module`.
 - **Tham chiếu Prompt:** Prompt #19
-- **Trạng thái:** **Chưa commit** — toàn bộ thay đổi còn ở working tree, dừng giữa chừng theo yêu cầu để kiểm tra tình trạng hệ thống trước khi quyết định chốt commit.
+- **Trạng thái:** **Đã hoàn tất commit và push** lên `origin/DE190147/audit-module`.
 
 ### Tóm tắt kết quả AI
 
-**A. Tích hợp nhánh song song & 3 lỗi merge chặn build (phát sinh sau Log #18, không thuộc phạm vi log đó)**
-- Xác nhận `implement-ui-from-design` (worktree Codex/Antigravity) là nhánh con của working branch hiện tại (`git merge-base --is-ancestor`) rồi `git merge --ff-only` an toàn (~170 commit, không rebase/force).
-- `DatabaseBootstrap.cs`: 2 dòng text thô là tên nhánh git (`feat/DE190130_Hoan_Thien_Frontend`, `main`) sót lại giữa thân hàm `BaselineAsync` do gỡ conflict-marker thủ công không sạch — lỗi biên dịch CS1002, chặn toàn bộ `dotnet build`/`dotnet test`.
-- `EscrowServiceTests.cs`: dòng `Mock.Of<IVnPayService>()` bị nhân đôi khi merge, khiến constructor `EscrowService` (4 tham số) nhận 5 đối số — lỗi CS1729.
-- `ApexShopPage.jsx`: hai nhánh JSX/logic trùng lặp chưa resolve, còn nguyên text tên nhánh git giữa file — ESLint parser lỗi fatal, chặn `npm run lint`/`npm run build` toàn dự án. Đọc lại toàn bộ ~486 dòng, đối chiếu contract thật (`EquipmentDto`, seed data) và viết lại thành một component thống nhất.
+**A. Tích hợp nhánh song song và xử lý merge-corruption**
+- Kiểm tra worktree `implement-ui-from-design` của Antigravity/Codex và xác định đây là phần UI đang làm dở cần tiếp quản.
+- Phát hiện và xử lý các lỗi merge-corruption chặn build/test:
+  - `DatabaseBootstrap.cs`: còn text tên nhánh git trong thân hàm `BaselineAsync`, gây lỗi biên dịch.
+  - `EscrowServiceTests.cs`: tham số mock `IVnPayService` bị nhân đôi sau merge, gây sai constructor `EscrowService`.
+  - `ApexShopPage.jsx`: còn JSX/logic trùng lặp và text tên nhánh git, làm ESLint parser lỗi.
+- Đối chiếu contract thật của backend (`EquipmentDto`, seed data, `CourtStatuses`) trước khi sửa, không chỉ chỉnh để build xanh.
 
-**B. Năm lỗi P1 (mỗi lỗi có regression test viết trước/song song khi sửa)**
-1. **CartCheckoutPage:** checkout theo `bookingId` gọi `clearCart()` (xóa toàn bộ giỏ) thay vì chỉ thanh toán các item đã chọn; điều kiện thành công chỉ nhận đúng `response?.success === true`; `grandTotal` tính lại có fallback an toàn từ `itemsToCheckout`. Đổi sang gọi `refreshCart()`.
-2. **AdminUsersPage:** effect debounce cũ phụ thuộc cả `page`, tự reset về trang 1 sau ~400ms bất kể người dùng đang ở trang nào. Gộp `search/role/page` thành một state `query` nguyên tử, `fetchUsers` viết lại thành `useCallback` thuần với `AbortController` chống race điều kiện.
-3. **Court status contract:** `CourtService.UpdateCourtAsync` lưu thẳng `dto.Status` dạng API-casing (`"ACTIVE"`) vào DB thay vì chuẩn hóa qua `CourtStatuses.NormalizeApiStatus` — chỉ cần admin sửa tên sân (không đụng trạng thái) là `IsBookable` âm thầm sai vì DB lưu literal "ACTIVE" thay vì "Available". FE `<select>` cũng dùng sai casing và còn 2 option không tồn tại thật (Booked/Closed).
-4. **AdminKycPage:** dùng ảnh Unsplash ngẫu nhiên làm fallback khi thiếu/lỗi ảnh bằng chứng CCCD — Admin có thể nhầm ảnh giả là hồ sơ thật. Thay bằng trạng thái rõ ràng "Chưa có bằng chứng"/"Không tải được ảnh" theo dõi riêng từng ảnh, khóa nút Phê duyệt cho đến khi ảnh bắt buộc tải xong, thêm `ConfirmDialog` trước khi duyệt, chặn double-click.
-5. **GearCatalogPage:** tham chiếu `CATEGORY_FALLBACKS` chưa import (crash runtime) + nguy cơ lặp vô hạn sự kiện `onError` khi ảnh fallback cũng lỗi.
+**B. Các lỗi P1 đã xử lý**
+1. **CartCheckoutPage**
+   - Checkout theo `bookingId` không còn gọi `clearCart()` để xóa toàn bộ giỏ hàng.
+   - Chỉ coi thanh toán thành công khi `response?.success === true`.
+   - Tổng tiền có fallback an toàn từ danh sách item checkout.
+   - Sau thanh toán thành công dùng `refreshCart()` để đồng bộ lại dữ liệu giỏ hàng.
 
-**C. Task III — Vá lỗi Admin còn sót (đang làm, chưa hết danh sách)**
-- **AdminComplaintsPage:** đổi filter không bỏ chọn khiếu nại đang xem — panel chi tiết hiển thị "lơ lửng" một khiếu nại không còn nằm trong danh sách đã lọc. Thêm effect bỏ chọn khi item rớt khỏi `filtered`.
-- **`aria-pressed`/`role="group"`** cho toàn bộ nhóm filter-pill trên Admin (Complaints, Users, Courts, Bookings, Kyc) — trước đó là nút thường, không có ngữ nghĩa toggle cho trình đọc màn hình.
-- **AdminUsersPage:** bổ sung role `CourtOwner` (đối chiếu đúng hằng số `Roles.cs` backend) vào tab lọc — trước đó chỉ có Admin/Staff/Customer nên Admin không lọc được tài khoản chủ sân.
-- Bổ sung `aria-label` cho 4 ô tìm kiếm chỉ có placeholder (Users/Inventory/Courts/Bookings) — placeholder không phải tên truy cập hợp lệ.
-- Đổi dòng danh sách clickable từ `<div onClick>` sang `<button>` thật (Complaints, Kyc) để dùng được bằng bàn phím.
-- Thêm focus-trap thật + Escape-to-close + `role="dialog"`/`aria-labelledby`/khóa cuộn body cho 2 modal overlay còn lại (`CourtFormModal`, hộp thoại từ chối trong AdminKycPage), dùng chung hook `useFocusTrap` mới viết.
-- Mở rộng đúng fix mobile-sidebar accessibility đã áp cho `AdminLayout` (inert/aria-hidden khi đóng, focus trap, Escape, trả focus về nút hamburger) sang `OwnerSidebar`/`OwnerHeader`/`OwnerLayout`, qua hook `useIsDesktop` mới (dùng `matchMedia` thay vì suy luận từ state "đang mở").
+2. **AdminUsersPage**
+   - Sửa debounce search làm tự reset trang về trang 1.
+   - Tách state tìm kiếm đã debounce, giữ đúng trang hiện tại khi phân trang.
+   - Dùng `AbortController` để tránh race condition giữa request cũ và request mới.
+   - Bổ sung xử lý chuỗi lỗi `'canceled'` từ axios interceptor.
+   - Bổ sung role `CourtOwner` vào bộ lọc người dùng.
 
-### Quyết định & Can thiệp của con người
-- **Chỉ đạo phạm vi:** Yêu cầu tiếp nhận và hoàn thiện phần Codex/Antigravity đang làm dở, xử lý tận gốc (không chỉ để build/test xanh), không dừng sau vài lỗi đầu tiên, viết test trước cho mỗi bug.
-- **Chấp nhận việc mở rộng phạm vi ngoài danh sách gốc:** Đồng ý để AI tự vá 3 lỗi merge-corruption phát hiện qua audit (không nằm trong yêu cầu ban đầu) vì đây là điều kiện tiên quyết để chạy được `dotnet test`/`npm run build`/`npm run lint` theo đúng yêu cầu kiểm chứng.
-- **Dừng đúng lúc để kiểm tra tình trạng hệ thống:** Sau khi hỏi ước lượng khối lượng công việc/token còn lại, chủ động yêu cầu tạm dừng và hỏi thẳng "hệ thống có bug gì không, dùng để review được chưa" — buộc AI chạy lại `npx eslint .`, `npx vitest run`, `npm run build` toàn dự án để xác nhận trạng thái thật thay vì suy đoán.
-- **Không chấp nhận báo cáo mập mờ:** Yêu cầu ghi rõ cả phần **chưa xong** (AdminPricingPage mobile-overflow 320px mới phân tích chưa vá; Task IV/V/VI/VII chưa bắt đầu) thay vì chỉ liệt kê phần đã làm.
+3. **Court status contract**
+   - Khôi phục giá trị lưu DB chuẩn là `Available`; API vẫn trả/nhận `ACTIVE`.
+   - `CourtService.UpdateAsync` chuẩn hóa status trước khi lưu.
+   - `CourtRepository.GetPagedCourtsAsync` chuẩn hóa status API trước khi lọc DB.
+   - Bổ sung `CourtStatusesTests` và `CourtRepositoryTests`.
+   - Sửa form Admin Courts chỉ hiển thị các status hợp lệ: `ACTIVE`, `MAINTENANCE`, `INACTIVE`.
+
+4. **AdminKycPage**
+   - Loại bỏ ảnh Unsplash giả làm fallback cho bằng chứng CCCD.
+   - Hiển thị trạng thái rõ ràng cho ảnh thiếu/lỗi tải.
+   - Khóa nút phê duyệt khi chưa có hoặc chưa tải được ảnh bắt buộc.
+   - Thêm xác nhận trước khi phê duyệt và chặn thao tác double-click.
+
+5. **GearCatalogPage**
+   - Bổ sung import fallback ảnh theo category để tránh crash runtime.
+   - Chặn vòng lặp `onError` khi ảnh fallback cũng tải lỗi.
+   - Sửa cấu trúc tương tác lồng `Link`/`button`.
+
+**C. Hoàn thiện Admin Portal**
+- `AdminComplaintsPage`
+  - Dòng danh sách chuyển từ `<div onClick>` sang `<button>` để dùng được bằng bàn phím.
+  - Khi trạng thái khiếu nại thay đổi và không còn thuộc filter hiện tại, hệ thống tự bỏ chọn bản ghi để tránh detail panel hiển thị dữ liệu lạc trạng thái.
+  - Bổ sung regression test cho trường hợp này.
+
+- `AdminLayout` và modal
+  - Bổ sung `matchMedia` guard cho môi trường test.
+  - Sidebar mobile có `inert`, `aria-hidden`, Escape để đóng, focus restore và scroll lock.
+  - Modal có role/label/focus management tốt hơn.
+
+- `AdminUsersPage`, `AdminBookingsPage`, `AdminCourtsPage`, `AdminInventoryPage`, `AdminKycPage`
+  - Bổ sung accessible name cho ô tìm kiếm.
+  - Cải thiện filter-pill, trạng thái loading/error/empty và thao tác bằng bàn phím.
+  - Đồng bộ lại test để phản ánh contract API thật.
+
+**D. Hoàn thiện Owner Portal**
+- Bổ sung và dùng chung owner UI primitives: button, card, form field, modal, trạng thái rỗng/lỗi, search input.
+- Cải thiện `OwnerSidebar`, `OwnerHeader`, `OwnerLayout`:
+  - Sidebar mobile/desktop không còn tabbable khi bị ẩn.
+  - Có Escape, focus restore, aria state và scroll lock hợp lý.
+- Tách tương tác lồng `Link > button` tại các trang Booking/Court.
+- Bổ sung nhãn truy cập cho Complex Selector, search input và reply input.
+- Cải thiện modal Owner: focus trap, trả focus về phần tử mở modal, bảo toàn body overflow.
+- Cô lập state theo `complexId` trong Owner Layout để giảm nguy cơ giữ state của cụm sân cũ khi đổi complex.
+- Bổ sung test cho Owner primitives, Owner layout, Owner bookings và Owner operating hours.
+
+**E. Hoàn thiện Apex/Gear Portal**
+- `ApexShopPage`
+  - Viết lại thành một component thống nhất sau merge conflict.
+  - Sửa filter môn thể thao để map đúng dữ liệu API:
+    - `Badminton` ↔ `Cầu lông`
+    - `Pickleball`
+    - `Tennis`
+  - Loại bỏ filter trạng thái giả `Premium/New/Trial`; thay bằng filter tồn kho thật `Còn hàng/Hết hàng`.
+  - Bổ sung modal quick view và cart drawer có dialog semantics, Escape, focus restore, scroll lock và accessible label.
+  - Sửa test Apex để có Router và CartContext mock.
+
+- `CartPage`, `CartCheckoutPage`, `GearCatalogPage`, `GearDetailPage`
+  - Sửa fallback ảnh, error handling, accessibility và các flow checkout/cart liên quan.
+  - Không còn dùng cross-sell fake ID gây request lỗi.
+
+**F. Hòa giải xung đột khi đưa vào nhánh cá nhân**
+- Snapshot UI của Antigravity được commit trước ở worktree riêng.
+- Khi cherry-pick sang `DE190147/audit-module`, xuất hiện xung đột tại các file Admin, Owner, Apex, Gear, package và API.
+- Theo xác nhận của người dùng, ưu tiên snapshot Antigravity tại vùng xung đột.
+- Codex tiếp tục kiểm tra sau merge thay vì dừng ở mức resolve marker:
+  - Không còn conflict marker trong source.
+  - Sửa test Admin Complaints, Admin Courts và Apex Shop bị sai/thiếu dependency sau merge.
+  - Sửa lỗi React refs bị cập nhật trong render làm ESLint chặn `OwnerModal` và dialog Apex.
+  - Làm sạch trailing whitespace để `git diff --check` sạch.
+- Không commit các thư mục audit cục bộ `.claude/`, `.codex-work/`, `outputs/`.
+
+### Quyết định và can thiệp của con người
+- Yêu cầu AI tiếp quản phần Codex/Antigravity đang làm dở, xử lý tận gốc thay vì chỉ làm test/build xanh.
+- Đồng ý mở rộng phạm vi để sửa lỗi merge-corruption vì đây là điều kiện cần để chạy kiểm chứng toàn hệ thống.
+- Xác nhận ưu tiên snapshot Antigravity khi hòa giải xung đột với nhánh `DE190147/audit-module`.
+- Yêu cầu commit và push sau khi xử lý conflict, regression và kiểm chứng xong.
+- Yêu cầu không đưa các file audit cục bộ, output và script tạm vào commit.
 
 ### Áp dụng cho
-- **Backend:** `CourtService.cs`, `DatabaseBootstrap.cs`, `EscrowServiceTests.cs`; test mới `CourtServiceTests.cs` (4 method, 8 test case qua Theory).
-- **Frontend:** `api/userApi.js`, `components/owner/OwnerHeader.jsx`, `components/owner/OwnerSidebar.jsx`, `layouts/AdminLayout.jsx`, `layouts/OwnerLayout.jsx`, `pages/admin/{AdminBookingsPage,AdminComplaintsPage,AdminCourtsPage,AdminInventoryPage,AdminKycPage,AdminUsersPage}.jsx`, `pages/apex/ApexShopPage.jsx`, `pages/gear/{CartCheckoutPage,GearCatalogPage}.jsx`, `vite.config.js`, `package.json` (thêm devDependency `@testing-library/react` + `jest-dom` + `user-event`).
-- **Frontend (mới):** `hooks/useFocusTrap.js`, `hooks/useIsDesktop.js`, `test/setup.js` (RTL `afterEach(cleanup)`), 7 file test (`AdminComplaintsPage`, `AdminCourtsPage`, `AdminKycPage`, `AdminUsersPage`, `ApexShopPage`, `CartCheckoutPage`, `GearCatalogPage`).
+- **Backend:** `CourtService.cs`, `CourtStatuses.cs`, `Court.cs`, `CourtRepository.cs`, `DatabaseBootstrap.cs`, `EscrowServiceTests.cs`.
+- **Backend test mới/cập nhật:** `CourtStatusesTests.cs`, `CourtRepositoryTests.cs`.
+- **Frontend Admin:** `AdminLayout`, `AdminBookingsPage`, `AdminComplaintsPage`, `AdminCourtsPage`, `AdminDashboardPage`, `AdminInventoryPage`, `AdminKycPage`, `AdminPricingPage`, `AdminUsersPage`.
+- **Frontend Owner:** `OwnerLayout`, `OwnerHeader`, `OwnerSidebar`, `ComplexSelector`, owner UI primitives và các trang Owner liên quan.
+- **Frontend User/Gear/Apex:** `ApexShopPage`, `ApexBookingPage`, `ApexHomePage`, `CartCheckoutPage`, `CartPage`, `GearCatalogPage`, `GearDetailPage`.
+- **Tài liệu:** `docs/ui/design-system-spec.md`, `docs/ui/market-benchmark.md`, `docs/ui/remediation-plan.md`, `docs/ui/ui-audit.md`.
+- **Frontend test:** Admin Complaints, Admin Courts, Admin KYC, Admin Users, Apex Shop, Cart Checkout, Gear Catalog, Owner Layout, Owner Primitives, Owner Bookings, Owner Operating Hours.
 
-### Kiểm chứng
-- Frontend: ESLint toàn dự án — **0 lỗi**; Vitest — **62/62 pass** (9 file test, gồm cả 7 test mới); `npm run build` — thành công.
-- Backend: sau khi vá 2 lỗi merge-corruption, build lại được; `CourtServiceTests` mới (8/8 pass qua Theory) xác nhận round-trip trạng thái sân không còn regressive.
-- Đã khởi động backend thật (`dotnet run`, kết nối SQL Server thật) để chuẩn bị smoke test bằng browser ở viewport 320px — **phiên browser bị treo/mất tab giữa chừng**, chưa hoàn tất xác minh trực quan; đã tắt sạch process `dotnet` chạy nền trước khi dừng phiên.
-- **Chưa làm / còn tồn đọng (không được báo cáo là xong):** fix AdminPricingPage mobile-overflow 320px (mới chẩn đoán, chưa áp code); toàn bộ Task IV (Owner còn sót), Task V (Cart drawer/CartPage/Gear routes), Task VI (Mobile + Staff/Elite — theo đúng brief gốc là phần gần như chưa động tới), Task VII (verification cuối + bảng PASS/FAIL route) của bản yêu cầu 9 phần vẫn chưa bắt đầu.
-- **Chưa commit:** toàn bộ thay đổi trên vẫn ở working tree của nhánh `DE190147/audit-module`, dừng theo yêu cầu người dùng để đánh giá tình trạng trước khi quyết định chốt một mốc commit.
+### Kiểm chứng cuối cùng
+- Frontend:
+  - `npm test -- --run` — **63/63 pass**.
+  - `npm run lint -- --quiet` — pass.
+  - `npm run build` — pass.
+- Backend:
+  - `dotnet test ProSport.sln --no-restore` — **142 pass, 4 skipped, 0 fail**.
+- Chất lượng merge:
+  - `git diff --check` — pass.
+  - Không còn conflict marker trong mã nguồn.
+
+### Commit và push
+- `72d0529 feat: unify portal UI and harden workflows`
+- `1348d57 fix: reconcile conflicted portal workflows`
+- Đã push thành công lên `origin/DE190147/audit-module`.
+- Remote branch hiện trỏ tới commit `1348d57`.
+
+### Phần còn tồn đọng
+- Chưa hoàn tất kiểm thử trực quan toàn bộ route bằng browser ở viewport mobile 320px.
+- Cần tiếp tục audit sâu Mobile và Staff/Elite Portal để bao phủ toàn bộ brief UI ban đầu.
+- Một số hạng mục responsive chuyên biệt, ví dụ Admin Pricing ở viewport rất hẹp, cần kiểm chứng trực quan riêng trước khi kết luận hoàn tất toàn bộ UI.
