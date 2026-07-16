@@ -538,3 +538,37 @@
 - Chưa hoàn tất kiểm thử trực quan toàn bộ route bằng browser ở viewport mobile 320px.
 - Cần tiếp tục audit sâu Mobile và Staff/Elite Portal để bao phủ toàn bộ brief UI ban đầu.
 - Một số hạng mục responsive chuyên biệt, như Admin Pricing ở viewport rất hẹp, cần kiểm chứng trực quan riêng.
+
+---
+
+## [2026-07-17] - Giai đoạn: Rà soát `main` sau PR #50 và tự phát hiện + vá 5 bug (nhánh riêng, chưa merge)
+
+> **Trạng thái:** Đã commit trên nhánh `fix/main-bug-sweep-post-PR50` (dựa trên `main` @ `e935c10`) — **chưa push, chưa mở PR**.
+
+### Thêm mới (Added)
+- `GET /matches/{id}/members` — endpoint mới cho host hoặc joiner đã duyệt xem danh sách thành viên cùng kèo (phục vụ tính năng đánh giá uy tín TK-035); 403 với người không thuộc kèo.
+- `matchApi.getMatchMembers`, `matchApi.rejectJoiner`, `matchApi.getPendingJoiners` (frontend) — chưa có trang UI nào gọi `rejectJoiner`/`getPendingJoiners`, dựng sẵn cho tính năng "host duyệt joiner" vốn thiếu giao diện.
+- 4 test backend mới: `CreateMatchAsync_UsesHostConfiguredEscrowAmount_NotAutoSplitOfBookingTotal`, `GetMatchMembersAsync_ReturnsApprovedMembers_ForHostOrApprovedJoiner`, `GetMatchMembersAsync_Returns403_ForUserNotInMatch`.
+
+### Thay đổi (Changed)
+- `MatchService.CreateMatchAsync` dùng đúng `dto.EscrowAmount` do host cấu hình thay vì tự tính lại `TotalAmount/MaxParticipants`.
+- `MatchDetailPage.jsx` đổi toàn bộ field hiển thị theo đúng contract thật của `MatchDto`: `courtName`, `levelRequirement`, `sportType` (qua `translateSport`), `hostName` — thay cho các field không tồn tại (`location`, `skillLevel`, `title`, hardcode "Cầu Lông").
+- `matchApi.approveJoiner` sửa đúng URL/method (`PUT /matches/{id}/participants/{pid}/approve`) thay vì `POST /matches/{id}/approve/{pid}` sai hoàn toàn.
+- `CreateMatchPage.jsx` bỏ 2 field "Tên trận đấu" và "Bộ môn" không có tác dụng (không tồn tại trong `CreateMatchDto`).
+
+### Sửa lỗi (Fixed)
+
+| Mức | Nội dung |
+|-----|----------|
+| **P0** | `package.json` thiếu `@testing-library/jest-dom` (rơi mất khi resolve conflict PR #50) → toàn bộ 13 file test fail 0 test chạy được |
+| **P0** | `MatchService.CreateMatchAsync` bỏ qua `dto.EscrowAmount`, tự tính lại số tiền ký quỹ khác với số host đã cấu hình trên UI — sai lệch tài chính giữa hiển thị và dữ liệu lưu |
+| **P1** | `MatchDetailPage.jsx` dùng field không tồn tại (`title`/`skillLevel`/`location`/`participants`) khiến heading trận đấu rỗng, badge môn thể thao sai, và tính năng "Đánh giá người chơi" (TK-035) không bao giờ hoạt động |
+| **P2** | `CreateMatchPage.jsx`: 2 field "Tên trận đấu"/"Bộ môn" nhập vào rồi biến mất, không gửi lên backend |
+| **P2** | `matchApi.approveJoiner` sai URL/method so với route backend thật |
+
+### Hỗ trợ từ AI (AI-assisted)
+- Claude Code (Claude Sonnet 5) tự rà soát diff `f4411d2..e935c10` (34 file, +5308/-648) không có danh sách lỗi được giao sẵn — tự xác định phạm vi cần kiểm tra (CreateMatchPage vì được nêu tên trong commit message fixup, tính năng Escrow mới, các trang viết lại lớn), đối chiếu trực tiếp `MatchDto`/`CreateMatchDto` thật ở backend để xác nhận từng field trước khi kết luận là bug thay vì đoán.
+- Tuân thủ TDD cho 2 bug backend: viết test tái hiện trước, xác nhận test đỏ đúng nguyên nhân, sửa nhỏ nhất, chạy lại regression suite.
+- Chủ động không mở rộng phạm vi thành xây UI mới khi phát hiện tính năng "host duyệt joiner" thiếu giao diện hoàn toàn — chỉ sửa đúng contract API.
+- **ESLint 0 lỗi**, **Vitest 63/63 pass**, `npm run build` thành công; **`dotnet test` 145/149 pass** (4 skip, +4 test mới).
+- Tạo nhánh riêng `fix/main-bug-sweep-post-PR50` thay vì commit thẳng lên `main`, giữ đúng quy ước PR-review; commit `b7775a8` — chưa push.

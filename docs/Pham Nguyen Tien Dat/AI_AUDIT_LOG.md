@@ -798,3 +798,41 @@
 - Chưa hoàn tất kiểm thử trực quan toàn bộ route bằng browser ở viewport mobile 320px.
 - Cần tiếp tục audit sâu Mobile và Staff/Elite Portal để bao phủ toàn bộ brief UI ban đầu.
 - Một số hạng mục responsive chuyên biệt, ví dụ Admin Pricing ở viewport rất hẹp, cần kiểm chứng trực quan riêng trước khi kết luận hoàn tất toàn bộ UI.
+
+---
+
+## Log #20
+- **Ngày:** 2026-07-17
+- **Người thực hiện:** Phạm Nguyễn Tiến Đạt
+- **Công cụ AI:** Claude Code (Claude Sonnet 5)
+- **Mục đích:** Tải `main` mới nhất từ GitHub (sau khi PR #48/#49/#50 được merge, bao gồm tính năng Escrow wallet-linking, CommunityFeed, viết lại ApexBookingPage/ApexWalletPage/CreateMatchPage), tự rà soát tìm bug phát sinh và tự nghiên cứu, thực hiện fix — không chờ danh sách lỗi được giao sẵn.
+- **Tham chiếu Prompt:** Prompt #20
+- **Trạng thái:** Đã commit trên nhánh mới `fix/main-bug-sweep-post-PR50` (từ `main` @ `e935c10`), **chưa push/mở PR**.
+
+### Tóm tắt kết quả AI
+
+**A. Rà soát ban đầu**
+- `git fetch` + `git checkout main` + `git pull` — cập nhật `main` từ `ad03418` lên `e935c10` (34 commit, bao gồm PR #48 gộp audit-module, PR #49 gộp tiếp Task III/IV UI, PR #50 gộp `feat/DE190130_Hoan_Thien_Frontend_P2` + commit fixup `bae6c1e fix(frontend): resolve conflicts and fix Create Match payload`).
+- Diff `f4411d2..e935c10`: 34 file, +5308/-648 dòng — Escrow wallet-linking (backend), `CommunityFeed.jsx` mới, viết lại lớn `ApexBookingPage`/`ApexWalletPage`/`CreateMatchPage`/`MatchProCommunityPage`/`MatchProLeaderboardPage`.
+- Chạy `npm install`, `npx eslint .`, `npm run build`, `npx vitest run`, `dotnet build`, `dotnet test` trên `main` để xác lập baseline trước khi tìm bug cụ thể.
+
+**B. Năm bug thật tìm được và đã sửa**
+1. **[P0 — chặn toàn bộ test]** `package.json` thiếu hẳn `@testing-library/jest-dom` (bị rơi mất khi resolve conflict merge PR #50, dù `081ae16` trước đó đã thêm) → cả 13 file test fail ngay từ bước resolve import, 0 test nào chạy được. Khôi phục dependency + `npm install` lại → 63/63 pass.
+2. **[P0 — tài chính]** `MatchService.CreateMatchAsync` bỏ qua hoàn toàn `dto.EscrowAmount` (số tiền ký quỹ host tự cấu hình ở Step 3 UI, có nút "Gợi ý chia đều") và luôn tự tính lại `Math.Round(booking.TotalAmount / dto.MaxParticipants)` — số tiền hiển thị cho host trước khi submit không khớp số tiền thực sự lưu vào DB. Viết test tái hiện (`CreateMatchAsync_UsesHostConfiguredEscrowAmount_NotAutoSplitOfBookingTotal`) xác nhận lỗi đúng nguyên nhân (100000 thay vì 60000 mong đợi), sửa dùng `dto.EscrowAmount`.
+3. **[P1 — tính năng hỏng hoàn toàn]** `MatchDetailPage.jsx` tham chiếu các field không tồn tại trên `MatchDto` thật (`match.title`, `match.skillLevel`, `match.location`, `match.participants`) — heading trận đấu luôn rỗng, badge môn thể thao hardcode "Cầu Lông" bất kể môn thật, và toàn bộ tính năng "Đánh giá người chơi" (TK-035) không bao giờ hoạt động vì `participants` luôn `undefined` (không có field này trên `MatchDto`, và endpoint `/participants` duy nhất chỉ host mới gọi được). Bổ sung endpoint mới `GET /matches/{id}/members` (host hoặc joiner đã duyệt mới xem được, 403 với người ngoài) ở cả `IMatchService`/`MatchService`/`MatchController`, viết 2 test (`GetMatchMembersAsync_ReturnsApprovedMembers_ForHostOrApprovedJoiner`, `GetMatchMembersAsync_Returns403_ForUserNotInMatch`), rồi sửa lại toàn bộ field hiển thị theo đúng contract thật (`courtName`/`levelRequirement`/`sportType`/`hostName`).
+4. **[P2 — dữ liệu giả]** `CreateMatchPage.jsx` có 2 field "Tên trận đấu" và "Bộ môn" (dropdown không có `value`/`onChange`) mà người dùng nhập/chọn vào nhưng không bao giờ được gửi lên backend (không tồn tại trong `CreateMatchDto`) — bỏ khỏi form, tránh đánh lừa người dùng nghĩ trận đấu có tên/môn tùy chỉnh.
+5. **[P2 — contract sai]** `matchApi.approveJoiner` gọi sai hoàn toàn URL/method (`POST /matches/{id}/approve/{pid}`) so với route backend thật (`PUT /matches/{id}/participants/{pid}/approve`) — sửa lại đúng, đồng thời phát hiện tính năng "host duyệt người xin tham gia" hiện **chưa có bất kỳ trang UI nào gọi tới** (chỉ tồn tại ở tầng API/service, không sử dụng được từ giao diện) — bổ sung `rejectJoiner`/`getPendingJoiners` cho đối xứng nhưng **không** tự ý xây dựng trang UI mới cho tính năng này (vượt phạm vi sửa bug, cần quyết định sản phẩm riêng).
+
+### Quyết định & Can thiệp của con người
+- **Chỉ đạo:** Tải `main` mới nhất, tự rà soát tìm bug, tự nghiên cứu và tự sửa — không chờ danh sách lỗi được giao sẵn.
+- **Không mở rộng phạm vi thành xây tính năng mới:** Khi phát hiện tính năng "host duyệt joiner" thiếu UI hoàn toàn, chỉ sửa contract API (URL/method) cho đúng và bổ sung hàm client sẵn sàng dùng, không tự ý dựng thêm một trang quản trị mới — việc đó cần quyết định phạm vi sản phẩm, không phải một bug fix đơn thuần.
+- **Không commit thẳng lên `main`:** Tạo nhánh riêng `fix/main-bug-sweep-post-PR50` cho các bản vá, giữ đúng quy ước PR-review của repo thay vì commit trực tiếp lên nhánh chính.
+
+### Áp dụng cho
+- **Backend:** `MatchController.cs` (endpoint mới `GET /matches/{id}/members`), `IMatchService.cs`, `MatchService.cs` (bỏ auto-split escrow, thêm `GetMatchMembersAsync`), `MatchServiceTests.cs` (+4 test).
+- **Frontend:** `package.json`/`package-lock.json` (khôi phục `@testing-library/jest-dom`), `api/matchApi.js` (sửa `approveJoiner`, thêm `getMatchMembers`/`rejectJoiner`/`getPendingJoiners`), `pages/matches/CreateMatchPage.jsx` (bỏ 2 field giả), `pages/matches/MatchDetailPage.jsx` (sửa contract field + wiring members thật).
+
+### Kiểm chứng
+- Frontend: ESLint **0 lỗi**; Vitest **63/63 pass**; `npm run build` — thành công.
+- Backend: `dotnet build` — 0 warning, 0 error; `dotnet test` — **145/149 pass** (4 skip SQL Server integration, +4 test mới so với baseline `main`).
+- Commit cục bộ `b7775a8` trên nhánh `fix/main-bug-sweep-post-PR50` (dựa trên `main` @ `e935c10`) — **chưa push, chưa mở PR**, chờ quyết định của người dùng.

@@ -318,4 +318,21 @@
 - **Evaluation:**
   - AI đã xử lý lỗi gốc thay vì chỉ làm CI xanh: phát hiện merge-corruption, chuẩn hóa Court Status, sửa filter API thật và regression sau conflict resolution.
   - Các kiểm chứng frontend/backend/build/lint/diff đều đạt trước khi commit/push.
+
+---
+
+### Prompt #20
+- **Date:** 2026-07-17
+- **AI Tool:** Claude Code (Claude Sonnet 5)
+- **Author:** Phạm Nguyễn Tiến Đạt
+- **Audit Log:** Log #20
+- **Purpose:** Tải `main` mới nhất từ GitHub sau khi các PR khác đã merge (tính năng Escrow wallet-linking, CommunityFeed, viết lại lớn ApexBookingPage/ApexWalletPage/CreateMatchPage), tự rà soát toàn diện tìm bug phát sinh và tự nghiên cứu, thực hiện fix mà không có danh sách lỗi được giao sẵn.
+- **Prompt (bản đã chuẩn hóa):** *"Tải nhánh `main` mới nhất từ GitHub về máy. Sau đó tự rà soát toàn bộ thay đổi mới trên `main` xem có phát sinh lỗi nào không — không dựa vào giả định rằng code đã merge là đúng, phải tự đối chiếu trực tiếp với contract thật (DTO/entity backend) trước khi kết luận là bug. Với mỗi bug tìm được: tự nghiên cứu nguyên nhân gốc, viết test tái hiện lỗi trước khi sửa (nếu là logic backend), sửa đúng nguyên nhân ở phạm vi nhỏ nhất, sau đó chạy lại toàn bộ lint/test/build để xác nhận không có gì bị hỏng thêm. Không dừng lại nếu chỉ sửa mỗi lỗi liên quan đến CI xanh — phải kiểm tra cả các tính năng nghiệp vụ và tài chính có khả năng bị merge conflict làm sai lệch âm thầm. Không tự ý mở rộng phạm vi thành xây dựng tính năng UI hoàn toàn mới nếu phát hiện một tính năng đang thiếu giao diện — chỉ sửa đúng phần bug/contract, việc bổ sung tính năng cần được quyết định riêng. Không commit trực tiếp lên `main` — tạo nhánh riêng cho các bản vá và báo cáo lại trước khi push."*
+- **Expected Output:**
+  - **Baseline:** `git fetch`/`checkout main`/`pull`, chạy đủ `npm install`, lint, test, build (FE) và `dotnet build`/`dotnet test` (BE) trước khi đào sâu tìm bug cụ thể.
+  - **Phát hiện bug thật, có bằng chứng:** đối chiếu trực tiếp `MatchDto`/`CreateMatchDto` ở backend với các field được frontend tham chiếu, không đoán tên field.
+  - **TDD cho bug backend:** viết test tái hiện lỗi trước, xác nhận test đỏ đúng nguyên nhân (không phải lỗi biên dịch/test sai), sửa, chạy lại xanh.
+  - **Không lấn phạm vi:** phát hiện tính năng "host duyệt joiner" thiếu UI hoàn toàn nhưng chỉ sửa contract API, không tự dựng trang mới.
+  - **Nhánh riêng:** không commit thẳng `main`, tạo `fix/main-bug-sweep-post-PR50`, chưa push, báo cáo lại chờ quyết định.
+- **Evaluation:** AI tuân thủ đúng tinh thần "tự nghiên cứu, không đoán" — trước khi kết luận bất kỳ field nào là bug, đều grep trực tiếp vào file DTO/entity backend thật để xác nhận, tránh lặp lại sai lầm "sửa theo cảm tính" đã từng bị nhắc ở các tuần trước. Điểm nổi bật: AI phát hiện một chuỗi bug liên hoàn xuất phát từ cùng một nguyên nhân gốc (đợt merge conflict-resolution của PR #50 không kỹ) — không chỉ dừng ở lỗi hiển thị bề mặt (heading rỗng, badge sai môn) mà truy ngược ra được bug tài chính nghiêm trọng hơn nhiều (escrow amount bị ghi đè âm thầm) và một tính năng cốt lõi (đánh giá uy tín người chơi) chưa từng hoạt động dù đã có đủ UI. Quyết định của tôi: yêu cầu bổ sung tài liệu (log/changelog/prompt/reflection) đầy đủ trước khi quyết định có push/mở PR nhánh vá lỗi này hay không — giữ đúng kỷ luật "không tự ý push" đã thiết lập từ các phiên trước.
   - Chưa thể khẳng định hoàn tất toàn bộ brief UI ban đầu vì Mobile, Staff/Elite và smoke test browser responsive toàn bộ route vẫn cần audit sâu hơn.

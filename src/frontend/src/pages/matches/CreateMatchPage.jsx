@@ -18,7 +18,6 @@ export default function CreateMatchPage() {
 
   const [myBookings, setMyBookings] = useState([])
   const [formData, setFormData] = useState({
-    title: '',
     skillLevel: 'Mới chơi',
     bookingId: '',
     maxParticipants: 2,
@@ -28,7 +27,7 @@ export default function CreateMatchPage() {
   const [isLoading, setIsLoading] = useState(false)
 
   function handleExitRequest() {
-    const isDirty = formData.title.trim() !== '' || step > 1 || formData.bookingId !== '' || formData.notes.trim() !== '';
+    const isDirty = step > 1 || formData.bookingId !== '' || formData.notes.trim() !== '';
     if (isDirty) {
       setShowExitModal(true)
     } else {
@@ -177,20 +176,8 @@ export default function CreateMatchPage() {
             {step === 1 && (
               <div className="auth-animate-fade">
                 <h2 className="font-bold text-[20px] text-[#0f172a] mb-6 m-0">Thông tin cơ bản</h2>
+                <p className="text-[13.5px] text-gray-500 -mt-4 mb-6">Bộ môn và tên trận sẽ tự động lấy theo sân bạn đã đặt ở bước tiếp theo.</p>
                 <div className="space-y-6">
-                  <div>
-                    <label className="block text-[13px] font-bold text-gray-600 mb-2">Tên trận đấu</label>
-                    <input type="text" placeholder="VD: Tìm 2 tay vợt lông trình trung bình khá"
-                           value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})}
-                           className={inputClasses} />
-                  </div>
-                  <div>
-                    <label className="block text-[13px] font-bold text-gray-600 mb-2">Bộ môn</label>
-                    <select className={`${inputClasses} cursor-pointer appearance-none bg-no-repeat bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2224%22%20height%3D%2224%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20stroke%3D%22%236b7280%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%2F%3E%3C%2Fsvg%3E')] bg-[position:right_1rem_center] bg-[length:1.2em_1.2em] pr-10`}>
-                      <option>Cầu lông</option>
-                      <option>Pickleball</option>
-                    </select>
-                  </div>
                   <div>
                     <label className="block text-[13px] font-bold text-gray-600 mb-2">Trình độ yêu cầu</label>
                     <div className="flex gap-3">

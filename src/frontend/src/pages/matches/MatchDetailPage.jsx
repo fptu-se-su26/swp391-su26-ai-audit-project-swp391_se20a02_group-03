@@ -7,6 +7,7 @@ import { matchApi } from '../../api/matchApi'
 import { ratingApi } from '../../api/ratingApi'
 import authApi from '../../api/authApi'
 import { useToast } from '../../components/Toast'
+import { translateSport } from '../../utils/labels'
 
 // Hàng sao chọn điểm (1-5). readOnly = chỉ hiển thị.
 function StarRow({ value, onChange, size = 18, readOnly = false }) {
@@ -47,6 +48,7 @@ export default function MatchDetailPage() {
   const { id } = useParams()
   const { addToast } = useToast()
   const [match, setMatch] = useState(null)
+  const [members, setMembers] = useState([])
   const [joined, setJoined] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [currentUserId, setCurrentUserId] = useState(null)
@@ -70,20 +72,22 @@ export default function MatchDetailPage() {
     matchApi.getMatchById(id)
       .then(res => { if (res.data) setMatch(res.data) })
       .catch(err => console.error(err))
+    // 403 nghĩa là người xem chưa phải thành viên kèo (chưa join/chưa được duyệt) — bỏ qua,
+    // danh sách thành viên/khu vực đánh giá đơn giản không hiển thị.
+    matchApi.getMatchMembers(id)
+      .then(res => { if (res.data) setMembers(res.data) })
+      .catch(() => setMembers([]))
   }
 
   // Lấy Trust Score cho host + người tham gia (TK-035).
   useEffect(() => {
-    if (!match) return
-    const ids = new Set()
-    if (match.hostId) ids.add(match.hostId)
-    ;(match.participants || []).forEach(p => ids.add(p.userId))
-    ids.forEach(uid => {
-      ratingApi.getTrustScore(uid)
-        .then(r => { if (r?.statusCode === 200 && r.data) setTrustScores(prev => ({ ...prev, [uid]: r.data })) })
+    if (members.length === 0) return
+    members.forEach(m => {
+      ratingApi.getTrustScore(m.userId)
+        .then(r => { if (r?.statusCode === 200 && r.data) setTrustScores(prev => ({ ...prev, [m.userId]: r.data })) })
         .catch(() => {})
     })
-  }, [match])
+  }, [members])
 
   async function handleJoin() {
     setIsLoading(true)
@@ -153,14 +157,8 @@ export default function MatchDetailPage() {
 
   if (!match) return <div className="p-10 text-center text-foreground-muted label-mono">Đang tải...</div>
 
-  // Danh sách người có thể đánh giá (host + participants, trừ chính mình).
-  const ratablePlayers = []
-  const seen = new Set()
-  if (match.hostId) { ratablePlayers.push({ userId: match.hostId, isHost: true }); seen.add(match.hostId) }
-  ;(match.participants || []).forEach(p => {
-    if (!seen.has(p.userId)) { ratablePlayers.push({ userId: p.userId, isHost: false }); seen.add(p.userId) }
-  })
-  const othersToRate = currentUserId ? ratablePlayers.filter(p => p.userId !== currentUserId) : []
+  // Danh sách người có thể đánh giá (thành viên đã duyệt, trừ chính mình).
+  const othersToRate = currentUserId ? members.filter(m => m.userId !== currentUserId) : []
 
   return (
     <div className="flex flex-col min-h-screen bg-background-base">
@@ -176,19 +174,23 @@ export default function MatchDetailPage() {
           <div className="flex flex-col gap-6">
             <div className="border-2 border-border-strong bg-surface p-6 md:p-8">
               <div className="flex gap-2 mb-5 flex-wrap">
-                <span className="label-mono bg-ink text-paper px-3 py-1.5 rounded-[2px]">Cầu Lông</span>
-                <span className="label-mono border border-border-strong text-foreground px-3 py-1.5 rounded-[2px]">{match.skillLevel}</span>
+                <span className="label-mono bg-ink text-paper px-3 py-1.5 rounded-[2px]">{translateSport(match.sportType) || 'Thể thao'}</span>
+                {match.levelRequirement && (
+                  <span className="label-mono border border-border-strong text-foreground px-3 py-1.5 rounded-[2px]">{match.levelRequirement}</span>
+                )}
               </div>
-              <h1 className="font-heading text-2xl md:text-3xl uppercase tracking-tight text-foreground mb-7">{match.title}</h1>
+              <h1 className="font-heading text-2xl md:text-3xl uppercase tracking-tight text-foreground mb-7">
+                {match.courtName || 'Trận giao lưu'} {match.hostName ? `— ${match.hostName}` : ''}
+              </h1>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-7">
                 <div>
                   <p className="label-mono text-foreground-subtle mb-1.5">Địa điểm</p>
-                  <p className="text-sm font-extrabold text-foreground flex items-center gap-2"><MapPin size={16} className="text-accent shrink-0" /> {match.location}</p>
+                  <p className="text-sm font-extrabold text-foreground flex items-center gap-2"><MapPin size={16} className="text-accent shrink-0" /> {match.courtName}</p>
                 </div>
                 <div>
                   <p className="label-mono text-foreground-subtle mb-1.5">Thời gian</p>
-                  <p className="text-sm font-extrabold text-foreground flex items-center gap-2"><Clock size={16} className="text-accent shrink-0" /> {new Date(match.matchDate).toLocaleDateString()} • {match.startTime}</p>
+                  <p className="text-sm font-extrabold text-foreground flex items-center gap-2"><Clock size={16} className="text-accent shrink-0" /> {new Date(match.matchDate).toLocaleDateString()} • {String(match.startTime).slice(0, 5)}</p>
                 </div>
               </div>
 
@@ -201,13 +203,13 @@ export default function MatchDetailPage() {
             <div className="border-2 border-border-strong bg-surface p-6 md:p-8">
               <h2 className="font-heading text-lg uppercase text-foreground mb-6">Người tham gia ({match.currentParticipants}/{match.maxParticipants})</h2>
               <div className="flex flex-col gap-4">
-                {match.participants && match.participants.map(p => (
-                  <div key={p.id ?? p.userId} className="flex items-center gap-3.5">
+                {members.map(p => (
+                  <div key={p.userId} className="flex items-center gap-3.5">
                     <div className="w-11 h-11 rounded-[2px] bg-ink text-paper flex items-center justify-center font-heading text-sm shrink-0">
-                      {p.userId}
+                      {(p.userName || '?').charAt(0).toUpperCase()}
                     </div>
                     <div>
-                      <p className="font-extrabold text-foreground text-sm">Người chơi #{p.userId}</p>
+                      <p className="font-extrabold text-foreground text-sm">{p.userName} {p.isHost && <span className="text-accent text-xs">(Chủ kèo)</span>}</p>
                       <TrustBadge score={trustScores[p.userId]} />
                     </div>
                   </div>
@@ -225,9 +227,9 @@ export default function MatchDetailPage() {
                     <div key={pl.userId} className="border border-border-default rounded-[2px] p-4">
                       <div className="flex items-center justify-between flex-wrap gap-3">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-[2px] bg-ink text-paper flex items-center justify-center font-heading text-sm shrink-0">{pl.userId}</div>
+                          <div className="w-10 h-10 rounded-[2px] bg-ink text-paper flex items-center justify-center font-heading text-sm shrink-0">{(pl.userName || '?').charAt(0).toUpperCase()}</div>
                           <div>
-                            <p className="font-bold text-foreground text-sm">Người chơi #{pl.userId} {pl.isHost && <span className="text-accent text-xs">(Chủ kèo)</span>}</p>
+                            <p className="font-bold text-foreground text-sm">{pl.userName} {pl.isHost && <span className="text-accent text-xs">(Chủ kèo)</span>}</p>
                             <TrustBadge score={trustScores[pl.userId]} />
                           </div>
                         </div>
