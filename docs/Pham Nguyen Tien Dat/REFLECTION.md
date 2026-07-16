@@ -433,109 +433,55 @@ Song song, nhóm tích hợp **Superpowers** (submodule, quy trình brainstormin
 
 ---
 
-
-# Reflection - Tuần 9: Tổng kiểm định vận hành, TDD, hòa giải xung đột và kiểm soát chất lượng sau tích hợp
+# Reflection - Tuần 9: Tổng kiểm định vận hành, TDD, hòa giải xung đột và tự rà soát bug sau tích hợp
 
 ## Tổng quan quá trình
-Trong tuần này, nhóm thực hiện tổng kiểm định vận hành hệ thống ProSport trên các luồng booking, mua sắm, KYC, quản lý sân, Admin Portal, Owner Portal và Apex/Gear Portal. Mục tiêu không chỉ là làm build hoặc test xanh mà là kiểm tra tính đúng đắn của API contract, nghiệp vụ, accessibility, responsive và độ an toàn khi tích hợp code từ worktree Antigravity/Codex.
+Tuần này gồm hai giai đoạn nối tiếp trên cùng một nhánh `DE190147/audit-module` rồi tiếp tục trên `main`. Giai đoạn đầu là tổng kiểm định vận hành hệ thống ProSport trên các luồng booking, mua sắm, KYC, quản lý sân, Admin/Owner/Apex/Gear Portal — không chỉ làm build/test xanh mà kiểm tra tính đúng đắn của API contract, nghiệp vụ, accessibility, responsive và độ an toàn khi tích hợp code từ worktree Antigravity/Codex. Antigravity triển khai đồng bộ UI Admin, Owner, Gear/Apex cùng UI primitives và design system; Codex tiếp quản worktree, rà lỗi nền, hòa giải xung đột và chạy regression toàn hệ thống. Kết quả được commit qua `72d0529 feat: unify portal UI and harden workflows` và `1348d57 fix: reconcile conflicted portal workflows`, đẩy lên `origin/DE190147/audit-module`.
 
-Phần Antigravity triển khai đồng bộ UI Admin, Owner và Gear/Apex, tạo UI primitives, tài liệu design system và nhiều regression test. Sau đó Codex tiếp quản worktree, rà lại các lỗi nền, tích hợp thay đổi vào nhánh `DE190147/audit-module`, xử lý xung đột và chạy regression toàn hệ thống.
+Giai đoạn hai khác biệt hoàn toàn về hình thức yêu cầu: không có checklist hay brief cụ thể, chỉ đơn giản là "tải `main` mới nhất về, tự rà soát và tự fix". Sau khi `git pull main` (từ `ad03418` lên `e935c10`, gộp thêm PR #48/#49/#50 với gần 5300 dòng thay đổi mới — bao gồm tính năng Escrow wallet-linking và viết lại lớn nhiều trang Apex/MatchPro), AI phải tự quyết định nên nhìn vào đâu: chạy baseline lint/test/build trước, sau đó dùng chính commit message của PR mới nhất ("fix(frontend): resolve conflicts and fix Create Match payload") làm manh mối để đào sâu vào đúng vùng rủi ro cao thay vì rà soát dàn trải toàn bộ 34 file. Kết quả được commit trên nhánh riêng `fix/main-bug-sweep-post-PR50` (`b7775a8`), đã push nhưng chưa mở PR.
 
-Kết quả cuối cùng được commit và push qua hai commit:
-
-- `72d0529 feat: unify portal UI and harden workflows`
-- `1348d57 fix: reconcile conflicted portal workflows`
-
-Nhánh remote `origin/DE190147/audit-module` hiện trỏ tới `1348d57`.
-
-## Hạn chế của AI và khó khăn kỹ thuật
-
-- **Git không báo conflict không đồng nghĩa code đã an toàn:** Snapshot Antigravity có thể được commit bình thường nhưng khi cherry-pick vào nhánh cá nhân vẫn phát sinh xung đột tại Admin, Owner, Apex, Gear, API và package. Việc resolve marker chỉ là bước đầu; phải chạy regression để tìm lỗi hành vi sau merge.
-
-- **Contract API dễ bị phá vỡ bởi khác biệt giữa dữ liệu hiển thị và dữ liệu lưu trữ:** Status sân API dùng `ACTIVE`, nhưng DB dùng `Available`. Nếu lưu trực tiếp `ACTIVE`, luồng bookable bị sai ngầm. Repository cũng có thể lọc sai nếu so sánh API status trực tiếp với DB status.
-
-- **UI test có thể thiếu dependency runtime thật:** Apex Shop test bị lỗi vì thiếu Router và CartContext mock. Đây không phải lỗi giao diện production, nhưng là dấu hiệu test chưa tái tạo đầy đủ môi trường component.
-
+## Hạn chế của AI và Khó khăn kỹ thuật
+- **Git không báo conflict không đồng nghĩa code đã an toàn:** Snapshot Antigravity có thể commit bình thường nhưng khi cherry-pick vào nhánh cá nhân vẫn phát sinh xung đột tại Admin, Owner, Apex, Gear, API và package. Resolve marker chỉ là bước đầu; phải chạy regression để tìm lỗi hành vi sau merge.
+- **"Conflict đã resolve" chỉ là nửa câu chuyện:** Commit fixup `bae6c1e` tự nhận đã "resolve conflicts and fix Create Match payload" — nghĩa là frontend đã được sửa đúng payload. Nhưng sửa đúng một phía của hợp đồng API không đảm bảo phía còn lại (backend) dùng đúng giá trị đó: `CreateMatchAsync` vẫn âm thầm tự tính lại escrow amount, bỏ qua hoàn toàn giá trị đã được sửa đúng ở phía client.
+- **Contract API dễ vỡ bởi khác biệt dữ liệu hiển thị và dữ liệu lưu trữ:** Status sân API dùng `ACTIVE`, DB dùng `Available` — lưu trực tiếp `ACTIVE` khiến luồng bookable sai ngầm. Tương tự, `MatchDetailPage` tham chiếu các field không tồn tại trên `MatchDto` thật (`title`, `skillLevel`, `location`, `participants`).
+- **Feature "trông như hoạt động" nhưng chưa từng chạy thật:** Tính năng đánh giá uy tín người chơi (TK-035) có đủ UI hoàn chỉnh (nút bấm, form sao, submit) khiến đọc lướt code dễ kết luận "đã xong". Chỉ khi lần theo dữ liệu ngược từ JSX lên tới DTO backend mới lộ ra `match.participants` không bao giờ có giá trị vì trường này không tồn tại trên response thật.
+- **Không có checklist thì dễ rà soát hời hợt nếu chỉ dừng ở lint/test/build:** Baseline sau khi khôi phục `@testing-library/jest-dom` bị mất đều xanh — lint 0 lỗi, test pass, build pass. Nếu dừng ở đây, bug tài chính nghiêm trọng nhất (escrow amount bị ghi đè) sẽ hoàn toàn không bị phát hiện, vì đây là lỗi logic/contract không hiện qua build/lint sạch.
+- **Ranh giới giữa "sửa bug" và "xây tính năng mới" không phải lúc nào cũng rõ ràng:** Phát hiện `matchApi.approveJoiner` sai URL dẫn tới việc lộ ra tính năng "host duyệt người xin tham gia" chưa từng có trang UI nào gọi tới — sửa đúng URL không làm tính năng "hoạt động" theo nghĩa người dùng dùng được, vì không có nơi nào để bấm duyệt.
+- **UI test có thể thiếu dependency runtime thật:** Apex Shop test từng lỗi vì thiếu Router và CartContext mock — dấu hiệu test chưa tái tạo đầy đủ môi trường component.
 - **Accessibility không chỉ là thêm ARIA:** Modal, sidebar và drawer cần Escape, focus trap, focus restore, scroll lock, trạng thái `aria-hidden`/`inert` và không để phần tử ẩn còn tabbable.
+- **Dễ vô tình đưa artifact cục bộ vào commit:** Khi staging toàn bộ working tree, các thư mục audit `.claude/`, `.codex-work/`, `outputs/` có thể lọt vào commit dù không thuộc source code.
 
-- **ESLint có thể phát hiện lỗi lifecycle mà test chưa bắt được:** Owner Modal và Apex dialog cập nhật `ref.current` trong render. Unit test có thể pass nhưng ESLint chặn vì pattern này không an toàn với React.
-
-- **Dễ vô tình đưa artifact cục bộ vào commit:** Khi staging toàn bộ working tree, các thư mục audit `.claude/`, `.codex-work/`, `outputs/` có thể bị đưa vào commit dù không thuộc source code. Cần kiểm tra `git status` trước stage và chỉ stage file cần thiết.
-
-## Giải pháp và can thiệp của con người
-
-- **Thiết lập Planning Gate và TDD:** Trước khi sửa phải kiểm tra working tree, contract frontend/backend và có regression test. Với lỗi status sân, checkout booking, KYC, Users, Complaints và Apex filters, test được viết/cập nhật cùng bản vá.
-
-- **Ưu tiên snapshot Anti có kiểm soát:** Khi xung đột cherry-pick, con người xác nhận ưu tiên snapshot Antigravity tại vùng xung đột. Sau đó AI tiếp tục sửa regression thay vì coi merge là hoàn tất.
-
-- **Yêu cầu bằng chứng kiểm chứng:** Không chấp nhận báo cáo định tính. Bắt buộc chạy test frontend/backend, lint, build và `git diff --check` sau khi hòa giải xung đột.
-
-- **Kiểm soát repository hygiene:** Artifact audit cục bộ được loại khỏi commit nhưng vẫn giữ trên máy. Điều này đảm bảo commit chỉ chứa source, test và tài liệu thực sự cần thiết.
+## Giải pháp và Can thiệp của con người
+- **Thiết lập Planning Gate và TDD xuyên suốt cả hai giai đoạn:** Trước khi sửa phải kiểm tra working tree, contract frontend/backend và có regression test đi kèm mỗi bản vá (status sân, checkout, KYC, Users, Complaints, Apex filters, escrow amount, match members).
+- **Ưu tiên snapshot Antigravity có kiểm soát khi hòa giải xung đột:** Con người xác nhận ưu tiên snapshot tại vùng xung đột, AI tiếp tục sửa regression thay vì coi merge là hoàn tất.
+- **Giao việc hoàn toàn mở ở giai đoạn hai:** Không cung cấp checklist, đặt gánh nặng lên AI phải tự tìm nơi cần nhìn ("tự nghiên cứu và fix bug") thay vì chỉ thực thi danh sách có sẵn.
+- **Chấp nhận việc AI bổ sung endpoint backend mới (`GET /matches/{id}/members`) để sửa đúng gốc rễ:** Thay vì vá tạm ở frontend (ví dụ ẩn hẳn phần đánh giá người chơi), quyết định đúng là bổ sung đúng API còn thiếu ở tầng phù hợp (service + controller có kiểm tra quyền).
+- **Giữ kỷ luật không lấn phạm vi:** Chủ động dừng ở việc sửa contract URL cho `approveJoiner`/thêm `rejectJoiner`, không tự ý dựng trang "Duyệt người tham gia" mới cho host dù khả thi kỹ thuật.
+- **Yêu cầu bằng chứng kiểm chứng, không chấp nhận báo cáo định tính:** Bắt buộc chạy test frontend/backend, lint, build và `git diff --check` sau mỗi lần hòa giải xung đột hoặc trước khi commit.
+- **Không commit thẳng lên `main`:** Cả hai giai đoạn đều tạo nhánh riêng (`DE190147/audit-module`, sau đó `fix/main-bug-sweep-post-PR50`) thay vì commit trực tiếp lên nhánh chính, giữ đúng quy trình PR-review của repo.
+- **Kiểm soát repository hygiene:** Artifact audit cục bộ (`.claude/`, `.codex-work/`, `outputs/`) được loại khỏi mọi commit nhưng vẫn giữ trên máy.
 
 ## Bài học rút ra
-
-- **“Build pass” không đồng nghĩa “đúng nghiệp vụ”:** Lỗi status `ACTIVE`/`Available`, checkout xóa nhầm giỏ hàng và KYC dùng ảnh fallback đều có thể tồn tại trong hệ thống vẫn build được.
-
-- **“Resolve conflict” không đồng nghĩa “đã tích hợp đúng”:** Sau merge phải kiểm tra API contract, component runtime, test environment và hành vi người dùng. Regression sau merge là một loại bug riêng cần được coi trọng.
-
-- **Dữ liệu hiển thị phải trung thực với backend:** Không dùng status giả như `Premium/New/Trial` nếu API chỉ có status tồn kho thực. Không dùng ảnh stock thay bằng chứng KYC thật. Không dùng fake ID cho cross-sell/cart.
-
-- **Accessibility cần được xem là hành vi:** Một dialog chỉ có `role="dialog"` là chưa đủ; phải thao tác được bằng bàn phím, không mất focus và không làm người dùng truy cập phần tử bị ẩn.
-
-- **Git hygiene là một phần của chất lượng:** `git add -A` không phù hợp khi working tree chứa output/tooling artifact. Luôn kiểm tra stage trước commit, và không push dữ liệu sinh tự động hoặc file nội bộ không thuộc phạm vi source.
-
-- **Phân biệt rõ mức độ kiểm chứng:** Có ba mức khác nhau:
+- **"Build pass" không đồng nghĩa "đúng nghiệp vụ":** Lỗi status `ACTIVE`/`Available`, checkout xóa nhầm giỏ hàng, KYC dùng ảnh fallback, và escrow amount bị ghi đè âm thầm — tất cả đều có thể tồn tại trong một hệ thống vẫn build/lint sạch hoàn toàn.
+- **"Resolve conflict" không đồng nghĩa "đã tích hợp đúng ở cả hai phía":** Một commit message tự nhận đã sửa payload không đồng nghĩa mọi tầng liên quan (frontend gửi, backend nhận và dùng) đều nhất quán. Sau bất kỳ lần resolve conflict nào chạm vào một API, phải lần theo dữ liệu từ nơi gửi đến nơi dùng thật.
+- **UI hoàn chỉnh không chứng minh tính năng hoạt động:** Một form/nút bấm/luồng UX đầy đủ có thể che giấu hoàn toàn việc dữ liệu nền tảng phía sau không bao giờ tồn tại. Luôn cần lần theo dữ liệu tới tận nguồn (network response thật hoặc DTO backend).
+- **Dữ liệu hiển thị phải trung thực với backend:** Không dùng status giả như `Premium/New/Trial` nếu API chỉ có status tồn kho thực. Không dùng ảnh stock thay bằng chứng KYC thật. Không dùng fake ID cho cross-sell/cart, không giữ field form không được gửi lên server.
+- **Phát hiện gap tính năng không tự động là lệnh xây tính năng đó:** Ranh giới giữa "sửa cho đúng những gì đã có" và "xây thêm cái chưa có" cần giữ rõ ràng, đặc biệt khi làm việc không có brief cụ thể.
+- **Accessibility cần được xem là hành vi, không chỉ thuộc tính:** Một dialog chỉ có `role="dialog"` là chưa đủ; phải thao tác được bằng bàn phím, không mất focus và không để người dùng truy cập phần tử đang ẩn.
+- **Audit không cần checklist vẫn cần một điểm neo để không rà soát dàn trải:** Dùng chính commit message của thay đổi mới nhất làm gợi ý vùng rủi ro cao là chiến lược hiệu quả khi phải tự quyết định phạm vi rà soát trong một diff lớn.
+- **Git hygiene là một phần của chất lượng:** `git add -A` không phù hợp khi working tree chứa artifact/tooling cục bộ. Luôn kiểm tra stage trước commit.
+- **Phân biệt rõ ba mức độ kiểm chứng — chỉ báo cáo ở mức đã thực sự đạt:**
   1. Đã sửa code.
   2. Đã pass lint/test/build.
   3. Đã smoke test trực quan trên browser thật.
-  
-  Báo cáo chỉ được khẳng định ở mức đã thực sự đạt.
 
-## Kết quả kiểm chứng cuối cùng
-
-- Frontend:
-  - `npm test -- --run` — **63/63 pass**
-  - `npm run lint -- --quiet` — pass
-  - `npm run build` — pass
-
-- Backend:
-  - `dotnet test ProSport.sln --no-restore` — **142 pass, 4 skipped, 0 fail**
-
-- Chất lượng merge:
-  - `git diff --check` — pass
-  - Không còn conflict marker trong source
+## Kết quả kiểm chứng
+- **Giai đoạn 1 (hòa giải xung đột, commit `1348d57`):** Frontend — Vitest 63/63 pass, ESLint 0 lỗi, build pass. Backend — `dotnet test` 142 pass / 4 skip / 0 fail. `git diff --check` pass, không còn conflict marker.
+- **Giai đoạn 2 (rà soát main sau PR #50, commit `b7775a8`):** Frontend — Vitest 63/63 pass (sau khi khôi phục `@testing-library/jest-dom`), ESLint 0 lỗi, build pass. Backend — `dotnet test` 145/149 pass (4 skip, +4 test mới cho escrow amount và match members).
 
 ## Phần còn tồn đọng
-Dù phần Admin, Owner, Gear/Apex và các regression sau merge đã được kiểm chứng, chưa thể khẳng định toàn bộ brief UI hoàn tất vì:
-
 - Chưa smoke test trực quan tất cả route tại viewport mobile 320px.
 - Mobile Portal và Staff/Elite Portal cần audit sâu hơn.
 - Một số hạng mục responsive chuyên biệt, như Admin Pricing ở viewport rất hẹp, cần kiểm chứng browser riêng.
-
-Bài học chính của tuần là: AI có thể tăng tốc sửa lỗi và tái cấu trúc lớn, nhưng chỉ an toàn khi có planning gate, kiểm chứng contract, regression test, review sau merge và checkpoint rõ ràng trước khi commit/push.
-
----
-
-# Reflection - Tuần 9 (tiếp #2, 2026-07-17): Tự rà soát `main` sau PR #50 và vá 5 bug không cần danh sách lỗi được giao sẵn
-
-## Tổng quan quá trình
-Khác với các đợt trước (đều bắt đầu từ một danh sách lỗi hoặc brief cụ thể), lần này yêu cầu chỉ đơn giản là "tải main mới nhất về, tự rà soát và tự fix" — không có checklist nào được cung cấp trước. Sau khi `git pull` main (từ `ad03418` lên `e935c10`, gộp thêm PR #48/#49/#50 với gần 5300 dòng thay đổi mới, bao gồm tính năng Escrow wallet-linking và viết lại lớn nhiều trang Apex/MatchPro), AI phải tự quyết định nên nhìn vào đâu. Cách tiếp cận: chạy baseline (lint/test/build cả hai phía) trước để phát hiện lỗi hiển nhiên, sau đó dùng chính commit message của PR mới nhất ("fix(frontend): resolve conflicts and fix Create Match payload") làm manh mối để đào sâu vào đúng vùng rủi ro cao (chỗ vừa resolve conflict thủ công) thay vì rà soát dàn trải toàn bộ 34 file thay đổi.
-
-## Hạn chế của AI và Khó khăn kỹ thuật
-- **Không có checklist thì dễ rà soát hời hợt nếu chỉ dừng ở lint/test/build:** Baseline ban đầu (sau khi khôi phục `@testing-library/jest-dom` bị mất) đều xanh — lint 0 lỗi, test pass, build pass. Nếu dừng lại ở đây, 4 trong 5 bug tìm được (bao gồm bug tài chính nghiêm trọng nhất) sẽ hoàn toàn không bị phát hiện, vì chúng là lỗi *logic/contract* không hiện ra qua build pass hay lint sạch.
-- **Bug ẩn sau một lần merge conflict tưởng như đã "resolve xong":** Commit fixup `bae6c1e` tự nhận là đã "resolve conflicts and fix Create Match payload" — nghĩa là tác giả trước đó đã cố ý sửa payload cho đúng. Nhưng việc sửa payload ở *frontend* không đảm bảo *backend* dùng đúng giá trị đó — `CreateMatchAsync` vẫn âm thầm tự tính lại escrow amount, bỏ qua hoàn toàn giá trị đã được sửa đúng ở phía client. Đây là một dạng "conflict được resolve ở nửa đường" — sửa đúng một phía của hợp đồng API nhưng phía còn lại vẫn giữ logic cũ.
-- **Feature "trông như hoạt động" nhưng chưa từng chạy thật:** Tính năng đánh giá uy tín người chơi (TK-035) có đầy đủ UI hoàn chỉnh — nút bấm, form sao, submit — khiến việc đọc lướt code dễ kết luận "tính năng này đã xong". Chỉ khi lần theo chuỗi dữ liệu ngược từ JSX lên tới DTO backend mới lộ ra `match.participants` không bao giờ có giá trị, vì trường này không tồn tại trên response thật.
-- **Ranh giới giữa "sửa bug" và "xây tính năng mới" không phải lúc nào cũng rõ ràng ngay từ đầu:** Khi phát hiện `matchApi.approveJoiner` sai URL, việc kiểm tra sâu hơn lộ ra rằng tính năng "host duyệt người xin tham gia" chưa từng có trang UI nào gọi tới — nghĩa là sửa đúng URL cũng không làm tính năng "hoạt động" theo nghĩa người dùng thực sự dùng được, vì không có nơi nào trên UI để bấm duyệt. Ranh giới hợp lý ở đây là: sửa đúng contract (để sẵn sàng khi có UI), nhưng không tự ý dựng cả một trang quản trị mới chỉ vì đang "sửa bug".
-
-## Giải pháp và Can thiệp của con người
-- **Không cung cấp checklist, buộc AI tự chịu trách nhiệm phạm vi rà soát:** Đây là lần đầu trong chuỗi các phiên audit mà yêu cầu hoàn toàn mở ("tự nghiên cứu và fix bug") — đặt gánh nặng lên AI phải tự tìm ra nơi cần nhìn, thay vì chỉ thực thi một danh sách có sẵn.
-- **Chấp nhận việc AI tạo endpoint backend mới (`GET /matches/{id}/members`) để sửa đúng gốc rễ:** Thay vì chỉ vá tạm ở frontend (ví dụ ẩn hẳn phần đánh giá người chơi vì không có dữ liệu), quyết định đúng đắn là bổ sung đúng API còn thiếu ở tầng phù hợp (service + controller có kiểm tra quyền), vì đây là cách duy nhất khôi phục lại tính năng đã tồn tại trên UI nhưng chưa từng có dữ liệu thật.
-- **Giữ kỷ luật không lấn phạm vi:** Chủ động dừng lại ở việc sửa contract URL cho `approveJoiner`/thêm `rejectJoiner`, không tự ý xây một trang "Duyệt người tham gia" mới cho host — dù về mặt kỹ thuật hoàn toàn khả thi trong cùng một lượt sửa.
-- **Không commit thẳng lên `main`:** Tạo nhánh riêng `fix/main-bug-sweep-post-PR50` cho toàn bộ bản vá, giữ đúng quy trình PR-review đã áp dụng xuyên suốt dự án (mọi thay đổi lên `main` đều qua PR, kể cả khi người thực thi là AI).
-
-## Bài học rút ra
-- **"Conflict đã resolve" chỉ là nửa câu chuyện — phải hỏi tiếp "resolve đúng ở CẢ HAI phía của contract chưa?":** Một commit message tự nhận đã sửa payload không đồng nghĩa mọi tầng liên quan (frontend gửi, backend nhận và dùng) đều nhất quán. Sau bất kỳ lần resolve conflict nào chạm vào một API, phải lần theo dữ liệu từ nơi gửi đến nơi dùng thật, không chỉ tin vào lời khẳng định trong commit message.
-- **Build xanh + lint sạch không phát hiện được lỗi hợp đồng dữ liệu (contract mismatch):** Những bug nghiêm trọng nhất trong đợt này (escrow amount sai, tính năng rating chết) đều không hiện ra qua bất kỳ công cụ kiểm tra tự động nào đang có — chỉ lộ ra khi đọc kỹ và đối chiếu tay giữa DTO thật và nơi nó được dùng. Đây là lớp rủi ro mà chỉ có audit thủ công/TDD có mục tiêu mới bắt được.
-- **UI hoàn chỉnh không chứng minh tính năng hoạt động:** Một form/nút bấm/luồng UX đầy đủ có thể che giấu hoàn toàn việc dữ liệu nền tảng phía sau không bao giờ tồn tại. Khi audit, luôn cần lần theo dữ liệu tới tận nguồn (network response thật hoặc DTO backend), không dừng lại ở việc UI "trông có vẻ đúng".
-- **Phát hiện gap tính năng không tự động là lệnh xây tính năng đó:** Ranh giới giữa "sửa cho đúng những gì đã có" và "xây thêm cái chưa có" cần được giữ rõ ràng, đặc biệt khi làm việc không có brief cụ thể — dễ bị cuốn theo quán tính "tiện thể làm luôn" khi đang có sẵn ngữ cảnh kỹ thuật.
-- **Audit không cần checklist vẫn cần một điểm neo để không rà soát dàn trải:** Dùng chính commit message của thay đổi mới nhất ("fix Create Match payload") làm gợi ý về vùng rủi ro cao là một chiến lược hiệu quả khi phải tự quyết định phạm vi rà soát trong một diff lớn (34 file) — đào sâu có mục tiêu thay vì đọc lướt dàn trải toàn bộ.
+- Nhánh `fix/main-bug-sweep-post-PR50` đã push nhưng chưa mở PR/merge vào `main` — chờ quyết định.
+- Tính năng "host duyệt người xin tham gia kèo" vẫn chưa có bất kỳ trang UI nào (chỉ tồn tại ở tầng API/service) — cần quyết định phạm vi sản phẩm riêng trước khi xây dựng.
