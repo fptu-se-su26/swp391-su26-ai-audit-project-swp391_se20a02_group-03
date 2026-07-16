@@ -161,7 +161,7 @@ export default function ApexBookingPage() {
           const vnpayRes = await paymentApi.createVnPayUrl(0, 'Booking', bookingId)
           if (vnpayRes.statusCode === 200 && vnpayRes.data) {
              addToast('Bạn có 15 phút để hoàn tất thanh toán. Quá hạn sẽ tự động hủy đơn.', 'warning')
-             // Might need special handling to pass origin through VNPay return URL in a real app, 
+             // Might need special handling to pass origin through VNPay return URL in a real app,
              // but assuming we rely on escrow or normal flow here.
              window.location.assign(vnpayRes.data)
              return
@@ -231,7 +231,7 @@ export default function ApexBookingPage() {
     <ApexLayout>
       <div className="bg-[#F8F9FA] min-h-screen">
         <div className="max-w-[1200px] mx-auto px-4 md:px-8 py-10 auth-animate-in pb-28 lg:pb-12 font-sans">
-          
+
           {/* Header & Stepper */}
           <div className="flex max-md:flex-col md:items-end justify-between gap-6 mb-10">
             <div>
@@ -312,10 +312,10 @@ export default function ApexBookingPage() {
                     <div className="p-6 flex-1 flex flex-col">
                       <h3 className="font-bold text-[18px] uppercase tracking-tight text-[#0f172a] m-0 mb-2">{court.name}</h3>
                       <p className="text-[13px] text-gray-500 mb-4 flex items-center gap-1.5 font-medium m-0">
-                        <span className="text-[#14b8a6]">{court.icon}</span> 
+                        <span className="text-[#14b8a6]">{court.icon}</span>
                         {court.type === 'Badminton' ? 'Cầu lông' : court.type}
                       </p>
-                      
+
                       <div className="flex flex-col gap-2 mt-auto">
                         <div className="flex items-center gap-2 text-[13px] text-gray-600 font-medium">
                           <Users size={16} className="text-gray-400" /> Tối đa {court.capacity} người
@@ -354,23 +354,23 @@ export default function ApexBookingPage() {
           {step === 2 && (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 auth-animate-fade">
               {/* Left: Time Picker */}
-              <div className="lg:col-span-2 bg-white rounded-[24px] shadow-[0_4px_24px_rgba(0,0,0,0.04)] border border-gray-100 p-8">
-                <div className="flex max-sm:flex-col sm:items-center justify-between gap-6 mb-8 pb-6 border-b border-gray-100">
-                  <h2 className="text-[20px] font-bold uppercase tracking-tight text-[#0f172a] m-0">Chọn khung giờ</h2>
-                  <div className="flex items-center gap-3 bg-[#F8F9FA] p-1.5 rounded-full border border-gray-200">
-                    <span className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-gray-500"><Calendar size={16} /></span>
+              <div className="lg:col-span-2 bg-white rounded-[24px] shadow-[0_4px_24px_rgba(0,0,0,0.04)] border border-gray-100 p-5 md:p-8">
+                <div className="flex max-sm:flex-col sm:items-center justify-between gap-4 mb-6 md:mb-8 pb-4 md:pb-6 border-b border-gray-100">
+                  <h2 className="text-[18px] md:text-[20px] font-bold uppercase tracking-tight text-[#0f172a] m-0">Chọn khung giờ</h2>
+                  <div className="flex items-center gap-2 bg-[#F8F9FA] p-1.5 rounded-full border border-gray-200">
+                    <span className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-gray-500 shrink-0"><Calendar size={16} /></span>
                     <input
                       id="booking-date"
                       type="date"
                       value={selectedDate}
                       min={minDate}
                       onChange={e => { setSelectedDate(e.target.value); setSelectedSlots([]); }}
-                      className="h-8 pr-4 bg-transparent text-[14px] font-bold text-[#0f172a] cursor-pointer outline-none transition-all appearance-none"
+                      className="h-8 pr-4 bg-transparent text-[13px] md:text-[14px] font-bold text-[#0f172a] cursor-pointer outline-none transition-all appearance-none"
                     />
                   </div>
                 </div>
 
-                <div className="flex items-center gap-6 mb-8 text-[13px] font-bold text-gray-500">
+                <div className="flex flex-wrap items-center gap-4 md:gap-6 mb-6 md:mb-8 text-[12px] md:text-[13px] font-bold text-gray-500">
                   <div className="flex items-center gap-2"><span className="w-4 h-4 rounded-full bg-[#F8F9FA] border border-gray-200" /> Trống</div>
                   <div className="flex items-center gap-2"><span className="w-4 h-4 rounded-full bg-[#14b8a6] shadow-[0_0_10px_rgba(20,184,166,0.3)]" /> Đang chọn</div>
                   <div className="flex items-center gap-2"><span className="w-4 h-4 rounded-full bg-gray-200" /> Kín chỗ / Quá hạn</div>
@@ -404,8 +404,8 @@ export default function ApexBookingPage() {
               </div>
 
               {/* Right: Summary Panel */}
-              <div className="bg-white rounded-[24px] shadow-[0_4px_24px_rgba(0,0,0,0.04)] border border-gray-100 p-8 h-fit sticky top-24">
-                <h3 className="text-[18px] font-bold uppercase tracking-tight text-[#0f172a] mb-6 m-0">Tóm tắt đặt sân</h3>
+              <div className="bg-white rounded-[24px] shadow-[0_4px_24px_rgba(0,0,0,0.04)] border border-gray-100 p-6 md:p-8 h-fit lg:sticky lg:top-24">
+                <h3 className="text-[16px] md:text-[18px] font-bold uppercase tracking-tight text-[#0f172a] mb-6 m-0">Tóm tắt đặt sân</h3>
 
                 <div className="flex items-center gap-4 mb-8 bg-[#F8F9FA] p-4 rounded-[16px] border border-gray-100">
                   <img src={selectedCourt.imageUrl} alt="" className="w-16 h-16 rounded-[12px] object-cover shrink-0 shadow-sm" />

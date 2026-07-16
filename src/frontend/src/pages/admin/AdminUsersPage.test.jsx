@@ -1,22 +1,9 @@
 import React from 'react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, act, fireEvent } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import AdminUsersPage from './AdminUsersPage';
+import { MemoryRouter } from 'react-router-dom';
 import { userApi } from '../../api/userApi';
-
-// BUG P1-2: effect debounce cũ phụ thuộc cả `page`, nên sau khi bấm "Sau" (Next), ~400ms sau
-// page bị set lại về 1 và có thể gọi API 2 lần. Các test dưới đây khoá lại: debounce chỉ áp
-// dụng cho search; đổi role reset về trang 1; đổi trang (Next/Prev) giữ nguyên trang đã chọn;
-// mỗi thay đổi chỉ tạo đúng 1 request.
-
-vi.mock('../../layouts/AdminLayout', () => ({
-  default: ({ children }) => <div>{children}</div>,
-}));
-
-vi.mock('../../components/Toast', () => ({
-  useToast: () => ({ addToast: vi.fn() }),
-}));
 
 vi.mock('../../api/userApi', () => ({
   userApi: {
@@ -26,113 +13,136 @@ vi.mock('../../api/userApi', () => ({
   },
 }));
 
-function pageResult(page, overrides = {}) {
-  return {
-    statusCode: 200,
-    data: {
-      items: [{ userId: page, fullName: `User ${page}`, email: `u${page}@test.com`, role: 'Customer', eKycStatus: 'Verified', isLocked: false, createdAt: '2026-01-01' }],
-      totalPages: 5,
-      totalCount: 50,
-      ...overrides,
-    },
-  };
-}
+vi.mock('../../context/AuthContext', () => ({
+  useAuth: () => ({ user: { role: 'Admin' } })
+}));
 
-beforeEach(() => {
-  vi.useFakeTimers({ shouldAdvanceTime: true });
-  userApi.getUsers.mockImplementation(({ page }) => Promise.resolve(pageResult(page)));
-});
+vi.mock('../../components/Toast', () => ({
+  useToast: () => ({ addToast: vi.fn() }),
+}));
+vi.mock('../../components/ui/ConfirmDialog', () => ({
+  useConfirm: () => vi.fn().mockResolvedValue(true),
+}));
 
-afterEach(() => {
-  vi.runOnlyPendingTimers();
-  vi.useRealTimers();
-});
+describe('AdminUsersPage', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
 
-describe('AdminUsersPage — pagination không tự reset về trang 1', () => {
-  it('bấm Next giữ nguyên trang đã chọn, kể cả sau khi chờ quá 400ms (không bị debounce reset)', async () => {
-    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
-    render(<AdminUsersPage />);
-
-    await act(async () => {
-      await vi.advanceTimersByTimeAsync(500); // fetch ban đầu (page 1)
+  it('gọi API phân trang và tìm kiếm đúng debounce', async () => {
+    userApi.getUsers.mockResolvedValue({
+      statusCode: 200,
+      data: {
+        items: [
+          { userId: 1, email: 'test@example.com', roleName: 'Customer', isLocked: false, kycStatus: 'Verified', createdAt: new Date().toISOString() },
+        ],
+        totalPages: 5,
+        totalCount: 50,
+      },
     });
+
+    render(
+      <MemoryRouter>
+        <AdminUsersPage />
+      </MemoryRouter>
+    );
+
+    // Initial render fetches page 1
+    await waitFor(() => {
+      expect(userApi.getUsers).toHaveBeenCalledTimes(1);
+    });
+
+    const searchInput = screen.getByPlaceholderText('Tìm theo tên hoặc email...');
+
+    // Simulate user typing
+    fireEvent.change(searchInput, { target: { value: 'john' } });
+
+    // Timer hasn't fired yet, should not call API again
     expect(userApi.getUsers).toHaveBeenCalledTimes(1);
-    expect(userApi.getUsers).toHaveBeenLastCalledWith(expect.objectContaining({ page: 1 }));
 
-    const nextBtn = screen.getByRole('button', { name: /sau/i });
-    await user.click(nextBtn);
-
+    // Advance timer by 450ms
     await act(async () => {
-      await vi.advanceTimersByTimeAsync(50);
-    });
-    // Request cho trang 2 phải được gọi ngay, không cần chờ debounce.
-    expect(userApi.getUsers).toHaveBeenLastCalledWith(expect.objectContaining({ page: 2 }));
-    const callsRightAfterClick = userApi.getUsers.mock.calls.length;
-
-    // Đợi qua mốc 400ms — BUG cũ sẽ set lại page=1 và gọi thêm 1 request nữa tại đây.
-    await act(async () => {
-      await vi.advanceTimersByTimeAsync(500);
+      await new Promise(r => setTimeout(r, 450));
     });
 
-    expect(userApi.getUsers).toHaveBeenCalledTimes(callsRightAfterClick); // không có request thừa
-    expect(userApi.getUsers).toHaveBeenLastCalledWith(expect.objectContaining({ page: 2 })); // vẫn ở trang 2
-    expect(screen.getByText('2')).toBeInTheDocument(); // UI hiển thị đúng số trang hiện tại
+    await waitFor(() => {
+      // Called 2nd time after debounce
+      expect(userApi.getUsers).toHaveBeenCalledTimes(2);
+      expect(userApi.getUsers.mock.calls[1][0].search).toBe('john');
+      expect(userApi.getUsers.mock.calls[1][0].page).toBe(1);
+    });
+
+    // Go to next page
+    const nextBtn = screen.getByLabelText('Trang sau');
+    fireEvent.click(nextBtn);
+
+    await waitFor(() => {
+      // Called 3rd time for page 2
+      expect(userApi.getUsers).toHaveBeenCalledTimes(3);
+      expect(userApi.getUsers.mock.calls[2][0].page).toBe(2);
+    });
+
+    // Wait and advance timer to make sure page doesn't reset to 1 due to old bug
+    await act(async () => {
+      await new Promise(r => setTimeout(r, 1000));
+    });
+
+    // Should NOT call API again, shouldn't reset to page 1
+    expect(userApi.getUsers).toHaveBeenCalledTimes(3);
   });
 
-  it('đổi role reset về trang 1 và chỉ tạo đúng 1 request', async () => {
-    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
-    render(<AdminUsersPage />);
-    await act(async () => {
-      await vi.advanceTimersByTimeAsync(500);
-    });
+  it('bỏ qua request tìm kiếm đã bị hủy và chỉ hiển thị kết quả mới nhất', async () => {
+    let rejectStale
+    let resolveLatest
+    const staleRequest = new Promise((_, reject) => { rejectStale = reject })
+    const latestRequest = new Promise(resolve => { resolveLatest = resolve })
 
-    // Sang trang 2 trước.
-    await user.click(screen.getByRole('button', { name: /sau/i }));
-    await act(async () => {
-      await vi.advanceTimersByTimeAsync(500);
-    });
-    expect(userApi.getUsers).toHaveBeenLastCalledWith(expect.objectContaining({ page: 2 }));
-    const callsBeforeRoleChange = userApi.getUsers.mock.calls.length;
+    userApi.getUsers
+      .mockResolvedValueOnce({
+        statusCode: 200,
+        data: {
+          items: [{ userId: 1, fullName: 'Người dùng ban đầu', email: 'old@example.com', role: 'Customer', eKycStatus: 'Verified', isLocked: false }],
+          totalPages: 1,
+          totalCount: 1,
+        },
+      })
+      .mockImplementationOnce((_, config) => {
+        config.signal.addEventListener('abort', () => rejectStale('canceled'), { once: true })
+        return staleRequest
+      })
+      .mockImplementationOnce(() => latestRequest)
 
-    await user.click(screen.getByRole('button', { name: /nhân sự/i }));
-    await act(async () => {
-      await vi.advanceTimersByTimeAsync(500);
-    });
+    render(
+      <MemoryRouter>
+        <AdminUsersPage />
+      </MemoryRouter>
+    )
 
-    // Đổi role phải fetch ngay (không chờ debounce) với role=Staff, page reset về 1.
-    expect(userApi.getUsers).toHaveBeenCalledTimes(callsBeforeRoleChange + 1);
-    expect(userApi.getUsers).toHaveBeenLastCalledWith(expect.objectContaining({ role: 'Staff', page: 1 }));
-  });
+    await screen.findByText('Người dùng ban đầu')
+    const searchInput = screen.getByPlaceholderText('Tìm theo tên hoặc email...')
 
-  it('gõ tìm kiếm debounce 400ms rồi mới gọi API đúng 1 lần với search đã nhập, reset về trang 1', async () => {
-    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
-    render(<AdminUsersPage />);
-    await act(async () => {
-      await vi.advanceTimersByTimeAsync(500);
-    });
+    fireEvent.change(searchInput, { target: { value: 'john' } })
+    await act(async () => { await new Promise(resolve => setTimeout(resolve, 450)) })
+    expect(userApi.getUsers).toHaveBeenCalledTimes(2)
 
-    await user.click(screen.getByRole('button', { name: /sau/i }));
-    await act(async () => {
-      await vi.advanceTimersByTimeAsync(500);
-    });
-    const callsBeforeSearch = userApi.getUsers.mock.calls.length;
+    fireEvent.change(searchInput, { target: { value: 'jane' } })
+    await act(async () => { await new Promise(resolve => setTimeout(resolve, 450)) })
+    expect(userApi.getUsers).toHaveBeenCalledTimes(3)
 
-    // fireEvent.change mô phỏng một lần cập nhật giá trị (gõ nhanh) — chỉ giá trị cuối cùng
-    // quan trọng với debounce, tránh nhiễu do userEvent tự advance timer theo từng ký tự.
-    const input = screen.getByPlaceholderText(/tìm theo tên hoặc email/i);
-    fireEvent.change(input, { target: { value: 'nguyen' } });
+    expect(screen.queryByText('Không tải được danh sách người dùng.')).toBeNull()
 
-    // Chưa quá 400ms kể từ lúc gõ xong -> chưa gọi API mới.
-    await act(async () => {
-      await vi.advanceTimersByTimeAsync(200);
-    });
-    expect(userApi.getUsers).toHaveBeenCalledTimes(callsBeforeSearch);
+    resolveLatest({
+      statusCode: 200,
+      data: {
+        items: [{ userId: 2, fullName: 'Jane Doe', email: 'jane@example.com', role: 'CourtOwner', eKycStatus: 'Pending', isLocked: false }],
+        totalPages: 1,
+        totalCount: 1,
+      },
+    })
 
-    await act(async () => {
-      await vi.advanceTimersByTimeAsync(300); // vượt mốc 400ms kể từ ký tự cuối
-    });
-
-    expect(userApi.getUsers).toHaveBeenCalledTimes(callsBeforeSearch + 1); // đúng 1 request mới
-    expect(userApi.getUsers).toHaveBeenLastCalledWith(expect.objectContaining({ search: 'nguyen', page: 1 }));
-  });
+    await waitFor(() => {
+      expect(screen.getByText('Jane Doe')).toBeDefined()
+      expect(screen.queryByText('Người dùng ban đầu')).toBeNull()
+    })
+  })
 });

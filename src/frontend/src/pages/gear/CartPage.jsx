@@ -121,8 +121,8 @@ export default function CartPage() {
                                         <img
                                             src={resolveProductImage(item.equipmentName, item.category || 'Accessories', item.imageUrl || item.img || item.image)}
                                             alt={item.equipmentName}
-                                            className="w-full h-full object-contain mix-blend-multiply transition-transform hover:scale-105"
-                                            onError={e => { e.target.src = CATEGORY_FALLBACKS.Accessories }}
+                                            className="w-full h-full object-contain mix-blend-multiply"
+                                            onError={e => { e.currentTarget.onerror = null; e.currentTarget.src = CATEGORY_FALLBACKS.Accessories }}
                                         />
                                     </div>
 
@@ -218,9 +218,9 @@ export default function CartPage() {
                         </div>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                             {CROSS_SELL_ITEMS.map(product => (
-                                <Link 
-                                    to="/gear/catalog" 
-                                    key={product.id} 
+                                <Link
+                                    to="/gear/catalog"
+                                    key={product.id}
                                     className="bg-white rounded-[12px] p-5 shadow-[0_2px_12px_rgba(0,0,0,0.04)] border border-gray-100 flex flex-col group hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] transition-all no-underline relative"
                                 >
                                     <div className="w-full h-32 bg-gray-50 rounded-[8px] flex items-center justify-center mb-4 overflow-hidden p-2 relative">
@@ -230,7 +230,7 @@ export default function CartPage() {
                                     <h4 className="font-bold text-[13px] text-[#0f172a] m-0 mb-3 leading-snug flex-1">{product.name}</h4>
                                     <div className="flex items-end justify-between">
                                         <span className="font-bold text-[14px] text-gray-900 leading-none">{formatVND(product.price)}</span>
-                                        <button 
+                                        <button
                                             onClick={(e) => { e.preventDefault(); addToCart(product.id, 1) }}
                                             className="w-8 h-8 rounded-full bg-[#14b8a6] text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all shadow-[0_4px_10px_rgba(20,184,166,0.3)] border-0 cursor-pointer -mt-4 translate-y-2 group-hover:translate-y-0"
                                         >

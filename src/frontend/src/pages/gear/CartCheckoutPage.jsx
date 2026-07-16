@@ -39,7 +39,10 @@ export default function CartCheckoutPage() {
             if (Number.isFinite(parsed) && parsed > 0) return parsed;
         }
         const linkedIds = [...new Set(cartItems.map((item) => item.bookingId).filter(Boolean))];
-        return linkedIds.length === 1 ? linkedIds[0] : null;
+        const everyItemHasSameBooking = cartItems.length > 0
+            && linkedIds.length === 1
+            && cartItems.every((item) => item.bookingId === linkedIds[0]);
+        return everyItemHasSameBooking ? linkedIds[0] : null;
     }, [cartItems, searchParams]);
 
     const itemsToCheckout = useMemo(() => {
@@ -54,13 +57,8 @@ export default function CartCheckoutPage() {
                 bookingId: checkoutBookingId
             };
             const response = await cartApi.checkout(payload);
-            // Backend /equipment/checkout trả { success, message } (không có statusCode) — dùng
-            // đúng field success, không coi success === undefined là thành công.
             if (response?.success === true) {
-                addToast('Thanh toán thành công!', 'success');
-                // Backend chỉ xoá các item thuộc bookingId khỏi giỏ; KHÔNG được gọi clearCart()
-                // (DELETE /equipment/cart) ở đây vì nó xoá TOÀN BỘ giỏ hàng kể cả item của booking
-                // khác hoặc item không gắn booking. Refresh từ server để lấy đúng trạng thái còn lại.
+                addToast(response.message || 'Thanh toán thành công!', 'success');
                 await refreshCart();
                 navigate('/customer/bookings');
             } else {
@@ -120,13 +118,10 @@ export default function CartCheckoutPage() {
         );
     }
 
-    const computedTotal = itemsToCheckout.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0);
-    // Checkout theo booking luôn dùng tổng tính từ itemsToCheckout (subset thật sự được thanh toán).
-    // Checkout toàn giỏ ưu tiên số liệu server (cartData) nhưng fallback về computedTotal nếu
-    // cartData/grandTotal/totalPrice/totalAmount chưa sẵn sàng. Dùng ?? để 0 vẫn là giá trị hợp lệ.
+    const fallbackTotal = itemsToCheckout.reduce((sum, item) => sum + (item.unitPrice || 0) * (item.quantity || 1), 0);
     const grandTotal = checkoutBookingId
-        ? computedTotal
-        : (cartData?.totalAmount ?? cartData?.grandTotal ?? cartData?.totalPrice ?? computedTotal);
+        ? fallbackTotal
+        : (cartData?.grandTotal ?? cartData?.totalPrice ?? fallbackTotal);
 
     const hasWalletInfo = walletBalance !== null;
     const shortfall = hasWalletInfo ? Math.max(0, grandTotal - walletBalance) : 0;
@@ -149,7 +144,7 @@ export default function CartCheckoutPage() {
 
                     {/* ── MAIN GRID ── */}
                     <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-8 items-start">
-                        
+
                         {/* LEFT: Order Details */}
                         <div className="flex flex-col gap-6">
                             <div className="bg-white rounded-[16px] shadow-[0_2px_16px_rgba(0,0,0,0.06)] border border-gray-100 overflow-hidden">
@@ -164,11 +159,11 @@ export default function CartCheckoutPage() {
                                         <div key={item.cartItemId} className="p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-colors hover:bg-gray-50/30">
                                             <div className="flex items-center gap-5 min-w-0 w-full sm:w-auto">
                                                 <div className="w-16 h-16 rounded-[8px] bg-gray-50 border border-gray-100 overflow-hidden flex-shrink-0 flex items-center justify-center p-1.5">
-                                                    <img 
-                                                        src={resolveProductImage(item.equipmentName, item.category || 'Accessories', item.imageUrl || item.img || item.image)} 
-                                                        alt="" 
-                                                        className="w-full h-full object-contain mix-blend-multiply" 
-                                                        onError={e => { e.target.src = CATEGORY_FALLBACKS.Accessories }}
+                                                    <img
+                                                        src={resolveProductImage(item.equipmentName, item.category || 'Accessories', item.imageUrl || item.img || item.image)}
+                                                        alt=""
+                                                        className="w-full h-full object-contain mix-blend-multiply"
+                                                        onError={e => { e.currentTarget.onerror = null; e.currentTarget.src = CATEGORY_FALLBACKS.Accessories }}
                                                     />
                                                 </div>
                                                 <div className="min-w-0 flex-1">
@@ -195,7 +190,7 @@ export default function CartCheckoutPage() {
 
                                 <div className="flex justify-between items-end pb-5 mb-5 border-b border-dashed border-gray-200">
                                     <span className="text-[13px] font-bold uppercase tracking-wider text-gray-500">Tổng cộng</span>
-                                    <span data-testid="checkout-grand-total" className="text-[26px] font-bold text-[#0f172a] leading-none">{formatVND(grandTotal)}</span>
+                                    <span className="text-[26px] font-bold text-[#0f172a] leading-none">{formatVND(grandTotal)}</span>
                                 </div>
 
                                 {hasWalletInfo && (
@@ -223,6 +218,7 @@ export default function CartCheckoutPage() {
                                 )}
 
                                 <button
+                                    data-testid="checkout-btn"
                                     onClick={handleCheckout}
                                     disabled={isProcessing || !canCheckout}
                                     className="w-full h-13 py-3.5 flex items-center justify-center gap-3 bg-[#14b8a6] hover:bg-[#0f9e8c] active:scale-[0.98] text-white rounded-[10px] text-[13px] font-bold uppercase tracking-wide transition-all cursor-pointer border-0 shadow-[0_6px_20px_rgba(20,184,166,0.35)] disabled:opacity-60 disabled:cursor-not-allowed disabled:active:scale-100 disabled:hover:bg-[#14b8a6]"
@@ -247,7 +243,7 @@ export default function CartCheckoutPage() {
                                         <p className="text-[12px] text-gray-700 m-0 font-medium">Quầy hỗ trợ - ProSport Arena (Tầng 1)</p>
                                     </div>
                                 </div>
-                                
+
                                 <p className="text-[11px] text-gray-400 text-center m-0 mt-5 leading-relaxed">
                                     Bằng cách nhấn xác nhận, bạn đồng ý với các Điều khoản Mua thiết bị của chúng tôi.
                                 </p>

@@ -81,83 +81,85 @@ export default function AdminDashboardPage() {
 
   return (
     <AdminLayout>
-      <div className="space-y-9">
-        <div className="mb-9">
-          <h1 className="font-heading text-3xl md:text-4xl uppercase tracking-tight text-foreground mb-2">Tổng quan bảng điều khiển</h1>
-          <p className="text-sm text-foreground-muted">
-            {stats
-              ? `${stats.totalUsers} người dùng · ${stats.totalCourts} sân đang quản lý`
-              : 'Nhịp đập thời gian thực của hoạt động cơ sở thể thao.'}
-          </p>
+      <div className="max-w-[1200px] mx-auto space-y-6 auth-animate-in">
+        <div className="mb-6 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+          <div>
+            <h1 className="font-heading text-2xl md:text-3xl uppercase tracking-tight text-gray-900 m-0 mb-1.5">Tổng quan bảng điều khiển</h1>
+            <p className="text-[13px] text-gray-500 m-0">
+              {stats
+                ? `${stats.totalUsers} người dùng · ${stats.totalCourts} sân đang quản lý`
+                : 'Nhịp đập thời gian thực của hoạt động cơ sở thể thao.'}
+            </p>
+          </div>
         </div>
 
         {loading && <PageLoader message="Đang tải số liệu..." />}
         {!loading && error && (
-          <div className="py-20 text-center text-danger">
+          <div className="py-20 text-center text-red-500 bg-red-50 rounded-[12px] border border-red-100">
             <ShieldAlert className="inline mr-2" size={22} /> {error}
           </div>
         )}
 
         {!loading && !error && stats && (
           <>
-            <div className="grid grid-cols-2 xl:grid-cols-4 gap-[2px] bg-border-strong border-2 border-border-strong mb-10">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
               {cards.map(c => (
-                <div key={c.label} className={`p-6 ${c.dark ? 'bg-ink' : 'bg-surface'}`}>
-                  <p className={`label-mono mb-2.5 ${c.dark ? 'text-paper/60' : 'text-foreground-muted'}`}>{c.label}</p>
-                  <p className={`font-heading text-2xl ${c.dark ? 'text-paper' : 'text-foreground'}`}>{c.value}</p>
+                <div key={c.label} className="p-5 bg-white rounded-[12px] border border-gray-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] flex flex-col justify-between hover:shadow-[0_8px_24px_rgba(0,0,0,0.06)] transition-all">
+                  <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400 m-0 mb-2">{c.label}</p>
+                  <p className="font-heading text-2xl text-gray-900 m-0">{c.value}</p>
                 </div>
               ))}
             </div>
 
-            <div className="grid grid-cols-1 xl:grid-cols-[2fr_1fr] gap-6">
+            <div className="grid grid-cols-1 xl:grid-cols-[2fr_1fr] gap-4">
               {/* Revenue Trends */}
-              <div className="border-2 border-border-strong bg-surface p-7">
-                <h3 className="font-heading text-base uppercase text-foreground mb-6">Xu hướng doanh thu (7 ngày)</h3>
-                <div className="h-[220px]">
+              <div className="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] flex flex-col">
+                <h3 className="font-bold text-[14px] uppercase tracking-wide text-gray-800 m-0 mb-5">Xu hướng doanh thu (7 ngày)</h3>
+                <div className="h-[240px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={chartData} margin={{ top: 4, right: 0, left: 0, bottom: 0 }}>
-                      <XAxis dataKey="label" tick={{ fill: 'var(--color-foreground-muted)', fontSize: 11 }} axisLine={{ stroke: 'var(--color-border-default)' }} tickLine={false} />
+                      <XAxis dataKey="label" tick={{ fill: '#9ca3af', fontSize: 11 }} axisLine={{ stroke: '#f3f4f6' }} tickLine={false} />
                       <YAxis hide />
                       <Tooltip
                         formatter={(value) => fmtVnd(value)}
-                        contentStyle={{ background: 'var(--color-surface)', border: '2px solid var(--color-border-strong)', borderRadius: 2, fontSize: 12 }}
-                        labelStyle={{ color: 'var(--color-foreground)' }}
-                        cursor={{ fill: 'var(--color-surface-hover)' }}
+                        contentStyle={{ background: '#ffffff', border: '1px solid #f3f4f6', borderRadius: 8, fontSize: 12, boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}
+                        labelStyle={{ color: '#1f2937', fontWeight: 'bold', marginBottom: '4px' }}
+                        cursor={{ fill: '#f9fafb' }}
                       />
-                      <Bar dataKey="amount" fill="var(--color-ink)" radius={0} />
+                      <Bar dataKey="amount" fill="#14b8a6" radius={[4, 4, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
-                <p className="text-xs text-foreground-subtle mt-3 text-center">Doanh thu cao nhất trong kỳ: {fmtVnd(maxRevenue)}</p>
+                <p className="text-[12px] font-medium text-gray-400 mt-4 text-center m-0">Doanh thu cao nhất trong kỳ: <span className="text-gray-600">{fmtVnd(maxRevenue)}</span></p>
               </div>
 
               {/* Court occupancy pie */}
-              <div className="border-2 border-border-strong bg-surface p-7 flex flex-col">
-                <h3 className="font-heading text-base uppercase text-foreground mb-5">Hiệu suất khai thác sân</h3>
+              <div className="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] flex flex-col">
+                <h3 className="font-bold text-[14px] uppercase tracking-wide text-gray-800 m-0 mb-5">Hiệu suất khai thác sân</h3>
                 {courtStatusData.length === 0 ? (
-                  <p className="text-sm text-foreground-subtle text-center py-8 flex-1 flex items-center justify-center">Chưa có dữ liệu sân.</p>
+                  <p className="text-sm text-gray-400 text-center py-8 flex-1 flex items-center justify-center m-0">Chưa có dữ liệu sân.</p>
                 ) : (
                   <>
                     <div className="h-[160px]">
                       <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
-                          <Pie data={courtStatusData} dataKey="value" nameKey="name" innerRadius={40} outerRadius={70} paddingAngle={2}>
+                          <Pie data={courtStatusData} dataKey="value" nameKey="name" innerRadius={45} outerRadius={75} paddingAngle={2} stroke="none">
                             {courtStatusData.map(entry => (
-                              <Cell key={entry.status} fill={COURT_STATUS_COLORS[entry.status] || '#9c9c96'} />
+                              <Cell key={entry.status} fill={COURT_STATUS_COLORS[entry.status] || '#9ca3af'} />
                             ))}
                           </Pie>
-                          <Tooltip contentStyle={{ background: 'var(--color-surface)', border: '2px solid var(--color-border-strong)', borderRadius: 2, fontSize: 12 }} />
+                          <Tooltip contentStyle={{ background: '#ffffff', border: '1px solid #f3f4f6', borderRadius: 8, fontSize: 12, boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }} itemStyle={{ color: '#4b5563' }} />
                         </PieChart>
                       </ResponsiveContainer>
                     </div>
-                    <div className="flex flex-col gap-2 mt-4">
+                    <div className="flex flex-col gap-3 mt-6">
                       {courtStatusData.map(entry => (
-                        <div key={entry.status} className="flex items-center justify-between text-xs">
-                          <span className="flex items-center gap-2 text-foreground-muted">
-                            <span className="w-2.5 h-2.5 shrink-0" style={{ background: COURT_STATUS_COLORS[entry.status] || '#9c9c96' }} />
+                        <div key={entry.status} className="flex items-center justify-between text-[13px]">
+                          <span className="flex items-center gap-2 text-gray-600 font-medium">
+                            <span className="w-2.5 h-2.5 shrink-0 rounded-full" style={{ background: COURT_STATUS_COLORS[entry.status] || '#9ca3af' }} />
                             {entry.name}
                           </span>
-                          <span className="font-bold text-foreground">{entry.value}</span>
+                          <span className="font-bold text-gray-900">{entry.value}</span>
                         </div>
                       ))}
                     </div>
@@ -167,17 +169,19 @@ export default function AdminDashboardPage() {
             </div>
 
             {/* Recent Activity */}
-            <div className="border-2 border-border-strong bg-surface p-7 flex flex-col mt-6">
-              <h3 className="font-heading text-base uppercase text-foreground mb-5">Hoạt động gần đây</h3>
-              <div className="flex flex-col gap-4 text-sm flex-1">
+            <div className="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] flex flex-col mt-4">
+              <h3 className="font-bold text-[14px] uppercase tracking-wide text-gray-800 m-0 mb-5">Hoạt động gần đây</h3>
+              <div className="flex flex-col flex-1">
                 {stats.recentActivity.length === 0 && (
-                  <p className="text-sm text-foreground-subtle text-center py-8">Chưa có hoạt động nào.</p>
+                  <p className="text-sm text-gray-400 text-center py-8 m-0">Chưa có hoạt động nào.</p>
                 )}
                 {stats.recentActivity.map((item, i, arr) => (
-                  <div key={i} className={`pb-3.5 ${i < arr.length - 1 ? 'border-b border-border-default' : ''}`}>
-                    <p className="font-extrabold text-foreground mb-0.5">{item.title}</p>
-                    <p className="text-sm text-foreground-muted mt-0.5 truncate">{item.description}</p>
-                    <p className="label-mono text-foreground-subtle mt-1">{timeAgo(item.time)}</p>
+                  <div key={i} className={`pb-5 ${i < arr.length - 1 ? 'border-b border-gray-100 mb-5' : ''}`}>
+                    <div className="flex items-start justify-between gap-4 mb-1.5">
+                      <p className="font-bold text-[14px] text-gray-900 m-0">{item.title}</p>
+                      <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400 shrink-0 m-0 mt-0.5">{timeAgo(item.time)}</p>
+                    </div>
+                    <p className="text-[13.5px] text-gray-500 m-0 max-w-[800px] leading-relaxed">{item.description}</p>
                   </div>
                 ))}
               </div>

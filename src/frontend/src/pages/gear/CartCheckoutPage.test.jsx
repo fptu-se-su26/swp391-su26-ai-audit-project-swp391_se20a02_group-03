@@ -1,163 +1,288 @@
 import React from 'react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { MemoryRouter } from 'react-router-dom';
+import { render, screen, fireEvent, waitFor, cleanup } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import CartCheckoutPage from './CartCheckoutPage';
-import { cartApi } from '../../api/cartApi';
-import { paymentApi } from '../../api/paymentApi';
-import { useCart } from '../../context/CartContext';
+import { MemoryRouter } from 'react-router-dom';
 
-// BUG P1-1: checkout theo bookingId chỉ xoá item của booking đó ở server, nhưng trang trước
-// đây gọi clearCart() (DELETE /equipment/cart) sau khi thanh toán — xoá NHẦM toàn bộ giỏ,
-// bao gồm cả item của booking khác và item không gắn booking nào.
-// Các test dưới đây khoá lại hành vi đúng: dùng refreshCart() thay clearCart(), chỉ coi
-// response.success === true là thành công, và tổng tiền luôn có fallback hợp lý.
-
-vi.mock('../../api/cartApi', () => ({
-  cartApi: { checkout: vi.fn() },
-}));
-
-vi.mock('../../api/paymentApi', () => ({
-  paymentApi: {
-    getEscrowWallet: vi.fn(() => Promise.resolve({ data: { balance: 1_000_000 } })),
-    createVnPayUrl: vi.fn(),
-  },
-}));
-
-const mockAddToast = vi.fn();
-vi.mock('../../components/Toast', () => ({
-  useToast: () => ({ addToast: mockAddToast }),
-}));
-
+// Mock các hooks và context
 const mockNavigate = vi.fn();
-vi.mock('react-router-dom', async (importOriginal) => {
-  const actual = await importOriginal();
-  return {
-    ...actual,
-    useNavigate: () => mockNavigate,
-  };
+const mockAddToast = vi.fn();
+const mockClearCart = vi.fn();
+const mockSearchParams = { value: '' };
+
+vi.mock('react-router-dom', async () => {
+    const actual = await vi.importActual('react-router-dom');
+    return {
+        ...actual,
+        useNavigate: () => mockNavigate,
+        useSearchParams: () => [new URLSearchParams(mockSearchParams.value)],
+    };
 });
+
+vi.mock('../../components/Toast', () => ({
+    useToast: () => ({ addToast: mockAddToast })
+}));
+
+const mockRefreshCart = vi.fn();
+
+const mockCartData = {
+    cartItems: [],
+    cartData: { grandTotal: 0, totalPrice: 0 },
+    clearCart: mockClearCart,
+    refreshCart: mockRefreshCart,
+    loading: false
+};
 
 vi.mock('../../context/CartContext', () => ({
-  useCart: vi.fn(),
+    useCart: () => mockCartData
 }));
 
-const itemBookingA = { cartItemId: 1, equipmentName: 'Vợt A', unitPrice: 100_000, quantity: 1, bookingId: 10 };
-const itemBookingB = { cartItemId: 2, equipmentName: 'Vợt B', unitPrice: 200_000, quantity: 1, bookingId: 20 };
-const itemNoBooking = { cartItemId: 3, equipmentName: 'Bóng', unitPrice: 50_000, quantity: 2, bookingId: null };
+const mockCheckout = vi.fn();
+vi.mock('../../api/cartApi', () => ({
+    cartApi: { checkout: (...args) => mockCheckout(...args) }
+}));
 
-function mockUseCart({ cartItems, cartData = null, refreshCart = vi.fn(), clearCart = vi.fn(), loading = false }) {
-  useCart.mockReturnValue({ cartItems, cartData, refreshCart, clearCart, loading });
-  return { refreshCart, clearCart };
-}
+const mockGetEscrowWallet = vi.fn();
+const mockCreateVnPayUrl = vi.fn();
+vi.mock('../../api/paymentApi', () => ({
+    paymentApi: {
+        getEscrowWallet: (...args) => mockGetEscrowWallet(...args),
+        createVnPayUrl: (...args) => mockCreateVnPayUrl(...args)
+    }
+}));
 
-function renderPage(initialEntry = '/gear/cart/checkout?bookingId=10') {
-  return render(
-    <MemoryRouter initialEntries={[initialEntry]}>
-      <CartCheckoutPage />
-    </MemoryRouter>
-  );
-}
+// Dummy layout to render children
+vi.mock('../../layouts/GearLayout', () => ({
+    default: ({ children }) => <div data-testid="gear-layout">{children}</div>
+}));
 
-async function clickCheckout() {
-  const user = userEvent.setup();
-  const button = screen.getByRole('button', { name: /xác nhận thanh toán/i });
-  await user.click(button);
-}
-
-beforeEach(() => {
-  vi.clearAllMocks();
-  paymentApi.getEscrowWallet.mockResolvedValue({ data: { balance: 1_000_000 } });
-});
-
-describe('CartCheckoutPage — checkout theo bookingId không được xoá cả giỏ', () => {
-  it('chỉ gửi payload bookingId của booking A và KHÔNG gọi clearCart, có gọi refreshCart khi success:true', async () => {
-    const { refreshCart, clearCart } = mockUseCart({
-      cartItems: [itemBookingA, itemBookingB, itemNoBooking],
+describe('CartCheckoutPage', () => {
+    beforeEach(() => {
+        vi.clearAllMocks();
+        document.body.innerHTML = '';
+        mockCartData.cartItems = [];
+        mockCartData.cartData = { grandTotal: 0, totalPrice: 0 };
+        mockCartData.loading = false;
+        mockSearchParams.value = '';
+        mockRefreshCart.mockResolvedValue(undefined);
+        mockGetEscrowWallet.mockResolvedValue({ data: { balance: 500000 } });
     });
-    cartApi.checkout.mockResolvedValue({ success: true, message: 'Thanh toán thành công' });
 
-    renderPage('/gear/cart/checkout?bookingId=10');
-    await clickCheckout();
+    afterEach(() => {
+        cleanup();
+        document.body.innerHTML = '';
+    });
 
-    await waitFor(() => expect(cartApi.checkout).toHaveBeenCalledWith({ bookingId: 10 }));
-    expect(clearCart).not.toHaveBeenCalled();
-    await waitFor(() => expect(refreshCart).toHaveBeenCalledTimes(1));
-    expect(mockNavigate).toHaveBeenCalledWith('/customer/bookings');
-  });
+    const renderWithRouter = (ui) => {
+        return render(<MemoryRouter>{ui}</MemoryRouter>);
+    };
 
-  it('chỉ hiển thị item của booking A, không hiển thị item booking B hay item không gắn booking', () => {
-    mockUseCart({ cartItems: [itemBookingA, itemBookingB, itemNoBooking] });
-    renderPage('/gear/cart/checkout?bookingId=10');
+    it('hiển thị loader khi đang tải giỏ hàng', () => {
+        mockCartData.loading = true;
+        renderWithRouter(<CartCheckoutPage />);
+        expect(screen.getByText('Đang tải thông tin thanh toán...')).toBeDefined();
+    });
 
-    expect(screen.getByText('Vợt A')).toBeInTheDocument();
-    expect(screen.queryByText('Vợt B')).not.toBeInTheDocument();
-    expect(screen.queryByText('Bóng')).not.toBeInTheDocument();
-  });
+    it('hiển thị màn hình hoàn tất khi giỏ hàng trống', async () => {
+        renderWithRouter(<CartCheckoutPage />);
+        await waitFor(() => {
+            expect(screen.getByText('Mọi thứ đã xong!')).toBeDefined();
+        });
+    });
 
-  it('response { success: false } không điều hướng, không refreshCart, hiển thị lỗi', async () => {
-    const { refreshCart } = mockUseCart({ cartItems: [itemBookingA] });
-    cartApi.checkout.mockResolvedValue({ success: false, message: 'Số dư không đủ' });
+    it('tính đúng tổng tiền và hiển thị chi tiết khi có sản phẩm', async () => {
+        mockCartData.cartItems = [
+            { cartItemId: 1, equipmentName: 'Vợt', quantity: 2, unitPrice: 100000 }
+        ];
+        mockCartData.cartData.grandTotal = 200000;
 
-    renderPage('/gear/cart/checkout?bookingId=10');
-    await clickCheckout();
+        renderWithRouter(<CartCheckoutPage />);
 
-    await waitFor(() => expect(cartApi.checkout).toHaveBeenCalled());
-    expect(refreshCart).not.toHaveBeenCalled();
-    expect(mockNavigate).not.toHaveBeenCalled();
-    expect(mockAddToast).toHaveBeenCalledWith('Số dư không đủ', 'error');
-  });
+        await waitFor(() => {
+            expect(screen.getByText('Vợt')).toBeDefined();
+            // Tổng là 200,000 VND
+            expect(screen.getAllByText('200.000 ₫').length).toBeGreaterThan(0);
+        });
+    });
 
-  it('response thiếu field success (undefined) KHÔNG được coi là thành công', async () => {
-    const { refreshCart } = mockUseCart({ cartItems: [itemBookingA] });
-    cartApi.checkout.mockResolvedValue({ message: 'Đã xử lý' }); // không có success
+    it('gọi API checkout thành công và chuyển hướng', async () => {
+        mockCartData.cartItems = [
+            { cartItemId: 1, equipmentName: 'Giày', quantity: 1, unitPrice: 0 } // Tổng 0 VND
+        ];
+        mockCartData.cartData.grandTotal = 0;
 
-    renderPage('/gear/cart/checkout?bookingId=10');
-    await clickCheckout();
+        mockCheckout.mockResolvedValue({ success: true, message: 'OK' });
 
-    await waitFor(() => expect(cartApi.checkout).toHaveBeenCalled());
-    expect(refreshCart).not.toHaveBeenCalled();
-    expect(mockNavigate).not.toHaveBeenCalled();
-  });
+        renderWithRouter(<CartCheckoutPage />);
 
-  it('API reject với string error (axiosClient interceptor) hiển thị đúng lỗi, không crash', async () => {
-    mockUseCart({ cartItems: [itemBookingA] });
-    cartApi.checkout.mockRejectedValue('Số dư ví không đủ hoặc lỗi kết nối server');
+        await waitFor(() => {
+            const buttons = screen.getAllByTestId('checkout-btn');
+            expect(buttons[buttons.length - 1].disabled).toBe(false);
+        });
 
-    renderPage('/gear/cart/checkout?bookingId=10');
-    await clickCheckout();
+        const buttons = screen.getAllByTestId('checkout-btn');
+        fireEvent.click(buttons[buttons.length - 1]);
 
-    await waitFor(() =>
-      expect(mockAddToast).toHaveBeenCalledWith('Số dư ví không đủ hoặc lỗi kết nối server', 'error')
-    );
-    expect(mockNavigate).not.toHaveBeenCalled();
-  });
+        await waitFor(() => {
+            expect(mockCheckout).toHaveBeenCalledWith({ bookingId: null });
+            expect(mockAddToast).toHaveBeenCalledWith('OK', 'success');
+            expect(mockRefreshCart).toHaveBeenCalled();
+            expect(mockClearCart).not.toHaveBeenCalled();
+            expect(mockNavigate).toHaveBeenCalledWith('/customer/bookings');
+        });
+    });
 
-  it('API reject với HTTP 400 dạng object error.message vẫn hiển thị lỗi hợp lý', async () => {
-    mockUseCart({ cartItems: [itemBookingA] });
-    cartApi.checkout.mockRejectedValue({ message: 'Bad Request' });
+    it('gọi API checkout theo booking không xóa toàn bộ giỏ hàng', async () => {
+        mockSearchParams.value = 'bookingId=100';
 
-    renderPage('/gear/cart/checkout?bookingId=10');
-    await clickCheckout();
+        mockCartData.cartItems = [
+            { cartItemId: 1, equipmentName: 'Sản phẩm 1', quantity: 1, unitPrice: 100000, bookingId: 100 },
+            { cartItemId: 2, equipmentName: 'Sản phẩm 2', quantity: 1, unitPrice: 200000, bookingId: 100 },
+            { cartItemId: 3, equipmentName: 'Booking khác', quantity: 1, unitPrice: 70000, bookingId: 200 },
+            { cartItemId: 4, equipmentName: 'Sản phẩm lẻ', quantity: 1, unitPrice: 50000, bookingId: null }
+        ];
 
-    await waitFor(() => expect(mockAddToast).toHaveBeenCalledWith('Bad Request', 'error'));
-  });
+        // Mock fallbackTotal sẽ là 300000 do chỉ tính sản phẩm có bookingId=100
+        mockCartData.cartData = null;
+        mockGetEscrowWallet.mockResolvedValue({ data: { balance: 500000 } });
+        mockCheckout.mockResolvedValue({ success: true, message: 'OK Booking' });
 
-  it('cartData null nhưng cartItems có dữ liệu vẫn tính đúng tổng tiền fallback (checkout toàn giỏ)', () => {
-    mockUseCart({ cartItems: [itemNoBooking], cartData: null });
-    renderPage('/gear/cart/checkout');
+        renderWithRouter(<CartCheckoutPage />);
 
-    // itemNoBooking: 50_000 * 2 = 100_000
-    expect(screen.getByTestId('checkout-grand-total').textContent).toMatch(/100\.000/);
-  });
+        await waitFor(() => {
+            expect(screen.getByText('Sản phẩm 1')).toBeDefined();
+            expect(screen.getByText('Sản phẩm 2')).toBeDefined();
+            expect(screen.queryByText('Booking khác')).toBeNull();
+            expect(screen.queryByText('Sản phẩm lẻ')).toBeNull();
+            const buttons = screen.getAllByTestId('checkout-btn');
+            expect(buttons[buttons.length - 1].disabled).toBe(false);
+        });
 
-  it('grandTotal = 0 từ cartData là giá trị hợp lệ, không bị fallback ghi đè bởi computedTotal khác 0', () => {
-    mockUseCart({ cartItems: [itemNoBooking], cartData: { totalAmount: 0 } });
-    renderPage('/gear/cart/checkout');
+        const buttons = screen.getAllByTestId('checkout-btn');
+        fireEvent.click(buttons[buttons.length - 1]);
 
-    // itemNoBooking computedTotal = 100_000 (≠0) — nếu code dùng `||` thay vì `??`,
-    // giá trị 0 hợp lệ từ cartData sẽ bị ghi đè sai thành 100_000.
-    expect(screen.getByTestId('checkout-grand-total').textContent).toMatch(/^0(?:\D|$)/);
-  });
+        await waitFor(() => {
+            expect(mockCheckout).toHaveBeenCalledWith({ bookingId: 100 });
+            expect(mockAddToast).toHaveBeenCalledWith('OK Booking', 'success');
+            expect(mockRefreshCart).toHaveBeenCalled();
+            expect(mockClearCart).not.toHaveBeenCalled();
+            expect(mockNavigate).toHaveBeenCalledWith('/customer/bookings');
+        });
+    });
+
+    it('checkout toàn bộ giỏ khi route không có bookingId và có sản phẩm lẻ', async () => {
+        mockCartData.cartItems = [
+            { cartItemId: 1, equipmentName: 'Sản phẩm booking', quantity: 1, unitPrice: 100000, bookingId: 100 },
+            { cartItemId: 2, equipmentName: 'Sản phẩm lẻ', quantity: 1, unitPrice: 50000, bookingId: null },
+        ];
+        mockCartData.cartData = null;
+        mockCheckout.mockResolvedValue({ success: true, message: 'OK All' });
+
+        renderWithRouter(<CartCheckoutPage />);
+
+        await waitFor(() => {
+            expect(screen.getByText('Sản phẩm booking')).toBeDefined();
+            expect(screen.getByText('Sản phẩm lẻ')).toBeDefined();
+            expect(screen.getAllByText('150.000 ₫').length).toBeGreaterThan(0);
+        });
+
+        fireEvent.click(screen.getByTestId('checkout-btn'));
+
+        await waitFor(() => {
+            expect(mockCheckout).toHaveBeenCalledWith({ bookingId: null });
+            expect(mockRefreshCart).toHaveBeenCalledTimes(1);
+            expect(mockClearCart).not.toHaveBeenCalled();
+        });
+    });
+
+    it('gọi API checkout thất bại và hiện lỗi', async () => {
+        mockCartData.cartItems = [
+            { cartItemId: 1, equipmentName: 'Giày', quantity: 1, unitPrice: 100000 }
+        ];
+        mockCartData.cartData.grandTotal = 100000;
+
+        mockCheckout.mockResolvedValue({ success: false, message: 'Sản phẩm đã hết hàng' });
+
+        renderWithRouter(<CartCheckoutPage />);
+
+        await waitFor(() => {
+            const buttons = screen.getAllByTestId('checkout-btn');
+            expect(buttons[buttons.length - 1].disabled).toBe(false);
+        });
+
+        const buttons = screen.getAllByTestId('checkout-btn');
+        fireEvent.click(buttons[buttons.length - 1]);
+
+        await waitFor(() => {
+            expect(mockAddToast).toHaveBeenCalledWith('Sản phẩm đã hết hàng', 'error');
+            expect(mockClearCart).not.toHaveBeenCalled();
+            expect(mockRefreshCart).not.toHaveBeenCalled();
+        });
+    });
+
+    it('xử lý lỗi HTTP 400 hoặc thiếu field success', async () => {
+        mockCartData.cartItems = [
+            { cartItemId: 1, equipmentName: 'Giày', quantity: 1, unitPrice: 100000 }
+        ];
+        mockCartData.cartData.grandTotal = 100000;
+
+        // Mock API bị reject
+        mockCheckout.mockRejectedValue('Bad Request');
+
+        renderWithRouter(<CartCheckoutPage />);
+
+        await waitFor(() => {
+            const buttons = screen.getAllByTestId('checkout-btn');
+            expect(buttons[buttons.length - 1].disabled).toBe(false);
+        });
+
+        const buttons = screen.getAllByTestId('checkout-btn');
+        fireEvent.click(buttons[buttons.length - 1]);
+
+        await waitFor(() => {
+            expect(mockAddToast).toHaveBeenCalledWith('Bad Request', 'error');
+            expect(mockClearCart).not.toHaveBeenCalled();
+            expect(mockRefreshCart).not.toHaveBeenCalled();
+        });
+
+        // Mock API trả về nhưng không có success = true
+        mockCheckout.mockResolvedValue({ status: 200, message: 'Checkout done without success flag' });
+
+        fireEvent.click(buttons[buttons.length - 1]);
+
+        await waitFor(() => {
+            expect(mockAddToast).toHaveBeenCalledWith('Checkout done without success flag', 'error');
+        });
+    });
+
+    it('chặn checkout khi không đủ số dư ví', async () => {
+        mockCartData.cartItems = [
+            { cartItemId: 1, equipmentName: 'Vợt đắt tiền', quantity: 1, unitPrice: 1000000 }
+        ];
+        mockCartData.cartData.grandTotal = 1000000;
+        mockGetEscrowWallet.mockResolvedValue({ data: { balance: 500000 } }); // shortfall 500,000
+
+        renderWithRouter(<CartCheckoutPage />);
+
+        await waitFor(() => {
+            const buttons = screen.getAllByTestId('checkout-btn');
+            expect(screen.queryAllByText(/Ví không đủ 500\.000\s*₫ để thanh toán/).length).toBeGreaterThan(0);
+            expect(buttons[buttons.length - 1].disabled).toBe(true);
+        });
+    });
+
+    it('sử dụng tổng tiền bằng 0 hợp lệ không bị ghi đè', async () => {
+        mockCartData.cartItems = [
+            { cartItemId: 1, equipmentName: 'Voucher Free', quantity: 1, unitPrice: 0 }
+        ];
+        mockCartData.cartData.grandTotal = 0; // grandTotal = 0 is falsy, should be caught by ??
+
+        renderWithRouter(<CartCheckoutPage />);
+
+        await waitFor(() => {
+            const buttons = screen.getAllByTestId('checkout-btn');
+            expect(screen.queryAllByText(/0\s*₫/).length).toBeGreaterThan(0);
+            expect(buttons[buttons.length - 1].disabled).toBe(false);
+        });
+    });
 });

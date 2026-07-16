@@ -29,7 +29,7 @@ public class CourtService : ICourtService
         {
             var (courts, totalCount) = await _courtRepository.GetPagedCourtsAsync(parameters);
             var dtos = courts.Select(MapToDto).ToList();
-            
+
             var result = new PagedResult<CourtDto>
             {
                 Items = dtos,
@@ -37,7 +37,7 @@ public class CourtService : ICourtService
                 CurrentPage = parameters.PageNumber,
                 TotalPages = (int)Math.Ceiling(totalCount / (double)parameters.PageSize)
             };
-            
+
             return new ApiResponseDto<PagedResult<CourtDto>>(200, "Success", result);
         }
         catch (Exception ex)
@@ -245,9 +245,6 @@ public class CourtService : ICourtService
             if (dto.CourtTypeId.HasValue) court.CourtTypeId = dto.CourtTypeId.Value;
             if (dto.ImageUrl != null) court.ImageUrl = dto.ImageUrl;
             if (dto.Description != null) court.Description = dto.Description;
-            // API dùng ACTIVE/MAINTENANCE/INACTIVE nhưng DB phải lưu canonical Available/Maintenance/Inactive
-            // (khớp CourtStatuses.IsBookable). Lưu thẳng dto.Status trước đây từng ghi literal "ACTIVE" vào DB,
-            // khiến IsBookable (so sánh với "Available") trả về false dù người dùng chỉ sửa tên sân.
             if (dto.Status != null) court.Status = CourtStatuses.NormalizeApiStatus(dto.Status);
 
             await _courtRepository.UpdateAsync(court);

@@ -1,9 +1,21 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useOutletContext } from 'react-router-dom';
 import { ownerApi } from '../../api/ownerApi';
-import StatusBadge from '../../components/ui/StatusBadge';
-import PageLoader from '../../components/ui/PageLoader';
-import EmptyState from '../../components/ui/EmptyState';
+import {
+  OwnerPageHeader,
+  OwnerBtn,
+  OwnerCard,
+  OwnerToolbar,
+  OwnerSearchInput,
+  OwnerTable,
+  OwnerThead,
+  OwnerTh,
+  OwnerTd,
+  OwnerStatusBadge,
+  OwnerEmptyState,
+  OwnerErrorState,
+  OwnerTableLoader
+} from '../../components/owner';
 
 function isMaintenanceStatus(status) {
   return status === 'MAINTENANCE' || status === 'Maintenance';
@@ -36,7 +48,10 @@ export default function OwnerCourtsPage() {
     }
   }
 
-  useEffect(() => { if (complexId) load(); }, [complexId, statusFilter]);
+  useEffect(() => {
+    if (complexId) load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [complexId, statusFilter]);
 
   const filtered = useMemo(() => {
     if (!search.trim()) return courts;
@@ -67,86 +82,115 @@ export default function OwnerCourtsPage() {
     }
   }
 
-  if (loading) return <PageLoader label="Đang tải danh sách sân..." />;
-
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap justify-between items-end gap-5">
-        <div>
-          <h1 className="font-heading text-3xl md:text-4xl uppercase tracking-tight text-foreground mb-2">Quản lý sân</h1>
-          <p className="text-sm text-foreground-muted">Thêm, sửa và quản lý trạng thái sân trong tổ hợp.</p>
-        </div>
-        <Link to="/owner/courts/create" className="btn-primary no-underline">
-          + Tạo sân
-        </Link>
-      </div>
+    <div className="space-y-6 auth-animate-in pb-12">
+      <OwnerPageHeader
+        title="Quản lý sân"
+        description="Thêm, sửa và quản lý trạng thái các sân trong tổ hợp."
+      >
+        <OwnerBtn to="/owner/courts/create" variant="primary">+ Tạo sân mới</OwnerBtn>
+      </OwnerPageHeader>
 
-      {error && (
-        <div className="border border-danger bg-danger-bg px-4 py-3 text-sm text-danger flex justify-between rounded-[2px]">
-          <span>{error}</span>
-          <button type="button" className="underline bg-transparent border-none cursor-pointer" onClick={load}>Thử lại</button>
+      <OwnerToolbar>
+        <div className="flex-1 w-full sm:w-auto max-w-[340px]">
+          <OwnerSearchInput
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Tìm tên hoặc mã sân..."
+          />
         </div>
-      )}
-
-      <div className="flex flex-wrap gap-3">
-        <input
-          className="input-base flex-1 min-w-[200px] max-w-[340px]"
-          placeholder="Tìm tên hoặc mã sân..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-        />
-        <select className="input-base w-auto" value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
+        <select
+          className="h-10 px-3 bg-white border border-gray-200 rounded-[8px] text-sm font-semibold text-gray-600 focus:outline-none focus:ring-2 focus:ring-[#14b8a6]/20 focus:border-[#14b8a6] transition-all cursor-pointer"
+          value={statusFilter}
+          onChange={e => setStatusFilter(e.target.value)}
+        >
           <option value="">Tất cả trạng thái</option>
           <option value="Available">Hoạt động</option>
           <option value="Maintenance">Bảo trì</option>
           <option value="Inactive">Ngưng hoạt động</option>
         </select>
-      </div>
+      </OwnerToolbar>
 
-      {!filtered.length ? (
-        <EmptyState
-          title="Chưa có sân nào"
-          subtitle="Tạo sân đầu tiên để bắt đầu quản lý."
-          action={<Link to="/owner/courts/create" className="btn-primary no-underline">Tạo sân đầu tiên</Link>}
-        />
-      ) : (
-        <div className="overflow-x-auto border-2 border-border-strong bg-surface">
-          <table className="w-full text-sm border-collapse">
-            <thead>
-              <tr className="bg-[var(--theme-primary)] text-[var(--theme-secondary)]">
-                <th className="text-left px-5 py-4 label-mono">Mã</th>
-                <th className="text-left px-5 py-4 label-mono">Tên</th>
-                <th className="text-left px-5 py-4 label-mono">Loại</th>
-                <th className="text-left px-5 py-4 label-mono">Giá/giờ</th>
-                <th className="text-left px-5 py-4 label-mono">Trạng thái</th>
-                <th className="text-right px-5 py-4 label-mono">Thao tác</th>
-              </tr>
-            </thead>
+      {error && (
+        <OwnerErrorState message={error} onRetry={load} />
+      )}
+
+      <OwnerCard noPad>
+        <OwnerTable>
+          <OwnerThead>
+            <OwnerTh>Mã</OwnerTh>
+            <OwnerTh>Tên sân</OwnerTh>
+            <OwnerTh>Loại sân</OwnerTh>
+            <OwnerTh>Giá/giờ</OwnerTh>
+            <OwnerTh>Trạng thái</OwnerTh>
+            <OwnerTh right>Thao tác</OwnerTh>
+          </OwnerThead>
+
+          {loading && <OwnerTableLoader cols={6} rows={5} />}
+
+          {!loading && !error && filtered.length === 0 && (
             <tbody>
+              <tr>
+                <td colSpan={6}>
+                  <OwnerEmptyState title="Không tìm thấy sân nào."
+                    description={search ? "Thử thay đổi từ khóa tìm kiếm." : "Tạo sân đầu tiên để bắt đầu quản lý."}
+                    action={!search && (
+                      <OwnerBtn to="/owner/courts/create" variant="primary" className="mt-4">Tạo sân ngay</OwnerBtn>
+                    )}
+                  />
+                </td>
+              </tr>
+            </tbody>
+          )}
+
+          {!loading && !error && filtered.length > 0 && (
+            <tbody className="divide-y divide-gray-50">
               {filtered.map(c => (
-                <tr key={c.courtId} className="border-t border-border-default hover:bg-surface-hover">
-                  <td className="px-5 py-4 font-mono text-xs text-foreground-muted">{c.code || '—'}</td>
-                  <td className="px-5 py-4 font-bold">
-                    <Link to={`/owner/courts/${c.courtId}`} className="text-foreground no-underline hover:underline">{c.name}</Link>
-                  </td>
-                  <td className="px-5 py-4 text-foreground-muted">{c.courtTypeName}</td>
-                  <td className="px-5 py-4 text-foreground">{Number(c.pricePerHour || 0).toLocaleString('vi-VN')} ₫</td>
-                  <td className="px-5 py-4"><StatusBadge status={c.status} /></td>
-                  <td className="px-5 py-4 text-right whitespace-nowrap">
-                    <Link to={`/owner/courts/${c.courtId}`} className="text-xs font-bold text-foreground no-underline hover:underline mr-4">Sửa</Link>
-                    <button type="button" onClick={() => toggleStatus(c)} className="text-xs font-bold text-warning underline bg-transparent border-none cursor-pointer mr-4">
-                      {isMaintenanceStatus(c.status) ? 'Kích hoạt' : 'Bảo trì'}
-                    </button>
-                    <button type="button" onClick={() => removeCourt(c)} className="text-xs font-bold text-danger underline bg-transparent border-none cursor-pointer">
-                      Xóa
-                    </button>
-                  </td>
+                <tr key={c.courtId} className="hover:bg-gray-50/50 transition-colors">
+                  <OwnerTd>
+                    <span className="font-mono text-[11px] font-semibold text-gray-400">{c.code || '—'}</span>
+                  </OwnerTd>
+                  <OwnerTd>
+                    <Link to={`/owner/courts/${c.courtId}`} className="font-semibold text-[#0f172a] no-underline hover:text-[#14b8a6] transition-colors">
+                      {c.name}
+                    </Link>
+                  </OwnerTd>
+                  <OwnerTd>
+                    <span className="text-gray-500">{c.courtTypeName}</span>
+                  </OwnerTd>
+                  <OwnerTd>
+                    <span className="font-medium text-[#0f172a]">{Number(c.pricePerHour || 0).toLocaleString('vi-VN')} ₫</span>
+                  </OwnerTd>
+                  <OwnerTd>
+                    <OwnerStatusBadge status={c.status} type="court" />
+                  </OwnerTd>
+                  <OwnerTd right>
+                    <div className="flex items-center justify-end gap-3">
+                      <Link to={`/owner/courts/${c.courtId}`} className="text-[12px] font-bold text-gray-500 hover:text-[#14b8a6] no-underline transition-colors uppercase tracking-wide">
+                        Sửa
+                      </Link>
+                      <button
+                        type="button"
+                        onClick={() => toggleStatus(c)}
+                        className="text-[12px] font-bold text-orange-500 hover:text-orange-600 uppercase tracking-wide bg-transparent border-0 cursor-pointer p-0 transition-colors"
+                      >
+                        {isMaintenanceStatus(c.status) ? 'Kích hoạt' : 'Bảo trì'}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => removeCourt(c)}
+                        className="text-[12px] font-bold text-red-500 hover:text-red-600 uppercase tracking-wide bg-transparent border-0 cursor-pointer p-0 transition-colors"
+                      >
+                        Xóa
+                      </button>
+                    </div>
+                  </OwnerTd>
                 </tr>
               ))}
             </tbody>
-          </table>
-        </div>
-      )}
+          )}
+        </OwnerTable>
+      </OwnerCard>
     </div>
   );
 }

@@ -118,14 +118,14 @@ export default function GearDetailPage() {
               <img
                 src={productImage}
                 alt={gear.name}
-                className="w-full h-full object-contain mix-blend-multiply transition-transform duration-700 group-hover:scale-105"
-                onError={e => { e.target.src = CATEGORY_FALLBACKS[gear.category] || CATEGORY_FALLBACKS.Accessories }}
+                className="w-full h-full object-contain mix-blend-multiply"
+                onError={e => { e.currentTarget.onerror = null; e.currentTarget.src = CATEGORY_FALLBACKS[gear.category] || CATEGORY_FALLBACKS.Accessories }}
               />
             </div>
 
             {/* ── RIGHT: PRODUCT INFO ── */}
             <div className="pt-2 md:pt-8 flex flex-col">
-              
+
               {/* Category & Title */}
               <p className="text-[12px] font-bold uppercase tracking-widest text-[#14b8a6] mb-3 m-0">
                 {categoryLabel}
@@ -200,7 +200,7 @@ export default function GearDetailPage() {
                   )}
                 </button>
               </div>
-              
+
               <div className="flex items-center gap-2 mt-6 justify-center sm:justify-start">
                   <ShieldCheck size={16} className="text-gray-400" />
                   <span className="text-[13px] text-gray-500 font-medium">Cam kết hàng chính hãng 100%</span>

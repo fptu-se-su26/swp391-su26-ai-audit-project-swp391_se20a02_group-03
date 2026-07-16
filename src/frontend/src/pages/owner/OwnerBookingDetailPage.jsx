@@ -1,8 +1,14 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ownerApi } from '../../api/ownerApi';
-import StatusBadge from '../../components/ui/StatusBadge';
-import PageLoader from '../../components/ui/PageLoader';
+import {
+  OwnerCard,
+  OwnerBtn,
+  OwnerStatusBadge,
+  OwnerErrorState,
+  ownerInputCls
+} from '../../components/owner';
+import { ChevronLeft } from 'lucide-react';
 
 function formatTime(value) {
   if (!value) return '—';
@@ -36,6 +42,7 @@ export default function OwnerBookingDetailPage() {
     }
   }
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { load(); }, [bookingId]);
 
   async function runAction(action) {
@@ -71,8 +78,18 @@ export default function OwnerBookingDetailPage() {
     await runAction('cancel');
   }
 
-  if (loading) return <PageLoader label="Đang tải booking..." />;
-  if (!booking) return <div className="text-danger">{error || 'Không tìm thấy.'}</div>;
+  if (loading) {
+    return (
+      <div className="max-w-2xl mx-auto space-y-6 animate-pulse">
+        <div className="h-4 w-32 bg-gray-200 rounded-[4px] mb-4"></div>
+        <div className="h-10 w-64 bg-gray-200 rounded-[8px]"></div>
+        <div className="bg-white rounded-[16px] border border-gray-100 shadow-[0_2px_16px_rgba(0,0,0,0.03)] p-8 h-64"></div>
+      </div>
+    );
+  }
+
+  if (!booking && error) return <OwnerErrorState message={error} onRetry={load} />;
+  if (!booking) return <OwnerErrorState message="Không tìm thấy booking." />;
 
   const details = booking.details || [];
   const canConfirm = CONFIRMABLE.has(booking.status);
@@ -80,79 +97,116 @@ export default function OwnerBookingDetailPage() {
   const canCancel = CANCELLABLE.has(booking.status);
 
   return (
-    <div className="max-w-2xl space-y-5">
-      <Link to="/owner/bookings" className="inline-block text-sm font-bold text-foreground no-underline border-b-2 border-foreground pb-0.5">
-        ← Danh sách booking
-      </Link>
-
-      <div className="flex items-center gap-3.5">
-        <h1 className="font-heading text-2xl md:text-3xl uppercase tracking-tight text-foreground">Booking #{booking.bookingId}</h1>
-        <StatusBadge status={booking.status} />
+    <div className="max-w-2xl mx-auto space-y-6 auth-animate-in pb-12">
+      <div>
+        <Link
+          to="/owner/bookings"
+          className="inline-flex items-center gap-1 text-[12px] font-bold uppercase tracking-wide text-gray-500 hover:text-[#14b8a6] no-underline transition-colors mb-4"
+        >
+          <ChevronLeft size={16} /> Danh sách booking
+        </Link>
+        <div className="flex flex-wrap items-center gap-4">
+          <h1 className="font-heading text-3xl md:text-4xl uppercase tracking-tight text-[#0f172a] m-0">
+            Booking #{booking.bookingId}
+          </h1>
+          <OwnerStatusBadge status={booking.status} type="booking" />
+        </div>
       </div>
 
-      {error && <div className="text-sm text-danger">{error}</div>}
+      {error && <OwnerErrorState message={error} />}
 
-      <div className="border-2 border-border-strong bg-surface p-7 flex flex-col gap-3 text-sm">
-        {details.map((detail, idx) => (
-          <div key={`${detail.courtId}-${idx}`} className={idx > 0 ? 'pt-3 border-t border-border-default flex flex-col gap-3' : 'flex flex-col gap-3'}>
-            <p><span className="text-foreground-subtle">Sân:</span> <strong className="text-foreground">{detail.courtName}</strong></p>
-            <p><span className="text-foreground-subtle">Ngày:</span> <span className="text-foreground">{detail.bookingDate ? new Date(detail.bookingDate).toLocaleDateString('vi-VN') : '—'}</span></p>
-            <p><span className="text-foreground-subtle">Giờ:</span> <span className="text-foreground">{formatTime(detail.startTime)}–{formatTime(detail.endTime)}</span></p>
-            <p><span className="text-foreground-subtle">Giá slot:</span> <span className="text-foreground">{Number(detail.price).toLocaleString('vi-VN')} ₫</span></p>
+      <OwnerCard noPad>
+        <div className="px-6 py-5 border-b border-gray-100">
+          <h3 className="font-heading text-base uppercase tracking-tight text-[#0f172a] m-0">Thông tin chi tiết</h3>
+        </div>
+        <div className="p-6 flex flex-col gap-4 text-sm">
+          {details.map((detail, idx) => (
+            <div key={`${detail.courtId}-${idx}`} className={idx > 0 ? 'pt-4 border-t border-gray-100 flex flex-col gap-3' : 'flex flex-col gap-3'}>
+              <div className="flex justify-between items-center">
+                <span className="text-gray-500 uppercase tracking-wide text-[11px] font-bold">Sân</span>
+                <strong className="text-[#0f172a]">{detail.courtName}</strong>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-gray-500 uppercase tracking-wide text-[11px] font-bold">Ngày chơi</span>
+                <span className="text-[#0f172a] font-medium">{detail.bookingDate ? new Date(detail.bookingDate).toLocaleDateString('vi-VN') : '—'}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-gray-500 uppercase tracking-wide text-[11px] font-bold">Thời gian</span>
+                <span className="text-[#0f172a] font-medium">{formatTime(detail.startTime)} – {formatTime(detail.endTime)}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-gray-500 uppercase tracking-wide text-[11px] font-bold">Giá slot</span>
+                <span className="text-[#0f172a] font-medium">{Number(detail.price).toLocaleString('vi-VN')} ₫</span>
+              </div>
+            </div>
+          ))}
+
+          <div className="pt-4 border-t border-gray-100 flex flex-col gap-3 mt-2">
+            <div className="flex justify-between items-center">
+              <span className="text-gray-500 uppercase tracking-wide text-[11px] font-bold">Phương thức thanh toán</span>
+              <span className="text-[#0f172a] font-medium">
+                {booking.paymentStatus || '—'} {booking.paymentMethod ? `(${booking.paymentMethod})` : ''}
+              </span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-gray-500 uppercase tracking-wide text-[11px] font-bold">Mã Check-in</span>
+              <span className="font-mono text-[#0f172a] bg-gray-50 px-2 py-1 rounded-[4px]">{booking.checkInCode || '—'}</span>
+            </div>
+            {booking.paymentDeadline && (
+              <div className="flex justify-between items-center">
+                <span className="text-gray-500 uppercase tracking-wide text-[11px] font-bold">Hạn thanh toán</span>
+                <span className="text-red-500 font-medium">{new Date(booking.paymentDeadline).toLocaleString('vi-VN')}</span>
+              </div>
+            )}
           </div>
-        ))}
-        <p className="pt-3 border-t border-border-default"><span className="text-foreground-subtle">Thanh toán:</span> <span className="text-foreground">{booking.paymentStatus || '—'} ({booking.paymentMethod || '—'})</span></p>
-        <p><span className="text-foreground-subtle">Tổng tiền:</span> <strong className="text-foreground">{Number(booking.totalAmount).toLocaleString('vi-VN')} ₫</strong></p>
-        <p><span className="text-foreground-subtle">Mã check-in:</span> <span className="font-mono text-foreground">{booking.checkInCode || '—'}</span></p>
-        {booking.paymentDeadline && (
-          <p><span className="text-foreground-subtle">Hạn thanh toán:</span> <span className="text-foreground">{new Date(booking.paymentDeadline).toLocaleString('vi-VN')}</span></p>
-        )}
-      </div>
+
+          <div className="pt-4 border-t border-gray-100 flex justify-between items-center mt-2">
+            <span className="text-gray-500 uppercase tracking-widest text-[12px] font-bold">Tổng tiền</span>
+            <strong className="text-[#14b8a6] text-xl">{Number(booking.totalAmount).toLocaleString('vi-VN')} ₫</strong>
+          </div>
+        </div>
+      </OwnerCard>
 
       {(canConfirm || canCheckIn || canCancel) && (
-        <div className="border-2 border-border-strong bg-surface p-6 space-y-3.5">
-          <h3 className="font-heading text-base uppercase tracking-tight text-foreground">Thao tác</h3>
-          <div className="flex flex-wrap gap-2.5 items-center">
+        <OwnerCard>
+          <h3 className="font-heading text-base uppercase tracking-tight text-[#0f172a] m-0 mb-4">Thao tác</h3>
+          <div className="flex flex-wrap gap-3 items-center">
             {canConfirm && (
-              <button
-                type="button"
+              <OwnerBtn
                 disabled={actionLoading}
                 onClick={confirm}
-                className="btn-primary disabled:opacity-60"
               >
-                Xác nhận
-              </button>
+                Xác nhận Booking
+              </OwnerBtn>
             )}
             {canCheckIn && (
-              <>
+              <div className="flex items-center gap-2 w-full sm:w-auto">
                 <input
-                  className="input-base w-auto"
+                  className={`${ownerInputCls} max-w-[150px] font-mono`}
                   placeholder="Mã check-in"
                   value={checkInCode}
                   onChange={e => setCheckInCode(e.target.value)}
                 />
-                <button
-                  type="button"
+                <OwnerBtn
                   disabled={actionLoading}
                   onClick={checkIn}
-                  className="btn-primary disabled:opacity-60"
                 >
                   Check-in
-                </button>
-              </>
+                </OwnerBtn>
+              </div>
             )}
             {canCancel && (
-              <button
-                type="button"
+              <OwnerBtn
+                variant="danger"
                 disabled={actionLoading}
                 onClick={cancel}
-                className="inline-flex items-center justify-center gap-2 px-5 h-10 font-sans text-sm font-bold uppercase tracking-[0.04em] rounded-[2px] border-2 border-danger text-danger bg-transparent transition-colors duration-150 hover:bg-danger-bg disabled:opacity-60"
+                className="ml-auto"
               >
                 Hủy booking
-              </button>
+              </OwnerBtn>
             )}
           </div>
-        </div>
+        </OwnerCard>
       )}
     </div>
   );

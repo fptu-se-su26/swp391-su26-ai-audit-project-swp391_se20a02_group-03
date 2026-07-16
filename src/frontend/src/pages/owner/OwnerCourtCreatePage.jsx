@@ -2,21 +2,19 @@ import { useState } from 'react';
 import { Link, useNavigate, useOutletContext } from 'react-router-dom';
 import { ownerApi } from '../../api/ownerApi';
 import { useToast } from '../../components/Toast';
+import {
+  OwnerCard,
+  OwnerFormField,
+  OwnerBtn,
+  ownerInputCls,
+  OwnerErrorState
+} from '../../components/owner';
+import { ChevronLeft } from 'lucide-react';
 
 const COURT_TYPES = [
   { id: 1, label: 'Cầu lông' },
   { id: 2, label: 'Pickleball' },
 ];
-
-function Field({ label, children, hint }) {
-  return (
-    <label className="grid gap-1.5 text-sm">
-      <span className="label-mono text-foreground">{label}</span>
-      {children}
-      {hint && <span className="text-[11.5px] text-foreground-subtle">{hint}</span>}
-    </label>
-  );
-}
 
 export default function OwnerCourtCreatePage() {
   const { complexId } = useOutletContext();
@@ -55,68 +53,85 @@ export default function OwnerCourtCreatePage() {
   }
 
   return (
-    <div className="max-w-2xl space-y-5">
+    <div className="max-w-2xl mx-auto space-y-6 auth-animate-in pb-12">
       <div>
-        <Link to="/owner/courts" className="inline-block text-sm font-bold text-foreground no-underline border-b-2 border-foreground pb-0.5">← Danh sách sân</Link>
-        <h1 className="font-heading text-3xl md:text-4xl uppercase tracking-tight text-foreground mt-3 mb-2">Tạo sân mới</h1>
-        <p className="text-sm text-foreground-muted">Sân sẽ được gán vào tổ hợp đang chọn.</p>
+        <Link
+          to="/owner/courts"
+          className="inline-flex items-center gap-1 text-[12px] font-bold uppercase tracking-wide text-gray-500 hover:text-[#14b8a6] no-underline transition-colors mb-4"
+        >
+          <ChevronLeft size={16} /> Quay lại danh sách
+        </Link>
+        <h1 className="font-heading text-3xl md:text-4xl uppercase tracking-tight text-[#0f172a] m-0 mb-2">Tạo sân mới</h1>
+        <p className="text-sm text-gray-500 m-0">Sân sẽ được gán vào tổ hợp đang chọn.</p>
       </div>
-      {error && <div className="text-sm text-danger bg-danger-bg border border-danger p-3 rounded-[2px]">{error}</div>}
-      <form onSubmit={handleSubmit} className="border-2 border-border-strong bg-surface p-8 grid gap-5">
-        <Field label="Tên sân *">
-          <input
-            required
-            className="input-base"
-            placeholder="VD: Sân cầu lông A1"
-            value={form.name}
-            onChange={e => setForm({ ...form, name: e.target.value })}
-          />
-        </Field>
-        <Field label="Mã sân" hint="Để trống sẽ tự sinh mã duy nhất trong tổ hợp.">
-          <input
-            className="input-base font-mono uppercase"
-            placeholder="VD: CL-A1"
-            value={form.code}
-            onChange={e => setForm({ ...form, code: e.target.value })}
-          />
-        </Field>
-        <Field label="Loại sân">
-          <select
-            className="input-base"
-            value={form.courtTypeId}
-            onChange={e => setForm({ ...form, courtTypeId: parseInt(e.target.value, 10) })}
+
+      {error && <OwnerErrorState message={error} />}
+
+      <OwnerCard>
+        <form onSubmit={handleSubmit} className="grid gap-6">
+          <OwnerFormField label="Tên sân" required>
+            <input
+              required
+              className={ownerInputCls}
+              placeholder="VD: Sân cầu lông A1"
+              value={form.name}
+              onChange={e => setForm({ ...form, name: e.target.value })}
+            />
+          </OwnerFormField>
+
+          <OwnerFormField
+            label="Mã sân"
+            helpText="Để trống sẽ tự sinh mã duy nhất trong tổ hợp."
           >
-            {COURT_TYPES.map(t => (
-              <option key={t.id} value={t.id}>{t.label}</option>
-            ))}
-          </select>
-        </Field>
-        <Field label="Giá cơ bản / giờ (VND)">
-          <input
-            type="number"
-            min={0}
-            step={1000}
-            className="input-base"
-            value={form.basePrice}
-            onChange={e => setForm({ ...form, basePrice: parseInt(e.target.value, 10) || 0 })}
-          />
-        </Field>
-        <Field label="Mô tả">
-          <textarea
-            className="input-base h-auto py-3.5 resize-y"
-            placeholder="Ghi chú về sân, thiết bị, vị trí..."
-            rows={3}
-            value={form.description}
-            onChange={e => setForm({ ...form, description: e.target.value })}
-          />
-        </Field>
-        <div className="flex gap-2.5 pt-1">
-          <button type="submit" disabled={loading} className="btn-primary disabled:opacity-50">
-            {loading ? 'Đang tạo...' : 'Tạo sân'}
-          </button>
-          <Link to="/owner/courts" className="btn-outline no-underline">Hủy</Link>
-        </div>
-      </form>
+            <input
+              className={`${ownerInputCls} font-mono uppercase`}
+              placeholder="VD: CL-A1"
+              value={form.code}
+              onChange={e => setForm({ ...form, code: e.target.value })}
+            />
+          </OwnerFormField>
+
+          <OwnerFormField label="Loại sân">
+            <select
+              className={ownerInputCls}
+              value={form.courtTypeId}
+              onChange={e => setForm({ ...form, courtTypeId: parseInt(e.target.value, 10) })}
+            >
+              {COURT_TYPES.map(t => (
+                <option key={t.id} value={t.id}>{t.label}</option>
+              ))}
+            </select>
+          </OwnerFormField>
+
+          <OwnerFormField label="Giá cơ bản / giờ (VND)">
+            <input
+              type="number"
+              min={0}
+              step={1000}
+              className={ownerInputCls}
+              value={form.basePrice}
+              onChange={e => setForm({ ...form, basePrice: parseInt(e.target.value, 10) || 0 })}
+            />
+          </OwnerFormField>
+
+          <OwnerFormField label="Mô tả">
+            <textarea
+              className={`${ownerInputCls} h-auto py-3 resize-y`}
+              placeholder="Ghi chú về sân, thiết bị, vị trí..."
+              rows={3}
+              value={form.description}
+              onChange={e => setForm({ ...form, description: e.target.value })}
+            />
+          </OwnerFormField>
+
+          <div className="flex gap-3 pt-4 border-t border-gray-100 mt-2">
+            <OwnerBtn type="submit" disabled={loading} className="min-w-[120px]">
+              {loading ? 'Đang lưu...' : 'Tạo sân'}
+            </OwnerBtn>
+            <OwnerBtn to="/owner/courts" variant="secondary" type="button">Hủy</OwnerBtn>
+          </div>
+        </form>
+      </OwnerCard>
     </div>
   );
 }

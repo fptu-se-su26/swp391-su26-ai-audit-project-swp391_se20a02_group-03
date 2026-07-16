@@ -147,19 +147,19 @@
   .btn-primary {
     @apply inline-flex items-center justify-center gap-2 px-5 h-10
            bg-[var(--theme-primary)] text-[var(--theme-secondary)] font-sans text-sm font-extrabold uppercase tracking-[0.04em]
-           border-2 border-[var(--theme-primary)] rounded-[2px];
+           border-2 border-[var(--theme-primary)] rounded-[8px];
     transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease,
                 transform 0.15s ease, box-shadow 0.15s ease;
   }
 
   .btn-primary:hover {
     @apply bg-accent border-accent text-ink;
-    transform: translate(-2px, -2px);
-    box-shadow: 4px 4px 0 rgba(13, 27, 42, 0.85);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 14px rgba(20, 184, 166, 0.25);
   }
 
   .btn-primary:active {
-    transform: translate(0, 0);
+    transform: translateY(0);
     box-shadow: none;
     @apply opacity-90;
   }
@@ -167,24 +167,26 @@
   .btn-outline {
     @apply inline-flex items-center justify-center gap-2 px-5 h-10
            bg-transparent text-foreground font-sans text-sm font-bold uppercase tracking-[0.04em]
-           border-2 border-border-hover rounded-[2px];
+           border-2 border-border-hover rounded-[8px];
     transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease,
                 transform 0.15s ease, box-shadow 0.15s ease;
   }
 
   .btn-outline:hover {
     @apply border-foreground;
-    transform: translate(-2px, -2px);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   }
 
   .btn-outline:active {
-    transform: translate(0, 0);
+    transform: translateY(0);
+    box-shadow: none;
   }
 
   .auth-btn {
     @apply inline-flex items-center justify-center gap-2 px-4
            font-sans font-extrabold uppercase tracking-[0.05em]
-           rounded-[2px] w-full h-14 text-sm;
+           rounded-[8px] w-full h-14 text-sm;
     background-color: #14b8a6;
     color: #0d1b2a;
     border: 2px solid #14b8a6;
@@ -195,12 +197,12 @@
     background-color: #17cdbe;
     border-color: #17cdbe;
     color: #0d1b2a;
-    transform: translate(-2px, -2px);
-    box-shadow: 4px 4px 0 rgba(0,0,0,0.35);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(20, 184, 166, 0.25);
   }
 
   .auth-btn:active {
-    transform: translate(0, 0);
+    transform: translateY(0);
     box-shadow: none;
   }
 
@@ -213,7 +215,7 @@
 
   /* ── Inputs ── */
   .input-base, .auth-input, .contact-input, .form-input {
-    @apply w-full px-4 h-[52px] bg-surface border-2 border-[var(--theme-border-strong)] rounded-[2px]
+    @apply w-full px-4 h-[52px] bg-surface border-2 border-[var(--theme-border-strong)] rounded-[8px]
            text-sm text-foreground placeholder:text-foreground-subtle font-sans
            outline-none transition-colors duration-150;
   }
@@ -224,7 +226,7 @@
 
   /* ── Cards ── */
   .card-base {
-    @apply bg-surface border-2 border-[var(--theme-border-strong)] rounded-[2px] p-6 relative;
+    @apply bg-surface border border-[var(--theme-border-strong)] rounded-[12px] p-6 relative shadow-[0_2px_12px_rgba(0,0,0,0.03)];
   }
 
   /* ── Auth Layout — fixed brand split (ink visual / paper form), constant regardless of toggle ── */
@@ -320,14 +322,14 @@
   animation-play-state: paused;
 }
 
-/* ── Brutalist card lift — hard offset shadow on hover ── */
+/* ── Card lift — soft offset shadow on hover ── */
 .card-lift {
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .card-lift:hover {
-  transform: translate(-3px, -3px);
-  box-shadow: 6px 6px 0 var(--theme-border-strong);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
 }
 
 /* ── Image zoom on hover (wrap img in overflow-hidden parent) ── */

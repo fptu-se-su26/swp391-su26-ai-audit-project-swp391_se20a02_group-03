@@ -1,21 +1,29 @@
-import { useState, useEffect, useCallback, useRef, useId } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import AdminLayout from '../../layouts/AdminLayout'
 import { courtApi } from '../../api/courtApi'
 import { useToast } from '../../components/Toast'
 import { useConfirm } from '../../components/ui/ConfirmDialog'
 import { translateStatus, translateCourtTypeName } from '../../utils/labels'
-import { useFocusTrap } from '../../hooks/useFocusTrap'
-import { Search, Trash2, Loader2, ShieldAlert, MapPin, Plus, Pencil, X } from 'lucide-react'
+import { Trash2, Loader2, MapPin, Plus, Pencil } from 'lucide-react'
+import {
+  AdminPageHeader,
+  AdminToolbar,
+  AdminSearchInput,
+  AdminFilterPills,
+  AdminStatusBadge,
+  AdminModal,
+  AdminFormField,
+  adminInputCls,
+  AdminBtn,
+  AdminEmptyState,
+  AdminErrorState,
+} from '../../components/admin'
 
-// Filter theo status khớp CHÍNH XÁC giá trị canonical lưu trong DB (CourtRepository so sánh
-// `c.Status == parameters.Status` không normalize). 'Booked' KHÔNG phải trạng thái vận hành
-// của Court — nó phát sinh từ dữ liệu đặt sân, chưa từng được lưu vào cột Status nên filter
-// theo 'Booked' trước đây luôn trả về rỗng. Thay bằng 'Inactive' — trạng thái vận hành thật.
 const STATUS_TABS = [
   { key: '', label: 'Tất cả' },
-  { key: 'Available', label: 'Trống' },
-  { key: 'Maintenance', label: 'Bảo trì' },
-  { key: 'Inactive', label: 'Ngưng hoạt động' },
+  { key: 'ACTIVE', label: 'Hoạt động' },
+  { key: 'MAINTENANCE', label: 'Bảo trì' },
+  { key: 'INACTIVE', label: 'Ngưng hoạt động' },
 ]
 
 const COURT_TYPES = [
@@ -23,30 +31,36 @@ const COURT_TYPES = [
   { id: 2, label: 'Pickleball' },
 ]
 
-const EMPTY_FORM = { name: '', courtTypeId: 1, imageUrl: '', description: '', status: 'Available' }
+const EMPTY_FORM = { name: '', courtTypeId: 1, imageUrl: '', description: '', status: 'ACTIVE' }
+
+const STATUS_VARIANT = {
+  ACTIVE: 'success',
+  MAINTENANCE: 'warning',
+  INACTIVE: 'danger',
+}
+
+const STATUS_LABEL_MAP = {
+  ACTIVE: 'Hoạt động',
+  MAINTENANCE: 'Bảo trì',
+  INACTIVE: 'Ngưng hoạt động',
+}
+
+const FALLBACK_IMG = 'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=600&q=80'
 
 function CourtFormModal({ initial, onClose, onSaved }) {
   const { addToast } = useToast()
   const isEdit = Boolean(initial)
-  // GET /courts trả status theo casing API (ACTIVE/MAINTENANCE/INACTIVE — CourtStatuses.ToApiStatus).
-  // Dùng đúng casing này làm value cho <select> bên dưới để option hiển thị khớp với dữ liệu
-  // thật (trước đây value canonical "Available" không khớp "ACTIVE" từ API nên <select> luôn
-  // hiển thị sai option mặc định dù state vẫn giữ đúng giá trị "ACTIVE" khi submit).
   const [form, setForm] = useState(() => initial
-    ? { name: initial.name || '', courtTypeId: initial.courtTypeId || 1, imageUrl: initial.imageUrl || '', description: initial.description || '', status: (initial.status || 'ACTIVE').toUpperCase() }
+    ? {
+        name: initial.name || '',
+        courtTypeId: initial.courtTypeId || 1,
+        imageUrl: initial.imageUrl || '',
+        description: initial.description || '',
+        status: initial.status || 'ACTIVE',
+      }
     : EMPTY_FORM)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState(null)
-  const dialogRef = useRef(null)
-  const titleId = useId()
-
-  useFocusTrap({ active: true, containerRef: dialogRef, onEscape: onClose })
-
-  useEffect(() => {
-    const prevOverflow = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
-    return () => { document.body.style.overflow = prevOverflow }
-  }, [])
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -85,76 +99,85 @@ function CourtFormModal({ initial, onClose, onSaved }) {
   }
 
   return (
-    <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-ink/60" onClick={onClose}>
-      <div
-        ref={dialogRef}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby={titleId}
-        className="bg-surface border-2 border-border-strong rounded-[2px] max-w-lg w-full p-7"
-        onClick={e => e.stopPropagation()}
-      >
-        <div className="flex items-center justify-between mb-6">
-          <h3 id={titleId} className="font-heading text-xl uppercase text-foreground">{isEdit ? 'Sửa sân' : 'Thêm sân mới'}</h3>
-          <button type="button" onClick={onClose} aria-label="Đóng" className="text-foreground-muted hover:text-foreground"><X size={20} /></button>
+    <AdminModal
+      open
+      onClose={onClose}
+      title={isEdit ? 'Chỉnh sửa sân' : 'Thêm sân mới'}
+      description={isEdit ? `ID: ${initial.courtId}` : 'Điền thông tin để tạo sân mới.'}
+    >
+      {error && (
+        <div className="bg-red-50 border border-red-100 rounded-[8px] p-3 text-sm text-red-600 mb-5">
+          {error}
         </div>
-        {error && <div className="text-sm text-danger bg-danger-bg border border-danger p-3 rounded-[2px] mb-5">{error}</div>}
-        <form onSubmit={handleSubmit} className="grid gap-5">
-          <label className="grid gap-1.5 text-sm">
-            <span className="label-mono text-foreground">Tên sân *</span>
-            <input required className="input-base" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="VD: Sân cầu lông A1" />
-          </label>
-          <label className="grid gap-1.5 text-sm">
-            <span className="label-mono text-foreground">Loại sân</span>
-            <select className="input-base" value={form.courtTypeId} onChange={e => setForm({ ...form, courtTypeId: parseInt(e.target.value, 10) })}>
-              {COURT_TYPES.map(t => <option key={t.id} value={t.id}>{t.label}</option>)}
+      )}
+      <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+        <AdminFormField label="Tên sân" htmlFor="court-name" required>
+          <input
+            id="court-name"
+            required
+            value={form.name}
+            onChange={e => setForm({ ...form, name: e.target.value })}
+            placeholder="VD: Sân cầu lông A1"
+            className={adminInputCls(!!error && !form.name.trim())}
+          />
+        </AdminFormField>
+
+        <AdminFormField label="Loại sân" htmlFor="court-type">
+          <select
+            id="court-type"
+            value={form.courtTypeId}
+            onChange={e => setForm({ ...form, courtTypeId: parseInt(e.target.value, 10) })}
+            className={adminInputCls()}
+          >
+            {COURT_TYPES.map(t => <option key={t.id} value={t.id}>{t.label}</option>)}
+          </select>
+        </AdminFormField>
+
+        <AdminFormField label="Ảnh (URL)" htmlFor="court-image" hint="Dán đường dẫn URL ảnh (tuỳ chọn)">
+          <input
+            id="court-image"
+            value={form.imageUrl}
+            onChange={e => setForm({ ...form, imageUrl: e.target.value })}
+            placeholder="https://..."
+            className={adminInputCls()}
+          />
+        </AdminFormField>
+
+        <AdminFormField label="Mô tả / Vị trí" htmlFor="court-desc">
+          <textarea
+            id="court-desc"
+            rows={3}
+            value={form.description}
+            onChange={e => setForm({ ...form, description: e.target.value })}
+            className="w-full px-3.5 py-2.5 rounded-[8px] border border-gray-200 text-sm text-gray-900 bg-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-100 focus:border-teal-300 resize-y transition-all"
+          />
+        </AdminFormField>
+
+        {isEdit && (
+          <AdminFormField label="Trạng thái" htmlFor="court-status">
+            <select
+              id="court-status"
+              value={form.status}
+              onChange={e => setForm({ ...form, status: e.target.value })}
+              className={adminInputCls()}
+            >
+              <option value="ACTIVE">Hoạt động</option>
+              <option value="MAINTENANCE">Bảo trì</option>
+              <option value="INACTIVE">Ngưng hoạt động</option>
             </select>
-          </label>
-          <label className="grid gap-1.5 text-sm">
-            <span className="label-mono text-foreground">Ảnh (URL)</span>
-            <input className="input-base" value={form.imageUrl} onChange={e => setForm({ ...form, imageUrl: e.target.value })} placeholder="https://..." />
-          </label>
-          <label className="grid gap-1.5 text-sm">
-            <span className="label-mono text-foreground">Mô tả</span>
-            <textarea className="input-base h-auto py-3.5 resize-y" rows={3} value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} />
-          </label>
-          {isEdit && (
-            <label className="grid gap-1.5 text-sm">
-              <span className="label-mono text-foreground">Trạng thái</span>
-              {/* Chỉ 3 trạng thái vận hành thật sự (khớp CourtStatuses ở backend).
-                  'Đã đặt' (Booked) không nằm ở đây vì đó là trạng thái PHÁT SINH từ dữ liệu
-                  đặt sân theo thời điểm, không phải trạng thái vận hành admin có thể gán tay;
-                  'Đóng' (Closed) trước đây không phải giá trị hợp lệ — gửi lên sẽ bị backend
-                  reject 400 vì không khớp CourtStatuses.NormalizeApiStatus. */}
-              <select className="input-base" value={form.status} onChange={e => setForm({ ...form, status: e.target.value })}>
-                <option value="ACTIVE">Trống</option>
-                <option value="MAINTENANCE">Bảo trì</option>
-                <option value="INACTIVE">Ngưng hoạt động</option>
-              </select>
-            </label>
-          )}
-          <div className="flex gap-3 justify-end pt-2">
-            <button type="button" onClick={onClose} className="btn-outline">Hủy</button>
-            <button type="submit" disabled={saving} className="btn-primary disabled:opacity-50">
-              {saving ? 'Đang lưu...' : isEdit ? 'Lưu thay đổi' : 'Tạo sân'}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+          </AdminFormField>
+        )}
+
+        <div className="flex gap-3 justify-end pt-2">
+          <AdminBtn type="button" variant="secondary" onClick={onClose}>Hủy</AdminBtn>
+          <AdminBtn type="submit" variant="primary" loading={saving} disabled={saving}>
+            {isEdit ? 'Lưu thay đổi' : 'Tạo sân'}
+          </AdminBtn>
+        </div>
+      </form>
+    </AdminModal>
   )
 }
-
-// GET /courts luôn trả status theo casing API (CourtStatuses.ToApiStatus: ACTIVE/MAINTENANCE/
-// INACTIVE) nên chỉ 3 key này thực sự khớp dữ liệu — 'Booked'/'Closed' không phải giá trị
-// Court.Status hợp lệ (Booked phát sinh từ booking, Closed chưa từng được backend chấp nhận).
-const STATUS_STYLE = {
-  ACTIVE: { label: 'TRỐNG', cls: 'bg-ink text-paper' },
-  MAINTENANCE: { label: 'BẢO TRÌ', cls: 'bg-warning-bg text-warning border border-warning' },
-  INACTIVE: { label: 'NGƯNG HOẠT ĐỘNG', cls: 'bg-danger text-paper' },
-}
-
-const FALLBACK_IMG = 'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=600&q=80'
 
 export default function AdminCourtsPage() {
   const { addToast } = useToast()
@@ -165,7 +188,7 @@ export default function AdminCourtsPage() {
   const [search, setSearch] = useState('')
   const [status, setStatus] = useState('')
   const [deletingId, setDeletingId] = useState(null)
-  const [modalCourt, setModalCourt] = useState(undefined) // undefined = closed, null = create, object = edit
+  const [modalCourt, setModalCourt] = useState(undefined)
 
   const fetchCourts = useCallback(async () => {
     try {
@@ -173,7 +196,6 @@ export default function AdminCourtsPage() {
       setError(null)
       const res = await courtApi.getAll({ searchTerm: search, status })
       if (res.statusCode === 200 && res.data) {
-        // Hỗ trợ cả PagedResult (items) lẫn list thuần.
         const list = Array.isArray(res.data) ? res.data : (res.data.items || [])
         setCourts(list)
       } else {
@@ -218,124 +240,127 @@ export default function AdminCourtsPage() {
 
   return (
     <AdminLayout>
-      <div className="space-y-6">
-        <div className="flex justify-between items-end flex-wrap gap-3.5 mb-6">
-          <div>
-            <h1 className="font-heading text-3xl md:text-4xl uppercase tracking-tight text-foreground mb-2">Quản lý sân</h1>
-            <p className="text-[13px] text-foreground-muted">Danh sách toàn bộ sân và trạng thái hoạt động.</p>
-          </div>
+      <AdminPageHeader
+        title="Quản lý sân"
+        description="Danh sách toàn bộ sân thể thao và trạng thái hoạt động."
+        action={
           <div className="flex items-center gap-4">
-            <p className="label-mono text-foreground">
-              Tổng: <strong>{courts.length}</strong> sân
-            </p>
-            <button
+            <span className="text-[12px] text-gray-500 font-medium">
+              <span className="font-bold text-gray-900">{courts.length}</span> sân
+            </span>
+            <AdminBtn
+              variant="primary"
+              icon={<Plus size={14} />}
               onClick={() => setModalCourt(null)}
-              className="btn-primary text-xs h-9 px-4"
             >
-              <Plus size={14} /> Thêm sân
-            </button>
+              Thêm sân
+            </AdminBtn>
           </div>
-        </div>
+        }
+      />
 
-        <div className="flex flex-wrap gap-3.5 justify-between mb-6">
-          <div className="flex items-center gap-2 bg-surface border-2 border-border-strong h-11 px-3.5 min-w-[280px] rounded-[2px]">
-            <Search size={16} className="text-foreground-subtle shrink-0" />
-            <input
-              type="text"
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              placeholder="Tìm theo tên sân..."
-              aria-label="Tìm theo tên sân"
-              className="border-none outline-none text-[13px] text-foreground w-full bg-transparent"
-            />
-          </div>
-          <div className="flex gap-2 flex-wrap" role="group" aria-label="Lọc theo trạng thái sân">
-            {STATUS_TABS.map(tab => (
-              <button
-                key={tab.key}
-                type="button"
-                onClick={() => setStatus(tab.key)}
-                aria-pressed={status === tab.key}
-                className={`py-2.5 px-[18px] rounded-[2px] border-2 font-bold text-[11.5px] uppercase cursor-pointer transition-colors ${
-                  status === tab.key
-                    ? 'bg-ink text-paper border-ink'
-                    : 'bg-transparent border-border-strong text-foreground hover:bg-surface-hover'
-                }`}
+      <AdminToolbar>
+        <AdminSearchInput
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          placeholder="Tìm theo tên sân..."
+          className="flex-1 max-w-[340px]"
+        />
+        <AdminFilterPills
+          tabs={STATUS_TABS}
+          activeKey={status}
+          onChange={setStatus}
+        />
+      </AdminToolbar>
+
+      {loading && (
+        <div className="flex items-center justify-center py-20">
+          <Loader2 size={28} className="animate-spin text-[#14b8a6]" />
+        </div>
+      )}
+
+      {!loading && error && (
+        <AdminErrorState message={error} onRetry={fetchCourts} />
+      )}
+
+      {!loading && !error && courts.length === 0 && (
+        <AdminEmptyState
+          message={search ? 'Không tìm thấy sân nào phù hợp.' : 'Chưa có sân nào.'}
+          isSearch={!!search}
+        />
+      )}
+
+      {!loading && !error && courts.length > 0 && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {courts.map(court => {
+            const stLabel = STATUS_LABEL_MAP[court.status] || translateStatus(court.status, 'Không rõ')
+            const stVariant = STATUS_VARIANT[court.status] || 'neutral'
+            return (
+              <div
+                key={court.courtId}
+                className="bg-white rounded-[12px] border border-gray-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] overflow-hidden flex flex-col hover:shadow-[0_8px_24px_rgba(0,0,0,0.06)] transition-all"
               >
-                {tab.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {loading && (
-          <div className="py-16 text-center text-foreground-subtle">
-            <Loader2 className="inline animate-spin mr-2" size={20} /> Đang tải...
-          </div>
-        )}
-        {!loading && error && (
-          <div className="py-16 text-center text-danger">
-            <ShieldAlert className="inline mr-2" size={20} /> {error}
-          </div>
-        )}
-        {!loading && !error && courts.length === 0 && (
-          <div className="py-16 text-center text-foreground-subtle">Không có sân nào.</div>
-        )}
-
-        {!loading && !error && courts.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {courts.map(court => {
-              const st = STATUS_STYLE[court.status] || {
-                label: translateStatus(court.status, 'Không rõ').toUpperCase(),
-                cls: 'bg-surface-hover text-foreground border border-border-strong',
-              }
-              return (
-                <div key={court.courtId} className="border-2 border-border-strong bg-surface flex flex-col rounded-[2px] overflow-hidden">
-                  <div className="relative h-[130px] border-b-2 border-border-strong">
-                    <img src={court.imageUrl || FALLBACK_IMG} alt={court.name} className="w-full h-full object-cover" />
-                    <div className="absolute inset-0 flex justify-between items-start p-3">
-                      <span className="label-mono bg-paper text-ink px-2 py-1">
-                        {translateCourtTypeName(court.courtTypeName)}
-                      </span>
-                      <span className={`label-mono px-2 py-1 ${st.cls}`}>{st.label}</span>
-                    </div>
+                {/* Cover image */}
+                <div className="relative h-[140px]">
+                  <img
+                    src={court.imageUrl || FALLBACK_IMG}
+                    alt={court.name}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-b from-black/0 to-black/30" />
+                  <div className="absolute top-3 left-3 right-3 flex justify-between items-start">
+                    <span className="bg-white/90 backdrop-blur-sm text-gray-700 text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-full">
+                      {translateCourtTypeName(court.courtTypeName)}
+                    </span>
+                    <AdminStatusBadge
+                      label={stLabel}
+                      variant={stVariant}
+                    />
                   </div>
-                  <div className="p-[18px] flex-1 flex flex-col">
-                    <h2 className="font-extrabold text-sm text-foreground mb-3">{court.name}</h2>
-                    {court.description && (
-                      <p className="flex items-start gap-1.5 text-[0.8125rem] text-foreground-muted mb-3">
-                        <MapPin size={14} className="mt-0.5 shrink-0" /> {court.description}
-                      </p>
-                    )}
-                    <div className="mt-auto flex items-center justify-between pt-3 border-t border-border-default">
-                      <span className="font-bold text-[12.5px] text-foreground">
-                        {court.pricePerHour > 0 ? `${Number(court.pricePerHour).toLocaleString('vi-VN')} ₫/giờ` : 'Chưa có giá'}
-                      </span>
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => setModalCourt(court)}
-                          className="inline-flex items-center gap-1.5 py-[5px] px-3 rounded-[2px] border-2 border-border-strong text-xs font-bold uppercase text-foreground cursor-pointer hover:bg-surface-hover transition-colors"
-                        >
-                          <Pencil size={14} />
-                          Sửa
-                        </button>
-                        <button
-                          onClick={() => handleDelete(court)}
-                          disabled={deletingId === court.courtId}
-                          className="inline-flex items-center gap-1.5 py-[5px] px-3 rounded-[2px] border-2 border-danger text-xs font-bold uppercase text-danger cursor-pointer hover:bg-danger-bg transition-colors disabled:opacity-50"
-                        >
-                          {deletingId === court.courtId ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
-                          Xóa
-                        </button>
-                      </div>
+                </div>
+
+                {/* Content */}
+                <div className="p-4 flex-1 flex flex-col">
+                  <h2 className="font-bold text-sm text-gray-900 m-0 mb-2">{court.name}</h2>
+                  {court.description && (
+                    <p className="flex items-start gap-1.5 text-[12px] text-gray-500 m-0 mb-3 leading-relaxed">
+                      <MapPin size={13} className="mt-0.5 shrink-0 text-gray-400" />
+                      {court.description}
+                    </p>
+                  )}
+                  <div className="mt-auto flex items-center justify-between pt-3 border-t border-gray-100">
+                    <span className="text-[13px] font-bold text-gray-800">
+                      {court.pricePerHour > 0
+                        ? `${Number(court.pricePerHour).toLocaleString('vi-VN')} ₫/giờ`
+                        : <span className="text-gray-400 font-medium">Chưa có giá</span>}
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <AdminBtn
+                        variant="secondary"
+                        icon={<Pencil size={13} />}
+                        onClick={() => setModalCourt(court)}
+                        className="!h-8 !px-3"
+                      >
+                        Sửa
+                      </AdminBtn>
+                      <AdminBtn
+                        variant="danger"
+                        disabled={deletingId === court.courtId}
+                        loading={deletingId === court.courtId}
+                        icon={<Trash2 size={13} />}
+                        onClick={() => handleDelete(court)}
+                        className="!h-8 !px-3"
+                      >
+                        Xóa
+                      </AdminBtn>
                     </div>
                   </div>
                 </div>
-              )
-            })}
-          </div>
-        )}
-      </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
 
       {modalCourt !== undefined && (
         <CourtFormModal
