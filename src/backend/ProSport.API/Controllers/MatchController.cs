@@ -88,6 +88,18 @@ public class MatchController : ControllerBase
     }
 
     [Authorize]
+    [HttpGet("{id}/members")]
+    public async Task<IActionResult> GetMatchMembers(int id)
+    {
+        var userId = TryGetUserId();
+        if (userId == null)
+            return Unauthorized(new ApiResponseDto<object>(401, "Unauthorized"));
+
+        var response = await _matchService.GetMatchMembersAsync(id, userId.Value);
+        return StatusCode(response.StatusCode, response);
+    }
+
+    [Authorize]
     [HttpPut("{id}/participants/{participantId}/approve")]
     public async Task<IActionResult> ApproveJoiner(int id, int participantId)
     {
