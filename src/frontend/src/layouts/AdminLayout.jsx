@@ -1,7 +1,9 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import ProSportLogo from '../components/ui/ProSportLogo'
+import { useFocusTrap } from '../hooks/useFocusTrap'
+import { useIsDesktop } from '../hooks/useIsDesktop'
 
 const navLinks = [
   { path: '/admin/dashboard', label: 'Tổng quan', icon: 'M4 4h6v6H4zm10 0h6v6h-6zM4 14h6v6H4zm10 0h6v6h-6z' },
@@ -20,6 +22,30 @@ export default function AdminLayout({ children }) {
   const { user, logout } = useAuth()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const isActive = (path) => location.pathname.startsWith(path)
+  const isDesktop = useIsDesktop()
+  const asideRef = useRef(null)
+  const menuButtonRef = useRef(null)
+  // Sidebar "hiển thị" khi đang ở desktop (luôn thấy, bất kể sidebarOpen) HOẶC drawer mobile
+  // đang mở. aria-hidden/inert chỉ áp dụng đúng lúc sidebar THỰC SỰ nằm ngoài màn hình.
+  const visible = isDesktop || sidebarOpen
+
+  // Chỉ bẫy focus khi đây thực sự là drawer mobile đang mở (không áp dụng trên desktop —
+  // nơi sidebar luôn hiển thị tĩnh, không phải overlay cần focus trap).
+  useFocusTrap({
+    active: sidebarOpen && !isDesktop,
+    containerRef: asideRef,
+    onEscape: () => setSidebarOpen(false),
+    restoreFocusRef: menuButtonRef,
+  })
+
+  // Đóng drawer tự động nếu người dùng resize/xoay màn hình sang desktop trong lúc đang mở.
+  useEffect(() => {
+    if (isDesktop) setSidebarOpen(false)
+  }, [isDesktop])
+
+  useEffect(() => {
+    if (asideRef.current) asideRef.current.inert = !visible
+  }, [visible])
 
   function handleLogout() {
     logout()
@@ -41,7 +67,11 @@ export default function AdminLayout({ children }) {
         />
       )}
 
-      <aside className={`w-[230px] bg-ink flex flex-col fixed left-0 top-0 bottom-0 z-[100] overflow-y-auto transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
+      <aside
+        ref={asideRef}
+        aria-hidden={!visible}
+        className={`w-[230px] bg-ink flex flex-col fixed left-0 top-0 bottom-0 z-[100] overflow-y-auto transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}
+      >
         <div className="px-6 py-6 border-b border-white/10">
           <ProSportLogo size="sm" variant="light" subtitle="Cổng quản trị" />
         </div>
@@ -87,6 +117,7 @@ export default function AdminLayout({ children }) {
         <header className="h-16 bg-surface border-b-2 border-border-strong flex items-center justify-between px-4 md:px-8 sticky top-0 z-50">
           <div className="flex items-center gap-3">
             <button
+              ref={menuButtonRef}
               type="button"
               className="lg:hidden w-10 h-10 flex items-center justify-center rounded-[2px] border-2 border-border-strong bg-surface text-foreground cursor-pointer"
               onClick={() => setSidebarOpen(true)}

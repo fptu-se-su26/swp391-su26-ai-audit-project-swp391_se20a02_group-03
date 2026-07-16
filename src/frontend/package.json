@@ -14,7 +14,6 @@
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
-<<<<<<< Updated upstream
     "@microsoft/signalr": "^10.0.0",
     "@react-oauth/google": "^0.13.5",
     "axios": "^1.16.1",
@@ -29,17 +28,13 @@
     "react-leaflet": "^4.2.1",
     "react-router-dom": "^6.26.0",
     "recharts": "^3.9.2"
-=======
-    "gsap": "^3.15.0",
-    "lucide-react": "^0.446.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-router-dom": "^6.26.0"
->>>>>>> Stashed changes
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",
     "@tailwindcss/vite": "^4.3.0",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
     "@types/react": "^18.3.5",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.1",

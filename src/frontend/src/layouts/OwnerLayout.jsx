@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useOwner } from '../context/OwnerContext';
@@ -10,6 +10,7 @@ export default function OwnerLayout() {
   const { user, logout } = useAuth();
   const { complexes, complexId, loading, error, reload } = useOwner();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const menuButtonRef = useRef(null);
 
   const displayName = user?.fullName || user?.name || 'Chủ sân';
   const complexName = complexes.find(c => c.complexId === complexId)?.name;
@@ -35,10 +36,11 @@ export default function OwnerLayout() {
         onClose={() => setSidebarOpen(false)}
         displayName={displayName}
         onLogout={handleLogout}
+        menuButtonRef={menuButtonRef}
       />
 
       <div className="flex-1 lg:ml-[230px] flex flex-col min-h-screen">
-        <OwnerHeader complexName={complexName} onMenuOpen={() => setSidebarOpen(true)} />
+        <OwnerHeader complexName={complexName} onMenuOpen={() => setSidebarOpen(true)} menuButtonRef={menuButtonRef} />
 
         <main className="flex-1 p-4 md:p-8">
           {loading && (

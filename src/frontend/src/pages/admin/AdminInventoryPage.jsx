@@ -74,6 +74,7 @@ export default function AdminInventoryPage() {
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Tìm kiếm vật phẩm..."
+            aria-label="Tìm kiếm vật phẩm"
             className="border-none outline-none text-[13px] text-foreground w-full bg-transparent"
           />
         </div>

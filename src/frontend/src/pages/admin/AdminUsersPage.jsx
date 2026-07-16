@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import AdminLayout from '../../layouts/AdminLayout'
 import { userApi } from '../../api/userApi'
 import { useToast } from '../../components/Toast'
@@ -8,12 +8,14 @@ const ROLE_TABS = [
   { key: '', label: 'Tất cả' },
   { key: 'Admin', label: 'Quản trị viên' },
   { key: 'Staff', label: 'Nhân sự' },
+  { key: 'CourtOwner', label: 'Chủ sân' },
   { key: 'Customer', label: 'Khách hàng' },
 ]
 
 const ROLE_LABELS = {
   Admin: 'Quản trị viên',
   Staff: 'Nhân sự',
+  CourtOwner: 'Chủ sân',
   Customer: 'Khách hàng',
 }
 
@@ -39,19 +41,34 @@ export default function AdminUsersPage() {
   const [users, setUsers] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const [search, setSearch] = useState('')
-  const [activeRole, setActiveRole] = useState('')
-  const [page, setPage] = useState(1)
+  // Giá trị gõ trực tiếp vào ô input — cập nhật ngay mỗi phím bấm để input không bị lag.
+  const [searchInput, setSearchInput] = useState('')
+  // Toàn bộ tham số filter thực sự dùng để gọi API, gộp thành MỘT state object và luôn
+  // được cập nhật bằng một lệnh setQuery duy nhất cho mỗi hành động của người dùng.
+  // BUG cũ: search/role/page là 3 state riêng + 2 effect độc lập (1 effect reset page khi
+  // debounce xong, 1 effect fetch theo page) — khi debounce đổi search, 2 effect này chạy ở
+  // 2 lượt render KHÁC NHAU nên fetch-effect chạy trước với page CŨ (stale) rồi mới chạy lại
+  // với page=1, tạo ra 2 request cho một thay đổi, đồng thời bấm "Sau" xong ~400ms cũng bị
+  // effect debounce (vốn phụ thuộc cả page) set nhầm page về 1. Gộp state loại bỏ tận gốc
+  // vì chỉ còn đúng MỘT effect phụ thuộc MỘT state object, không còn 2 effect đua nhau.
+  const [query, setQuery] = useState({ search: '', role: '', page: 1 })
   const [totalPages, setTotalPages] = useState(1)
   const [totalCount, setTotalCount] = useState(0)
   const [actingId, setActingId] = useState(null)
 
-  const fetchUsers = useCallback(async (opts = {}) => {
-    const { search: s = search, role = activeRole, page: p = page } = opts
+  const abortRef = useRef(null)
+
+  // Không phụ thuộc closure nên fetchUsers luôn cùng một reference — an toàn khi liệt kê
+  // trong dependency array mà không gây fetch thừa.
+  const fetchUsers = useCallback(async ({ search: s, role, page: p }) => {
+    abortRef.current?.abort()
+    const controller = new AbortController()
+    abortRef.current = controller
     try {
       setLoading(true)
       setError(null)
-      const res = await userApi.getUsers({ search: s, role, page: p, pageSize: PAGE_SIZE })
+      const res = await userApi.getUsers({ search: s, role, page: p, pageSize: PAGE_SIZE, signal: controller.signal })
+      if (controller.signal.aborted) return // đã có request mới hơn thay thế, bỏ qua response cũ
       if (res.statusCode === 200 && res.data) {
         setUsers(res.data.items || [])
         setTotalPages(res.data.totalPages || 1)
@@ -61,29 +78,32 @@ export default function AdminUsersPage() {
         setError(res.message || 'Không tải được danh sách người dùng.')
       }
     } catch (err) {
+      if (controller.signal.aborted) return // bị huỷ chủ động, không phải lỗi thật
       setUsers([])
       setError(typeof err === 'string' ? err : 'Không tải được danh sách người dùng.')
     } finally {
-      setLoading(false)
+      if (!controller.signal.aborted) setLoading(false)
     }
-  }, [search, activeRole, page])
+  }, [])
 
-  // Tải lại khi đổi role hoặc trang.
-  useEffect(() => {
-    fetchUsers({ role: activeRole, page })
-  }, [activeRole, page, fetchUsers])
-
-  // Debounce tìm kiếm: gõ xong 400ms tự gọi API và reset về trang 1.
+  // Debounce riêng cho search: gõ xong 400ms mới gộp vào `query` (1 lần setQuery, kèm reset
+  // page về 1 trong CÙNG một lệnh — không tách thành effect riêng để tránh đua hiệu ứng).
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (page !== 1) {
-        setPage(1) // việc đổi page sẽ trigger effect ở trên để fetch
-      } else {
-        fetchUsers({ search, role: activeRole, page: 1 })
-      }
+      setQuery(prev => (prev.search === searchInput ? prev : { ...prev, search: searchInput, page: 1 }))
     }, 400)
     return () => clearTimeout(timer)
-  }, [search, activeRole, page, fetchUsers])
+  }, [searchInput])
+
+  // Effect fetch DUY NHẤT: chạy đúng 1 lần cho mỗi lần `query` thực sự đổi giá trị.
+  useEffect(() => {
+    fetchUsers(query)
+  }, [query, fetchUsers])
+
+  // Huỷ request đang treo khi unmount để tránh setState trên component đã unmount.
+  useEffect(() => {
+    return () => abortRef.current?.abort()
+  }, [])
 
   async function handleToggleLock(user) {
     try {
@@ -107,8 +127,12 @@ export default function AdminUsersPage() {
   }
 
   function handleRoleChange(roleKey) {
-    setPage(1)
-    setActiveRole(roleKey)
+    // Một lệnh setQuery duy nhất -> effect fetch chỉ chạy đúng 1 lần với role+page mới.
+    setQuery(prev => (prev.role === roleKey && prev.page === 1 ? prev : { ...prev, role: roleKey, page: 1 }))
+  }
+
+  function goToPage(nextPage) {
+    setQuery(prev => (prev.page === nextPage ? prev : { ...prev, page: nextPage }))
   }
 
   return (
@@ -122,19 +146,22 @@ export default function AdminUsersPage() {
             <Search size={16} className="text-foreground-subtle shrink-0" />
             <input
               type="text"
-              value={search}
-              onChange={e => setSearch(e.target.value)}
+              value={searchInput}
+              onChange={e => setSearchInput(e.target.value)}
               placeholder="Tìm theo tên hoặc email..."
+              aria-label="Tìm theo tên hoặc email"
               className="border-none outline-none font-sans text-sm text-foreground w-full bg-transparent"
             />
           </div>
-          <div className="flex gap-2 flex-wrap">
+          <div className="flex gap-2 flex-wrap" role="group" aria-label="Lọc theo vai trò">
             {ROLE_TABS.map(tab => (
               <button
                 key={tab.key}
+                type="button"
                 onClick={() => handleRoleChange(tab.key)}
+                aria-pressed={query.role === tab.key}
                 className={`py-2.5 px-4 font-sans text-[11.5px] uppercase tracking-wide rounded-[2px] border-2 transition-colors ${
-                  activeRole === tab.key
+                  query.role === tab.key
                     ? 'bg-ink text-paper border-ink font-extrabold'
                     : 'bg-transparent text-foreground border-border-strong font-bold hover:bg-surface-hover'
                 }`}
@@ -253,21 +280,21 @@ export default function AdminUsersPage() {
           <div className="flex flex-wrap justify-between items-center gap-3 py-4 px-5 border-t-2 border-border-strong">
             <span className="label-mono text-foreground-muted">
               {totalCount > 0
-                ? `Trang ${page} / ${totalPages} · Tổng ${totalCount} người dùng`
+                ? `Trang ${query.page} / ${totalPages} · Tổng ${totalCount} người dùng`
                 : 'Không có dữ liệu'}
             </span>
             <div className="flex gap-1.5 items-center">
               <button
-                onClick={() => setPage(p => Math.max(1, p - 1))}
-                disabled={page <= 1 || loading}
+                onClick={() => goToPage(Math.max(1, query.page - 1))}
+                disabled={query.page <= 1 || loading}
                 className="px-3.5 h-8 border-2 border-border-strong bg-transparent rounded-[2px] text-[12px] font-bold text-foreground hover:bg-surface-hover disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 &lt; Trước
               </button>
-              <span className="px-3.5 h-8 flex items-center justify-center rounded-[2px] text-[12px] bg-ink text-paper font-bold min-w-8">{page}</span>
+              <span className="px-3.5 h-8 flex items-center justify-center rounded-[2px] text-[12px] bg-ink text-paper font-bold min-w-8">{query.page}</span>
               <button
-                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                disabled={page >= totalPages || loading}
+                onClick={() => goToPage(Math.min(totalPages, query.page + 1))}
+                disabled={query.page >= totalPages || loading}
                 className="px-3.5 h-8 border-2 border-border-strong bg-transparent rounded-[2px] text-[12px] font-bold text-foreground hover:bg-surface-hover disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 Sau &gt;

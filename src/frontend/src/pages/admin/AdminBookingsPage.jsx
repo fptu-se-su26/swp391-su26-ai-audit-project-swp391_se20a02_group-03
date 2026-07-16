@@ -94,14 +94,17 @@ export default function AdminBookingsPage() {
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Tìm mã đặt / sân / người dùng..."
+              aria-label="Tìm mã đặt / sân / người dùng"
               className="border-none outline-none text-sm text-foreground w-full bg-transparent placeholder:text-foreground-subtle"
             />
           </div>
-          <div className="flex gap-2 flex-wrap">
+          <div className="flex gap-2 flex-wrap" role="group" aria-label="Lọc theo trạng thái đặt sân">
             {STATUS_TABS.map(tab => (
               <button
                 key={tab.key}
+                type="button"
                 onClick={() => setStatusFilter(tab.key)}
+                aria-pressed={statusFilter === tab.key}
                 className={`px-4.5 h-11 font-sans text-[11.5px] font-bold uppercase tracking-[0.04em] border-2 rounded-[2px] transition-colors cursor-pointer ${
                   statusFilter === tab.key
                     ? 'bg-ink border-ink text-paper'

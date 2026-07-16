@@ -14,3 +14,9 @@ This project integrates [Superpowers](https://github.com/obra/superpowers) via `
 For **non-trivial coding tasks** (features, refactors, bugs), follow Superpowers skills in `.superpowers/skills/` — especially `using-superpowers`, `brainstorming`, `writing-plans`, and `test-driven-development`. See `docs/SUPERPOWERS.md`.
 
 **Stack:** ASP.NET Core 8 + React/Vite under `src/backend` and `src/frontend`.
+
+## General Coding Rules (Andrej Karpathy Skills)
+
+You MUST incorporate the principles from the `andrej-karpathy-skills` repository for all general coding, debugging, and planning tasks.
+- Always be systematic, test-driven, and prioritize code simplicity.
+- Reference the skills automatically (e.g. `systematic-debugging`, `writing-plans`) when applicable.

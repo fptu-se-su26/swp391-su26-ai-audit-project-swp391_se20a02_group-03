@@ -1,16 +1,21 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef, useId } from 'react'
 import AdminLayout from '../../layouts/AdminLayout'
 import { courtApi } from '../../api/courtApi'
 import { useToast } from '../../components/Toast'
 import { useConfirm } from '../../components/ui/ConfirmDialog'
 import { translateStatus, translateCourtTypeName } from '../../utils/labels'
+import { useFocusTrap } from '../../hooks/useFocusTrap'
 import { Search, Trash2, Loader2, ShieldAlert, MapPin, Plus, Pencil, X } from 'lucide-react'
 
+// Filter theo status khớp CHÍNH XÁC giá trị canonical lưu trong DB (CourtRepository so sánh
+// `c.Status == parameters.Status` không normalize). 'Booked' KHÔNG phải trạng thái vận hành
+// của Court — nó phát sinh từ dữ liệu đặt sân, chưa từng được lưu vào cột Status nên filter
+// theo 'Booked' trước đây luôn trả về rỗng. Thay bằng 'Inactive' — trạng thái vận hành thật.
 const STATUS_TABS = [
   { key: '', label: 'Tất cả' },
   { key: 'Available', label: 'Trống' },
-  { key: 'Booked', label: 'Đã đặt' },
   { key: 'Maintenance', label: 'Bảo trì' },
+  { key: 'Inactive', label: 'Ngưng hoạt động' },
 ]
 
 const COURT_TYPES = [
@@ -23,11 +28,25 @@ const EMPTY_FORM = { name: '', courtTypeId: 1, imageUrl: '', description: '', st
 function CourtFormModal({ initial, onClose, onSaved }) {
   const { addToast } = useToast()
   const isEdit = Boolean(initial)
+  // GET /courts trả status theo casing API (ACTIVE/MAINTENANCE/INACTIVE — CourtStatuses.ToApiStatus).
+  // Dùng đúng casing này làm value cho <select> bên dưới để option hiển thị khớp với dữ liệu
+  // thật (trước đây value canonical "Available" không khớp "ACTIVE" từ API nên <select> luôn
+  // hiển thị sai option mặc định dù state vẫn giữ đúng giá trị "ACTIVE" khi submit).
   const [form, setForm] = useState(() => initial
-    ? { name: initial.name || '', courtTypeId: initial.courtTypeId || 1, imageUrl: initial.imageUrl || '', description: initial.description || '', status: initial.status || 'Available' }
+    ? { name: initial.name || '', courtTypeId: initial.courtTypeId || 1, imageUrl: initial.imageUrl || '', description: initial.description || '', status: (initial.status || 'ACTIVE').toUpperCase() }
     : EMPTY_FORM)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState(null)
+  const dialogRef = useRef(null)
+  const titleId = useId()
+
+  useFocusTrap({ active: true, containerRef: dialogRef, onEscape: onClose })
+
+  useEffect(() => {
+    const prevOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => { document.body.style.overflow = prevOverflow }
+  }, [])
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -67,10 +86,17 @@ function CourtFormModal({ initial, onClose, onSaved }) {
 
   return (
     <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-ink/60" onClick={onClose}>
-      <div className="bg-surface border-2 border-border-strong rounded-[2px] max-w-lg w-full p-7" onClick={e => e.stopPropagation()}>
+      <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        className="bg-surface border-2 border-border-strong rounded-[2px] max-w-lg w-full p-7"
+        onClick={e => e.stopPropagation()}
+      >
         <div className="flex items-center justify-between mb-6">
-          <h3 className="font-heading text-xl uppercase text-foreground">{isEdit ? 'Sửa sân' : 'Thêm sân mới'}</h3>
-          <button onClick={onClose} className="text-foreground-muted hover:text-foreground"><X size={20} /></button>
+          <h3 id={titleId} className="font-heading text-xl uppercase text-foreground">{isEdit ? 'Sửa sân' : 'Thêm sân mới'}</h3>
+          <button type="button" onClick={onClose} aria-label="Đóng" className="text-foreground-muted hover:text-foreground"><X size={20} /></button>
         </div>
         {error && <div className="text-sm text-danger bg-danger-bg border border-danger p-3 rounded-[2px] mb-5">{error}</div>}
         <form onSubmit={handleSubmit} className="grid gap-5">
@@ -95,11 +121,15 @@ function CourtFormModal({ initial, onClose, onSaved }) {
           {isEdit && (
             <label className="grid gap-1.5 text-sm">
               <span className="label-mono text-foreground">Trạng thái</span>
+              {/* Chỉ 3 trạng thái vận hành thật sự (khớp CourtStatuses ở backend).
+                  'Đã đặt' (Booked) không nằm ở đây vì đó là trạng thái PHÁT SINH từ dữ liệu
+                  đặt sân theo thời điểm, không phải trạng thái vận hành admin có thể gán tay;
+                  'Đóng' (Closed) trước đây không phải giá trị hợp lệ — gửi lên sẽ bị backend
+                  reject 400 vì không khớp CourtStatuses.NormalizeApiStatus. */}
               <select className="input-base" value={form.status} onChange={e => setForm({ ...form, status: e.target.value })}>
-                <option value="Available">Trống</option>
-                <option value="Booked">Đã đặt</option>
-                <option value="Maintenance">Bảo trì</option>
-                <option value="Closed">Đóng</option>
+                <option value="ACTIVE">Trống</option>
+                <option value="MAINTENANCE">Bảo trì</option>
+                <option value="INACTIVE">Ngưng hoạt động</option>
               </select>
             </label>
           )}
@@ -115,14 +145,13 @@ function CourtFormModal({ initial, onClose, onSaved }) {
   )
 }
 
+// GET /courts luôn trả status theo casing API (CourtStatuses.ToApiStatus: ACTIVE/MAINTENANCE/
+// INACTIVE) nên chỉ 3 key này thực sự khớp dữ liệu — 'Booked'/'Closed' không phải giá trị
+// Court.Status hợp lệ (Booked phát sinh từ booking, Closed chưa từng được backend chấp nhận).
 const STATUS_STYLE = {
-  Available: { label: 'TRỐNG', cls: 'bg-ink text-paper' },
-  ACTIVE: { label: 'TRỐNG', cls: 'bg-ink text-paper' }, // API trả 'ACTIVE' (CourtStatuses.ToApiStatus)
-  Booked: { label: 'ĐÃ ĐẶT', cls: 'border border-paper text-paper' },
-  Maintenance: { label: 'BẢO TRÌ', cls: 'bg-warning-bg text-warning border border-warning' },
+  ACTIVE: { label: 'TRỐNG', cls: 'bg-ink text-paper' },
   MAINTENANCE: { label: 'BẢO TRÌ', cls: 'bg-warning-bg text-warning border border-warning' },
-  Closed: { label: 'ĐÓNG', cls: 'bg-danger text-paper' },
-  INACTIVE: { label: 'NGƯNG', cls: 'bg-danger text-paper' },
+  INACTIVE: { label: 'NGƯNG HOẠT ĐỘNG', cls: 'bg-danger text-paper' },
 }
 
 const FALLBACK_IMG = 'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=600&q=80'
@@ -216,14 +245,17 @@ export default function AdminCourtsPage() {
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Tìm theo tên sân..."
+              aria-label="Tìm theo tên sân"
               className="border-none outline-none text-[13px] text-foreground w-full bg-transparent"
             />
           </div>
-          <div className="flex gap-2 flex-wrap">
+          <div className="flex gap-2 flex-wrap" role="group" aria-label="Lọc theo trạng thái sân">
             {STATUS_TABS.map(tab => (
               <button
                 key={tab.key}
+                type="button"
                 onClick={() => setStatus(tab.key)}
+                aria-pressed={status === tab.key}
                 className={`py-2.5 px-[18px] rounded-[2px] border-2 font-bold text-[11.5px] uppercase cursor-pointer transition-colors ${
                   status === tab.key
                     ? 'bg-ink text-paper border-ink'

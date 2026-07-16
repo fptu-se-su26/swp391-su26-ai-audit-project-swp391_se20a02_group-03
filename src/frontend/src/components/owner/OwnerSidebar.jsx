@@ -1,6 +1,9 @@
+import { useRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import ProSportLogo from '../ui/ProSportLogo';
 import ComplexSelector from './ComplexSelector';
+import { useFocusTrap } from '../../hooks/useFocusTrap';
+import { useIsDesktop } from '../../hooks/useIsDesktop';
 
 const NAV = [
   { path: '/owner/dashboard', label: 'Dashboard' },
@@ -22,12 +25,36 @@ const NAV = [
   { path: '/owner/settings', label: 'Cài đặt' },
 ];
 
-export default function OwnerSidebar({ open, onClose, displayName, onLogout }) {
+export default function OwnerSidebar({ open, onClose, displayName, onLogout, menuButtonRef }) {
   const location = useLocation();
   const isActive = (path) => location.pathname.startsWith(path);
+  const isDesktop = useIsDesktop();
+  const asideRef = useRef(null);
+  // Hiển thị thật sự: desktop luôn thấy sidebar (bất kể `open`), mobile chỉ khi drawer mở.
+  const visible = isDesktop || open;
+
+  useFocusTrap({
+    active: open && !isDesktop,
+    containerRef: asideRef,
+    onEscape: onClose,
+    restoreFocusRef: menuButtonRef,
+  });
+
+  useEffect(() => {
+    if (isDesktop && open) onClose?.();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isDesktop]);
+
+  useEffect(() => {
+    if (asideRef.current) asideRef.current.inert = !visible;
+  }, [visible]);
 
   return (
-    <aside className={`w-[230px] bg-ink flex flex-col fixed left-0 top-0 bottom-0 z-50 overflow-y-auto transition-transform ${open ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
+    <aside
+      ref={asideRef}
+      aria-hidden={!visible}
+      className={`w-[230px] bg-ink flex flex-col fixed left-0 top-0 bottom-0 z-50 overflow-y-auto transition-transform ${open ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}
+    >
       <div className="px-6 py-6 border-b border-white/10">
         <ProSportLogo size="sm" variant="light" to="/owner/dashboard" onClick={onClose} />
         <p className="label-mono text-paper/40 mt-1.5">Cổng chủ sân</p>

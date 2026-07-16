@@ -3,12 +3,12 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
-<<<<<<< Updated upstream
   plugins: [react(), tailwindcss()],
   // TK-042: base '/' để asset nạp đúng trên Vercel (domain gốc) và SPA router không bị 404.
   base: '/',
   test: {
     environment: 'jsdom',
+    setupFiles: ['./src/test/setup.js'],
   },
   build: {
     rollupOptions: {
@@ -26,9 +26,6 @@ export default defineConfig({
       },
     },
   },
-=======
-  plugins: [react()],
->>>>>>> Stashed changes
   server: {
     watch: {
       // Exclude Visual Studio lock files to prevent EBUSY errors

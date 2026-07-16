@@ -90,9 +90,5 @@ public static class DatabaseBootstrap
 
         var insertScript = history.GetInsertScript(new HistoryRow(migrationId, ProductInfo.GetVersion()));
         await context.Database.ExecuteSqlRawAsync(insertScript, cancellationToken);
- feat/DE190130_Hoan_Thien_Frontend
-
-
- main
     }
 }

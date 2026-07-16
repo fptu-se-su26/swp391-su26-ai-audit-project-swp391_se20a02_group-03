@@ -20,7 +20,7 @@ function formatVND(amount) {
 export default function CartCheckoutPage() {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
-    const { cartItems, cartData, clearCart, loading: cartLoading } = useCart();
+    const { cartItems, cartData, refreshCart, loading: cartLoading } = useCart();
     const { addToast } = useToast();
     const [isProcessing, setIsProcessing] = useState(false);
     const [walletBalance, setWalletBalance] = useState(null);
@@ -54,12 +54,17 @@ export default function CartCheckoutPage() {
                 bookingId: checkoutBookingId
             };
             const response = await cartApi.checkout(payload);
-            if (response.statusCode === 200) {
+            // Backend /equipment/checkout trả { success, message } (không có statusCode) — dùng
+            // đúng field success, không coi success === undefined là thành công.
+            if (response?.success === true) {
                 addToast('Thanh toán thành công!', 'success');
-                clearCart();
+                // Backend chỉ xoá các item thuộc bookingId khỏi giỏ; KHÔNG được gọi clearCart()
+                // (DELETE /equipment/cart) ở đây vì nó xoá TOÀN BỘ giỏ hàng kể cả item của booking
+                // khác hoặc item không gắn booking. Refresh từ server để lấy đúng trạng thái còn lại.
+                await refreshCart();
                 navigate('/customer/bookings');
             } else {
-                addToast(response.message || 'Thanh toán thất bại', 'error');
+                addToast(response?.message || 'Thanh toán thất bại', 'error');
             }
         } catch (error) {
             console.error('Lỗi khi thanh toán:', error);
@@ -115,9 +120,13 @@ export default function CartCheckoutPage() {
         );
     }
 
+    const computedTotal = itemsToCheckout.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0);
+    // Checkout theo booking luôn dùng tổng tính từ itemsToCheckout (subset thật sự được thanh toán).
+    // Checkout toàn giỏ ưu tiên số liệu server (cartData) nhưng fallback về computedTotal nếu
+    // cartData/grandTotal/totalPrice/totalAmount chưa sẵn sàng. Dùng ?? để 0 vẫn là giá trị hợp lệ.
     const grandTotal = checkoutBookingId
-        ? itemsToCheckout.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0)
-        : (cartData?.totalAmount || 0);
+        ? computedTotal
+        : (cartData?.totalAmount ?? cartData?.grandTotal ?? cartData?.totalPrice ?? computedTotal);
 
     const hasWalletInfo = walletBalance !== null;
     const shortfall = hasWalletInfo ? Math.max(0, grandTotal - walletBalance) : 0;
@@ -186,7 +195,7 @@ export default function CartCheckoutPage() {
 
                                 <div className="flex justify-between items-end pb-5 mb-5 border-b border-dashed border-gray-200">
                                     <span className="text-[13px] font-bold uppercase tracking-wider text-gray-500">Tổng cộng</span>
-                                    <span className="text-[26px] font-bold text-[#0f172a] leading-none">{formatVND(grandTotal)}</span>
+                                    <span data-testid="checkout-grand-total" className="text-[26px] font-bold text-[#0f172a] leading-none">{formatVND(grandTotal)}</span>
                                 </div>
 
                                 {hasWalletInfo && (
