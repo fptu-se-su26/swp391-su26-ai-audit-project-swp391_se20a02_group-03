@@ -1,10 +1,23 @@
 import { useEffect, useState } from 'react';
 import { Link, useOutletContext } from 'react-router-dom';
 import { ownerApi } from '../../api/ownerApi';
-import StatusBadge from '../../components/ui/StatusBadge';
-import PageLoader from '../../components/ui/PageLoader';
-import EmptyState from '../../components/ui/EmptyState';
 import { useDebouncedValue } from '../../utils/useDebouncedValue';
+import { 
+  OwnerPageHeader, 
+  OwnerBtn, 
+  OwnerCard, 
+  OwnerToolbar,
+  OwnerSearchInput,
+  OwnerTable,
+  OwnerThead,
+  OwnerTh,
+  OwnerTd,
+  OwnerStatusBadge,
+  OwnerEmptyState,
+  OwnerErrorState,
+  OwnerTableLoader,
+  ownerInputCls
+} from '../../components/owner';
 
 const STATUS_OPTIONS = [
   { value: '', label: 'Tất cả trạng thái' },
@@ -69,98 +82,119 @@ export default function OwnerBookingsPage() {
 
   useEffect(() => {
     if (complexId) loadCourts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [complexId]);
 
   useEffect(() => {
     if (complexId) load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [complexId, status, courtId, debouncedKeyword, dateFrom, dateTo]);
 
-  if (loading && !items.length) return <PageLoader label="Đang tải booking..." />;
-
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap justify-between gap-5 items-end">
-        <div>
-          <h1 className="font-heading text-3xl md:text-4xl uppercase tracking-tight text-foreground mb-2">Quản lý đặt sân</h1>
-          <p className="text-sm text-foreground-muted">Theo dõi, lọc và xử lý booking trong tổ hợp.</p>
-        </div>
-        <div className="flex gap-2">
-          <Link to="/owner/bookings/walk-in" className="btn-primary no-underline">
-            + Walk-in
-          </Link>
-          <Link to="/owner/bookings/calendar" className="btn-outline no-underline">
-            Lịch
-          </Link>
-        </div>
-      </div>
+    <div className="space-y-6 auth-animate-in pb-12">
+      <OwnerPageHeader 
+        title="Quản lý đặt sân" 
+        description="Theo dõi, lọc và xử lý danh sách đặt sân trong tổ hợp."
+      >
+        <OwnerBtn to="/owner/bookings/calendar" variant="secondary">Xem lịch (Calendar)</OwnerBtn>
+        <OwnerBtn to="/owner/bookings/walk-in" variant="primary">+ Đặt sân tại quầy</OwnerBtn>
+      </OwnerPageHeader>
 
-      <div className="flex flex-wrap gap-2.5">
-        <input
-          className="input-base w-auto min-w-[200px]"
-          placeholder="Tìm mã/khách..."
-          value={keyword}
-          onChange={e => setKeyword(e.target.value)}
-          onKeyDown={e => e.key === 'Enter' && load()}
-        />
-        <select className="input-base w-auto" value={status} onChange={e => setStatus(e.target.value)}>
-          {STATUS_OPTIONS.map(opt => (
-            <option key={opt.value || 'all'} value={opt.value}>{opt.label}</option>
-          ))}
-        </select>
-        <select className="input-base w-auto" value={courtId} onChange={e => setCourtId(e.target.value)}>
-          <option value="">Tất cả sân</option>
-          {courts.map(c => (
-            <option key={c.courtId} value={c.courtId}>{c.name}</option>
-          ))}
-        </select>
-        <input type="date" className="input-base w-auto" value={dateFrom} onChange={e => setDateFrom(e.target.value)} title="Từ ngày" />
-        <input type="date" className="input-base w-auto" value={dateTo} onChange={e => setDateTo(e.target.value)} title="Đến ngày" />
-        <button type="button" onClick={load} className="btn-primary">
-          Lọc
-        </button>
-      </div>
+      <OwnerCard className="space-y-4">
+        <OwnerToolbar className="!mb-0">
+          <div className="flex-1 min-w-[200px]">
+            <OwnerSearchInput 
+              placeholder="Tìm mã booking, tên khách..."
+              value={keyword}
+              onChange={e => setKeyword(e.target.value)}
+            />
+          </div>
+          <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+            <select className={ownerInputCls} value={status} onChange={e => setStatus(e.target.value)}>
+              {STATUS_OPTIONS.map(opt => (
+                <option key={opt.value || 'all'} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+            <select className={ownerInputCls} value={courtId} onChange={e => setCourtId(e.target.value)}>
+              <option value="">Tất cả sân</option>
+              {courts.map(c => (
+                <option key={c.courtId} value={c.courtId}>{c.name}</option>
+              ))}
+            </select>
+            <input type="date" className={ownerInputCls} value={dateFrom} onChange={e => setDateFrom(e.target.value)} title="Từ ngày" />
+            <input type="date" className={ownerInputCls} value={dateTo} onChange={e => setDateTo(e.target.value)} title="Đến ngày" />
+          </div>
+        </OwnerToolbar>
+      </OwnerCard>
 
-      {error && <div className="text-sm text-danger">{error}</div>}
+      {error && <OwnerErrorState message={error} onRetry={load} />}
 
-      {!items.length ? (
-        <EmptyState title="Không có booking" subtitle="Không có booking phù hợp bộ lọc." />
-      ) : (
-        <div className="overflow-x-auto border-2 border-border-strong bg-surface">
-          <table className="w-full text-sm border-collapse">
-            <thead>
-              <tr className="bg-[var(--theme-primary)] text-[var(--theme-secondary)]">
-                <th className="text-left px-4 py-3.5 label-mono">Mã</th>
-                <th className="text-left px-4 py-3.5 label-mono">Sân</th>
-                <th className="text-left px-4 py-3.5 label-mono">Ngày</th>
-                <th className="text-left px-4 py-3.5 label-mono">Giờ</th>
-                <th className="text-left px-4 py-3.5 label-mono">Trạng thái</th>
-                <th className="text-left px-4 py-3.5 label-mono">Thanh toán</th>
-                <th className="text-left px-4 py-3.5 label-mono">Số tiền</th>
-              </tr>
-            </thead>
+      <OwnerCard noPad>
+        <OwnerTable>
+          <OwnerThead>
+            <OwnerTh>Mã</OwnerTh>
+            <OwnerTh>Sân</OwnerTh>
+            <OwnerTh>Ngày</OwnerTh>
+            <OwnerTh>Giờ</OwnerTh>
+            <OwnerTh>Khách hàng</OwnerTh>
+            <OwnerTh>Trạng thái</OwnerTh>
+            <OwnerTh right>Số tiền</OwnerTh>
+          </OwnerThead>
+
+          {loading && <OwnerTableLoader cols={7} rows={5} />}
+
+          {!loading && !error && !items.length && (
             <tbody>
+              <tr>
+                <td colSpan={7}>
+                  <OwnerEmptyState title="Không có booking nào phù hợp với bộ lọc." />
+                </td>
+              </tr>
+            </tbody>
+          )}
+
+          {!loading && !error && items.length > 0 && (
+            <tbody className="divide-y divide-gray-50">
               {items.map(b => {
                 const d = b.details?.[0];
                 return (
-                  <tr key={b.bookingId} className="border-t border-border-default hover:bg-surface-hover">
-                    <td className="px-4 py-3.5">
-                      <Link to={`/owner/bookings/${b.bookingId}`} className="text-foreground font-extrabold underline underline-offset-2">
+                  <tr key={b.bookingId} className="hover:bg-gray-50/50 transition-colors">
+                    <OwnerTd>
+                      <Link to={`/owner/bookings/${b.bookingId}`} className="font-mono text-[13px] font-extrabold text-[#0f172a] hover:text-[#14b8a6] no-underline transition-colors">
                         #{b.bookingId}
                       </Link>
-                    </td>
-                    <td className="px-4 py-3.5 text-foreground">{d?.courtName || '—'}</td>
-                    <td className="px-4 py-3.5 text-foreground">{d?.bookingDate ? new Date(d.bookingDate).toLocaleDateString('vi-VN') : '—'}</td>
-                    <td className="px-4 py-3.5 text-foreground">{d ? `${formatTime(d.startTime)}–${formatTime(d.endTime)}` : '—'}</td>
-                    <td className="px-4 py-3.5"><StatusBadge status={b.status} /></td>
-                    <td className="px-4 py-3.5 text-foreground">{b.paymentStatus || '—'}</td>
-                    <td className="px-4 py-3.5 text-foreground">{Number(b.totalAmount).toLocaleString('vi-VN')} ₫</td>
+                    </OwnerTd>
+                    <OwnerTd>
+                      <span className="font-semibold text-gray-700">{d?.courtName || '—'}</span>
+                    </OwnerTd>
+                    <OwnerTd>
+                      <span className="text-gray-500">{d?.bookingDate ? new Date(d.bookingDate).toLocaleDateString('vi-VN') : '—'}</span>
+                    </OwnerTd>
+                    <OwnerTd>
+                      <span className="font-medium text-[#0f172a]">{d ? `${formatTime(d.startTime)} – ${formatTime(d.endTime)}` : '—'}</span>
+                    </OwnerTd>
+                    <OwnerTd>
+                      <span className="text-[#0f172a] font-medium">{b.customerName || '—'}</span>
+                    </OwnerTd>
+                    <OwnerTd>
+                      <OwnerStatusBadge status={b.status} type="booking" />
+                    </OwnerTd>
+                    <OwnerTd right>
+                      <div className="flex flex-col items-end">
+                        <span className="font-bold text-[#0f172a]">{Number(b.totalAmount).toLocaleString('vi-VN')} ₫</span>
+                        <span className={`text-[11px] font-bold uppercase tracking-wide ${b.paymentStatus === 'Paid' ? 'text-emerald-500' : 'text-gray-400'}`}>
+                          {b.paymentStatus || 'Chưa TT'}
+                        </span>
+                      </div>
+                    </OwnerTd>
                   </tr>
                 );
               })}
             </tbody>
-          </table>
-        </div>
-      )}
+          )}
+        </OwnerTable>
+      </OwnerCard>
     </div>
   );
 }
+

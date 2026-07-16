@@ -122,7 +122,7 @@ export default function ApexHomePage() {
 
               {nextGame ? (
                 <div className={`overflow-hidden ${modernCardClass}`}>
-                  <div className="relative h-[200px]">
+                  <div className="relative h-[120px]">
                     <img
                       src={nextGame.imageUrl}
                       alt={nextGame.name}
@@ -133,14 +133,14 @@ export default function ApexHomePage() {
                     </span>
                   </div>
 
-                  <div className="p-7">
-                    <p className="text-[13px] font-bold text-[#14b8a6] mb-3 m-0 flex items-center gap-1.5">
-                      <Clock size={16} /> {formatTimeUntil(nextGame)}
+                  <div className="p-6">
+                    <p className="text-[12px] font-bold text-[#14b8a6] mb-2 m-0 flex items-center gap-1.5 uppercase tracking-wide">
+                      <Clock size={14} /> {formatTimeUntil(nextGame)}
                     </p>
-                    <h3 className="font-heading text-2xl uppercase text-gray-900 mb-3 m-0">
+                    <h3 className="font-heading text-xl uppercase text-gray-900 mb-2 m-0">
                       {nextGame.name}
                     </h3>
-                    <p className="text-gray-500 text-[14px] mb-7 flex items-center gap-2 font-medium m-0">
+                    <p className="text-gray-500 text-[13.5px] mb-6 flex items-center gap-2 font-medium m-0">
                       <MapPin size={16} />
                       {dayjs(nextGame.date).locale('vi').format('dddd, DD/MM')} • {nextGame.startTime} – {nextGame.endTime}
                     </p>

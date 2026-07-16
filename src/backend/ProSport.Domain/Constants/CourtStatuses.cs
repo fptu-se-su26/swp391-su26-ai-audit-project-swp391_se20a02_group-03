@@ -2,11 +2,13 @@ namespace ProSport.Domain.Constants;
 
 public static class CourtStatuses
 {
+    // "Available" is the canonical persisted value used by the schema and
+    // availability queries. The API still exposes this state as "ACTIVE".
     public const string Active = "Available";
     public const string Maintenance = "Maintenance";
     public const string Inactive = "Inactive";
 
-    public static string NormalizeApiStatus(string status) => status?.Trim().ToUpperInvariant() switch
+    public static string NormalizeApiStatus(string? status) => status?.Trim().ToUpperInvariant() switch
     {
         "ACTIVE" => Active,
         "MAINTENANCE" => Maintenance,
@@ -18,14 +20,14 @@ public static class CourtStatuses
         _ => status ?? Active
     };
 
-    public static string ToApiStatus(string dbStatus) => dbStatus switch
+    public static string ToApiStatus(string dbStatus) => NormalizeApiStatus(dbStatus) switch
     {
         Active => "ACTIVE",
         Maintenance => "MAINTENANCE",
         Inactive => "INACTIVE",
-        _ => dbStatus.ToUpperInvariant()
+        var normalized => normalized.ToUpperInvariant()
     };
 
     public static bool IsBookable(string dbStatus) =>
-        string.Equals(dbStatus, Active, StringComparison.OrdinalIgnoreCase);
+        string.Equals(NormalizeApiStatus(dbStatus), Active, StringComparison.OrdinalIgnoreCase);
 }

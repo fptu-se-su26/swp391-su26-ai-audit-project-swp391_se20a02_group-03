@@ -118,8 +118,8 @@ export default function GearDetailPage() {
               <img
                 src={productImage}
                 alt={gear.name}
-                className="w-full h-full object-contain mix-blend-multiply transition-transform duration-700 group-hover:scale-105"
-                onError={e => { e.target.src = CATEGORY_FALLBACKS[gear.category] || CATEGORY_FALLBACKS.Accessories }}
+                className="w-full h-full object-contain mix-blend-multiply"
+                onError={e => { e.currentTarget.onerror = null; e.currentTarget.src = CATEGORY_FALLBACKS[gear.category] || CATEGORY_FALLBACKS.Accessories }}
               />
             </div>
 

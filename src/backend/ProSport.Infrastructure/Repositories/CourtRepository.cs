@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using ProSport.Application.Interfaces;
+using ProSport.Domain.Constants;
 using ProSport.Domain.Entities;
 using ProSport.Infrastructure.Data;
 
@@ -152,7 +153,8 @@ public class CourtRepository : ICourtRepository
         
         if (!string.IsNullOrEmpty(parameters.Status))
         {
-            query = query.Where(c => c.Status == parameters.Status);
+            var normalizedStatus = CourtStatuses.NormalizeApiStatus(parameters.Status);
+            query = query.Where(c => c.Status == normalizedStatus);
         }
 
         if (parameters.ComplexId.HasValue)

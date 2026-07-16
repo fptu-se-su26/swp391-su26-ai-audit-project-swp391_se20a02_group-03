@@ -1,8 +1,21 @@
 import { useEffect, useState } from 'react';
 import { useOutletContext, useSearchParams } from 'react-router-dom';
 import { ownerApi } from '../../api/ownerApi';
-import PageLoader from '../../components/ui/PageLoader';
-import EmptyState from '../../components/ui/EmptyState';
+import { 
+  OwnerPageHeader, 
+  OwnerBtn, 
+  OwnerCard, 
+  OwnerToolbar,
+  OwnerTable,
+  OwnerThead,
+  OwnerTh,
+  OwnerTd,
+  OwnerEmptyState,
+  OwnerErrorState,
+  OwnerTableLoader,
+  OwnerFormField,
+  ownerInputCls
+} from '../../components/owner';
 
 const RULE_TYPES = ['BasePrice', 'Weekend', 'PeakHour', 'CourtSpecific', 'SpecialDate'];
 const DAYS = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
@@ -78,75 +91,132 @@ export default function OwnerPricingPage() {
     }
   }
 
-  if (loading && !rules.length) return <PageLoader label="Đang tải giá sân..." />;
-
   return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap justify-between items-end gap-5">
-        <div>
-          <h1 className="font-heading text-3xl md:text-4xl uppercase tracking-tight text-foreground mb-2">Quy tắc giá</h1>
-          <p className="text-sm text-foreground-muted">Ưu tiên: SpecialDate → Court → Peak → Weekend → Base</p>
+    <div className="space-y-6 auth-animate-in pb-12">
+      <OwnerPageHeader 
+        title="Quy tắc giá" 
+        description="Định giá sân linh hoạt theo giờ, theo thứ và ngày lễ."
+      >
+        <OwnerBtn variant="primary" onClick={() => setShowForm(v => !v)}>
+          {showForm ? 'Đóng form' : '+ Thêm quy tắc mới'}
+        </OwnerBtn>
+      </OwnerPageHeader>
+
+      <OwnerToolbar>
+        <div className="flex items-center gap-4 w-full sm:w-auto">
+          <span className="text-[12px] font-bold uppercase tracking-wide text-gray-500 shrink-0">Chọn Sân:</span>
+          <select 
+            className={`${ownerInputCls} min-w-[200px]`} 
+            value={courtId} 
+            onChange={e => setCourtId(e.target.value)}
+          >
+            {courts.map(c => <option key={c.courtId} value={c.courtId}>{c.name}</option>)}
+          </select>
         </div>
-        <button type="button" onClick={() => setShowForm(v => !v)} className="btn-primary">
-          {showForm ? 'Đóng' : '+ Thêm rule'}
-        </button>
-      </div>
+      </OwnerToolbar>
 
-      <select className="input-base w-auto" value={courtId} onChange={e => setCourtId(e.target.value)}>
-        {courts.map(c => <option key={c.courtId} value={c.courtId}>{c.name}</option>)}
-      </select>
-
-      {error && <div className="text-sm text-danger border-2 border-danger bg-danger-bg p-3 rounded-[2px]">{error}</div>}
+      {error && <OwnerErrorState message={error} onRetry={() => loadRules(courtId)} />}
 
       {showForm && (
-        <form onSubmit={handleCreate} className="border-2 border-border-strong bg-surface p-6 grid md:grid-cols-3 gap-3">
-          <select value={form.ruleType} onChange={e => setForm({ ...form, ruleType: e.target.value })} className="input-base">
-            {RULE_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
-          </select>
-          <select value={form.dayOfWeek} onChange={e => setForm({ ...form, dayOfWeek: e.target.value })} className="input-base">
-            <option value="">Mọi ngày</option>
-            {DAYS.map((d, i) => <option key={d} value={i}>{d}</option>)}
-          </select>
-          <input type="time" value={form.startTime} onChange={e => setForm({ ...form, startTime: e.target.value })} className="input-base" />
-          <input type="time" value={form.endTime} onChange={e => setForm({ ...form, endTime: e.target.value })} className="input-base" />
-          <input type="number" value={form.pricePerHour} onChange={e => setForm({ ...form, pricePerHour: parseInt(e.target.value, 10) })} className="input-base" placeholder="Giá/giờ" />
-          <input type="number" step="0.1" value={form.multiplier} onChange={e => setForm({ ...form, multiplier: parseFloat(e.target.value) })} className="input-base" placeholder="Hệ số" />
-          <button type="submit" className="md:col-span-3 btn-primary">Lưu rule</button>
-        </form>
+        <OwnerCard className="border-[#14b8a6] border-t-4">
+          <h3 className="font-heading text-base uppercase tracking-tight text-[#0f172a] m-0 mb-4">Thêm quy tắc mới</h3>
+          <form onSubmit={handleCreate} className="grid sm:grid-cols-2 md:grid-cols-4 gap-6">
+            <OwnerFormField label="Loại quy tắc">
+              <select value={form.ruleType} onChange={e => setForm({ ...form, ruleType: e.target.value })} className={ownerInputCls}>
+                {RULE_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+              </select>
+            </OwnerFormField>
+            
+            <OwnerFormField label="Ngày trong tuần">
+              <select value={form.dayOfWeek} onChange={e => setForm({ ...form, dayOfWeek: e.target.value })} className={ownerInputCls}>
+                <option value="">Mọi ngày</option>
+                {DAYS.map((d, i) => <option key={d} value={i}>{d}</option>)}
+              </select>
+            </OwnerFormField>
+            
+            <OwnerFormField label="Giờ bắt đầu">
+              <input type="time" value={form.startTime} onChange={e => setForm({ ...form, startTime: e.target.value })} className={ownerInputCls} />
+            </OwnerFormField>
+            
+            <OwnerFormField label="Giờ kết thúc">
+              <input type="time" value={form.endTime} onChange={e => setForm({ ...form, endTime: e.target.value })} className={ownerInputCls} />
+            </OwnerFormField>
+            
+            <OwnerFormField label="Giá / giờ (VND)">
+              <input type="number" value={form.pricePerHour} onChange={e => setForm({ ...form, pricePerHour: parseInt(e.target.value, 10) })} className={ownerInputCls} placeholder="VD: 150000" />
+            </OwnerFormField>
+            
+            <OwnerFormField label="Hệ số (Multiplier)">
+              <input type="number" step="0.1" value={form.multiplier} onChange={e => setForm({ ...form, multiplier: parseFloat(e.target.value) })} className={ownerInputCls} placeholder="VD: 1.2" />
+            </OwnerFormField>
+            
+            <div className="sm:col-span-2 md:col-span-4 flex justify-end pt-4 border-t border-gray-100">
+              <OwnerBtn type="submit">Lưu quy tắc</OwnerBtn>
+            </div>
+          </form>
+        </OwnerCard>
       )}
 
-      {!rules.length ? (
-        <EmptyState title="Chưa có quy tắc giá" subtitle="Chưa có quy tắc giá cho sân này." />
-      ) : (
-        <div className="overflow-x-auto border-2 border-border-strong bg-surface">
-          <table className="w-full text-sm border-collapse">
-            <thead>
-              <tr className="bg-[var(--theme-primary)] text-[var(--theme-secondary)]">
-                <th className="text-left px-4 py-3.5 label-mono">Loại</th>
-                <th className="text-left px-4 py-3.5 label-mono">Ngày</th>
-                <th className="text-left px-4 py-3.5 label-mono">Khung giờ</th>
-                <th className="text-left px-4 py-3.5 label-mono">Giá/giờ</th>
-                <th className="text-left px-4 py-3.5 label-mono">Hệ số</th>
-                <th className="px-4 py-3.5" />
-              </tr>
-            </thead>
+      <OwnerCard noPad>
+        <OwnerTable>
+          <OwnerThead>
+            <OwnerTh>Loại</OwnerTh>
+            <OwnerTh>Ngày</OwnerTh>
+            <OwnerTh>Khung giờ</OwnerTh>
+            <OwnerTh>Giá/giờ</OwnerTh>
+            <OwnerTh>Hệ số</OwnerTh>
+            <OwnerTh right>Thao tác</OwnerTh>
+          </OwnerThead>
+
+          {loading && <OwnerTableLoader cols={6} rows={3} />}
+
+          {!loading && !error && !rules.length && (
             <tbody>
+              <tr>
+                <td colSpan={6}>
+                  <OwnerEmptyState title="Chưa có quy tắc giá" 
+                    description="Sân này chưa được thiết lập quy tắc giá nào. Sẽ áp dụng giá cơ bản của sân." 
+                  />
+                </td>
+              </tr>
+            </tbody>
+          )}
+
+          {!loading && !error && rules.length > 0 && (
+            <tbody className="divide-y divide-gray-50">
               {rules.map(r => (
-                <tr key={r.pricingRuleId} className="border-t border-border-default">
-                  <td className="px-4 py-3.5 font-bold text-foreground">{r.ruleType || 'BasePrice'}</td>
-                  <td className="px-4 py-3.5 text-foreground">{r.dayOfWeek != null ? DAYS[r.dayOfWeek] : 'All'}</td>
-                  <td className="px-4 py-3.5 text-foreground">{String(r.startTime).slice(0, 5)}–{String(r.endTime).slice(0, 5)}</td>
-                  <td className="px-4 py-3.5 text-foreground">{Number(r.pricePerHour).toLocaleString('vi-VN')} ₫</td>
-                  <td className="px-4 py-3.5 text-foreground">{r.multiplier ?? 1}</td>
-                  <td className="px-4 py-3.5 text-right">
-                    <button type="button" className="text-danger text-xs underline bg-transparent border-none cursor-pointer" onClick={() => removeRule(r.pricingRuleId)}>Xóa</button>
-                  </td>
+                <tr key={r.pricingRuleId} className="hover:bg-gray-50/50 transition-colors">
+                  <OwnerTd>
+                    <span className="font-bold text-[#0f172a]">{r.ruleType || 'BasePrice'}</span>
+                  </OwnerTd>
+                  <OwnerTd>
+                    <span className="text-gray-500">{r.dayOfWeek != null ? DAYS[r.dayOfWeek] : 'Tất cả'}</span>
+                  </OwnerTd>
+                  <OwnerTd>
+                    <span className="text-gray-700 font-mono text-[13px]">{String(r.startTime).slice(0, 5)} – {String(r.endTime).slice(0, 5)}</span>
+                  </OwnerTd>
+                  <OwnerTd>
+                    <span className="font-medium text-[#14b8a6]">{Number(r.pricePerHour).toLocaleString('vi-VN')} ₫</span>
+                  </OwnerTd>
+                  <OwnerTd>
+                    <span className="text-gray-500">x{r.multiplier ?? 1}</span>
+                  </OwnerTd>
+                  <OwnerTd right>
+                    <button 
+                      type="button" 
+                      className="text-[12px] font-bold text-red-500 hover:text-red-600 uppercase tracking-wide bg-transparent border-0 cursor-pointer transition-colors" 
+                      onClick={() => removeRule(r.pricingRuleId)}
+                    >
+                      Xóa
+                    </button>
+                  </OwnerTd>
                 </tr>
               ))}
             </tbody>
-          </table>
-        </div>
-      )}
+          )}
+        </OwnerTable>
+      </OwnerCard>
     </div>
   );
 }
+

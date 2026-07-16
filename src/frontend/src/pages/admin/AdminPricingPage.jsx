@@ -3,10 +3,24 @@ import AdminLayout from '../../layouts/AdminLayout'
 import { courtApi } from '../../api/courtApi'
 import { useToast } from '../../components/Toast'
 import { useConfirm } from '../../components/ui/ConfirmDialog'
-import { Loader2, Trash2, Plus, ShieldAlert } from 'lucide-react'
+import { Loader2, Trash2, Plus } from 'lucide-react'
+import {
+  AdminPageHeader,
+  AdminCard,
+  AdminTable,
+  AdminThead,
+  AdminTh,
+  AdminTd,
+  AdminStatusBadge,
+  AdminFormField,
+  adminInputCls,
+  AdminBtn,
+  AdminTableLoader,
+  AdminEmptyState,
+  AdminErrorState,
+} from '../../components/admin'
 
 function hhmm(timeStr) {
-  // "17:00:00" -> "17:00"
   if (!timeStr) return '--:--'
   return String(timeStr).slice(0, 5)
 }
@@ -24,7 +38,6 @@ export default function AdminPricingPage() {
   const [deletingId, setDeletingId] = useState(null)
   const [form, setForm] = useState({ startTime: '05:00', endTime: '17:00', pricePerHour: '', isWeekend: false })
 
-  // Tải danh sách sân.
   useEffect(() => {
     let active = true
     async function loadCourts() {
@@ -131,127 +144,178 @@ export default function AdminPricingPage() {
 
   return (
     <AdminLayout>
-      <div>
-        <div className="flex flex-wrap justify-between items-end gap-4 mb-7">
-          <div>
-            <h1 className="font-heading text-3xl md:text-4xl uppercase tracking-tight text-foreground mb-2">Cấu hình bảng giá sân</h1>
-            <p className="text-sm text-foreground-muted">Quản lý khung giờ và giá thuê theo từng sân.</p>
+      <AdminPageHeader
+        title="Cấu hình bảng giá sân"
+        description="Quản lý khung giờ và giá thuê theo từng sân."
+        action={
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 w-full sm:w-auto mt-2 sm:mt-0">
+            <label htmlFor="court-select" className="text-[11px] font-bold uppercase tracking-widest text-gray-400 shrink-0">
+              Sân đang chọn
+            </label>
+            <select
+              id="court-select"
+              value={selectedCourt}
+              onChange={e => setSelectedCourt(e.target.value)}
+              disabled={loadingCourts}
+              className="h-10 px-3.5 text-sm bg-white border border-gray-200 rounded-[8px] outline-none text-gray-800 focus:ring-2 focus:ring-teal-100 focus:border-teal-300 w-full sm:min-w-[220px] sm:w-auto cursor-pointer disabled:opacity-60 transition-all"
+            >
+              {loadingCourts && <option>Đang tải...</option>}
+              {!loadingCourts && courts.length === 0 && <option value="">Không có sân</option>}
+              {courts.map(c => (
+                <option key={c.courtId} value={c.courtId}>{c.name} ({c.courtTypeName})</option>
+              ))}
+            </select>
           </div>
-          <select
-            value={selectedCourt}
-            onChange={e => setSelectedCourt(e.target.value)}
-            disabled={loadingCourts}
-            className="h-11 px-3.5 font-sans text-sm bg-surface border-2 border-border-strong outline-none rounded-[2px] text-foreground min-w-56"
-          >
-            {loadingCourts && <option>Đang tải...</option>}
-            {!loadingCourts && courts.length === 0 && <option value="">Không có sân</option>}
-            {courts.map(c => (
-              <option key={c.courtId} value={c.courtId}>{c.name} ({c.courtTypeName})</option>
-            ))}
-          </select>
-        </div>
+        }
+      />
 
-        {error && (
-          <div className="py-10 text-center text-danger">
-            <ShieldAlert className="inline mr-2" size={20} /> {error}
-          </div>
-        )}
+      {error && <AdminErrorState message={error} />}
 
-        {!error && (
-          <div className="grid grid-cols-1 lg:grid-cols-[1.4fr_1fr] gap-5">
-            {/* Bảng khung giá hiện tại */}
-            <div className="border-2 border-border-strong bg-surface">
-              <h2 className="font-heading text-base uppercase text-foreground m-0 p-5 border-b-2 border-border-strong">Khung giá hiện tại</h2>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm font-sans">
-                  <thead className="bg-background-base text-left">
-                    <tr>
-                      <th className="label-mono text-foreground-subtle px-5 py-3 font-bold">Khung giờ</th>
-                      <th className="label-mono text-foreground-subtle px-5 py-3 text-right font-bold">Giá / giờ</th>
-                      <th className="label-mono text-foreground-subtle px-5 py-3 text-center font-bold">Cuối tuần</th>
-                      <th className="px-5 py-3 text-right"></th>
+      {!error && (
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 items-start">
+          {/* Rules table */}
+          <AdminCard noPad>
+            <div className="px-6 py-4 border-b border-gray-100">
+              <h2 className="font-heading text-base uppercase tracking-wide text-gray-800 m-0">
+                Khung giá hiện tại
+              </h2>
+            </div>
+
+            <AdminTable>
+              <AdminThead>
+                <AdminTh>Khung giờ</AdminTh>
+                <AdminTh right>Giá / giờ</AdminTh>
+                <AdminTh>Loại ngày</AdminTh>
+                <AdminTh>Phạm vi</AdminTh>
+                <AdminTh right></AdminTh>
+              </AdminThead>
+
+              {loadingRules && <AdminTableLoader cols={5} />}
+
+              {!loadingRules && rules.length === 0 && (
+                <tbody>
+                  <tr>
+                    <td colSpan={5}>
+                      <AdminEmptyState message="Chưa có khung giá nào cho sân này." />
+                    </td>
+                  </tr>
+                </tbody>
+              )}
+
+              {!loadingRules && rules.length > 0 && (
+                <tbody className="divide-y divide-gray-50">
+                  {rules.map(r => (
+                    <tr key={r.pricingRuleId} className="hover:bg-gray-50/60 transition-colors">
+                      <AdminTd>
+                        <span className="font-mono font-bold text-gray-800 text-[13px]">
+                          {hhmm(r.startTime)} – {hhmm(r.endTime)}
+                        </span>
+                      </AdminTd>
+                      <AdminTd className="text-right">
+                        <span className="font-bold text-gray-900">
+                          {Number(r.pricePerHour).toLocaleString('vi-VN')} ₫
+                        </span>
+                      </AdminTd>
+                      <AdminTd>
+                        <AdminStatusBadge
+                          label={r.isWeekend ? 'Cuối tuần' : 'Ngày thường'}
+                          variant={r.isWeekend ? 'warning' : 'neutral'}
+                        />
+                      </AdminTd>
+                      <AdminTd>
+                        {r.courtId == null ? (
+                          <AdminStatusBadge label="Theo loại sân" variant="info" />
+                        ) : (
+                          <AdminStatusBadge label="Sân cụ thể" variant="neutral" />
+                        )}
+                      </AdminTd>
+                      <AdminTd className="text-right">
+                        {r.courtId != null && (
+                          <AdminBtn
+                            variant="ghost"
+                            icon={deletingId === r.pricingRuleId
+                              ? <Loader2 size={13} className="animate-spin" />
+                              : <Trash2 size={13} />
+                            }
+                            disabled={deletingId === r.pricingRuleId}
+                            onClick={() => handleDeleteRule(r.pricingRuleId)}
+                            className="!h-8 !px-2.5 text-red-500 hover:!bg-red-50 hover:!text-red-600"
+                          >
+                            Xóa
+                          </AdminBtn>
+                        )}
+                      </AdminTd>
                     </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border-default">
-                    {loadingRules && (
-                      <tr><td colSpan={4} className="px-5 py-10 text-center text-foreground-subtle">
-                        <Loader2 className="inline animate-spin mr-2" size={16} /> Đang tải...
-                      </td></tr>
-                    )}
-                    {!loadingRules && rules.length === 0 && (
-                      <tr><td colSpan={4} className="px-5 py-10 text-center text-foreground-subtle">Chưa có khung giá nào cho sân này.</td></tr>
-                    )}
-                    {!loadingRules && rules.map(r => (
-                      <tr key={r.pricingRuleId} className="hover:bg-surface-hover">
-                        <td className="px-5 py-3 font-bold text-foreground">{hhmm(r.startTime)} – {hhmm(r.endTime)}</td>
-                        <td className="px-5 py-3 text-right font-extrabold text-foreground">{Number(r.pricePerHour).toLocaleString('vi-VN')} ₫</td>
-                        <td className="px-5 py-3 text-center">
-                          {r.isWeekend
-                            ? <span className="label-mono bg-ink text-paper px-2 py-0.5 rounded-[2px]">Cuối tuần</span>
-                            : <span className="label-mono text-foreground-subtle">Ngày thường</span>}
-                          {r.courtId == null && (
-                            <span
-                              className="label-mono text-foreground-subtle ml-2 border border-border-strong px-1.5 py-0.5 rounded-[2px]"
-                              title="Áp dụng chung cho mọi sân cùng loại"
-                            >
-                              Theo loại sân
-                            </span>
-                          )}
-                        </td>
-                        <td className="px-5 py-3 text-right">
-                          {/* Rule theo loại sân (courtId null) áp cho mọi sân cùng loại — backend chặn xóa từ trang sân */}
-                          {r.courtId != null && (
-                            <button
-                              onClick={() => handleDeleteRule(r.pricingRuleId)}
-                              disabled={deletingId === r.pricingRuleId}
-                              className="inline-flex items-center gap-1 text-danger hover:bg-danger-bg px-2 py-1 rounded-[2px] text-xs font-bold disabled:opacity-50"
-                            >
-                              {deletingId === r.pricingRuleId ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
-                            </button>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+                  ))}
+                </tbody>
+              )}
+            </AdminTable>
+          </AdminCard>
 
-            {/* Form thêm khung giá */}
-            <div className="border-2 border-border-strong bg-surface p-6 h-fit">
-              <h2 className="font-heading text-base uppercase text-foreground mb-5">Thêm khung giá mới</h2>
-              <form onSubmit={handleAddRule} className="space-y-4">
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="label-mono text-foreground-subtle block mb-1.5">Giờ bắt đầu</label>
-                    <input type="time" value={form.startTime} onChange={e => setForm({ ...form, startTime: e.target.value })} className="w-full h-[42px] border-2 border-border-strong rounded-[2px] px-3 py-2 outline-none bg-background-base text-foreground focus:border-accent" />
-                  </div>
-                  <div>
-                    <label className="label-mono text-foreground-subtle block mb-1.5">Giờ kết thúc</label>
-                    <input type="time" value={form.endTime} onChange={e => setForm({ ...form, endTime: e.target.value })} className="w-full h-[42px] border-2 border-border-strong rounded-[2px] px-3 py-2 outline-none bg-background-base text-foreground focus:border-accent" />
-                  </div>
-                </div>
-                <div>
-                  <label className="label-mono text-foreground-subtle block mb-1.5">Giá mỗi giờ (VNĐ)</label>
-                  <input type="number" min="0" step="1000" value={form.pricePerHour} onChange={e => setForm({ ...form, pricePerHour: e.target.value })} placeholder="VD: 120000" className="w-full h-11 border-2 border-border-strong rounded-[2px] px-3.5 outline-none bg-background-base text-foreground focus:border-accent" />
-                </div>
-                <label className="flex items-center gap-2 text-sm text-foreground cursor-pointer">
-                  <input type="checkbox" checked={form.isWeekend} onChange={e => setForm({ ...form, isWeekend: e.target.checked })} className="w-4 h-4 accent-accent" />
-                  Áp dụng cho cuối tuần (T7, CN)
-                </label>
-                <button
-                  type="submit"
-                  disabled={saving || !selectedCourt}
-                  className="btn-primary w-full flex items-center justify-center gap-2 disabled:opacity-50"
-                >
-                  {saving ? <Loader2 size={16} className="animate-spin" /> : <Plus size={16} />}
-                  Thêm khung giá
-                </button>
-              </form>
-            </div>
-          </div>
-        )}
-      </div>
+          {/* Add rule form */}
+          <AdminCard>
+            <h2 className="font-heading text-base uppercase tracking-wide text-gray-800 m-0 mb-6">
+              Thêm khung giá mới
+            </h2>
+            <form onSubmit={handleAddRule} className="flex flex-col gap-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <AdminFormField label="Giờ bắt đầu" htmlFor="start-time">
+                  <input
+                    id="start-time"
+                    type="time"
+                    value={form.startTime}
+                    onChange={e => setForm({ ...form, startTime: e.target.value })}
+                    className={adminInputCls()}
+                  />
+                </AdminFormField>
+                <AdminFormField label="Giờ kết thúc" htmlFor="end-time">
+                  <input
+                    id="end-time"
+                    type="time"
+                    value={form.endTime}
+                    onChange={e => setForm({ ...form, endTime: e.target.value })}
+                    className={adminInputCls()}
+                  />
+                </AdminFormField>
+              </div>
+
+              <AdminFormField label="Giá mỗi giờ (VNĐ)" htmlFor="price-per-hour" required>
+                <input
+                  id="price-per-hour"
+                  type="number"
+                  min="0"
+                  step="1000"
+                  value={form.pricePerHour}
+                  onChange={e => setForm({ ...form, pricePerHour: e.target.value })}
+                  placeholder="VD: 120000"
+                  className={adminInputCls()}
+                />
+              </AdminFormField>
+
+              <label className="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={form.isWeekend}
+                  onChange={e => setForm({ ...form, isWeekend: e.target.checked })}
+                  className="w-4 h-4 rounded accent-[#14b8a6]"
+                />
+                <span className="text-sm text-gray-700">Áp dụng cho cuối tuần (T7, CN)</span>
+              </label>
+
+              <AdminBtn
+                type="submit"
+                variant="primary"
+                disabled={saving || !selectedCourt}
+                loading={saving}
+                icon={<Plus size={14} />}
+                className="w-full justify-center"
+              >
+                Thêm khung giá
+              </AdminBtn>
+            </form>
+          </AdminCard>
+        </div>
+      )}
     </AdminLayout>
   )
 }

@@ -2,10 +2,16 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useOutletContext, useSearchParams } from 'react-router-dom';
 import { bookingApi } from '../../api/bookingApi';
 import { ownerApi } from '../../api/ownerApi';
-import PageLoader from '../../components/ui/PageLoader';
-import EmptyState from '../../components/ui/EmptyState';
+import { 
+  OwnerCard, 
+  OwnerBtn, 
+  OwnerFormField, 
+  ownerInputCls, 
+  OwnerEmptyState, 
+  OwnerErrorState 
+} from '../../components/owner';
+import { ChevronLeft } from 'lucide-react';
 
-// Fallback khi chưa tải được giờ mở cửa của tổ hợp
 const DEFAULT_HOURS = { open: 6, close: 23 };
 
 function parseHour(time, fallback) {
@@ -175,39 +181,68 @@ export default function OwnerWalkInPage() {
     }
   }
 
-  if (loading) return <PageLoader label="Đang tải sân..." />;
+  if (loading) {
+    return (
+      <div className="max-w-3xl mx-auto space-y-6 animate-pulse">
+        <div className="h-4 w-32 bg-gray-200 rounded-[4px] mb-4"></div>
+        <div className="h-10 w-64 bg-gray-200 rounded-[8px]"></div>
+        <div className="bg-white rounded-[16px] border border-gray-100 shadow-[0_2px_16px_rgba(0,0,0,0.03)] p-8 h-96"></div>
+      </div>
+    );
+  }
 
   return (
-    <div className="max-w-3xl space-y-6">
-      <Link to="/owner/bookings" className="inline-block text-sm font-extrabold text-foreground border-b-2 border-border-strong no-underline">← Danh sách booking</Link>
+    <div className="max-w-3xl mx-auto space-y-6 auth-animate-in pb-12">
       <div>
-        <h1 className="font-heading text-3xl md:text-4xl uppercase tracking-tight text-foreground mb-2">Đặt sân walk-in</h1>
-        <p className="text-sm text-foreground-muted">Tạo booking tại quầy, thanh toán tiền mặt và xác nhận ngay.</p>
+        <Link 
+          to="/owner/bookings" 
+          className="inline-flex items-center gap-1 text-[12px] font-bold uppercase tracking-wide text-gray-500 hover:text-[#14b8a6] no-underline transition-colors mb-4"
+        >
+          <ChevronLeft size={16} /> Danh sách booking
+        </Link>
+        <h1 className="font-heading text-3xl md:text-4xl uppercase tracking-tight text-[#0f172a] m-0 mb-2">Đặt sân walk-in</h1>
+        <p className="text-sm text-gray-500 m-0">Tạo booking tại quầy, thu tiền mặt và xác nhận ngay lập tức.</p>
       </div>
 
-      {error && <div className="text-sm text-danger">{error}</div>}
+      {error && <OwnerErrorState message={error} />}
 
       {!courts.length ? (
-        <EmptyState title="Chưa có sân" subtitle="Chưa có sân trong tổ hợp. Tạo sân trước khi nhận walk-in." />
+        <OwnerEmptyState title="Chưa có sân" description="Tổ hợp chưa có sân nào. Bạn cần tạo sân trước khi nhận đặt sân." />
       ) : (
-        <>
-          <div className="border-2 border-border-strong bg-surface p-6 grid sm:grid-cols-2 gap-3.5">
-            <label className="text-sm">
-              <span className="label-mono text-foreground-muted block mb-1.5">Sân</span>
-              <select className="input-base w-full" value={selectedCourtId} onChange={e => setSelectedCourtId(e.target.value)}>
-                {courts.map(c => (
-                  <option key={c.courtId} value={c.courtId}>{c.name}</option>
-                ))}
-              </select>
-            </label>
-            <label className="text-sm">
-              <span className="label-mono text-foreground-muted block mb-1.5">Ngày</span>
-              <input type="date" min={minDate} className="input-base w-full" value={selectedDate} onChange={e => setSelectedDate(e.target.value)} />
-            </label>
-          </div>
+        <div className="grid gap-6">
+          {/* Section 1: Chọn sân và ngày */}
+          <OwnerCard>
+            <div className="grid sm:grid-cols-2 gap-6">
+              <OwnerFormField label="Chọn Sân">
+                <select 
+                  className={ownerInputCls} 
+                  value={selectedCourtId} 
+                  onChange={e => setSelectedCourtId(e.target.value)}
+                >
+                  {courts.map(c => (
+                    <option key={c.courtId} value={c.courtId}>{c.name}</option>
+                  ))}
+                </select>
+              </OwnerFormField>
+              <OwnerFormField label="Ngày đặt">
+                <input 
+                  type="date" 
+                  min={minDate} 
+                  className={ownerInputCls} 
+                  value={selectedDate} 
+                  onChange={e => setSelectedDate(e.target.value)} 
+                />
+              </OwnerFormField>
+            </div>
+          </OwnerCard>
 
-          <div className="border-2 border-border-strong bg-surface p-6">
-            <p className="text-sm font-extrabold text-foreground mb-3.5">Chọn khung giờ {slotsLoading && <span className="text-foreground-subtle font-normal">(đang tải...)</span>}</p>
+          {/* Section 2: Chọn giờ */}
+          <OwnerCard>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-heading text-base uppercase tracking-tight text-[#0f172a] m-0">Chọn khung giờ</h3>
+              {slotsLoading && <span className="text-xs text-gray-400">Đang tải...</span>}
+            </div>
+            
             <div className="flex flex-wrap gap-2">
               {timeSlots.map(slot => {
                 const booked = bookedSlots.includes(slot);
@@ -218,10 +253,12 @@ export default function OwnerWalkInPage() {
                     type="button"
                     disabled={booked || slotsLoading}
                     onClick={() => toggleSlot(slot)}
-                    className={`px-4 py-2.5 rounded-[2px] label-mono border-2 ${
-                      booked ? 'bg-background-base text-foreground-subtle border-border-default cursor-not-allowed'
-                        : selected ? 'bg-[var(--theme-primary)] text-[var(--theme-secondary)] border-[var(--theme-primary)]'
-                          : 'bg-surface text-foreground border-border-strong hover:bg-surface-hover'
+                    className={`h-10 px-4 rounded-[8px] font-mono text-sm font-semibold transition-all border cursor-pointer ${
+                      booked 
+                        ? 'bg-gray-50 text-gray-400 border-transparent cursor-not-allowed'
+                        : selected 
+                          ? 'bg-[#14b8a6] text-white border-[#14b8a6] shadow-sm'
+                          : 'bg-white text-gray-700 border-gray-200 hover:border-[#14b8a6] hover:text-[#14b8a6]'
                     }`}
                   >
                     {slot}
@@ -229,40 +266,94 @@ export default function OwnerWalkInPage() {
                 );
               })}
             </div>
-            <p className="text-sm text-foreground-muted mt-3.5">Ước tính: <strong className="text-foreground">{estimatedTotal.toLocaleString('vi-VN')} ₫</strong></p>
-          </div>
-
-          <div className="border-2 border-border-strong bg-surface p-6 space-y-3.5">
-            <div className="flex gap-6 text-sm text-foreground">
-              <label className="flex items-center gap-2">
-                <input type="radio" checked={customerMode === 'guest'} onChange={() => setCustomerMode('guest')} />
-                Khách lẻ
-              </label>
-              <label className="flex items-center gap-2">
-                <input type="radio" checked={customerMode === 'email'} onChange={() => setCustomerMode('email')} />
-                Email đã đăng ký
-              </label>
-            </div>
-            {customerMode === 'email' ? (
-              <input className="input-base w-full" placeholder="Email khách" value={customerEmail} onChange={e => setCustomerEmail(e.target.value)} />
-            ) : (
-              <div className="grid sm:grid-cols-2 gap-2.5">
-                <input className="input-base" placeholder="Tên khách lẻ" value={customerName} onChange={e => setCustomerName(e.target.value)} />
-                <input className="input-base" placeholder="SĐT (tuỳ chọn)" value={customerPhone} onChange={e => setCustomerPhone(e.target.value)} />
+            
+            {selectedSlots.length > 0 && (
+              <div className="mt-6 pt-4 border-t border-gray-100 flex items-center justify-between">
+                <span className="text-sm font-bold text-gray-500 uppercase tracking-wide">Ước tính giá</span>
+                <span className="text-xl font-bold text-[#14b8a6]">{estimatedTotal.toLocaleString('vi-VN')} ₫</span>
               </div>
             )}
-            <input className="input-base w-full" placeholder="Ghi chú (tuỳ chọn)" value={notes} onChange={e => setNotes(e.target.value)} />
-            <button
-              type="button"
-              disabled={submitting}
-              onClick={handleBook}
-              className="btn-primary disabled:opacity-60"
-            >
-              {submitting ? 'Đang tạo...' : 'Tạo booking walk-in'}
-            </button>
-          </div>
-        </>
+          </OwnerCard>
+
+          {/* Section 3: Thông tin khách hàng */}
+          <OwnerCard>
+            <h3 className="font-heading text-base uppercase tracking-tight text-[#0f172a] m-0 mb-4">Thông tin khách hàng</h3>
+            
+            <div className="flex gap-6 mb-6">
+              <label className="flex items-center gap-2 text-sm text-[#0f172a] cursor-pointer">
+                <input 
+                  type="radio" 
+                  checked={customerMode === 'guest'} 
+                  onChange={() => setCustomerMode('guest')} 
+                  className="accent-[#14b8a6]"
+                />
+                Khách lẻ
+              </label>
+              <label className="flex items-center gap-2 text-sm text-[#0f172a] cursor-pointer">
+                <input 
+                  type="radio" 
+                  checked={customerMode === 'email'} 
+                  onChange={() => setCustomerMode('email')} 
+                  className="accent-[#14b8a6]"
+                />
+                Tài khoản User (Email)
+              </label>
+            </div>
+
+            <div className="grid gap-6">
+              {customerMode === 'email' ? (
+                <OwnerFormField label="Email khách hàng">
+                  <input 
+                    className={ownerInputCls} 
+                    placeholder="VD: nguyenvanb@example.com" 
+                    value={customerEmail} 
+                    onChange={e => setCustomerEmail(e.target.value)} 
+                  />
+                </OwnerFormField>
+              ) : (
+                <div className="grid sm:grid-cols-2 gap-6">
+                  <OwnerFormField label="Tên khách hàng">
+                    <input 
+                      className={ownerInputCls} 
+                      placeholder="VD: Anh Tuấn" 
+                      value={customerName} 
+                      onChange={e => setCustomerName(e.target.value)} 
+                    />
+                  </OwnerFormField>
+                  <OwnerFormField label="Số điện thoại (Tuỳ chọn)">
+                    <input 
+                      className={ownerInputCls} 
+                      placeholder="VD: 0901234567" 
+                      value={customerPhone} 
+                      onChange={e => setCustomerPhone(e.target.value)} 
+                    />
+                  </OwnerFormField>
+                </div>
+              )}
+              
+              <OwnerFormField label="Ghi chú (Tuỳ chọn)">
+                <input 
+                  className={ownerInputCls} 
+                  placeholder="Yêu cầu thêm..." 
+                  value={notes} 
+                  onChange={e => setNotes(e.target.value)} 
+                />
+              </OwnerFormField>
+
+              <div className="pt-2 border-t border-gray-100">
+                <OwnerBtn
+                  disabled={submitting || selectedSlots.length === 0}
+                  onClick={handleBook}
+                  className="w-full sm:w-auto mt-2"
+                >
+                  {submitting ? 'Đang tạo...' : 'Tạo Booking Walk-in'}
+                </OwnerBtn>
+              </div>
+            </div>
+          </OwnerCard>
+        </div>
       )}
     </div>
   );
 }
+

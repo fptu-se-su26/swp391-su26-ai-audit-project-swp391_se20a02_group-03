@@ -1,8 +1,23 @@
 import { useState, useEffect, useMemo } from 'react'
 import AdminLayout from '../../layouts/AdminLayout'
-import StatusBadge from '../../components/ui/StatusBadge'
 import { bookingApi } from '../../api/bookingApi'
-import { Search, Loader2, ShieldAlert, CalendarDays } from 'lucide-react'
+import { useToast } from '../../components/Toast'
+import { CalendarDays } from 'lucide-react'
+import {
+  AdminPageHeader,
+  AdminCard,
+  AdminToolbar,
+  AdminSearchInput,
+  AdminFilterPills,
+  AdminTable,
+  AdminThead,
+  AdminTh,
+  AdminTd,
+  AdminStatusBadge,
+  AdminTableLoader,
+  AdminEmptyState,
+  AdminErrorState,
+} from '../../components/admin'
 
 const STATUS_TABS = [
   { key: '', label: 'Tất cả' },
@@ -12,11 +27,40 @@ const STATUS_TABS = [
   { key: 'Cancelled', label: 'Đã hủy' },
 ]
 
+const STATUS_VARIANT = {
+  Pending: 'warning',
+  Confirmed: 'success',
+  Completed: 'info',
+  Cancelled: 'danger',
+}
+
+const PAYMENT_VARIANT = {
+  Paid: 'success',
+  Pending: 'warning',
+  Unpaid: 'danger',
+  Refunded: 'neutral',
+}
+
+const PAYMENT_LABEL = {
+  Paid: 'Đã thanh toán',
+  Pending: 'Chờ TT',
+  Unpaid: 'Chưa TT',
+  Refunded: 'Đã hoàn tiền',
+}
+
+const STATUS_LABEL = {
+  Pending: 'Chờ xử lý',
+  Confirmed: 'Đã xác nhận',
+  Completed: 'Hoàn thành',
+  Cancelled: 'Đã hủy',
+}
+
 function fmtTime(t) {
   return t ? String(t).slice(0, 5) : ''
 }
 
 export default function AdminBookingsPage() {
+  const { addToast } = useToast()
   const [bookings, setBookings] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -65,125 +109,144 @@ export default function AdminBookingsPage() {
 
   return (
     <AdminLayout>
-      <div className="space-y-7">
-        <div>
-          <h1 className="font-heading text-3xl md:text-4xl uppercase tracking-tight text-foreground mb-2">Quản lý đặt sân</h1>
-          <p className="text-sm text-foreground-muted">Theo dõi toàn bộ lượt đặt sân, thanh toán và trạng thái.</p>
-        </div>
+      <AdminPageHeader
+        title="Quản lý đặt sân"
+        description="Theo dõi toàn bộ lượt đặt sân, thanh toán và trạng thái."
+      />
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-[2px] bg-border-strong border-2 border-border-strong">
-          <div className="bg-surface p-6">
-            <p className="font-heading text-3xl text-foreground mb-1.5">{stats.active}</p>
-            <p className="label-mono text-foreground-muted">Lượt đặt đang hoạt động</p>
-          </div>
-          <div className="bg-surface p-6">
-            <p className="font-heading text-3xl text-foreground mb-1.5">{stats.total}</p>
-            <p className="label-mono text-foreground-muted">Tổng số lượt đặt</p>
-          </div>
-          <div className="bg-ink p-6">
-            <p className="font-heading text-3xl text-paper mb-1.5">{stats.pendingPay}</p>
-            <p className="label-mono text-paper/60">Chờ thanh toán</p>
-          </div>
-        </div>
-
-        <div className="flex flex-col md:flex-row md:justify-between gap-3.5">
-          <div className="flex items-center gap-2 bg-surface border-2 border-border-strong px-3.5 h-11 w-full md:min-w-[280px] md:w-auto rounded-[2px] focus-within:border-accent">
-            <Search size={16} className="text-foreground-subtle shrink-0" />
-            <input
-              type="text"
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              placeholder="Tìm mã đặt / sân / người dùng..."
-              aria-label="Tìm mã đặt / sân / người dùng"
-              className="border-none outline-none text-sm text-foreground w-full bg-transparent placeholder:text-foreground-subtle"
-            />
-          </div>
-          <div className="flex gap-2 flex-wrap" role="group" aria-label="Lọc theo trạng thái đặt sân">
-            {STATUS_TABS.map(tab => (
-              <button
-                key={tab.key}
-                type="button"
-                onClick={() => setStatusFilter(tab.key)}
-                aria-pressed={statusFilter === tab.key}
-                className={`px-4.5 h-11 font-sans text-[11.5px] font-bold uppercase tracking-[0.04em] border-2 rounded-[2px] transition-colors cursor-pointer ${
-                  statusFilter === tab.key
-                    ? 'bg-ink border-ink text-paper'
-                    : 'bg-transparent border-border-hover text-foreground-muted hover:border-foreground'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="border-2 border-border-strong bg-surface">
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse text-sm">
-              <thead>
-                <tr className="bg-ink text-paper">
-                  <th className="px-4.5 py-3.5 text-left label-mono font-bold">Mã đặt</th>
-                  <th className="px-4.5 py-3.5 text-left label-mono font-bold">Khách</th>
-                  <th className="px-4.5 py-3.5 text-left label-mono font-bold">Sân</th>
-                  <th className="px-4.5 py-3.5 text-left label-mono font-bold">Ngày & Giờ</th>
-                  <th className="px-4.5 py-3.5 text-right label-mono font-bold">Tổng tiền</th>
-                  <th className="px-4.5 py-3.5 text-left label-mono font-bold">Thanh toán</th>
-                  <th className="px-4.5 py-3.5 text-left label-mono font-bold">Trạng thái</th>
-                </tr>
-              </thead>
-              <tbody>
-                {loading && (
-                  <tr><td colSpan={7} className="px-4.5 py-12 text-center text-foreground-muted">
-                    <Loader2 className="inline animate-spin mr-2" size={18} /> Đang tải...
-                  </td></tr>
-                )}
-                {!loading && error && (
-                  <tr><td colSpan={7} className="px-4.5 py-12 text-center text-danger">
-                    <ShieldAlert className="inline mr-2" size={18} /> {error}
-                  </td></tr>
-                )}
-                {!loading && !error && filtered.length === 0 && (
-                  <tr><td colSpan={7} className="px-4.5 py-12 text-center text-foreground-muted">Không có lượt đặt nào.</td></tr>
-                )}
-                {!loading && !error && filtered.map(b => {
-                  const d = b.details?.[0]
-                  return (
-                    <tr key={b.bookingId} className="border-t border-border-default hover:bg-surface-hover transition-colors">
-                      <td className="px-4.5 py-4 whitespace-nowrap font-extrabold text-foreground">#BKG-{b.bookingId}</td>
-                      <td className="px-4.5 py-4 whitespace-nowrap text-foreground">{b.customerName || `Người dùng #${b.userId}`}</td>
-                      <td className="px-4.5 py-4 whitespace-nowrap font-bold text-foreground">{d?.courtName || '—'}</td>
-                      <td className="px-4.5 py-4 whitespace-nowrap">
-                        {d ? (
-                          <>
-                            <p className="font-bold text-foreground flex items-center gap-1">
-                              <CalendarDays size={13} className="text-foreground-subtle" />
-                              {new Date(d.bookingDate).toLocaleDateString('vi-VN')}
-                            </p>
-                            <p className="text-xs text-foreground-muted">{fmtTime(d.startTime)} – {fmtTime(d.endTime)}</p>
-                          </>
-                        ) : '—'}
-                      </td>
-                      <td className="px-4.5 py-4 whitespace-nowrap text-right font-extrabold text-foreground">
-                        {Number(b.totalAmount).toLocaleString('vi-VN')} ₫
-                      </td>
-                      <td className="px-4.5 py-4 whitespace-nowrap">
-                        <StatusBadge status={b.paymentStatus || 'Unpaid'} />
-                      </td>
-                      <td className="px-4.5 py-4 whitespace-nowrap">
-                        <StatusBadge status={b.status} />
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
-
-          <div className="py-3.5 px-4.5 border-t-2 border-border-strong label-mono text-foreground-muted">
-            Hiển thị {filtered.length} / {bookings.length} lượt đặt
-          </div>
-        </div>
+      {/* Summary stat cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+        {[
+          { label: 'Đang hoạt động', value: stats.active, variant: 'teal' },
+          { label: 'Tổng lượt đặt', value: stats.total, variant: 'gray' },
+          { label: 'Chờ thanh toán', value: stats.pendingPay, variant: 'orange' },
+        ].map(card => (
+          <AdminCard key={card.label} className="flex flex-col gap-1 hover:shadow-md transition-shadow">
+            <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400 m-0">{card.label}</p>
+            <p className={`font-heading text-3xl m-0 ${card.variant === 'teal' ? 'text-[#14b8a6]' : card.variant === 'orange' ? 'text-orange-500' : 'text-gray-900'}`}>
+              {card.value}
+            </p>
+          </AdminCard>
+        ))}
       </div>
+
+      <AdminToolbar>
+        <AdminSearchInput
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          placeholder="Tìm mã đặt / sân / khách hàng..."
+          className="flex-1 max-w-[380px]"
+        />
+        <AdminFilterPills
+          tabs={STATUS_TABS}
+          activeKey={statusFilter}
+          onChange={setStatusFilter}
+        />
+      </AdminToolbar>
+
+      <AdminCard noPad>
+        <AdminTable>
+          <AdminThead>
+            <AdminTh>Mã đặt</AdminTh>
+            <AdminTh>Khách hàng</AdminTh>
+            <AdminTh>Sân</AdminTh>
+            <AdminTh>Ngày & Giờ</AdminTh>
+            <AdminTh right>Tổng tiền</AdminTh>
+            <AdminTh>Thanh toán</AdminTh>
+            <AdminTh>Trạng thái</AdminTh>
+          </AdminThead>
+
+          {loading && <AdminTableLoader cols={7} />}
+
+          {!loading && error && (
+            <tbody>
+              <tr>
+                <td colSpan={7}>
+                  <AdminErrorState message={error} />
+                </td>
+              </tr>
+            </tbody>
+          )}
+
+          {!loading && !error && filtered.length === 0 && (
+            <tbody>
+              <tr>
+                <td colSpan={7}>
+                  <AdminEmptyState
+                    message={search || statusFilter ? 'Không tìm thấy lượt đặt nào phù hợp.' : 'Chưa có lượt đặt sân nào.'}
+                    isSearch={!!(search || statusFilter)}
+                  />
+                </td>
+              </tr>
+            </tbody>
+          )}
+
+          {!loading && !error && filtered.length > 0 && (
+            <tbody className="divide-y divide-gray-50">
+              {filtered.map(b => {
+                const d = b.details?.[0]
+                return (
+                  <tr key={b.bookingId} className="hover:bg-gray-50/60 transition-colors">
+                    <AdminTd>
+                      <span className="font-mono font-bold text-gray-800 text-[13px]">
+                        #BKG-{b.bookingId}
+                      </span>
+                    </AdminTd>
+                    <AdminTd>
+                      <span className="text-sm text-gray-700">
+                        {b.customerName || `Người dùng #${b.userId}`}
+                      </span>
+                    </AdminTd>
+                    <AdminTd>
+                      <span className="text-sm font-semibold text-gray-800">
+                        {d?.courtName || '—'}
+                      </span>
+                    </AdminTd>
+                    <AdminTd>
+                      {d ? (
+                        <div>
+                          <p className="flex items-center gap-1.5 text-sm font-semibold text-gray-800 m-0">
+                            <CalendarDays size={13} className="text-gray-400 shrink-0" />
+                            {new Date(d.bookingDate).toLocaleDateString('vi-VN')}
+                          </p>
+                          <p className="text-[12px] text-gray-400 m-0 mt-0.5">
+                            {fmtTime(d.startTime)} – {fmtTime(d.endTime)}
+                          </p>
+                        </div>
+                      ) : '—'}
+                    </AdminTd>
+                    <AdminTd className="text-right">
+                      <span className="font-bold text-gray-900 text-[13px]">
+                        {Number(b.totalAmount).toLocaleString('vi-VN')} ₫
+                      </span>
+                    </AdminTd>
+                    <AdminTd>
+                      <AdminStatusBadge
+                        label={PAYMENT_LABEL[b.paymentStatus] || b.paymentStatus || 'Chưa TT'}
+                        variant={PAYMENT_VARIANT[b.paymentStatus] || 'neutral'}
+                      />
+                    </AdminTd>
+                    <AdminTd>
+                      <AdminStatusBadge
+                        label={STATUS_LABEL[b.status] || b.status}
+                        variant={STATUS_VARIANT[b.status] || 'neutral'}
+                      />
+                    </AdminTd>
+                  </tr>
+                )
+              })}
+            </tbody>
+          )}
+        </AdminTable>
+
+        {!loading && !error && (
+          <div className="px-5 py-3 border-t border-gray-50">
+            <p className="text-[12px] text-gray-400 m-0">
+              Hiển thị <span className="font-semibold text-gray-600">{filtered.length}</span> / {bookings.length} lượt đặt
+            </p>
+          </div>
+        )}
+      </AdminCard>
     </AdminLayout>
   )
 }

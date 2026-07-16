@@ -1,7 +1,15 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { ownerApi } from '../../api/ownerApi';
-import PageLoader from '../../components/ui/PageLoader';
+import { 
+  OwnerPageHeader, 
+  OwnerCard, 
+  OwnerBtn,
+  OwnerFormField,
+  OwnerErrorState,
+  ownerInputCls
+} from '../../components/owner';
+import { Store, MapPin, Phone, Mail, Clock, AlignLeft } from 'lucide-react';
 
 export default function OwnerComplexPage() {
   const { complexId } = useOutletContext();
@@ -9,113 +17,241 @@ export default function OwnerComplexPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState(null);
+  const [error, setError] = useState(null);
+  const [loadedComplexId, setLoadedComplexId] = useState(null);
+  const requestIdRef = useRef(0);
+
+  const load = useCallback(async () => {
+    if (!complexId) return;
+    const requestId = ++requestIdRef.current;
+    setLoading(true);
+    setError(null);
+    setMessage(null);
+    setLoadedComplexId(null);
+
+    try {
+      const res = await ownerApi.getComplex(complexId);
+      if (requestId !== requestIdRef.current) return;
+      if (res.statusCode === 200) {
+        setForm(res.data);
+        setLoadedComplexId(complexId);
+      } else {
+        throw new Error(res.message || 'Lỗi tải thông tin tổ hợp.');
+      }
+    } catch (err) {
+      if (requestId === requestIdRef.current) {
+        setError(typeof err === 'string' ? err : err?.message || 'Lỗi tải thông tin tổ hợp.');
+      }
+    } finally {
+      if (requestId === requestIdRef.current) setLoading(false);
+    }
+  }, [complexId]);
 
   useEffect(() => {
-    if (!complexId) return;
-    let active = true;
-    ownerApi.getComplex(complexId).then(res => {
-      if (!active) return;
-      if (res.statusCode === 200) setForm(res.data);
-      setLoading(false);
-    }).catch(() => { if (active) setLoading(false); });
-    return () => { active = false; };
-  }, [complexId]);
+    load();
+    return () => {
+      requestIdRef.current += 1;
+    };
+  }, [load]);
 
   async function handleSubmit(e) {
     e.preventDefault();
+    if (loadedComplexId !== complexId || saving) return;
+    if (!form.name?.trim() || !form.address?.trim() || !form.phone?.trim() || !form.email?.trim()) {
+      setError('Vui lòng nhập đầy đủ tên, địa chỉ, số điện thoại và email hỗ trợ.');
+      return;
+    }
     setSaving(true);
     setMessage(null);
+    setError(null);
     try {
-      // Backend chỉ chấp nhận HH:mm — GET có thể trả về HH:mm:ss
       const payload = {
         ...form,
+        name: form.name.trim(),
+        address: form.address.trim(),
+        phone: form.phone.trim(),
+        email: form.email.trim(),
         openingTime: form.openingTime ? String(form.openingTime).substring(0, 5) : form.openingTime,
         closingTime: form.closingTime ? String(form.closingTime).substring(0, 5) : form.closingTime,
       };
       const res = await ownerApi.updateComplex(complexId, payload);
-      setMessage(res.message || 'Đã lưu.');
+      if (res.statusCode === 200 || res.statusCode === 204) {
+        setMessage('Đã lưu thông tin thành công.');
+        // clear message after 3s
+        setTimeout(() => setMessage(null), 3000);
+      } else {
+        setError(res.message || 'Lỗi lưu thông tin.');
+      }
     } catch (err) {
-      setMessage(typeof err === 'string' ? err : 'Lỗi lưu.');
+      setError(typeof err === 'string' ? err : 'Lỗi lưu thông tin.');
     } finally {
       setSaving(false);
     }
   }
 
-  if (loading || !form) return <PageLoader label="Đang tải thông tin tổ hợp..." />;
+  if (loading) {
+    return (
+      <div className="max-w-3xl mx-auto space-y-6 animate-pulse">
+        <div className="h-20 bg-white rounded-[16px] border border-gray-100 shadow-[0_2px_16px_rgba(0,0,0,0.03)] p-6"></div>
+        <div className="h-96 bg-white rounded-[16px] border border-gray-100 shadow-[0_2px_16px_rgba(0,0,0,0.03)] p-6"></div>
+      </div>
+    );
+  }
+
+  if (loadedComplexId !== complexId || !form) {
+    return (
+      <div className="max-w-3xl mx-auto space-y-6 auth-animate-in pb-12">
+        <OwnerPageHeader
+          title="Thông tin tổ hợp"
+          description="Cập nhật thông tin cơ bản, địa chỉ và thông tin liên hệ của tổ hợp."
+        />
+        <OwnerErrorState message={error || 'Không tải được thông tin tổ hợp.'} onRetry={load} />
+      </div>
+    );
+  }
 
   return (
-    <div className="max-w-2xl">
-      <h1 className="font-heading text-3xl md:text-4xl uppercase tracking-tight text-foreground mb-7">Thông tin tổ hợp</h1>
+    <div className="max-w-3xl mx-auto space-y-6 auth-animate-in pb-12">
+      <OwnerPageHeader 
+        title="Thông tin tổ hợp" 
+        description="Cập nhật thông tin cơ bản, địa chỉ và thông tin liên hệ của tổ hợp."
+      />
 
-      <form onSubmit={handleSubmit} className="border-2 border-border-strong bg-surface p-8 flex flex-col gap-5">
-        {message && <p className="text-sm text-accent">{message}</p>}
+      {message && (
+        <div className="bg-teal-50 border border-teal-100 rounded-[16px] px-6 py-4 flex items-center justify-between">
+          <p className="text-sm font-medium text-teal-700 m-0">{message}</p>
+        </div>
+      )}
 
-        <div>
-          <label className="block label-mono text-foreground mb-1.5">Tên tổ hợp</label>
-          <input
-            className="input-base"
-            value={form.name || ''}
-            onChange={e => setForm({ ...form, name: e.target.value })}
-          />
+      {error && (
+        <div className="bg-red-50 border border-red-100 rounded-[16px] px-6 py-4 flex items-center justify-between">
+          <p className="text-sm font-medium text-red-600 m-0">{error}</p>
         </div>
-        <div>
-          <label className="block label-mono text-foreground mb-1.5">Địa chỉ</label>
-          <input
-            className="input-base"
-            value={form.address || ''}
-            onChange={e => setForm({ ...form, address: e.target.value })}
-          />
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-          <div>
-            <label className="block label-mono text-foreground mb-1.5">Số điện thoại</label>
-            <input
-              className="input-base"
-              value={form.phone || ''}
-              onChange={e => setForm({ ...form, phone: e.target.value })}
-            />
+      )}
+
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <OwnerCard>
+          <div className="flex items-center gap-2 mb-6 pb-4 border-b border-gray-100">
+            <Store size={20} className="text-[#14b8a6]" />
+            <h3 className="font-heading text-base uppercase tracking-tight text-[#0f172a] m-0">Thông tin cơ bản</h3>
           </div>
-          <div>
-            <label className="block label-mono text-foreground mb-1.5">Email</label>
-            <input
-              className="input-base"
-              value={form.email || ''}
-              onChange={e => setForm({ ...form, email: e.target.value })}
-            />
+          
+          <div className="space-y-6">
+            <OwnerFormField label="Tên tổ hợp" required>
+              <input
+                required
+                className={ownerInputCls}
+                placeholder="VD: ProSport Center Quận 1"
+                value={form.name || ''}
+                onChange={e => setForm({ ...form, name: e.target.value })}
+              />
+            </OwnerFormField>
+
+            <OwnerFormField label="Địa chỉ chi tiết" required>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                  <MapPin size={16} />
+                </div>
+                <input
+                  required
+                  className={`${ownerInputCls} pl-10`}
+                  placeholder="VD: 123 Nguyễn Huệ, Quận 1, TP.HCM"
+                  value={form.address || ''}
+                  onChange={e => setForm({ ...form, address: e.target.value })}
+                />
+              </div>
+            </OwnerFormField>
+
+            <OwnerFormField label="Mô tả">
+              <div className="relative">
+                <div className="absolute top-3 left-3 text-gray-400">
+                  <AlignLeft size={16} />
+                </div>
+                <textarea
+                  rows={4}
+                  className={`${ownerInputCls} pl-10 py-3 resize-y`}
+                  placeholder="Giới thiệu về tổ hợp của bạn..."
+                  value={form.description || ''}
+                  onChange={e => setForm({ ...form, description: e.target.value })}
+                />
+              </div>
+            </OwnerFormField>
           </div>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-          <div>
-            <label className="block label-mono text-foreground mb-1.5">Giờ mở cửa</label>
-            <input
-              type="time"
-              className="input-base"
-              value={(form.openingTime || '').substring(0, 5)}
-              onChange={e => setForm({ ...form, openingTime: e.target.value })}
-            />
+        </OwnerCard>
+
+        <OwnerCard>
+          <div className="flex items-center gap-2 mb-6 pb-4 border-b border-gray-100">
+            <Phone size={20} className="text-[#14b8a6]" />
+            <h3 className="font-heading text-base uppercase tracking-tight text-[#0f172a] m-0">Liên hệ & Hoạt động</h3>
           </div>
-          <div>
-            <label className="block label-mono text-foreground mb-1.5">Giờ đóng cửa</label>
-            <input
-              type="time"
-              className="input-base"
-              value={(form.closingTime || '').substring(0, 5)}
-              onChange={e => setForm({ ...form, closingTime: e.target.value })}
-            />
+
+          <div className="grid sm:grid-cols-2 gap-6">
+            <OwnerFormField label="Số điện thoại" required>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                  <Phone size={16} />
+                </div>
+                <input
+                  required
+                  className={`${ownerInputCls} pl-10`}
+                  placeholder="VD: 0901234567"
+                  value={form.phone || ''}
+                  onChange={e => setForm({ ...form, phone: e.target.value })}
+                />
+              </div>
+            </OwnerFormField>
+
+            <OwnerFormField label="Email hỗ trợ" required>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                  <Mail size={16} />
+                </div>
+                <input
+                  required
+                  type="email"
+                  className={`${ownerInputCls} pl-10`}
+                  placeholder="VD: hotro@prosport.com"
+                  value={form.email || ''}
+                  onChange={e => setForm({ ...form, email: e.target.value })}
+                />
+              </div>
+            </OwnerFormField>
+
+            <OwnerFormField label="Giờ mở cửa (Mặc định)">
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                  <Clock size={16} />
+                </div>
+                <input
+                  type="time"
+                  className={`${ownerInputCls} pl-10 font-mono`}
+                  value={(form.openingTime || '').substring(0, 5)}
+                  onChange={e => setForm({ ...form, openingTime: e.target.value })}
+                />
+              </div>
+            </OwnerFormField>
+
+            <OwnerFormField label="Giờ đóng cửa (Mặc định)">
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                  <Clock size={16} />
+                </div>
+                <input
+                  type="time"
+                  className={`${ownerInputCls} pl-10 font-mono`}
+                  value={(form.closingTime || '').substring(0, 5)}
+                  onChange={e => setForm({ ...form, closingTime: e.target.value })}
+                />
+              </div>
+            </OwnerFormField>
           </div>
+        </OwnerCard>
+
+        <div className="flex justify-end pt-4">
+          <OwnerBtn type="submit" disabled={saving || loadedComplexId !== complexId} className="px-8 py-3">
+            {saving ? 'Đang lưu...' : 'Lưu thay đổi'}
+          </OwnerBtn>
         </div>
-        <div>
-          <label className="block label-mono text-foreground mb-1.5">Mô tả</label>
-          <textarea
-            rows={3}
-            className="input-base h-auto py-3.5 resize-y min-h-[100px]"
-            value={form.description || ''}
-            onChange={e => setForm({ ...form, description: e.target.value })}
-          />
-        </div>
-        <button type="submit" disabled={saving} className="btn-primary disabled:opacity-60">
-          {saving ? 'Đang lưu...' : 'Lưu thay đổi'}
-        </button>
       </form>
     </div>
   );

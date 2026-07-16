@@ -285,12 +285,7 @@ export default function GearCatalogPage() {
                           src={p.img}
                           alt={p.name}
                           className="max-w-full max-h-full object-contain mix-blend-multiply transition-transform duration-500 group-hover:scale-105"
-                          onError={e => {
-                            // Tắt handler TRƯỚC khi gán fallback — nếu chính ảnh fallback cũng lỗi
-                            // (mất mạng, CDN down) thì onError không bị gọi lại vô hạn lần.
-                            e.target.onerror = null
-                            e.target.src = CATEGORY_FALLBACKS[p.itemType] || CATEGORY_FALLBACKS.Accessories
-                          }}
+                          onError={e => { e.currentTarget.onerror = null; e.currentTarget.src = CATEGORY_FALLBACKS[p.itemType] || CATEGORY_FALLBACKS.Accessories }}
                         />
                       </div>
 

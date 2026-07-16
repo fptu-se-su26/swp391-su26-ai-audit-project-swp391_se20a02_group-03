@@ -121,8 +121,8 @@ export default function CartPage() {
                                         <img
                                             src={resolveProductImage(item.equipmentName, item.category || 'Accessories', item.imageUrl || item.img || item.image)}
                                             alt={item.equipmentName}
-                                            className="w-full h-full object-contain mix-blend-multiply transition-transform hover:scale-105"
-                                            onError={e => { e.target.src = CATEGORY_FALLBACKS.Accessories }}
+                                            className="w-full h-full object-contain mix-blend-multiply"
+                                            onError={e => { e.currentTarget.onerror = null; e.currentTarget.src = CATEGORY_FALLBACKS.Accessories }}
                                         />
                                     </div>
 

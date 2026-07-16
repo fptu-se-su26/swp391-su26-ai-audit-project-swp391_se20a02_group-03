@@ -354,23 +354,23 @@ export default function ApexBookingPage() {
           {step === 2 && (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 auth-animate-fade">
               {/* Left: Time Picker */}
-              <div className="lg:col-span-2 bg-white rounded-[24px] shadow-[0_4px_24px_rgba(0,0,0,0.04)] border border-gray-100 p-8">
-                <div className="flex max-sm:flex-col sm:items-center justify-between gap-6 mb-8 pb-6 border-b border-gray-100">
-                  <h2 className="text-[20px] font-bold uppercase tracking-tight text-[#0f172a] m-0">Chọn khung giờ</h2>
-                  <div className="flex items-center gap-3 bg-[#F8F9FA] p-1.5 rounded-full border border-gray-200">
-                    <span className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-gray-500"><Calendar size={16} /></span>
+              <div className="lg:col-span-2 bg-white rounded-[24px] shadow-[0_4px_24px_rgba(0,0,0,0.04)] border border-gray-100 p-5 md:p-8">
+                <div className="flex max-sm:flex-col sm:items-center justify-between gap-4 mb-6 md:mb-8 pb-4 md:pb-6 border-b border-gray-100">
+                  <h2 className="text-[18px] md:text-[20px] font-bold uppercase tracking-tight text-[#0f172a] m-0">Chọn khung giờ</h2>
+                  <div className="flex items-center gap-2 bg-[#F8F9FA] p-1.5 rounded-full border border-gray-200">
+                    <span className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-gray-500 shrink-0"><Calendar size={16} /></span>
                     <input
                       id="booking-date"
                       type="date"
                       value={selectedDate}
                       min={minDate}
                       onChange={e => { setSelectedDate(e.target.value); setSelectedSlots([]); }}
-                      className="h-8 pr-4 bg-transparent text-[14px] font-bold text-[#0f172a] cursor-pointer outline-none transition-all appearance-none"
+                      className="h-8 pr-4 bg-transparent text-[13px] md:text-[14px] font-bold text-[#0f172a] cursor-pointer outline-none transition-all appearance-none"
                     />
                   </div>
                 </div>
 
-                <div className="flex items-center gap-6 mb-8 text-[13px] font-bold text-gray-500">
+                <div className="flex flex-wrap items-center gap-4 md:gap-6 mb-6 md:mb-8 text-[12px] md:text-[13px] font-bold text-gray-500">
                   <div className="flex items-center gap-2"><span className="w-4 h-4 rounded-full bg-[#F8F9FA] border border-gray-200" /> Trống</div>
                   <div className="flex items-center gap-2"><span className="w-4 h-4 rounded-full bg-[#14b8a6] shadow-[0_0_10px_rgba(20,184,166,0.3)]" /> Đang chọn</div>
                   <div className="flex items-center gap-2"><span className="w-4 h-4 rounded-full bg-gray-200" /> Kín chỗ / Quá hạn</div>
@@ -404,8 +404,8 @@ export default function ApexBookingPage() {
               </div>
 
               {/* Right: Summary Panel */}
-              <div className="bg-white rounded-[24px] shadow-[0_4px_24px_rgba(0,0,0,0.04)] border border-gray-100 p-8 h-fit sticky top-24">
-                <h3 className="text-[18px] font-bold uppercase tracking-tight text-[#0f172a] mb-6 m-0">Tóm tắt đặt sân</h3>
+              <div className="bg-white rounded-[24px] shadow-[0_4px_24px_rgba(0,0,0,0.04)] border border-gray-100 p-6 md:p-8 h-fit lg:sticky lg:top-24">
+                <h3 className="text-[16px] md:text-[18px] font-bold uppercase tracking-tight text-[#0f172a] mb-6 m-0">Tóm tắt đặt sân</h3>
 
                 <div className="flex items-center gap-4 mb-8 bg-[#F8F9FA] p-4 rounded-[16px] border border-gray-100">
                   <img src={selectedCourt.imageUrl} alt="" className="w-16 h-16 rounded-[12px] object-cover shrink-0 shadow-sm" />

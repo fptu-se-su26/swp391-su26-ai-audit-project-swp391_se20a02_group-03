@@ -1,9 +1,22 @@
 import { useEffect, useState } from 'react';
+import { Users } from 'lucide-react';
 import { useOutletContext } from 'react-router-dom';
 import { ownerApi } from '../../api/ownerApi';
-import OwnerStatusBadge from '../../components/owner/OwnerStatusBadge';
-import PageLoader from '../../components/ui/PageLoader';
-import EmptyState from '../../components/ui/EmptyState';
+import { 
+  OwnerPageHeader, 
+  OwnerCard, 
+  OwnerTable,
+  OwnerThead,
+  OwnerTh,
+  OwnerTd,
+  OwnerEmptyState,
+  OwnerErrorState,
+  OwnerTableLoader,
+  OwnerBtn,
+  OwnerFormField,
+  ownerInputCls,
+  OwnerStatusBadge
+} from '../../components/owner';
 
 export default function OwnerMembershipsPage() {
   const { complexId } = useOutletContext();
@@ -33,6 +46,7 @@ export default function OwnerMembershipsPage() {
     }
   }
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { if (complexId) load(); }, [complexId]);
 
   async function handleCreate(e) {
@@ -45,8 +59,9 @@ export default function OwnerMembershipsPage() {
         validFrom: new Date(form.validFrom).toISOString(),
         validTo: new Date(form.validTo).toISOString(),
       });
-      if (res.statusCode === 201) {
+      if (res.statusCode === 201 || res.statusCode === 200) {
         setShowForm(false);
+        setForm({ userId: '', tier: 'Standard', discountPercent: 10, validFrom: '', validTo: '' });
         load();
       } else setError(res.message);
     } catch (err) {
@@ -56,74 +71,139 @@ export default function OwnerMembershipsPage() {
 
   async function toggleStatus(m) {
     const next = m.status === 'Active' ? 'Suspended' : 'Active';
-    if (!window.confirm(`Đổi trạng thái membership #${m.membershipId} sang ${next}?`)) return;
+    if (!window.confirm(`Đổi trạng thái thẻ hội viên #${m.membershipId} sang ${next}?`)) return;
     try {
       const res = await ownerApi.updateMembershipStatus(m.membershipId, complexId, next);
-      if (res.statusCode === 200) load();
+      if (res.statusCode === 200 || res.statusCode === 204) load();
       else setError(res.message);
     } catch (err) {
       setError(typeof err === 'string' ? err : 'Cập nhật thất bại.');
     }
   }
 
-  if (loading) return <PageLoader label="Đang tải membership..." />;
-
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-end flex-wrap gap-5">
-        <div>
-          <h1 className="font-heading text-3xl md:text-4xl uppercase tracking-tight text-foreground mb-2">Gói hội viên</h1>
-          <p className="text-sm text-foreground-muted">Khách có membership active được giảm giá khi đặt sân.</p>
-        </div>
-        <button type="button" onClick={() => setShowForm(v => !v)} className="btn-primary">
-          + Thêm membership
-        </button>
-      </div>
-      {error && <div className="text-sm text-danger">{error}</div>}
+    <div className="space-y-6 auth-animate-in pb-12">
+      <OwnerPageHeader 
+        title="Gói hội viên" 
+        description="Quản lý khách hàng thân thiết, cấp thẻ membership và ưu đãi giảm giá."
+      >
+        <OwnerBtn variant="primary" onClick={() => setShowForm(v => !v)}>
+          {showForm ? 'Đóng form' : '+ Cấp thẻ hội viên'}
+        </OwnerBtn>
+      </OwnerPageHeader>
+
+      {error && <OwnerErrorState message={error} onRetry={load} />}
+
       {showForm && (
-        <form onSubmit={handleCreate} className="card-base p-5 grid md:grid-cols-3 gap-3">
-          <input required type="number" min={1} className="input-base" placeholder="User ID khách" value={form.userId} onChange={e => setForm({ ...form, userId: e.target.value })} />
-          <input className="input-base" placeholder="Hạng (Standard/VIP)" value={form.tier} onChange={e => setForm({ ...form, tier: e.target.value })} />
-          <input type="number" min={0} max={100} className="input-base" placeholder="% giảm" value={form.discountPercent} onChange={e => setForm({ ...form, discountPercent: e.target.value })} />
-          <input type="date" required className="input-base" value={form.validFrom} onChange={e => setForm({ ...form, validFrom: e.target.value })} />
-          <input type="date" required className="input-base" value={form.validTo} onChange={e => setForm({ ...form, validTo: e.target.value })} />
-          <button type="submit" className="md:col-span-3 btn-primary">Tạo</button>
-        </form>
+        <OwnerCard className="border-[#14b8a6] border-t-4 mb-6">
+          <h3 className="font-heading text-base uppercase tracking-tight text-[#0f172a] m-0 mb-4">Cấp thẻ hội viên mới</h3>
+          <form onSubmit={handleCreate} className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
+            <OwnerFormField label="ID Khách hàng" required>
+              <input required type="number" min={1} className={ownerInputCls} placeholder="VD: 125" value={form.userId} onChange={e => setForm({ ...form, userId: e.target.value })} />
+            </OwnerFormField>
+            
+            <OwnerFormField label="Hạng thẻ" required>
+              <select required className={ownerInputCls} value={form.tier} onChange={e => setForm({ ...form, tier: e.target.value })}>
+                <option value="Standard">Tiêu chuẩn (Standard)</option>
+                <option value="Silver">Bạc (Silver)</option>
+                <option value="Gold">Vàng (Gold)</option>
+                <option value="VIP">Đặc biệt (VIP)</option>
+              </select>
+            </OwnerFormField>
+            
+            <OwnerFormField label="Tỷ lệ giảm giá">
+              <div className="relative">
+                <input type="number" min={0} max={100} className={ownerInputCls} placeholder="VD: 10" value={form.discountPercent} onChange={e => setForm({ ...form, discountPercent: e.target.value })} />
+                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-500 font-bold">%</div>
+              </div>
+            </OwnerFormField>
+
+            <OwnerFormField label="Hiệu lực từ" required>
+              <input type="date" required className={ownerInputCls} value={form.validFrom} onChange={e => setForm({ ...form, validFrom: e.target.value })} />
+            </OwnerFormField>
+            
+            <OwnerFormField label="Hiệu lực đến" required>
+              <input type="date" required className={ownerInputCls} value={form.validTo} onChange={e => setForm({ ...form, validTo: e.target.value })} />
+            </OwnerFormField>
+            
+            <div className="sm:col-span-2 md:col-span-3 flex justify-end pt-4 border-t border-gray-100">
+              <OwnerBtn type="submit">Cấp thẻ</OwnerBtn>
+            </div>
+          </form>
+        </OwnerCard>
       )}
-      {!items.length ? (
-        <EmptyState title="Chưa có gói hội viên" subtitle="Chưa có gói hội viên nào." />
-      ) : (
-        <div className="overflow-x-auto border-2 border-border-strong bg-surface">
-          <table className="w-full text-sm border-collapse">
-            <thead>
-              <tr className="bg-[var(--theme-primary)] text-[var(--theme-secondary)]">
-                <th className="text-left px-4 py-3.5 label-mono">Khách</th>
-                <th className="text-left px-4 py-3.5 label-mono">Hạng</th>
-                <th className="text-left px-4 py-3.5 label-mono">Giảm</th>
-                <th className="text-left px-4 py-3.5 label-mono">Hiệu lực</th>
-                <th className="text-left px-4 py-3.5 label-mono">Trạng thái</th>
-                <th className="px-4 py-3.5" />
-              </tr>
-            </thead>
+
+      <OwnerCard noPad>
+        <OwnerTable>
+          <OwnerThead>
+            <OwnerTh>Khách hàng</OwnerTh>
+            <OwnerTh>Hạng thẻ</OwnerTh>
+            <OwnerTh>Giảm giá</OwnerTh>
+            <OwnerTh>Thời hạn hiệu lực</OwnerTh>
+            <OwnerTh>Trạng thái</OwnerTh>
+            <OwnerTh right>Thao tác</OwnerTh>
+          </OwnerThead>
+
+          {loading && <OwnerTableLoader cols={6} rows={4} />}
+
+          {!loading && !error && !items.length && (
             <tbody>
+              <tr>
+                <td colSpan={6}>
+                  <OwnerEmptyState 
+                    icon={Users} 
+                    title="Chưa có khách hàng nào được cấp thẻ hội viên. Bắt đầu tạo mới ngay." 
+                    action={!showForm && (
+                      <OwnerBtn variant="secondary" onClick={() => setShowForm(true)} className="mt-4">
+                        Cấp thẻ đầu tiên
+                      </OwnerBtn>
+                    )}
+                  />
+                </td>
+              </tr>
+            </tbody>
+          )}
+
+          {!loading && !error && items.length > 0 && (
+            <tbody className="divide-y divide-gray-50">
               {items.map(m => (
-                <tr key={m.membershipId} className="border-t border-border-default hover:bg-surface-hover">
-                  <td className="px-4 py-3.5 text-foreground font-extrabold">{m.userName} <span className="text-xs text-foreground-subtle font-normal">#{m.userId}</span></td>
-                  <td className="px-4 py-3.5 text-foreground">{m.tier}</td>
-                  <td className="px-4 py-3.5 text-foreground">{m.discountPercent}%</td>
-                  <td className="px-4 py-3.5 text-foreground text-xs">{m.validFrom?.slice?.(0, 10)} → {m.validTo?.slice?.(0, 10)}</td>
-                  <td className="px-4 py-3.5"><OwnerStatusBadge status={m.status} /></td>
-                  <td className="px-4 py-3.5 text-right">
-                    <button type="button" className="text-xs font-extrabold uppercase text-accent underline bg-transparent border-none cursor-pointer" onClick={() => toggleStatus(m)}>
-                      {m.status === 'Active' ? 'Tạm dừng' : 'Kích hoạt'}
+                <tr key={m.membershipId} className="hover:bg-gray-50/50 transition-colors">
+                  <OwnerTd>
+                    <span className="font-bold text-[#0f172a] block">{m.userName || 'Không rõ'}</span>
+                    <span className="font-mono text-[11px] text-gray-400">ID: {m.userId}</span>
+                  </OwnerTd>
+                  <OwnerTd>
+                    <span className="font-bold uppercase tracking-widest text-xs text-[#14b8a6]">
+                      {m.tier}
+                    </span>
+                  </OwnerTd>
+                  <OwnerTd>
+                    <span className="font-medium text-gray-700">{m.discountPercent}%</span>
+                  </OwnerTd>
+                  <OwnerTd>
+                    <div className="flex flex-col text-xs text-gray-600">
+                      <span>Từ: {m.validFrom?.slice?.(0, 10)}</span>
+                      <span>Đến: {m.validTo?.slice?.(0, 10)}</span>
+                    </div>
+                  </OwnerTd>
+                  <OwnerTd>
+                    <OwnerStatusBadge status={m.status} type="general" />
+                  </OwnerTd>
+                  <OwnerTd right>
+                    <button 
+                      type="button" 
+                      className={`text-[11px] font-bold uppercase tracking-widest bg-transparent border-0 cursor-pointer transition-colors p-0 ${m.status === 'Active' ? 'text-gray-400 hover:text-red-500' : 'text-[#14b8a6] hover:text-[#0d9488]'}`} 
+                      onClick={() => toggleStatus(m)}
+                    >
+                      {m.status === 'Active' ? 'Tạm ngưng' : 'Kích hoạt'}
                     </button>
-                  </td>
+                  </OwnerTd>
                 </tr>
               ))}
             </tbody>
-          </table>
-        </div>
-      )}
+          )}
+        </OwnerTable>
+      </OwnerCard>
     </div>
   );
 }
