@@ -11,6 +11,7 @@ import {
   Home,
   Calendar,
   Swords,
+  Users,
   ShoppingBag,
   BookOpen,
   Activity,
@@ -27,7 +28,7 @@ import {
 const mainNav = [
   {
     path: '/apex',
-    label: 'Tổng quan',
+    label: 'Trang chủ',
     icon: <Home className="w-4 h-4" />,
     exact: true,
   },
@@ -40,6 +41,11 @@ const mainNav = [
     path: '/apex/matches',
     label: 'Ghép trận',
     icon: <Swords className="w-4 h-4" />,
+  },
+  {
+    path: '/apex/community',
+    label: 'Cộng Đồng',
+    icon: <Users className="w-4 h-4" />,
   },
   {
     path: '/apex/shop',
@@ -223,20 +229,9 @@ export default function ApexLayout({ children }) {
           </div>
 
           <div className="flex items-center gap-4 ml-auto">
-            {/* Balance */}
-            <div className="hidden sm:flex text-[14px] font-semibold text-teal-600 bg-teal-50 border border-teal-100 px-3 py-1.5 rounded-[8px] items-center">
-              Số dư: 500.000 đ
-            </div>
 
-            {/* Cart */}
-            <Link to="/gear/cart" className="relative flex items-center justify-center w-10 h-10 rounded-[8px] text-gray-500 hover:bg-teal-50 hover:text-[#14b8a6] transition-colors" title="Giỏ hàng">
-              <ShoppingBag className="w-5 h-5" />
-              {cartCount > 0 && (
-                <span className="absolute top-1.5 right-1.5 bg-accent text-ink w-4 h-4 flex items-center justify-center rounded-full text-[10px] font-bold">
-                  {cartCount}
-                </span>
-              )}
-            </Link>
+
+
 
             <NotificationMenu />
             <ProfileDropdown user={userProfile} />

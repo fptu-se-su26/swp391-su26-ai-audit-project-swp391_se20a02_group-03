@@ -48,15 +48,15 @@ export default function MobileWalletPage() {
     }
     try {
       const refId = Date.now().toString();
-      const res = await paymentApi.createVnPayUrl(amount, 'Deposit', refId);
+      const res = await paymentApi.createPayOsUrl(amount, 'Deposit', refId);
       if (res.statusCode === 200 && res.data) {
-        window.location.href = res.data;
+        window.location.assign(res.data);
       } else {
-        setDepositError('Không thể tạo URL thanh toán VNPay');
+        setDepositError('Không thể tạo URL thanh toán PayOS');
       }
     } catch (err) {
       console.error(err);
-      setDepositError(typeof err === 'string' ? err : 'Có lỗi xảy ra khi gọi VNPay API');
+      setDepositError(typeof err === 'string' ? err : 'Có lỗi xảy ra khi gọi PayOS API');
     }
   }
 
@@ -128,7 +128,7 @@ export default function MobileWalletPage() {
         <div className="px-5 mb-6">
           <button onClick={handleAddFunds} className="w-full bg-[#00c2ff] hover:bg-[#00ace6] text-[var(--theme-primary)] py-3 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 border-none cursor-pointer shadow-md transition-all">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
-            Nạp tiền qua VNPay
+            Nạp tiền qua PayOS
           </button>
         </div>
 

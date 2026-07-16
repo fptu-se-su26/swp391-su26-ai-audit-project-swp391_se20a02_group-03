@@ -48,7 +48,6 @@ const ApexBookingsPage = lazy(() => import('./pages/apex/ApexBookingsPage'))
 
 // PRO-SPORT MatchPro
 const MatchProFeedPage = lazy(() => import('./pages/matchpro/MatchProFeedPage'))
-const MatchProNearbyPage = lazy(() => import('./pages/matchpro/MatchProNearbyPage'))
 const MatchProCommunityPage = lazy(() => import('./pages/matchpro/MatchProCommunityPage'))
 const MatchProLeaderboardPage = lazy(() => import('./pages/matchpro/MatchProLeaderboardPage'))
 
@@ -217,8 +216,8 @@ function App() {
                     {/* Matches / MatchPro — IMPORTANT: static routes BEFORE :id param */}
                     <Route path="/matches" element={<MatchProFeedPage />} />
                     <Route path="/matches/create" element={<ProtectedRoute><CreateMatchPage /></ProtectedRoute>} />
-                    <Route path="/matches/nearby" element={<MatchProNearbyPage />} />
-                    <Route path="/matches/community" element={<MatchProCommunityPage />} />
+                    <Route path="/matches/nearby" element={<Navigate to="/apex/booking" replace />} />
+                    <Route path="/matches/community" element={<Navigate to="/apex/community" replace />} />
                     <Route path="/matches/leaderboard" element={<MatchProLeaderboardPage />} />
                     <Route path="/matches/:id" element={<MatchDetailPage />} />
 
@@ -250,6 +249,7 @@ function App() {
                     <Route path="/apex" element={<ProtectedRoute><ApexHomePage /></ProtectedRoute>} />
                     <Route path="/apex/booking" element={<ProtectedRoute><ApexBookingPage /></ProtectedRoute>} />
                     <Route path="/apex/matches" element={<ProtectedRoute><ApexMatchesPage /></ProtectedRoute>} />
+                    <Route path="/apex/community" element={<ProtectedRoute><MatchProCommunityPage /></ProtectedRoute>} />
                     <Route path="/apex/shop" element={<ProtectedRoute><ApexShopPage /></ProtectedRoute>} />
                     <Route path="/apex/profile" element={<ProtectedRoute><ApexProfilePage /></ProtectedRoute>} />
                     <Route path="/apex/wallet" element={<ProtectedRoute><ApexWalletPage /></ProtectedRoute>} />

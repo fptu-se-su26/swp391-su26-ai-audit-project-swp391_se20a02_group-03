@@ -65,14 +65,26 @@ export default function CreateMatchPage() {
       return
     }
 
+    const selectedBooking = myBookings.find(b => b.bookingId == formData.bookingId)
+    const detail = selectedBooking?.details?.[0]
+    
+    if (!detail) {
+      addToast("Dữ liệu đơn đặt sân không hợp lệ", "error")
+      return
+    }
+
     setIsLoading(true)
     try {
       const payload = {
+        courtId: detail.courtId,
         bookingId: parseInt(formData.bookingId),
-        title: formData.title,
-        skillLevel: formData.skillLevel,
+        matchDate: detail.bookingDate,
+        startTime: detail.startTime,
+        endTime: detail.endTime,
         maxParticipants: parseInt(formData.maxParticipants),
-        escrowAmount: parseFloat(formData.escrowAmount)
+        escrowAmount: parseFloat(formData.escrowAmount),
+        levelRequirement: formData.skillLevel,
+        notes: formData.notes
       }
 
       const res = await matchApi.createMatch(payload)
@@ -84,7 +96,21 @@ export default function CreateMatchPage() {
         addToast(res.message || "Có lỗi xảy ra", "error")
       }
     } catch (error) {
-      addToast(error || "Có lỗi xảy ra", "error")
+      let errorMsg = "Có lỗi xảy ra"
+      if (error.response?.data?.message) {
+         errorMsg = error.response.data.message
+      } else if (error.response?.data?.errors) {
+         const errors = error.response.data.errors
+         if (typeof errors === 'object' && !Array.isArray(errors)) {
+           // extract first error from validation dictionary
+           errorMsg = Object.values(errors)[0]?.[0] || JSON.stringify(errors)
+         } else {
+           errorMsg = JSON.stringify(errors)
+         }
+      } else if (error.message) {
+         errorMsg = error.message
+      }
+      addToast(errorMsg, "error")
     } finally {
       setIsLoading(false)
     }
@@ -98,8 +124,17 @@ export default function CreateMatchPage() {
     <div className="flex flex-col min-h-screen bg-[#F8F9FA] font-sans">
       {/* Focus Header */}
       <div className="h-[76px] bg-[#0f172a]/95 backdrop-blur-md border-b border-white/10 flex items-center justify-between px-6 sticky top-0 z-50">
-        <div className="cursor-pointer" onClick={handleExitRequest}>
-           <ProSportLogo size="sm" variant="light" />
+        <div className="flex items-center gap-4">
+          <Link
+            to="/apex"
+            className="flex items-center justify-center w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 transition-colors text-white cursor-pointer"
+            title="Về trang chủ APEX"
+          >
+            <ArrowLeft size={20} />
+          </Link>
+          <div className="cursor-pointer" onClick={handleExitRequest}>
+             <ProSportLogo size="sm" variant="light" />
+          </div>
         </div>
         <button 
            onClick={handleExitRequest}
@@ -196,10 +231,12 @@ export default function CreateMatchPage() {
                     <div className="flex flex-col gap-3 max-h-[350px] overflow-y-auto pr-2" style={{ scrollbarWidth: 'thin' }}>
                       {(() => {
                         const eligibleBookings = myBookings.filter(b => {
-                          const dateObj = new Date(b.bookingDate)
+                          const detail = b.details?.[0];
+                          if (!detail) return false;
+                          const dateObj = new Date(detail.bookingDate)
                           const isValidDate = !isNaN(dateObj.getTime())
                           const bookingDateStr = isValidDate ? dayjs(dateObj).format('YYYY-MM-DD') : dayjs().format('YYYY-MM-DD');
-                          const bookingDateTime = dayjs(`${bookingDateStr}T${b.startTime || '00:00:00'}`);
+                          const bookingDateTime = dayjs(`${bookingDateStr}T${detail.startTime || '00:00:00'}`);
                           const isPast = bookingDateTime.isBefore(dayjs());
                           const isConfirmed = !['pending', 'expired', 'cancelled', 'chờ thanh toán', 'hết hạn', 'hủy', 'failed'].includes(b.status?.toString().toLowerCase());
                           return !isPast && isConfirmed;
@@ -215,7 +252,8 @@ export default function CreateMatchPage() {
                         }
 
                         return eligibleBookings.map(b => {
-                          const dateObj = new Date(b.bookingDate)
+                          const detail = b.details?.[0] || {};
+                          const dateObj = new Date(detail.bookingDate)
                           const isValidDate = !isNaN(dateObj.getTime())
                           
                           return (
@@ -230,7 +268,7 @@ export default function CreateMatchPage() {
                             >
                               <div className="flex items-center justify-between mb-3">
                                 <span className="font-bold text-[15px] text-[#0f172a]">
-                                   Đơn #{b.bookingId} - {b.courtName || 'Sân thể thao cao cấp'}
+                                   Đơn #{b.bookingId} - {detail.courtName || 'Sân thể thao cao cấp'}
                                 </span>
                                 <span className="text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full text-teal-700 bg-teal-100/50">
                                    Có sẵn
@@ -242,7 +280,7 @@ export default function CreateMatchPage() {
                                     {isValidDate ? dayjs(dateObj).format('dddd, DD/MM/YYYY') : '---'}
                                  </div>
                                  <div className="flex items-center gap-2 text-[13.5px] font-medium text-gray-600">
-                                    <Clock size={16} className="text-gray-400"/> {b.startTime || '---'}
+                                    <Clock size={16} className="text-gray-400"/> {detail.startTime ? `${detail.startTime} - ${detail.endTime}` : '---'}
                                  </div>
                               </div>
                             </div>
@@ -273,7 +311,7 @@ export default function CreateMatchPage() {
                           <label className="block text-[12.5px] font-bold text-gray-500 mb-1.5 uppercase tracking-wide">Ngày chơi</label>
                           <input 
                             type="text" 
-                            value={selectedBooking && !isNaN(new Date(selectedBooking.bookingDate).getTime()) ? dayjs(selectedBooking.bookingDate).format('DD/MM/YYYY') : 'Chưa chọn'} 
+                            value={selectedBooking?.details?.[0] && !isNaN(new Date(selectedBooking.details[0].bookingDate).getTime()) ? dayjs(selectedBooking.details[0].bookingDate).format('DD/MM/YYYY') : 'Chưa chọn'} 
                             readOnly 
                             className="w-full px-4 h-12 bg-white border border-gray-200 rounded-[12px] text-[14.5px] text-[#0f172a] font-bold outline-none pointer-events-none" 
                           />
@@ -283,7 +321,7 @@ export default function CreateMatchPage() {
                           <label className="block text-[12.5px] font-bold text-gray-500 mb-1.5 uppercase tracking-wide">Khung giờ</label>
                           <input 
                             type="text" 
-                            value={selectedBooking ? selectedBooking.startTime : 'Chưa chọn'} 
+                            value={selectedBooking?.details?.[0] ? `${selectedBooking.details[0].startTime} - ${selectedBooking.details[0].endTime}` : 'Chưa chọn'} 
                             readOnly 
                             className="w-full px-4 h-12 bg-white border border-gray-200 rounded-[12px] text-[14.5px] text-[#14b8a6] font-bold outline-none pointer-events-none" 
                           />

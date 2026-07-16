@@ -18,36 +18,17 @@ export default function Navbar() {
   }
 
   const navLinks = [
-    { label: 'Trang chủ', path: '/' },
-    { label: 'Nhà thi đấu', path: '/courts' },
     { label: 'Bảng tin', path: '/matches' },
     { label: 'Cửa tiệm', path: '/gear/catalog' },
-    { label: 'Sân gần bạn', path: '/matches/nearby' },
   ]
 
   const isActive = (path) =>
     location.pathname === path || (path !== '/' && location.pathname.startsWith(path))
 
   const portalLinks = (() => {
-    if (user?.role === 'Admin') {
-      return [
-        { to: '/admin', label: 'Quản trị viên' },
-        { to: '/owner/dashboard', label: 'Dashboard' },
-        { to: '/owner/courts', label: 'Quản lý sân' },
-        { to: '/owner/bookings', label: 'Lịch đặt sân' },
-      ]
-    }
-    if (user?.role === 'CourtOwner') {
-      return [
-        { to: '/owner/dashboard', label: 'Dashboard' },
-        { to: '/owner/courts', label: 'Quản lý sân' },
-        { to: '/owner/bookings', label: 'Lịch đặt sân' },
-      ]
-    }
-    if (user?.role === 'Staff') {
-      return [{ to: '/apex', label: 'Cổng Apex' }]
-    }
-    return [{ to: '/apex', label: 'Cổng Apex' }]
+    if (user?.role === 'Admin') return [{ to: '/admin', label: 'Vào App' }]
+    if (user?.role === 'CourtOwner') return [{ to: '/owner/dashboard', label: 'Vào App' }]
+    return [{ to: '/apex', label: 'Vào App' }]
   })()
 
   return (

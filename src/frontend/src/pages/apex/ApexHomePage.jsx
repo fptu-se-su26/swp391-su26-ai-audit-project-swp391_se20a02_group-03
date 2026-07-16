@@ -215,27 +215,7 @@ export default function ApexHomePage() {
               </div>
             </section>
 
-            {/* Active Gear */}
-            <section>
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="font-heading text-[18px] uppercase tracking-wider text-gray-900 m-0 flex items-center gap-2">
-                  <span className="w-2 h-6 bg-[#14b8a6] rounded-[4px] block"></span> Thuê đồ
-                </h2>
-                <Link to="/gear/catalog" className="text-[12px] font-bold text-[#14b8a6] hover:underline transition-colors flex items-center gap-1 no-underline">
-                  Cửa hàng <ChevronRight size={14} />
-                </Link>
-              </div>
 
-              <div className={`p-8 text-center flex flex-col items-center justify-center ${modernCardClass}`}>
-                <div className="w-12 h-12 rounded-full bg-teal-50 text-[#14b8a6] flex items-center justify-center mb-4">
-                  <PackageSearch size={24} />
-                </div>
-                <p className="text-[13px] text-gray-500 mb-4 m-0 leading-relaxed">Bạn chưa thuê thiết bị hay dụng cụ nào từ hệ thống.</p>
-                <Link to="/gear/catalog" className="text-[#14b8a6] text-[13px] font-bold hover:underline no-underline">
-                  Khám phá cửa hàng →
-                </Link>
-              </div>
-            </section>
 
           </div>
         </div>

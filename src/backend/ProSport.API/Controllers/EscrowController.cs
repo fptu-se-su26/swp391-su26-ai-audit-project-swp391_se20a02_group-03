@@ -148,5 +148,34 @@ public class EscrowController : ControllerBase
 
         return StatusCode(response.StatusCode, response);
     }
+    // ─────────────────────────────────────────────────────────────────────────
+    // BƯỚC 4: Quản lý liên kết tài khoản và rút tiền
+    // ─────────────────────────────────────────────────────────────────────────
+
+    [HttpPost("link-account")]
+    public async Task<IActionResult> LinkAccount([FromBody] LinkAccountRequestDto dto)
+    {
+        if (!TryGetUserId(out int userId))
+            return Unauthorized(new ApiResponseDto<object>(401, "Unauthorized"));
+
+        if (string.IsNullOrWhiteSpace(dto.Provider) || string.IsNullOrWhiteSpace(dto.AccountNumber) || string.IsNullOrWhiteSpace(dto.AccountName))
+            return BadRequest(new ApiResponseDto<object>(400, "Vui lòng cung cấp đầy đủ thông tin tài khoản liên kết"));
+
+        var response = await _escrowService.LinkAccountAsync(userId, dto.Provider, dto.AccountNumber, dto.AccountName);
+        return StatusCode(response.StatusCode, response);
+    }
+
+    [HttpPost("withdraw")]
+    public async Task<IActionResult> Withdraw([FromBody] EscrowWithdrawRequestDto dto)
+    {
+        if (!TryGetUserId(out int userId))
+            return Unauthorized(new ApiResponseDto<object>(401, "Unauthorized"));
+
+        if (dto.Amount <= 0)
+            return BadRequest(new ApiResponseDto<object>(400, "Số tiền rút phải lớn hơn 0"));
+
+        var response = await _escrowService.WithdrawAsync(userId, dto.Amount);
+        return StatusCode(response.StatusCode, response);
+    }
 }
 

@@ -76,14 +76,14 @@ export default function CartCheckoutPage() {
         setIsDepositing(true);
         try {
             const refId = Date.now().toString();
-            const res = await paymentApi.createVnPayUrl(shortfall, 'Deposit', refId);
+            const res = await paymentApi.createPayOsUrl(shortfall, 'Deposit', refId);
             if (res.statusCode === 200 && res.data) {
-                window.location.href = res.data;
+                window.location.assign(res.data);
             } else {
-                addToast(res.message || 'Không thể tạo URL thanh toán VNPay', 'error');
+                addToast(res.message || 'Không thể tạo URL thanh toán PayOS', 'error');
             }
         } catch (error) {
-            addToast(typeof error === 'string' ? error : 'Có lỗi xảy ra khi gọi VNPay', 'error');
+            addToast(typeof error === 'string' ? error : 'Có lỗi xảy ra khi gọi PayOS', 'error');
         } finally {
             setIsDepositing(false);
         }
@@ -205,7 +205,7 @@ export default function CartCheckoutPage() {
                                 {shortfall > 0 && (
                                     <div className="mb-6 rounded-[8px] border border-red-100 p-4 bg-red-50/50 text-center">
                                         <p className="text-red-500 text-[12px] font-medium m-0 mb-3 leading-relaxed">
-                                            Ví không đủ {formatVND(shortfall)} để thanh toán. Nạp thêm qua VNPay để tiếp tục.
+                                            Ví không đủ {formatVND(shortfall)} để thanh toán. Nạp thêm qua PayOS để tiếp tục.
                                         </p>
                                         <button
                                             onClick={() => handleDepositTopUp(shortfall)}

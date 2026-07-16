@@ -64,11 +64,11 @@ export default function BookingHistoryPage() {
 
   async function handlePayment(bookingId, amount) {
       try {
-          const vnpayRes = await paymentApi.createVnPayUrl(amount, 'Booking', bookingId);
-          if (vnpayRes.statusCode === 200 && vnpayRes.data) {
-              window.location.assign(vnpayRes.data);
+          const payosRes = await paymentApi.createPayOsUrl(amount, 'Booking', bookingId);
+          if (payosRes.statusCode === 200 && payosRes.data) {
+              window.location.assign(payosRes.data);
           } else {
-              addToast("Không thể tạo link thanh toán VNPay", "error");
+              addToast("Không thể tạo link thanh toán PayOS", "error");
           }
       } catch(error) {
           addToast(error?.message || "Có lỗi xảy ra", "error");

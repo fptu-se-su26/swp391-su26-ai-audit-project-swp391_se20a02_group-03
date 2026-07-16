@@ -6,14 +6,14 @@ import { cartApi } from '../../api/cartApi'
 import { useToast } from '../../components/Toast'
 
 const FALLBACK_IMG = 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=100&q=80'
-const payMethods = ['VNPay', 'Tiền mặt', 'Ví ký quỹ']
+const payMethods = ['PayOS', 'Tiền mặt', 'Ví ký quỹ']
 
 export default function ShopCheckoutPage() {
   const navigate = useNavigate()
   const { addToast } = useToast()
   const [cart, setCart] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [payMethod, setPayMethod] = useState('VNPay')
+  const [payMethod, setPayMethod] = useState('PayOS')
   const [placing, setPlacing] = useState(false)
 
   useEffect(() => {
