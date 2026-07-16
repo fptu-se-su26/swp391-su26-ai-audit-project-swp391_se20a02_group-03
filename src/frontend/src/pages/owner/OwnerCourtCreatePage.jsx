@@ -2,10 +2,10 @@ import { useState } from 'react';
 import { Link, useNavigate, useOutletContext } from 'react-router-dom';
 import { ownerApi } from '../../api/ownerApi';
 import { useToast } from '../../components/Toast';
-import { 
-  OwnerCard, 
-  OwnerFormField, 
-  OwnerBtn, 
+import {
+  OwnerCard,
+  OwnerFormField,
+  OwnerBtn,
   ownerInputCls,
   OwnerErrorState
 } from '../../components/owner';
@@ -55,8 +55,8 @@ export default function OwnerCourtCreatePage() {
   return (
     <div className="max-w-2xl mx-auto space-y-6 auth-animate-in pb-12">
       <div>
-        <Link 
-          to="/owner/courts" 
+        <Link
+          to="/owner/courts"
           className="inline-flex items-center gap-1 text-[12px] font-bold uppercase tracking-wide text-gray-500 hover:text-[#14b8a6] no-underline transition-colors mb-4"
         >
           <ChevronLeft size={16} /> Quay lại danh sách
@@ -78,9 +78,9 @@ export default function OwnerCourtCreatePage() {
               onChange={e => setForm({ ...form, name: e.target.value })}
             />
           </OwnerFormField>
-          
-          <OwnerFormField 
-            label="Mã sân" 
+
+          <OwnerFormField
+            label="Mã sân"
             helpText="Để trống sẽ tự sinh mã duy nhất trong tổ hợp."
           >
             <input

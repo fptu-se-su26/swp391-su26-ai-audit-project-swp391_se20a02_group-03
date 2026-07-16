@@ -10,7 +10,7 @@ export default function OwnerLayout() {
   const location = useLocation();
   const { user, logout } = useAuth();
   const { complexes, complexId, loading, error, reload } = useOwner();
-  
+
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [desktopSidebarCollapsed, setDesktopSidebarCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(() => (
@@ -82,7 +82,7 @@ export default function OwnerLayout() {
 
   return (
     <div className="flex min-h-screen bg-background-base font-sans text-foreground">
-      
+
       {/* ─── Mobile Sidebar Backdrop ─── */}
       {mobileSidebarOpen && (
         <div
@@ -104,16 +104,16 @@ export default function OwnerLayout() {
       />
 
       {/* ─── Main Content Wrapper ─── */}
-      <div 
+      <div
         className={`flex-1 flex flex-col min-h-screen transition-all duration-200 ${
           desktopSidebarCollapsed ? 'ml-0' : 'ml-[260px]'
         } max-[900px]:!ml-0`}
       >
-        <OwnerHeader 
-          complexName={complexName} 
+        <OwnerHeader
+          complexName={complexName}
           mobileSidebarOpen={mobileSidebarOpen}
           mobileMenuButtonRef={mobileMenuButtonRef}
-          onMobileMenuToggle={() => setMobileSidebarOpen(open => !open)} 
+          onMobileMenuToggle={() => setMobileSidebarOpen(open => !open)}
           desktopSidebarCollapsed={desktopSidebarCollapsed}
           onDesktopMenuToggle={() => setDesktopSidebarCollapsed(!desktopSidebarCollapsed)}
         />

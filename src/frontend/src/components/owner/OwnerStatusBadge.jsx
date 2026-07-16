@@ -1,6 +1,6 @@
 export default function OwnerStatusBadge({ status, type = 'general' }) {
   let variant = 'neutral';
-  
+
   const s = String(status || '').toLowerCase().replace(/_/g, '').replace(/\s+/g, '');
 
   const successStates = ['active', 'available', 'confirmed', 'paid', 'success', 'open', 'working', 'online', 'valid', 'instock'];

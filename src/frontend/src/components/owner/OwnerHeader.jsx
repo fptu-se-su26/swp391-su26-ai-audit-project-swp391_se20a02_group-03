@@ -2,12 +2,12 @@ import { Menu, X } from 'lucide-react';
 import OwnerBreadcrumb from './OwnerBreadcrumb';
 import ComplexSelector from './ComplexSelector';
 
-export default function OwnerHeader({ 
-  mobileSidebarOpen, 
+export default function OwnerHeader({
+  mobileSidebarOpen,
   mobileMenuButtonRef,
-  onMobileMenuToggle, 
-  desktopSidebarCollapsed, 
-  onDesktopMenuToggle 
+  onMobileMenuToggle,
+  desktopSidebarCollapsed,
+  onDesktopMenuToggle
 }) {
   return (
     <header className="h-16 bg-white border-b border-gray-200 flex items-center gap-4 px-4 md:px-8 sticky top-0 z-[100]">

@@ -104,7 +104,7 @@ function NavItem({ link, isActive, onClick }) {
 
 export default function OwnerSidebar({ open, collapsed, isHidden, asideRef, onClose, displayName, onLogout }) {
   const location = useLocation();
-  
+
   // Exact match for dashboard to prevent matching everything
   const isActive = (path) => {
     if (path === '/owner' || path === '/owner/dashboard') {
@@ -114,7 +114,7 @@ export default function OwnerSidebar({ open, collapsed, isHidden, asideRef, onCl
   };
 
   return (
-    <aside 
+    <aside
       id="owner-sidebar"
       ref={asideRef}
       aria-label="Sidebar navigation"
@@ -145,11 +145,11 @@ export default function OwnerSidebar({ open, collapsed, isHidden, asideRef, onCl
             <GroupLabel>{group.label}</GroupLabel>
             <div className="flex flex-col gap-0.5">
               {group.items.map(link => (
-                <NavItem 
-                  key={link.path} 
-                  link={link} 
-                  isActive={isActive(link.path)} 
-                  onClick={onClose} 
+                <NavItem
+                  key={link.path}
+                  link={link}
+                  isActive={isActive(link.path)}
+                  onClick={onClose}
                 />
               ))}
             </div>

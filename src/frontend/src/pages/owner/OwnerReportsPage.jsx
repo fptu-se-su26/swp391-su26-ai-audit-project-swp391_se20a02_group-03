@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { ownerApi } from '../../api/ownerApi';
-import { 
-  OwnerPageHeader, 
-  OwnerCard, 
+import {
+  OwnerPageHeader,
+  OwnerCard,
   OwnerToolbar,
   OwnerBtn,
   OwnerErrorState,
@@ -73,8 +73,8 @@ export default function OwnerReportsPage() {
 
   return (
     <div className="space-y-6 auth-animate-in pb-12">
-      <OwnerPageHeader 
-        title="Báo cáo vận hành" 
+      <OwnerPageHeader
+        title="Báo cáo vận hành"
         description="Theo dõi tỷ lệ lấp đầy sân và tình trạng tồn kho hàng hóa."
       />
 
@@ -126,7 +126,7 @@ export default function OwnerReportsPage() {
                 </div>
               </div>
             </OwnerCard>
-            
+
             <OwnerCard className={inventory?.lowStockCount > 0 ? "border-l-4 border-l-orange-500" : ""}>
               <div className="flex items-start justify-between">
                 <div>
@@ -159,8 +159,8 @@ export default function OwnerReportsPage() {
                       </div>
                     </div>
                     <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
-                      <div 
-                        className={`h-full rounded-full ${c.occupancyPercent >= 80 ? 'bg-[#14b8a6]' : c.occupancyPercent >= 40 ? 'bg-blue-500' : 'bg-orange-400'}`} 
+                      <div
+                        className={`h-full rounded-full ${c.occupancyPercent >= 80 ? 'bg-[#14b8a6]' : c.occupancyPercent >= 40 ? 'bg-blue-500' : 'bg-orange-400'}`}
                         style={{ width: `${Math.min(100, c.occupancyPercent)}%` }}
                       ></div>
                     </div>

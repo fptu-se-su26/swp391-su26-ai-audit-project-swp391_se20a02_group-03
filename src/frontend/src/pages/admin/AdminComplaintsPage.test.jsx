@@ -41,9 +41,9 @@ describe('AdminComplaintsPage', () => {
   it('bỏ chọn hồ sơ sau khi cập nhật làm hồ sơ không còn thuộc bộ lọc', async () => {
     render(<AdminComplaintsPage />)
 
-    await screen.findByText('#RP-1')
+    await screen.findByRole('button', { name: /#RP-1/i })
     fireEvent.click(screen.getByRole('tab', { name: 'Chờ xử lý' }))
-    fireEvent.click(screen.getByRole('button', { name: /#RP-1/i }))
+    fireEvent.click(await screen.findByRole('button', { name: /#RP-1/i }))
     expect(screen.getByText(/#RP-1: Không đến thi đấu/i)).toBeDefined()
 
     fireEvent.click(screen.getByRole('button', { name: 'Xử lý xong' }))

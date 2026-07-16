@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useOutletContext, useSearchParams } from 'react-router-dom';
 import { ownerApi } from '../../api/ownerApi';
-import { 
-  OwnerPageHeader, 
-  OwnerBtn, 
-  OwnerCard, 
+import {
+  OwnerPageHeader,
+  OwnerBtn,
+  OwnerCard,
   OwnerToolbar,
   OwnerTable,
   OwnerThead,
@@ -93,8 +93,8 @@ export default function OwnerPricingPage() {
 
   return (
     <div className="space-y-6 auth-animate-in pb-12">
-      <OwnerPageHeader 
-        title="Quy tắc giá" 
+      <OwnerPageHeader
+        title="Quy tắc giá"
         description="Định giá sân linh hoạt theo giờ, theo thứ và ngày lễ."
       >
         <OwnerBtn variant="primary" onClick={() => setShowForm(v => !v)}>
@@ -105,9 +105,9 @@ export default function OwnerPricingPage() {
       <OwnerToolbar>
         <div className="flex items-center gap-4 w-full sm:w-auto">
           <span className="text-[12px] font-bold uppercase tracking-wide text-gray-500 shrink-0">Chọn Sân:</span>
-          <select 
-            className={`${ownerInputCls} min-w-[200px]`} 
-            value={courtId} 
+          <select
+            className={`${ownerInputCls} min-w-[200px]`}
+            value={courtId}
             onChange={e => setCourtId(e.target.value)}
           >
             {courts.map(c => <option key={c.courtId} value={c.courtId}>{c.name}</option>)}
@@ -126,30 +126,30 @@ export default function OwnerPricingPage() {
                 {RULE_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
               </select>
             </OwnerFormField>
-            
+
             <OwnerFormField label="Ngày trong tuần">
               <select value={form.dayOfWeek} onChange={e => setForm({ ...form, dayOfWeek: e.target.value })} className={ownerInputCls}>
                 <option value="">Mọi ngày</option>
                 {DAYS.map((d, i) => <option key={d} value={i}>{d}</option>)}
               </select>
             </OwnerFormField>
-            
+
             <OwnerFormField label="Giờ bắt đầu">
               <input type="time" value={form.startTime} onChange={e => setForm({ ...form, startTime: e.target.value })} className={ownerInputCls} />
             </OwnerFormField>
-            
+
             <OwnerFormField label="Giờ kết thúc">
               <input type="time" value={form.endTime} onChange={e => setForm({ ...form, endTime: e.target.value })} className={ownerInputCls} />
             </OwnerFormField>
-            
+
             <OwnerFormField label="Giá / giờ (VND)">
               <input type="number" value={form.pricePerHour} onChange={e => setForm({ ...form, pricePerHour: parseInt(e.target.value, 10) })} className={ownerInputCls} placeholder="VD: 150000" />
             </OwnerFormField>
-            
+
             <OwnerFormField label="Hệ số (Multiplier)">
               <input type="number" step="0.1" value={form.multiplier} onChange={e => setForm({ ...form, multiplier: parseFloat(e.target.value) })} className={ownerInputCls} placeholder="VD: 1.2" />
             </OwnerFormField>
-            
+
             <div className="sm:col-span-2 md:col-span-4 flex justify-end pt-4 border-t border-gray-100">
               <OwnerBtn type="submit">Lưu quy tắc</OwnerBtn>
             </div>
@@ -174,8 +174,8 @@ export default function OwnerPricingPage() {
             <tbody>
               <tr>
                 <td colSpan={6}>
-                  <OwnerEmptyState title="Chưa có quy tắc giá" 
-                    description="Sân này chưa được thiết lập quy tắc giá nào. Sẽ áp dụng giá cơ bản của sân." 
+                  <OwnerEmptyState title="Chưa có quy tắc giá"
+                    description="Sân này chưa được thiết lập quy tắc giá nào. Sẽ áp dụng giá cơ bản của sân."
                   />
                 </td>
               </tr>
@@ -202,9 +202,9 @@ export default function OwnerPricingPage() {
                     <span className="text-gray-500">x{r.multiplier ?? 1}</span>
                   </OwnerTd>
                   <OwnerTd right>
-                    <button 
-                      type="button" 
-                      className="text-[12px] font-bold text-red-500 hover:text-red-600 uppercase tracking-wide bg-transparent border-0 cursor-pointer transition-colors" 
+                    <button
+                      type="button"
+                      className="text-[12px] font-bold text-red-500 hover:text-red-600 uppercase tracking-wide bg-transparent border-0 cursor-pointer transition-colors"
                       onClick={() => removeRule(r.pricingRuleId)}
                     >
                       Xóa
@@ -219,4 +219,3 @@ export default function OwnerPricingPage() {
     </div>
   );
 }
-

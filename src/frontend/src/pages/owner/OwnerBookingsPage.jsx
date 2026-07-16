@@ -2,10 +2,10 @@ import { useEffect, useState } from 'react';
 import { Link, useOutletContext } from 'react-router-dom';
 import { ownerApi } from '../../api/ownerApi';
 import { useDebouncedValue } from '../../utils/useDebouncedValue';
-import { 
-  OwnerPageHeader, 
-  OwnerBtn, 
-  OwnerCard, 
+import {
+  OwnerPageHeader,
+  OwnerBtn,
+  OwnerCard,
   OwnerToolbar,
   OwnerSearchInput,
   OwnerTable,
@@ -92,8 +92,8 @@ export default function OwnerBookingsPage() {
 
   return (
     <div className="space-y-6 auth-animate-in pb-12">
-      <OwnerPageHeader 
-        title="Quản lý đặt sân" 
+      <OwnerPageHeader
+        title="Quản lý đặt sân"
         description="Theo dõi, lọc và xử lý danh sách đặt sân trong tổ hợp."
       >
         <OwnerBtn to="/owner/bookings/calendar" variant="secondary">Xem lịch (Calendar)</OwnerBtn>
@@ -103,7 +103,7 @@ export default function OwnerBookingsPage() {
       <OwnerCard className="space-y-4">
         <OwnerToolbar className="!mb-0">
           <div className="flex-1 min-w-[200px]">
-            <OwnerSearchInput 
+            <OwnerSearchInput
               placeholder="Tìm mã booking, tên khách..."
               value={keyword}
               onChange={e => setKeyword(e.target.value)}
@@ -197,4 +197,3 @@ export default function OwnerBookingsPage() {
     </div>
   );
 }
-

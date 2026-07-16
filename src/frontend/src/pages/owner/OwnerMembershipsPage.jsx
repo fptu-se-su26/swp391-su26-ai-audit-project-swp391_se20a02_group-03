@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react';
 import { Users } from 'lucide-react';
 import { useOutletContext } from 'react-router-dom';
 import { ownerApi } from '../../api/ownerApi';
-import { 
-  OwnerPageHeader, 
-  OwnerCard, 
+import {
+  OwnerPageHeader,
+  OwnerCard,
   OwnerTable,
   OwnerThead,
   OwnerTh,
@@ -83,8 +83,8 @@ export default function OwnerMembershipsPage() {
 
   return (
     <div className="space-y-6 auth-animate-in pb-12">
-      <OwnerPageHeader 
-        title="Gói hội viên" 
+      <OwnerPageHeader
+        title="Gói hội viên"
         description="Quản lý khách hàng thân thiết, cấp thẻ membership và ưu đãi giảm giá."
       >
         <OwnerBtn variant="primary" onClick={() => setShowForm(v => !v)}>
@@ -101,7 +101,7 @@ export default function OwnerMembershipsPage() {
             <OwnerFormField label="ID Khách hàng" required>
               <input required type="number" min={1} className={ownerInputCls} placeholder="VD: 125" value={form.userId} onChange={e => setForm({ ...form, userId: e.target.value })} />
             </OwnerFormField>
-            
+
             <OwnerFormField label="Hạng thẻ" required>
               <select required className={ownerInputCls} value={form.tier} onChange={e => setForm({ ...form, tier: e.target.value })}>
                 <option value="Standard">Tiêu chuẩn (Standard)</option>
@@ -110,7 +110,7 @@ export default function OwnerMembershipsPage() {
                 <option value="VIP">Đặc biệt (VIP)</option>
               </select>
             </OwnerFormField>
-            
+
             <OwnerFormField label="Tỷ lệ giảm giá">
               <div className="relative">
                 <input type="number" min={0} max={100} className={ownerInputCls} placeholder="VD: 10" value={form.discountPercent} onChange={e => setForm({ ...form, discountPercent: e.target.value })} />
@@ -121,11 +121,11 @@ export default function OwnerMembershipsPage() {
             <OwnerFormField label="Hiệu lực từ" required>
               <input type="date" required className={ownerInputCls} value={form.validFrom} onChange={e => setForm({ ...form, validFrom: e.target.value })} />
             </OwnerFormField>
-            
+
             <OwnerFormField label="Hiệu lực đến" required>
               <input type="date" required className={ownerInputCls} value={form.validTo} onChange={e => setForm({ ...form, validTo: e.target.value })} />
             </OwnerFormField>
-            
+
             <div className="sm:col-span-2 md:col-span-3 flex justify-end pt-4 border-t border-gray-100">
               <OwnerBtn type="submit">Cấp thẻ</OwnerBtn>
             </div>
@@ -150,9 +150,9 @@ export default function OwnerMembershipsPage() {
             <tbody>
               <tr>
                 <td colSpan={6}>
-                  <OwnerEmptyState 
-                    icon={Users} 
-                    title="Chưa có khách hàng nào được cấp thẻ hội viên. Bắt đầu tạo mới ngay." 
+                  <OwnerEmptyState
+                    icon={Users}
+                    title="Chưa có khách hàng nào được cấp thẻ hội viên. Bắt đầu tạo mới ngay."
                     action={!showForm && (
                       <OwnerBtn variant="secondary" onClick={() => setShowForm(true)} className="mt-4">
                         Cấp thẻ đầu tiên
@@ -190,9 +190,9 @@ export default function OwnerMembershipsPage() {
                     <OwnerStatusBadge status={m.status} type="general" />
                   </OwnerTd>
                   <OwnerTd right>
-                    <button 
-                      type="button" 
-                      className={`text-[11px] font-bold uppercase tracking-widest bg-transparent border-0 cursor-pointer transition-colors p-0 ${m.status === 'Active' ? 'text-gray-400 hover:text-red-500' : 'text-[#14b8a6] hover:text-[#0d9488]'}`} 
+                    <button
+                      type="button"
+                      className={`text-[11px] font-bold uppercase tracking-widest bg-transparent border-0 cursor-pointer transition-colors p-0 ${m.status === 'Active' ? 'text-gray-400 hover:text-red-500' : 'text-[#14b8a6] hover:text-[#0d9488]'}`}
                       onClick={() => toggleStatus(m)}
                     >
                       {m.status === 'Active' ? 'Tạm ngưng' : 'Kích hoạt'}

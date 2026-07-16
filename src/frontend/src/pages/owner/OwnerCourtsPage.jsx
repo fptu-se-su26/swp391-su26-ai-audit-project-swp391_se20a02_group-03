@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useOutletContext } from 'react-router-dom';
 import { ownerApi } from '../../api/ownerApi';
-import { 
-  OwnerPageHeader, 
-  OwnerBtn, 
-  OwnerCard, 
+import {
+  OwnerPageHeader,
+  OwnerBtn,
+  OwnerCard,
   OwnerToolbar,
   OwnerSearchInput,
   OwnerTable,
@@ -48,8 +48,8 @@ export default function OwnerCourtsPage() {
     }
   }
 
-  useEffect(() => { 
-    if (complexId) load(); 
+  useEffect(() => {
+    if (complexId) load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [complexId, statusFilter]);
 
@@ -84,8 +84,8 @@ export default function OwnerCourtsPage() {
 
   return (
     <div className="space-y-6 auth-animate-in pb-12">
-      <OwnerPageHeader 
-        title="Quản lý sân" 
+      <OwnerPageHeader
+        title="Quản lý sân"
         description="Thêm, sửa và quản lý trạng thái các sân trong tổ hợp."
       >
         <OwnerBtn to="/owner/courts/create" variant="primary">+ Tạo sân mới</OwnerBtn>
@@ -93,15 +93,15 @@ export default function OwnerCourtsPage() {
 
       <OwnerToolbar>
         <div className="flex-1 w-full sm:w-auto max-w-[340px]">
-          <OwnerSearchInput 
+          <OwnerSearchInput
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Tìm tên hoặc mã sân..."
           />
         </div>
-        <select 
-          className="h-10 px-3 bg-white border border-gray-200 rounded-[8px] text-sm font-semibold text-gray-600 focus:outline-none focus:ring-2 focus:ring-[#14b8a6]/20 focus:border-[#14b8a6] transition-all cursor-pointer" 
-          value={statusFilter} 
+        <select
+          className="h-10 px-3 bg-white border border-gray-200 rounded-[8px] text-sm font-semibold text-gray-600 focus:outline-none focus:ring-2 focus:ring-[#14b8a6]/20 focus:border-[#14b8a6] transition-all cursor-pointer"
+          value={statusFilter}
           onChange={e => setStatusFilter(e.target.value)}
         >
           <option value="">Tất cả trạng thái</option>
@@ -169,16 +169,16 @@ export default function OwnerCourtsPage() {
                       <Link to={`/owner/courts/${c.courtId}`} className="text-[12px] font-bold text-gray-500 hover:text-[#14b8a6] no-underline transition-colors uppercase tracking-wide">
                         Sửa
                       </Link>
-                      <button 
-                        type="button" 
-                        onClick={() => toggleStatus(c)} 
+                      <button
+                        type="button"
+                        onClick={() => toggleStatus(c)}
                         className="text-[12px] font-bold text-orange-500 hover:text-orange-600 uppercase tracking-wide bg-transparent border-0 cursor-pointer p-0 transition-colors"
                       >
                         {isMaintenanceStatus(c.status) ? 'Kích hoạt' : 'Bảo trì'}
                       </button>
-                      <button 
-                        type="button" 
-                        onClick={() => removeCourt(c)} 
+                      <button
+                        type="button"
+                        onClick={() => removeCourt(c)}
                         className="text-[12px] font-bold text-red-500 hover:text-red-600 uppercase tracking-wide bg-transparent border-0 cursor-pointer p-0 transition-colors"
                       >
                         Xóa
@@ -194,4 +194,3 @@ export default function OwnerCourtsPage() {
     </div>
   );
 }
-

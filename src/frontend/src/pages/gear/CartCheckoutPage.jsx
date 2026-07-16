@@ -144,7 +144,7 @@ export default function CartCheckoutPage() {
 
                     {/* ── MAIN GRID ── */}
                     <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-8 items-start">
-                        
+
                         {/* LEFT: Order Details */}
                         <div className="flex flex-col gap-6">
                             <div className="bg-white rounded-[16px] shadow-[0_2px_16px_rgba(0,0,0,0.06)] border border-gray-100 overflow-hidden">
@@ -159,10 +159,10 @@ export default function CartCheckoutPage() {
                                         <div key={item.cartItemId} className="p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-colors hover:bg-gray-50/30">
                                             <div className="flex items-center gap-5 min-w-0 w-full sm:w-auto">
                                                 <div className="w-16 h-16 rounded-[8px] bg-gray-50 border border-gray-100 overflow-hidden flex-shrink-0 flex items-center justify-center p-1.5">
-                                                    <img 
-                                                        src={resolveProductImage(item.equipmentName, item.category || 'Accessories', item.imageUrl || item.img || item.image)} 
-                                                        alt="" 
-                                                        className="w-full h-full object-contain mix-blend-multiply" 
+                                                    <img
+                                                        src={resolveProductImage(item.equipmentName, item.category || 'Accessories', item.imageUrl || item.img || item.image)}
+                                                        alt=""
+                                                        className="w-full h-full object-contain mix-blend-multiply"
                                                         onError={e => { e.currentTarget.onerror = null; e.currentTarget.src = CATEGORY_FALLBACKS.Accessories }}
                                                     />
                                                 </div>
@@ -243,7 +243,7 @@ export default function CartCheckoutPage() {
                                         <p className="text-[12px] text-gray-700 m-0 font-medium">Quầy hỗ trợ - ProSport Arena (Tầng 1)</p>
                                     </div>
                                 </div>
-                                
+
                                 <p className="text-[11px] text-gray-400 text-center m-0 mt-5 leading-relaxed">
                                     Bằng cách nhấn xác nhận, bạn đồng ý với các Điều khoản Mua thiết bị của chúng tôi.
                                 </p>

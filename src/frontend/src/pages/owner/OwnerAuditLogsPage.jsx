@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react';
 import { Search } from 'lucide-react';
 import { useOutletContext } from 'react-router-dom';
 import { ownerApi } from '../../api/ownerApi';
-import { 
-  OwnerPageHeader, 
-  OwnerCard, 
+import {
+  OwnerPageHeader,
+  OwnerCard,
   OwnerTable,
   OwnerThead,
   OwnerTh,
@@ -38,8 +38,8 @@ export default function OwnerAuditLogsPage() {
 
   return (
     <div className="space-y-6 auth-animate-in pb-12">
-      <OwnerPageHeader 
-        title="Nhật ký thao tác" 
+      <OwnerPageHeader
+        title="Nhật ký thao tác"
         description="Xem lịch sử các thao tác quan trọng trong tổ hợp (Audit Log)."
       />
 
@@ -60,9 +60,9 @@ export default function OwnerAuditLogsPage() {
             <tbody>
               <tr>
                 <td colSpan={4}>
-                  <OwnerEmptyState 
-                    icon={Search} 
-                    title="Chưa có dữ liệu nhật ký thao tác nào." 
+                  <OwnerEmptyState
+                    icon={Search}
+                    title="Chưa có dữ liệu nhật ký thao tác nào."
                   />
                 </td>
               </tr>

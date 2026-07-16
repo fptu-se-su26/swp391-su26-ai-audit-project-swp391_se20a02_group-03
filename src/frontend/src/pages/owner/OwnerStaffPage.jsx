@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { ownerApi } from '../../api/ownerApi';
-import { 
-  OwnerPageHeader, 
-  OwnerCard, 
+import {
+  OwnerPageHeader,
+  OwnerCard,
   OwnerTable,
   OwnerThead,
   OwnerTh,
@@ -54,10 +54,10 @@ export default function OwnerStaffPage() {
     if (!invite.email.trim()) return;
     try {
       const res = await ownerApi.inviteStaff({ ...invite, complexId });
-      if (res.statusCode === 201) { 
-        setInvite({ email: '', canCheckIn: true, canCreateWalkIn: true }); 
+      if (res.statusCode === 201) {
+        setInvite({ email: '', canCheckIn: true, canCreateWalkIn: true });
         setShowInviteForm(false);
-        load(); 
+        load();
       }
       else setError(res.message);
     } catch (err) {
@@ -98,8 +98,8 @@ export default function OwnerStaffPage() {
 
   return (
     <div className="space-y-6 auth-animate-in pb-12">
-      <OwnerPageHeader 
-        title="Quản lý nhân viên" 
+      <OwnerPageHeader
+        title="Quản lý nhân viên"
         description="Thêm nhân viên và quản lý quyền truy cập tổ hợp."
       >
         <OwnerBtn variant="primary" onClick={() => setShowInviteForm(!showInviteForm)}>
@@ -120,27 +120,27 @@ export default function OwnerStaffPage() {
           <form onSubmit={handleInvite} className="grid sm:grid-cols-2 gap-6">
             <div className="sm:col-span-2">
               <OwnerFormField label="Email nhân viên (đã có tài khoản ProSport)" required>
-                <input 
-                  required 
-                  type="email" 
-                  placeholder="VD: nhanvien@example.com" 
-                  className={ownerInputCls} 
-                  value={invite.email} 
-                  onChange={e => setInvite({ ...invite, email: e.target.value })} 
+                <input
+                  required
+                  type="email"
+                  placeholder="VD: nhanvien@example.com"
+                  className={ownerInputCls}
+                  value={invite.email}
+                  onChange={e => setInvite({ ...invite, email: e.target.value })}
                 />
               </OwnerFormField>
             </div>
-            
+
             <div className="sm:col-span-2">
               <p className="text-[12px] font-bold uppercase tracking-wide text-gray-500 mb-2">Quyền hạn</p>
               <div className="flex flex-wrap gap-6">
                 {PERMISSION_KEYS.map(k => (
                   <label key={k} className="flex items-center gap-2 text-sm text-[#0f172a] cursor-pointer">
-                    <input 
-                      type="checkbox" 
+                    <input
+                      type="checkbox"
                       className="accent-[#14b8a6] w-4 h-4 cursor-pointer"
-                      checked={invite[k]} 
-                      onChange={e => setInvite({ ...invite, [k]: e.target.checked })} 
+                      checked={invite[k]}
+                      onChange={e => setInvite({ ...invite, [k]: e.target.checked })}
                     />
                     {PERMISSION_LABELS[k]}
                   </label>
@@ -171,8 +171,8 @@ export default function OwnerStaffPage() {
             <tbody>
               <tr>
                 <td colSpan={5}>
-                  <OwnerEmptyState title="Chưa có nhân viên" 
-                    description="Tổ hợp của bạn chưa có nhân viên nào được phân công." 
+                  <OwnerEmptyState title="Chưa có nhân viên"
+                    description="Tổ hợp của bạn chưa có nhân viên nào được phân công."
                     action={!showInviteForm && (
                       <OwnerBtn variant="primary" onClick={() => setShowInviteForm(true)} className="mt-4">
                         Mời nhân viên ngay
@@ -206,23 +206,23 @@ export default function OwnerStaffPage() {
                   </OwnerTd>
                   <OwnerTd right>
                     <div className="flex items-center justify-end gap-3">
-                      <button 
-                        type="button" 
-                        className="text-[12px] font-bold text-gray-500 hover:text-[#14b8a6] uppercase tracking-wide bg-transparent border-0 cursor-pointer transition-colors" 
+                      <button
+                        type="button"
+                        className="text-[12px] font-bold text-gray-500 hover:text-[#14b8a6] uppercase tracking-wide bg-transparent border-0 cursor-pointer transition-colors"
                         onClick={() => { setEditId(s.staffAssignmentId); setPerms({ canCheckIn: s.canCheckIn, canCreateWalkIn: s.canCreateWalkIn }); }}
                       >
                         Sửa quyền
                       </button>
-                      <button 
-                        type="button" 
-                        className="text-[12px] font-bold text-orange-500 hover:text-orange-600 uppercase tracking-wide bg-transparent border-0 cursor-pointer transition-colors" 
+                      <button
+                        type="button"
+                        className="text-[12px] font-bold text-orange-500 hover:text-orange-600 uppercase tracking-wide bg-transparent border-0 cursor-pointer transition-colors"
                         onClick={() => toggleStatus(s)}
                       >
                         {s.status === 'Active' ? 'Vô hiệu' : 'Kích hoạt'}
                       </button>
-                      <button 
-                        type="button" 
-                        className="text-[12px] font-bold text-red-500 hover:text-red-600 uppercase tracking-wide bg-transparent border-0 cursor-pointer transition-colors" 
+                      <button
+                        type="button"
+                        className="text-[12px] font-bold text-red-500 hover:text-red-600 uppercase tracking-wide bg-transparent border-0 cursor-pointer transition-colors"
                         onClick={() => remove(s.staffAssignmentId)}
                       >
                         Gỡ
@@ -245,11 +245,11 @@ export default function OwnerStaffPage() {
         <div className="space-y-4">
           {PERMISSION_KEYS.map(k => (
             <label key={k} className="flex items-center gap-3 text-sm text-[#0f172a] cursor-pointer bg-gray-50 p-3 rounded-[8px] border border-gray-100">
-              <input 
-                type="checkbox" 
+              <input
+                type="checkbox"
                 className="accent-[#14b8a6] w-4 h-4 cursor-pointer"
-                checked={perms[k]} 
-                onChange={e => setPerms({ ...perms, [k]: e.target.checked })} 
+                checked={perms[k]}
+                onChange={e => setPerms({ ...perms, [k]: e.target.checked })}
               />
               <span className="font-semibold">{PERMISSION_LABELS[k]}</span>
             </label>
@@ -263,4 +263,3 @@ export default function OwnerStaffPage() {
     </div>
   );
 }
-

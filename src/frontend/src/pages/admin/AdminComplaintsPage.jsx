@@ -79,6 +79,9 @@ export default function AdminComplaintsPage() {
       if (res.statusCode === 200 && res.data) {
         addToast('Cập nhật khiếu nại thành công.', 'success')
         setReports(prev => prev.map(r => (r.reportId === res.data.reportId ? res.data : r)))
+        if (filter && res.data.status !== filter) {
+          setSelectedId(null)
+        }
       } else {
         addToast(res.message || 'Cập nhật thất bại.', 'error')
       }

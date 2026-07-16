@@ -25,12 +25,12 @@ const LABELS = {
 
 export default function OwnerBreadcrumb() {
   const { pathname } = useLocation();
-  
+
   // Sort paths by length descending to match more specific routes first
   const matchPath = Object.keys(LABELS)
     .sort((a, b) => b.length - a.length)
     .find(p => pathname.startsWith(p));
-    
+
   const current = matchPath ? LABELS[matchPath] : 'Owner Portal';
 
   return (

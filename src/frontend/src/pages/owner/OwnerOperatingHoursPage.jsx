@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { ownerApi } from '../../api/ownerApi';
-import { 
-  OwnerPageHeader, 
-  OwnerCard, 
+import {
+  OwnerPageHeader,
+  OwnerCard,
   OwnerBtn,
   OwnerFormField,
   OwnerErrorState,
@@ -125,8 +125,8 @@ export default function OwnerOperatingHoursPage() {
 
   return (
     <div className="max-w-3xl mx-auto space-y-6 auth-animate-in pb-12">
-      <OwnerPageHeader 
-        title="Lịch vận hành" 
+      <OwnerPageHeader
+        title="Lịch vận hành"
         description="Thay đổi giờ hoạt động, ngày nghỉ lễ hoặc thời gian bảo trì sân."
       />
 
@@ -155,9 +155,9 @@ export default function OwnerOperatingHoursPage() {
           <div className="mb-8">
             <OwnerFormField label="Độ dài mỗi Slot (phút)">
               <div className="w-full sm:max-w-xs relative">
-                <select 
-                  className={ownerInputCls} 
-                  value={slotDurationMinutes} 
+                <select
+                  className={ownerInputCls}
+                  value={slotDurationMinutes}
                   onChange={e => setSlotDurationMinutes(+e.target.value)}
                 >
                   <option value={30}>30 phút</option>
@@ -176,28 +176,28 @@ export default function OwnerOperatingHoursPage() {
                 <div key={row.dayOfWeek} className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 p-3 bg-gray-50 rounded-[8px] border border-gray-100">
                   <span className="w-24 font-bold text-[#0f172a] shrink-0 text-sm">{DAY_NAMES[row.dayOfWeek]}</span>
                   <div className="flex items-center gap-3 flex-1">
-                  <input 
-                    type="time" 
+                  <input
+                    type="time"
                     aria-label={`Giờ mở cửa ${DAY_NAMES[row.dayOfWeek]}`}
-                      className={`${ownerInputCls} font-mono`} 
-                      value={row.openTime} 
+                      className={`${ownerInputCls} font-mono`}
+                      value={row.openTime}
                       onChange={e => {
                         const next = [...weeklySchedule];
                         next[idx] = { ...next[idx], openTime: e.target.value };
                         setWeeklySchedule(next);
-                      }} 
+                      }}
                     />
                     <span className="text-gray-400 font-bold shrink-0">–</span>
-                  <input 
-                    type="time" 
+                  <input
+                    type="time"
                     aria-label={`Giờ đóng cửa ${DAY_NAMES[row.dayOfWeek]}`}
-                      className={`${ownerInputCls} font-mono`} 
-                      value={row.closeTime} 
+                      className={`${ownerInputCls} font-mono`}
+                      value={row.closeTime}
                       onChange={e => {
                         const next = [...weeklySchedule];
                         next[idx] = { ...next[idx], closeTime: e.target.value };
                         setWeeklySchedule(next);
-                      }} 
+                      }}
                     />
                   </div>
                 </div>
@@ -212,9 +212,9 @@ export default function OwnerOperatingHoursPage() {
               <Calendar size={20} className="text-orange-500" />
               <h3 className="font-heading text-base uppercase tracking-tight text-[#0f172a] m-0">Ngày đóng cửa (Lễ, Tết)</h3>
             </div>
-            <button 
-              type="button" 
-              className="flex items-center gap-1 text-[11px] font-bold uppercase tracking-widest text-[#14b8a6] hover:text-[#0d9488] transition-colors bg-transparent border-0 cursor-pointer p-0" 
+            <button
+              type="button"
+              className="flex items-center gap-1 text-[11px] font-bold uppercase tracking-widest text-[#14b8a6] hover:text-[#0d9488] transition-colors bg-transparent border-0 cursor-pointer p-0"
               onClick={() => setClosures([...closures, { closureDate: '', reason: '' }])}
             >
               <Plus size={14} /> Thêm ngày
@@ -227,30 +227,30 @@ export default function OwnerOperatingHoursPage() {
             <div className="space-y-3">
               {closures.map((c, i) => (
                 <div key={i} className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
-                  <input 
-                    type="date" 
-                    className={`${ownerInputCls} sm:w-48`} 
-                    value={c.closureDate?.slice?.(0, 10) || c.closureDate || ''} 
+                  <input
+                    type="date"
+                    className={`${ownerInputCls} sm:w-48`}
+                    value={c.closureDate?.slice?.(0, 10) || c.closureDate || ''}
                     onChange={e => {
-                      const next = [...closures]; 
-                      next[i] = { ...next[i], closureDate: e.target.value }; 
+                      const next = [...closures];
+                      next[i] = { ...next[i], closureDate: e.target.value };
                       setClosures(next);
-                    }} 
+                    }}
                   />
-                  <input 
-                    className={`${ownerInputCls} flex-1`} 
-                    placeholder="Lý do (VD: Nghỉ Tết Nguyên Đán)" 
-                    value={c.reason || ''} 
+                  <input
+                    className={`${ownerInputCls} flex-1`}
+                    placeholder="Lý do (VD: Nghỉ Tết Nguyên Đán)"
+                    value={c.reason || ''}
                     onChange={e => {
-                      const next = [...closures]; 
-                      next[i] = { ...next[i], reason: e.target.value }; 
+                      const next = [...closures];
+                      next[i] = { ...next[i], reason: e.target.value };
                       setClosures(next);
-                    }} 
+                    }}
                   />
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     aria-label={`Xóa ngày đóng cửa ${i + 1}`}
-                    className="w-11 h-11 inline-flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-[8px] transition-colors bg-transparent border-0 cursor-pointer self-end sm:self-auto" 
+                    className="w-11 h-11 inline-flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-[8px] transition-colors bg-transparent border-0 cursor-pointer self-end sm:self-auto"
                     onClick={() => setClosures(closures.filter((_, j) => j !== i))}
                   >
                     <Trash2 size={18} />
@@ -267,9 +267,9 @@ export default function OwnerOperatingHoursPage() {
               <AlertTriangle size={20} className="text-red-500" />
               <h3 className="font-heading text-base uppercase tracking-tight text-[#0f172a] m-0">Bảo trì sân</h3>
             </div>
-            <button 
-              type="button" 
-              className="flex items-center gap-1 text-[11px] font-bold uppercase tracking-widest text-[#14b8a6] hover:text-[#0d9488] transition-colors bg-transparent border-0 cursor-pointer p-0" 
+            <button
+              type="button"
+              className="flex items-center gap-1 text-[11px] font-bold uppercase tracking-widest text-[#14b8a6] hover:text-[#0d9488] transition-colors bg-transparent border-0 cursor-pointer p-0"
               onClick={() => setMaintenanceWindows([...maintenanceWindows, { startAt: '', endAt: '', reason: '', courtId: null }])}
             >
               <Plus size={14} /> Thêm bảo trì
@@ -282,51 +282,51 @@ export default function OwnerOperatingHoursPage() {
             <div className="space-y-6">
               {maintenanceWindows.map((m, i) => (
                 <div key={i} className="p-4 bg-gray-50 rounded-[12px] border border-gray-100 relative group">
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     aria-label={`Xóa lịch bảo trì ${i + 1}`}
-                    className="absolute top-3 right-3 w-11 h-11 inline-flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 focus-visible:text-red-500 focus-visible:ring-2 focus-visible:ring-red-500 rounded-[8px] transition-colors bg-white border border-gray-200 cursor-pointer" 
+                    className="absolute top-3 right-3 w-11 h-11 inline-flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 focus-visible:text-red-500 focus-visible:ring-2 focus-visible:ring-red-500 rounded-[8px] transition-colors bg-white border border-gray-200 cursor-pointer"
                     onClick={() => setMaintenanceWindows(maintenanceWindows.filter((_, j) => j !== i))}
                   >
                     <Trash2 size={14} />
                   </button>
-                  
+
                   <div className="grid sm:grid-cols-2 gap-4 pr-10">
                     <OwnerFormField label="Bắt đầu lúc">
-                      <input 
-                        type="datetime-local" 
-                        className={ownerInputCls} 
-                        value={m.startAt?.slice?.(0, 16) || ''} 
+                      <input
+                        type="datetime-local"
+                        className={ownerInputCls}
+                        value={m.startAt?.slice?.(0, 16) || ''}
                         onChange={e => {
-                          const next = [...maintenanceWindows]; 
-                          next[i] = { ...next[i], startAt: e.target.value }; 
+                          const next = [...maintenanceWindows];
+                          next[i] = { ...next[i], startAt: e.target.value };
                           setMaintenanceWindows(next);
-                        }} 
+                        }}
                       />
                     </OwnerFormField>
                     <OwnerFormField label="Hoàn thành lúc">
-                      <input 
-                        type="datetime-local" 
-                        className={ownerInputCls} 
-                        value={m.endAt?.slice?.(0, 16) || ''} 
+                      <input
+                        type="datetime-local"
+                        className={ownerInputCls}
+                        value={m.endAt?.slice?.(0, 16) || ''}
                         onChange={e => {
-                          const next = [...maintenanceWindows]; 
-                          next[i] = { ...next[i], endAt: e.target.value }; 
+                          const next = [...maintenanceWindows];
+                          next[i] = { ...next[i], endAt: e.target.value };
                           setMaintenanceWindows(next);
-                        }} 
+                        }}
                       />
                     </OwnerFormField>
                     <div className="sm:col-span-2">
                       <OwnerFormField label="Lý do bảo trì">
-                        <input 
-                          className={ownerInputCls} 
-                          placeholder="VD: Sửa chữa lưới bảo vệ" 
-                          value={m.reason || ''} 
+                        <input
+                          className={ownerInputCls}
+                          placeholder="VD: Sửa chữa lưới bảo vệ"
+                          value={m.reason || ''}
                           onChange={e => {
-                            const next = [...maintenanceWindows]; 
-                            next[i] = { ...next[i], reason: e.target.value }; 
+                            const next = [...maintenanceWindows];
+                            next[i] = { ...next[i], reason: e.target.value };
                             setMaintenanceWindows(next);
-                          }} 
+                          }}
                         />
                       </OwnerFormField>
                     </div>

@@ -29,7 +29,7 @@ public class CourtService : ICourtService
         {
             var (courts, totalCount) = await _courtRepository.GetPagedCourtsAsync(parameters);
             var dtos = courts.Select(MapToDto).ToList();
-            
+
             var result = new PagedResult<CourtDto>
             {
                 Items = dtos,
@@ -37,7 +37,7 @@ public class CourtService : ICourtService
                 CurrentPage = parameters.PageNumber,
                 TotalPages = (int)Math.Ceiling(totalCount / (double)parameters.PageSize)
             };
-            
+
             return new ApiResponseDto<PagedResult<CourtDto>>(200, "Success", result);
         }
         catch (Exception ex)

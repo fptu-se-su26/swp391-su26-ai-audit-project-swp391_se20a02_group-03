@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { ownerApi } from '../../api/ownerApi';
-import { 
-  OwnerPageHeader, 
-  OwnerCard, 
+import {
+  OwnerPageHeader,
+  OwnerCard,
   OwnerBtn,
   OwnerStatusBadge,
   OwnerEmptyState,
@@ -46,10 +46,10 @@ export default function OwnerVouchersPage() {
         startDate: new Date(form.startDate).toISOString(),
         endDate: new Date(form.endDate).toISOString(),
       });
-      if (res.statusCode === 201) { 
-        setShowForm(false); 
+      if (res.statusCode === 201) {
+        setShowForm(false);
         setForm({ code: '', name: '', voucherType: 'Percent', discountPercent: 10, totalQuantity: 100, startDate: '', endDate: '' });
-        load(); 
+        load();
       }
       else setError(res.message);
     } catch (err) {
@@ -70,8 +70,8 @@ export default function OwnerVouchersPage() {
 
   return (
     <div className="space-y-6 auth-animate-in pb-12">
-      <OwnerPageHeader 
-        title="Mã khuyến mãi" 
+      <OwnerPageHeader
+        title="Mã khuyến mãi"
         description="Tạo và quản lý voucher giảm giá, mã khuyến mãi cho khách hàng."
       >
         <OwnerBtn variant="primary" onClick={() => setShowForm(v => !v)}>
@@ -88,36 +88,36 @@ export default function OwnerVouchersPage() {
             <OwnerFormField label="Mã Voucher" required>
               <input required className={ownerInputCls} placeholder="VD: SUMMER2024" value={form.code} onChange={e => setForm({ ...form, code: e.target.value.toUpperCase() })} />
             </OwnerFormField>
-            
+
             <OwnerFormField label="Tên chương trình" required>
               <input required className={ownerInputCls} placeholder="VD: Khuyến mãi Hè" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} />
             </OwnerFormField>
-            
+
             <OwnerFormField label="Loại Voucher">
               <select className={ownerInputCls} value={form.voucherType} onChange={e => setForm({ ...form, voucherType: e.target.value })}>
                 <option value="Percent">Giảm phần trăm (%)</option>
                 <option value="TryBeforeYouBuy">Dùng thử (Try before buy)</option>
               </select>
             </OwnerFormField>
-            
+
             <OwnerFormField label="Phần trăm giảm (%)">
               <input type="number" min="0" max="100" className={ownerInputCls} placeholder="VD: 10" value={form.discountPercent} onChange={e => setForm({ ...form, discountPercent: e.target.value })} />
             </OwnerFormField>
-            
+
             <OwnerFormField label="Số lượng phát hành">
               <input type="number" min="1" className={ownerInputCls} placeholder="VD: 100" value={form.totalQuantity} onChange={e => setForm({ ...form, totalQuantity: e.target.value })} />
             </OwnerFormField>
 
             <div className="hidden md:block"></div>
-            
+
             <OwnerFormField label="Ngày bắt đầu" required>
               <input type="date" required className={ownerInputCls} value={form.startDate} onChange={e => setForm({ ...form, startDate: e.target.value })} />
             </OwnerFormField>
-            
+
             <OwnerFormField label="Ngày kết thúc" required>
               <input type="date" required className={ownerInputCls} value={form.endDate} onChange={e => setForm({ ...form, endDate: e.target.value })} />
             </OwnerFormField>
-            
+
             <div className="sm:col-span-2 md:col-span-3 flex justify-end pt-4 border-t border-gray-100">
               <OwnerBtn type="submit">Tạo Voucher</OwnerBtn>
             </div>
@@ -132,9 +132,9 @@ export default function OwnerVouchersPage() {
           <div className="h-40 bg-white rounded-[16px] border border-gray-100 shadow-[0_2px_16px_rgba(0,0,0,0.03)]"></div>
         </div>
       ) : !items.length ? (
-        <OwnerEmptyState 
-          title="Chưa có mã khuyến mãi" 
-          description="Tạo mã khuyến mãi đầu tiên để thu hút thêm khách hàng." 
+        <OwnerEmptyState
+          title="Chưa có mã khuyến mãi"
+          description="Tạo mã khuyến mãi đầu tiên để thu hút thêm khách hàng."
           action={!showForm && (
             <OwnerBtn variant="primary" onClick={() => setShowForm(true)} className="mt-4">
               Tạo voucher ngay
@@ -146,7 +146,7 @@ export default function OwnerVouchersPage() {
           {items.map(v => (
             <OwnerCard key={v.voucherId} className="flex flex-col h-full relative overflow-hidden group">
               <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-[#14b8a6]/10 to-transparent -mr-8 -mt-8 rounded-full transition-transform group-hover:scale-150"></div>
-              
+
               <div className="flex justify-between items-start gap-4 mb-4 relative">
                 <div>
                   <div className="flex items-center gap-2 mb-1">
@@ -156,16 +156,16 @@ export default function OwnerVouchersPage() {
                 </div>
                 <div className="shrink-0 flex flex-col items-end gap-2">
                   <OwnerStatusBadge status={v.status} type="general" />
-                  <button 
-                    type="button" 
-                    onClick={() => toggleStatus(v)} 
+                  <button
+                    type="button"
+                    onClick={() => toggleStatus(v)}
                     className={`text-[10px] font-bold uppercase tracking-widest ${v.status === 'Active' ? 'text-gray-400 hover:text-red-500' : 'text-[#14b8a6] hover:text-[#0d9488]'} bg-transparent border-none cursor-pointer transition-colors px-0`}
                   >
                     {v.status === 'Active' ? 'Tạm ngưng' : 'Kích hoạt'}
                   </button>
                 </div>
               </div>
-              
+
               <div className="mt-auto pt-4 border-t border-gray-100 space-y-3">
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-gray-500 font-medium">Loại ưu đãi</span>

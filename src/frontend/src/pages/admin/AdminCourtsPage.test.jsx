@@ -61,7 +61,7 @@ async function openEditModal(court) {
 }
 
 describe.each([
-  ['ACTIVE', 'Trống'],
+  ['ACTIVE', 'Hoạt động'],
   ['MAINTENANCE', 'Bảo trì'],
   ['INACTIVE', 'Ngưng hoạt động'],
 ])('AdminCourtsPage — round-trip trạng thái sân (%s)', (apiStatus, expectedLabel) => {
@@ -91,7 +91,7 @@ describe('AdminCourtsPage — select trạng thái không còn cho chọn giá t
     await openEditModal(courtFixture('ACTIVE'));
     const select = screen.getByRole('combobox', { name: /trạng thái/i });
     const optionLabels = within(select).getAllByRole('option').map(o => o.textContent);
-    expect(optionLabels).toEqual(['Trống', 'Bảo trì', 'Ngưng hoạt động']);
+    expect(optionLabels).toEqual(['Hoạt động', 'Bảo trì', 'Ngưng hoạt động']);
   });
 });
 

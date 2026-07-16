@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ownerApi } from '../../api/ownerApi';
-import { 
-  OwnerCard, 
-  OwnerBtn, 
+import {
+  OwnerCard,
+  OwnerBtn,
   OwnerStatusBadge,
   OwnerErrorState,
   ownerInputCls
@@ -99,8 +99,8 @@ export default function OwnerBookingDetailPage() {
   return (
     <div className="max-w-2xl mx-auto space-y-6 auth-animate-in pb-12">
       <div>
-        <Link 
-          to="/owner/bookings" 
+        <Link
+          to="/owner/bookings"
           className="inline-flex items-center gap-1 text-[12px] font-bold uppercase tracking-wide text-gray-500 hover:text-[#14b8a6] no-underline transition-colors mb-4"
         >
           <ChevronLeft size={16} /> Danh sách booking

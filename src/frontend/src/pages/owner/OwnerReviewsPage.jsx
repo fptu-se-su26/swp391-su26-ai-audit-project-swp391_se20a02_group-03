@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { ownerApi } from '../../api/ownerApi';
-import { 
-  OwnerPageHeader, 
-  OwnerCard, 
+import {
+  OwnerPageHeader,
+  OwnerCard,
   OwnerBtn,
   OwnerEmptyState,
   OwnerErrorState,
@@ -86,10 +86,10 @@ export default function OwnerReviewsPage() {
     return (
       <div className="flex gap-0.5">
         {[1, 2, 3, 4, 5].map(star => (
-          <Star 
-            key={star} 
-            size={16} 
-            className={star <= rating ? "fill-amber-400 text-amber-400" : "fill-gray-100 text-gray-200"} 
+          <Star
+            key={star}
+            size={16}
+            className={star <= rating ? "fill-amber-400 text-amber-400" : "fill-gray-100 text-gray-200"}
           />
         ))}
       </div>
@@ -125,17 +125,17 @@ export default function OwnerReviewsPage() {
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto auth-animate-in pb-12">
-      <OwnerPageHeader 
-        title="Đánh giá từ khách hàng" 
+      <OwnerPageHeader
+        title="Đánh giá từ khách hàng"
         description="Xem và phản hồi đánh giá của khách hàng về tổ hợp của bạn."
       />
 
       {error && <OwnerErrorState message={error} onRetry={load} />}
 
       {!items.length ? (
-        <OwnerEmptyState 
-          title="Chưa có đánh giá nào" 
-          description="Tổ hợp của bạn chưa nhận được đánh giá nào từ khách hàng." 
+        <OwnerEmptyState
+          title="Chưa có đánh giá nào"
+          description="Tổ hợp của bạn chưa nhận được đánh giá nào từ khách hàng."
         />
       ) : (
         <div className="space-y-4">
@@ -154,10 +154,10 @@ export default function OwnerReviewsPage() {
                     </span>
                   </div>
                 </div>
-                
-                <button 
-                  type="button" 
-                  onClick={() => reportReview(r.complexReviewId)} 
+
+                <button
+                  type="button"
+                  onClick={() => reportReview(r.complexReviewId)}
                   className="min-h-11 px-3 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-gray-500 hover:text-red-500 transition-colors bg-transparent border-0 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 rounded"
                   title="Báo cáo đánh giá xấu/spam"
                 >
@@ -184,17 +184,17 @@ export default function OwnerReviewsPage() {
                   <div className="flex items-start gap-3">
                     <CornerDownRight className="text-gray-300 mt-3 shrink-0" size={16} />
                     <div className="flex-1 flex flex-col sm:flex-row gap-3">
-                      <input 
-                        className={ownerInputCls} 
-                        placeholder="Nhập phản hồi của bạn..." 
+                      <input
+                        className={ownerInputCls}
+                        placeholder="Nhập phản hồi của bạn..."
                         aria-label={`Phản hồi đánh giá của ${r.customerName || 'khách hàng'}`}
-                        value={replyText[r.complexReviewId] || ''} 
-                        onChange={e => setReplyText({ ...replyText, [r.complexReviewId]: e.target.value })} 
+                        value={replyText[r.complexReviewId] || ''}
+                        onChange={e => setReplyText({ ...replyText, [r.complexReviewId]: e.target.value })}
                         onKeyDown={e => e.key === 'Enter' && submitReply(r.complexReviewId)}
                       />
-                      <OwnerBtn 
+                      <OwnerBtn
                         variant="secondary"
-                        onClick={() => submitReply(r.complexReviewId)} 
+                        onClick={() => submitReply(r.complexReviewId)}
                         disabled={loadedComplexId !== complexId || !replyText[r.complexReviewId]?.trim()}
                         className="whitespace-nowrap sm:w-auto w-full"
                       >

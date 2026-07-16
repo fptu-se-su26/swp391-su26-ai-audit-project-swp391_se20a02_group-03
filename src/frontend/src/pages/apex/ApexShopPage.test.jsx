@@ -2,6 +2,7 @@ import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { MemoryRouter } from 'react-router-dom';
 import ApexShopPage from './ApexShopPage';
 import { equipmentApi } from '../../api/equipmentApi';
 
@@ -21,6 +22,15 @@ vi.mock('../../components/Toast', () => ({
 
 vi.mock('../../api/equipmentApi', () => ({
   equipmentApi: { getAll: vi.fn() },
+}));
+
+vi.mock('../../context/CartContext', () => ({
+  useCart: () => ({
+    cartItems: [],
+    cartCount: 0,
+    addToCart: vi.fn(),
+    removeFromCart: vi.fn(),
+  }),
 }));
 
 vi.mock('gsap', () => ({
@@ -44,7 +54,7 @@ beforeEach(() => {
 
 async function renderShop() {
   equipmentApi.getAll.mockResolvedValue({ statusCode: 200, data: equipmentFixture() });
-  render(<ApexShopPage />);
+  render(<MemoryRouter><ApexShopPage /></MemoryRouter>);
   await screen.findByText('Vợt Yonex Astrox');
 }
 
@@ -110,9 +120,11 @@ describe('ApexShopPage — filter contract khớp API thật', () => {
     expect(screen.getByText('Vợt Pickleball Pro')).toBeInTheDocument();
   });
 
-  it('không còn filter "Tình trạng" giả (Premium/New/Trial không tồn tại ở backend)', async () => {
+  it('dùng bộ lọc tồn kho thật thay vì các trạng thái Premium/New/Trial không có trong API', async () => {
     await renderShop();
-    expect(screen.queryByText('Tình trạng')).not.toBeInTheDocument();
+    expect(screen.getByText('Tình trạng')).toBeInTheDocument();
+    expect(screen.getByText('Còn hàng')).toBeInTheDocument();
+    expect(screen.getByText('Hết hàng')).toBeInTheDocument();
     expect(screen.queryByText('Dùng thử')).not.toBeInTheDocument();
   });
 });

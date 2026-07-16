@@ -2,13 +2,13 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useOutletContext, useSearchParams } from 'react-router-dom';
 import { bookingApi } from '../../api/bookingApi';
 import { ownerApi } from '../../api/ownerApi';
-import { 
-  OwnerCard, 
-  OwnerBtn, 
-  OwnerFormField, 
-  ownerInputCls, 
-  OwnerEmptyState, 
-  OwnerErrorState 
+import {
+  OwnerCard,
+  OwnerBtn,
+  OwnerFormField,
+  ownerInputCls,
+  OwnerEmptyState,
+  OwnerErrorState
 } from '../../components/owner';
 import { ChevronLeft } from 'lucide-react';
 
@@ -194,8 +194,8 @@ export default function OwnerWalkInPage() {
   return (
     <div className="max-w-3xl mx-auto space-y-6 auth-animate-in pb-12">
       <div>
-        <Link 
-          to="/owner/bookings" 
+        <Link
+          to="/owner/bookings"
           className="inline-flex items-center gap-1 text-[12px] font-bold uppercase tracking-wide text-gray-500 hover:text-[#14b8a6] no-underline transition-colors mb-4"
         >
           <ChevronLeft size={16} /> Danh sách booking
@@ -214,9 +214,9 @@ export default function OwnerWalkInPage() {
           <OwnerCard>
             <div className="grid sm:grid-cols-2 gap-6">
               <OwnerFormField label="Chọn Sân">
-                <select 
-                  className={ownerInputCls} 
-                  value={selectedCourtId} 
+                <select
+                  className={ownerInputCls}
+                  value={selectedCourtId}
                   onChange={e => setSelectedCourtId(e.target.value)}
                 >
                   {courts.map(c => (
@@ -225,12 +225,12 @@ export default function OwnerWalkInPage() {
                 </select>
               </OwnerFormField>
               <OwnerFormField label="Ngày đặt">
-                <input 
-                  type="date" 
-                  min={minDate} 
-                  className={ownerInputCls} 
-                  value={selectedDate} 
-                  onChange={e => setSelectedDate(e.target.value)} 
+                <input
+                  type="date"
+                  min={minDate}
+                  className={ownerInputCls}
+                  value={selectedDate}
+                  onChange={e => setSelectedDate(e.target.value)}
                 />
               </OwnerFormField>
             </div>
@@ -242,7 +242,7 @@ export default function OwnerWalkInPage() {
               <h3 className="font-heading text-base uppercase tracking-tight text-[#0f172a] m-0">Chọn khung giờ</h3>
               {slotsLoading && <span className="text-xs text-gray-400">Đang tải...</span>}
             </div>
-            
+
             <div className="flex flex-wrap gap-2">
               {timeSlots.map(slot => {
                 const booked = bookedSlots.includes(slot);
@@ -254,9 +254,9 @@ export default function OwnerWalkInPage() {
                     disabled={booked || slotsLoading}
                     onClick={() => toggleSlot(slot)}
                     className={`h-10 px-4 rounded-[8px] font-mono text-sm font-semibold transition-all border cursor-pointer ${
-                      booked 
+                      booked
                         ? 'bg-gray-50 text-gray-400 border-transparent cursor-not-allowed'
-                        : selected 
+                        : selected
                           ? 'bg-[#14b8a6] text-white border-[#14b8a6] shadow-sm'
                           : 'bg-white text-gray-700 border-gray-200 hover:border-[#14b8a6] hover:text-[#14b8a6]'
                     }`}
@@ -266,7 +266,7 @@ export default function OwnerWalkInPage() {
                 );
               })}
             </div>
-            
+
             {selectedSlots.length > 0 && (
               <div className="mt-6 pt-4 border-t border-gray-100 flex items-center justify-between">
                 <span className="text-sm font-bold text-gray-500 uppercase tracking-wide">Ước tính giá</span>
@@ -278,22 +278,22 @@ export default function OwnerWalkInPage() {
           {/* Section 3: Thông tin khách hàng */}
           <OwnerCard>
             <h3 className="font-heading text-base uppercase tracking-tight text-[#0f172a] m-0 mb-4">Thông tin khách hàng</h3>
-            
+
             <div className="flex gap-6 mb-6">
               <label className="flex items-center gap-2 text-sm text-[#0f172a] cursor-pointer">
-                <input 
-                  type="radio" 
-                  checked={customerMode === 'guest'} 
-                  onChange={() => setCustomerMode('guest')} 
+                <input
+                  type="radio"
+                  checked={customerMode === 'guest'}
+                  onChange={() => setCustomerMode('guest')}
                   className="accent-[#14b8a6]"
                 />
                 Khách lẻ
               </label>
               <label className="flex items-center gap-2 text-sm text-[#0f172a] cursor-pointer">
-                <input 
-                  type="radio" 
-                  checked={customerMode === 'email'} 
-                  onChange={() => setCustomerMode('email')} 
+                <input
+                  type="radio"
+                  checked={customerMode === 'email'}
+                  onChange={() => setCustomerMode('email')}
                   className="accent-[#14b8a6]"
                 />
                 Tài khoản User (Email)
@@ -303,40 +303,40 @@ export default function OwnerWalkInPage() {
             <div className="grid gap-6">
               {customerMode === 'email' ? (
                 <OwnerFormField label="Email khách hàng">
-                  <input 
-                    className={ownerInputCls} 
-                    placeholder="VD: nguyenvanb@example.com" 
-                    value={customerEmail} 
-                    onChange={e => setCustomerEmail(e.target.value)} 
+                  <input
+                    className={ownerInputCls}
+                    placeholder="VD: nguyenvanb@example.com"
+                    value={customerEmail}
+                    onChange={e => setCustomerEmail(e.target.value)}
                   />
                 </OwnerFormField>
               ) : (
                 <div className="grid sm:grid-cols-2 gap-6">
                   <OwnerFormField label="Tên khách hàng">
-                    <input 
-                      className={ownerInputCls} 
-                      placeholder="VD: Anh Tuấn" 
-                      value={customerName} 
-                      onChange={e => setCustomerName(e.target.value)} 
+                    <input
+                      className={ownerInputCls}
+                      placeholder="VD: Anh Tuấn"
+                      value={customerName}
+                      onChange={e => setCustomerName(e.target.value)}
                     />
                   </OwnerFormField>
                   <OwnerFormField label="Số điện thoại (Tuỳ chọn)">
-                    <input 
-                      className={ownerInputCls} 
-                      placeholder="VD: 0901234567" 
-                      value={customerPhone} 
-                      onChange={e => setCustomerPhone(e.target.value)} 
+                    <input
+                      className={ownerInputCls}
+                      placeholder="VD: 0901234567"
+                      value={customerPhone}
+                      onChange={e => setCustomerPhone(e.target.value)}
                     />
                   </OwnerFormField>
                 </div>
               )}
-              
+
               <OwnerFormField label="Ghi chú (Tuỳ chọn)">
-                <input 
-                  className={ownerInputCls} 
-                  placeholder="Yêu cầu thêm..." 
-                  value={notes} 
-                  onChange={e => setNotes(e.target.value)} 
+                <input
+                  className={ownerInputCls}
+                  placeholder="Yêu cầu thêm..."
+                  value={notes}
+                  onChange={e => setNotes(e.target.value)}
                 />
               </OwnerFormField>
 
@@ -356,4 +356,3 @@ export default function OwnerWalkInPage() {
     </div>
   );
 }
-

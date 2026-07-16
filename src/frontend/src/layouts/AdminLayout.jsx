@@ -234,7 +234,7 @@ export default function AdminLayout({ children }) {
       </aside>
 
       {/* ─── Main Content Area ─── */}
-      <div 
+      <div
         className="flex-1 flex flex-col lg:ml-[256px] w-full min-h-screen"
         aria-hidden={isMobile && sidebarOpen}
         inert={isMobile && sidebarOpen ? '' : undefined}

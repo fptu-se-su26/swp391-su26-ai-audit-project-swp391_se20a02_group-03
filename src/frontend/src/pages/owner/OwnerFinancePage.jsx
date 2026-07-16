@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { ownerApi } from '../../api/ownerApi';
-import { 
-  OwnerPageHeader, 
-  OwnerCard, 
+import {
+  OwnerPageHeader,
+  OwnerCard,
   OwnerToolbar,
   OwnerBtn,
   OwnerErrorState,
@@ -48,8 +48,8 @@ export default function OwnerFinancePage() {
 
   return (
     <div className="space-y-6 auth-animate-in pb-12">
-      <OwnerPageHeader 
-        title="Tài chính" 
+      <OwnerPageHeader
+        title="Tài chính"
         description="Theo dõi doanh thu, dòng tiền và các khoản hoàn trả."
       />
 

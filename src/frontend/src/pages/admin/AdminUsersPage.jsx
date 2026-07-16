@@ -80,7 +80,7 @@ export default function AdminUsersPage() {
 
   const fetchUsers = useCallback(async (opts = {}) => {
     const { search: s = debouncedSearch, role = activeRole, page: p = page } = opts
-    
+
     if (activeRequestRef.current) {
       activeRequestRef.current.abort()
     }

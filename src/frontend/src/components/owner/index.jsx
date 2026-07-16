@@ -24,17 +24,17 @@ export function OwnerPageHeader({ title, description, children }) {
    2. Buttons
    ========================================================================= */
 
-export const OwnerBtn = forwardRef(({ 
-  variant = 'primary', 
+export const OwnerBtn = forwardRef(({
+  variant = 'primary',
   size = 'md',
-  className = '', 
+  className = '',
   to,
   href,
-  children, 
-  ...props 
+  children,
+  ...props
 }, ref) => {
   const base = "inline-flex items-center justify-center rounded-[8px] font-bold uppercase tracking-wide transition-all border-0 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed no-underline";
-  
+
   const variants = {
     primary: "bg-[#14b8a6] hover:bg-[#0f9e8c] text-white shadow-sm",
     secondary: "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50",
@@ -98,7 +98,7 @@ export function OwnerStatCard({ label, value, description, icon: Icon, color = '
     red: 'bg-red-50 text-red-600',
     indigo: 'bg-indigo-50 text-indigo-600',
   };
-  
+
   const iconBg = colorMap[color] || colorMap.teal;
 
   return (
@@ -143,8 +143,8 @@ export function OwnerFilterPills({ tabs, activeTab, onChange }) {
             aria-selected={isActive}
             onClick={() => onChange(value)}
             className={`h-9 px-5 rounded-full text-[13px] font-bold transition-all border-0 cursor-pointer flex items-center gap-2 ${
-              isActive 
-                ? 'bg-[#14b8a6] text-white shadow-sm' 
+              isActive
+                ? 'bg-[#14b8a6] text-white shadow-sm'
                 : 'bg-transparent text-gray-500 hover:bg-gray-50 hover:text-gray-700'
             }`}
           >
@@ -316,7 +316,10 @@ export function OwnerModal({ open, onClose, title, children, maxWidth = 'max-w-m
   const focusTimerRef = useRef(null);
   const onCloseRef = useRef(onClose);
   const titleId = useId();
-  onCloseRef.current = onClose;
+
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
 
   useEffect(() => {
     if (!open) return undefined;
@@ -380,14 +383,14 @@ export function OwnerModal({ open, onClose, title, children, maxWidth = 'max-w-m
   return (
     <div className="fixed inset-0 z-[500] flex items-center justify-center p-4">
       {/* Backdrop */}
-      <div 
-        className="absolute inset-0 bg-[#0f172a]/40 backdrop-blur-sm transition-opacity" 
+      <div
+        className="absolute inset-0 bg-[#0f172a]/40 backdrop-blur-sm transition-opacity"
         aria-hidden="true"
-        onClick={() => onCloseRef.current?.()} 
+        onClick={() => onCloseRef.current?.()}
       />
-      
+
       {/* Dialog */}
-      <div 
+      <div
         ref={modalRef}
         tabIndex="-1"
         role="dialog"

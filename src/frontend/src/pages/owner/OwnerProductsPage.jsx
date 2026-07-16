@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { ownerApi } from '../../api/ownerApi';
-import { 
-  OwnerPageHeader, 
-  OwnerCard, 
+import {
+  OwnerPageHeader,
+  OwnerCard,
   OwnerToolbar,
   OwnerSearchInput,
   OwnerTable,
@@ -38,10 +38,10 @@ export default function OwnerProductsPage() {
       const res = await ownerApi.getProducts(complexId, { keyword: debouncedKeyword, page: 1, size: 50 });
       if (res.statusCode === 200) setItems(res.data?.items || []);
       else setError(res.message);
-    } catch (e) { 
-      setError(typeof e === 'string' ? e : 'Lỗi tải kho.'); 
-    } finally { 
-      setLoading(false); 
+    } catch (e) {
+      setError(typeof e === 'string' ? e : 'Lỗi tải kho.');
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -73,15 +73,15 @@ export default function OwnerProductsPage() {
         setForm({ sku: '', productName: '', category: 'Racket', quantity: 0, lowStockThreshold: 5, sellingPrice: 0 });
         load();
       } else setError(res.message);
-    } catch (e) { 
-      setError(typeof e === 'string' ? e : 'Lưu thất bại.'); 
+    } catch (e) {
+      setError(typeof e === 'string' ? e : 'Lưu thất bại.');
     }
   }
 
   return (
     <div className="space-y-6 auth-animate-in pb-12">
-      <OwnerPageHeader 
-        title="Kho sản phẩm" 
+      <OwnerPageHeader
+        title="Kho sản phẩm"
         description="Quản lý kho hàng hóa, dụng cụ và nước uống tại tổ hợp."
       >
         <OwnerBtn variant="primary" onClick={() => { setEditId(null); setShowForm(v => !v); }}>
@@ -92,7 +92,7 @@ export default function OwnerProductsPage() {
       <OwnerCard className="space-y-4">
         <OwnerToolbar className="!mb-0">
           <div className="flex-1 min-w-[200px]">
-            <OwnerSearchInput 
+            <OwnerSearchInput
               placeholder="Tìm theo SKU, tên sản phẩm..."
               value={keyword}
               onChange={e => setKeyword(e.target.value)}
@@ -130,7 +130,7 @@ export default function OwnerProductsPage() {
             <OwnerFormField label="Giá bán (VND)">
               <input type="number" className={ownerInputCls} placeholder="Giá bán" value={form.sellingPrice} onChange={e => setForm({ ...form, sellingPrice: +e.target.value })} />
             </OwnerFormField>
-            
+
             <div className="sm:col-span-2 md:col-span-3 flex justify-end pt-4 border-t border-gray-100">
               <OwnerBtn type="submit">{editId ? 'Cập nhật sản phẩm' : 'Thêm sản phẩm'}</OwnerBtn>
             </div>
@@ -155,8 +155,8 @@ export default function OwnerProductsPage() {
             <tbody>
               <tr>
                 <td colSpan={6}>
-                  <OwnerEmptyState title="Không có sản phẩm nào" 
-                    description={debouncedKeyword ? `Không tìm thấy kết quả nào cho "${debouncedKeyword}".` : "Thêm sản phẩm đầu tiên vào kho hàng của bạn."} 
+                  <OwnerEmptyState title="Không có sản phẩm nào"
+                    description={debouncedKeyword ? `Không tìm thấy kết quả nào cho "${debouncedKeyword}".` : "Thêm sản phẩm đầu tiên vào kho hàng của bạn."}
                   />
                 </td>
               </tr>
@@ -187,9 +187,9 @@ export default function OwnerProductsPage() {
                     <OwnerStatusBadge status={p.status} type="general" />
                   </OwnerTd>
                   <OwnerTd right>
-                    <button 
-                      type="button" 
-                      onClick={() => startEdit(p)} 
+                    <button
+                      type="button"
+                      onClick={() => startEdit(p)}
                       className="text-[12px] font-bold text-gray-500 hover:text-[#14b8a6] uppercase tracking-wide bg-transparent border-0 cursor-pointer transition-colors"
                     >
                       Sửa
@@ -204,4 +204,3 @@ export default function OwnerProductsPage() {
     </div>
   );
 }
-

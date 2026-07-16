@@ -45,7 +45,7 @@ vi.mock('../../api/cartApi', () => ({
 const mockGetEscrowWallet = vi.fn();
 const mockCreateVnPayUrl = vi.fn();
 vi.mock('../../api/paymentApi', () => ({
-    paymentApi: { 
+    paymentApi: {
         getEscrowWallet: (...args) => mockGetEscrowWallet(...args),
         createVnPayUrl: (...args) => mockCreateVnPayUrl(...args)
     }
@@ -97,7 +97,7 @@ describe('CartCheckoutPage', () => {
         mockCartData.cartData.grandTotal = 200000;
 
         renderWithRouter(<CartCheckoutPage />);
-        
+
         await waitFor(() => {
             expect(screen.getByText('Vợt')).toBeDefined();
             // Tổng là 200,000 VND
@@ -110,11 +110,11 @@ describe('CartCheckoutPage', () => {
             { cartItemId: 1, equipmentName: 'Giày', quantity: 1, unitPrice: 0 } // Tổng 0 VND
         ];
         mockCartData.cartData.grandTotal = 0;
-        
+
         mockCheckout.mockResolvedValue({ success: true, message: 'OK' });
 
         renderWithRouter(<CartCheckoutPage />);
-        
+
         await waitFor(() => {
             const buttons = screen.getAllByTestId('checkout-btn');
             expect(buttons[buttons.length - 1].disabled).toBe(false);
@@ -134,21 +134,21 @@ describe('CartCheckoutPage', () => {
 
     it('gọi API checkout theo booking không xóa toàn bộ giỏ hàng', async () => {
         mockSearchParams.value = 'bookingId=100';
-        
+
         mockCartData.cartItems = [
             { cartItemId: 1, equipmentName: 'Sản phẩm 1', quantity: 1, unitPrice: 100000, bookingId: 100 },
             { cartItemId: 2, equipmentName: 'Sản phẩm 2', quantity: 1, unitPrice: 200000, bookingId: 100 },
             { cartItemId: 3, equipmentName: 'Booking khác', quantity: 1, unitPrice: 70000, bookingId: 200 },
             { cartItemId: 4, equipmentName: 'Sản phẩm lẻ', quantity: 1, unitPrice: 50000, bookingId: null }
         ];
-        
+
         // Mock fallbackTotal sẽ là 300000 do chỉ tính sản phẩm có bookingId=100
-        mockCartData.cartData = null; 
-        mockGetEscrowWallet.mockResolvedValue({ data: { balance: 500000 } }); 
+        mockCartData.cartData = null;
+        mockGetEscrowWallet.mockResolvedValue({ data: { balance: 500000 } });
         mockCheckout.mockResolvedValue({ success: true, message: 'OK Booking' });
 
         renderWithRouter(<CartCheckoutPage />);
-        
+
         await waitFor(() => {
             expect(screen.getByText('Sản phẩm 1')).toBeDefined();
             expect(screen.getByText('Sản phẩm 2')).toBeDefined();
@@ -200,11 +200,11 @@ describe('CartCheckoutPage', () => {
             { cartItemId: 1, equipmentName: 'Giày', quantity: 1, unitPrice: 100000 }
         ];
         mockCartData.cartData.grandTotal = 100000;
-        
+
         mockCheckout.mockResolvedValue({ success: false, message: 'Sản phẩm đã hết hàng' });
 
         renderWithRouter(<CartCheckoutPage />);
-        
+
         await waitFor(() => {
             const buttons = screen.getAllByTestId('checkout-btn');
             expect(buttons[buttons.length - 1].disabled).toBe(false);
@@ -225,12 +225,12 @@ describe('CartCheckoutPage', () => {
             { cartItemId: 1, equipmentName: 'Giày', quantity: 1, unitPrice: 100000 }
         ];
         mockCartData.cartData.grandTotal = 100000;
-        
+
         // Mock API bị reject
         mockCheckout.mockRejectedValue('Bad Request');
 
         renderWithRouter(<CartCheckoutPage />);
-        
+
         await waitFor(() => {
             const buttons = screen.getAllByTestId('checkout-btn');
             expect(buttons[buttons.length - 1].disabled).toBe(false);
@@ -244,12 +244,12 @@ describe('CartCheckoutPage', () => {
             expect(mockClearCart).not.toHaveBeenCalled();
             expect(mockRefreshCart).not.toHaveBeenCalled();
         });
-        
+
         // Mock API trả về nhưng không có success = true
         mockCheckout.mockResolvedValue({ status: 200, message: 'Checkout done without success flag' });
-        
+
         fireEvent.click(buttons[buttons.length - 1]);
-        
+
         await waitFor(() => {
             expect(mockAddToast).toHaveBeenCalledWith('Checkout done without success flag', 'error');
         });
@@ -263,7 +263,7 @@ describe('CartCheckoutPage', () => {
         mockGetEscrowWallet.mockResolvedValue({ data: { balance: 500000 } }); // shortfall 500,000
 
         renderWithRouter(<CartCheckoutPage />);
-        
+
         await waitFor(() => {
             const buttons = screen.getAllByTestId('checkout-btn');
             expect(screen.queryAllByText(/Ví không đủ 500\.000\s*₫ để thanh toán/).length).toBeGreaterThan(0);
@@ -276,9 +276,9 @@ describe('CartCheckoutPage', () => {
             { cartItemId: 1, equipmentName: 'Voucher Free', quantity: 1, unitPrice: 0 }
         ];
         mockCartData.cartData.grandTotal = 0; // grandTotal = 0 is falsy, should be caught by ??
-        
+
         renderWithRouter(<CartCheckoutPage />);
-        
+
         await waitFor(() => {
             const buttons = screen.getAllByTestId('checkout-btn');
             expect(screen.queryAllByText(/0\s*₫/).length).toBeGreaterThan(0);

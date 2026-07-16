@@ -2,11 +2,11 @@ import { useCallback, useEffect, useState } from 'react';
 import { Link, useOutletContext } from 'react-router-dom';
 import { ownerApi } from '../../api/ownerApi';
 import DashboardSkeleton from '../../components/owner/DashboardSkeleton';
-import { 
-  OwnerPageHeader, 
-  OwnerBtn, 
-  OwnerStatCard, 
-  OwnerCard, 
+import {
+  OwnerPageHeader,
+  OwnerBtn,
+  OwnerStatCard,
+  OwnerCard,
   OwnerFilterPills,
   OwnerTable,
   OwnerThead,
@@ -15,12 +15,12 @@ import {
   OwnerStatusBadge,
   OwnerErrorState
 } from '../../components/owner';
-import { 
-  CircleDollarSign, 
-  CalendarDays, 
-  Percent, 
-  Clock, 
-  AlertTriangle 
+import {
+  CircleDollarSign,
+  CalendarDays,
+  Percent,
+  Clock,
+  AlertTriangle
 } from 'lucide-react';
 
 function formatVnd(v) {
@@ -73,8 +73,8 @@ export default function OwnerDashboardPage() {
 
   return (
     <div className="space-y-8 auth-animate-in pb-12">
-      <OwnerPageHeader 
-        title="Dashboard" 
+      <OwnerPageHeader
+        title="Dashboard"
         description="Tổng quan doanh thu và vận hành tổ hợp sân."
       >
         <OwnerBtn to="/owner/courts" variant="secondary">Quản lý sân</OwnerBtn>
@@ -82,7 +82,7 @@ export default function OwnerDashboardPage() {
       </OwnerPageHeader>
 
       <div className="flex justify-end">
-        <OwnerFilterPills 
+        <OwnerFilterPills
           tabs={RANGES}
           activeTab={range}
           onChange={setRange}
@@ -101,39 +101,39 @@ export default function OwnerDashboardPage() {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        <OwnerStatCard 
-          label="Tổng doanh thu" 
-          value={formatVnd(data?.totalRevenue)} 
+        <OwnerStatCard
+          label="Tổng doanh thu"
+          value={formatVnd(data?.totalRevenue)}
           icon={CircleDollarSign}
           color="teal"
         />
-        <OwnerStatCard 
-          label="Doanh thu đặt sân" 
-          value={data?.bookingRevenue != null ? formatVnd(data.bookingRevenue) : formatVnd(data?.totalRevenue)} 
+        <OwnerStatCard
+          label="Doanh thu đặt sân"
+          value={data?.bookingRevenue != null ? formatVnd(data.bookingRevenue) : formatVnd(data?.totalRevenue)}
           icon={CircleDollarSign}
           color="blue"
         />
-        <OwnerStatCard 
-          label="Tổng lượt đặt" 
-          value={data?.bookingCount ?? 0} 
+        <OwnerStatCard
+          label="Tổng lượt đặt"
+          value={data?.bookingCount ?? 0}
           icon={CalendarDays}
           color="indigo"
         />
-        <OwnerStatCard 
-          label="Tỷ lệ lấp sân" 
-          value={`${data?.occupancyRate ?? 0}%`} 
+        <OwnerStatCard
+          label="Tỷ lệ lấp sân"
+          value={`${data?.occupancyRate ?? 0}%`}
           icon={Percent}
           color="teal"
         />
-        <OwnerStatCard 
-          label="Booking chờ thanh toán" 
-          value={data?.pendingBookingCount ?? 0} 
+        <OwnerStatCard
+          label="Booking chờ thanh toán"
+          value={data?.pendingBookingCount ?? 0}
           icon={Clock}
           color="orange"
         />
-        <OwnerStatCard 
-          label="Sản phẩm tồn kho thấp" 
-          value={data?.lowStockCount ?? 0} 
+        <OwnerStatCard
+          label="Sản phẩm tồn kho thấp"
+          value={data?.lowStockCount ?? 0}
           icon={AlertTriangle}
           color="red"
         />

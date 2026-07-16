@@ -161,7 +161,7 @@ export default function ApexBookingPage() {
           const vnpayRes = await paymentApi.createVnPayUrl(0, 'Booking', bookingId)
           if (vnpayRes.statusCode === 200 && vnpayRes.data) {
              addToast('Bạn có 15 phút để hoàn tất thanh toán. Quá hạn sẽ tự động hủy đơn.', 'warning')
-             // Might need special handling to pass origin through VNPay return URL in a real app, 
+             // Might need special handling to pass origin through VNPay return URL in a real app,
              // but assuming we rely on escrow or normal flow here.
              window.location.assign(vnpayRes.data)
              return
@@ -231,7 +231,7 @@ export default function ApexBookingPage() {
     <ApexLayout>
       <div className="bg-[#F8F9FA] min-h-screen">
         <div className="max-w-[1200px] mx-auto px-4 md:px-8 py-10 auth-animate-in pb-28 lg:pb-12 font-sans">
-          
+
           {/* Header & Stepper */}
           <div className="flex max-md:flex-col md:items-end justify-between gap-6 mb-10">
             <div>
@@ -312,10 +312,10 @@ export default function ApexBookingPage() {
                     <div className="p-6 flex-1 flex flex-col">
                       <h3 className="font-bold text-[18px] uppercase tracking-tight text-[#0f172a] m-0 mb-2">{court.name}</h3>
                       <p className="text-[13px] text-gray-500 mb-4 flex items-center gap-1.5 font-medium m-0">
-                        <span className="text-[#14b8a6]">{court.icon}</span> 
+                        <span className="text-[#14b8a6]">{court.icon}</span>
                         {court.type === 'Badminton' ? 'Cầu lông' : court.type}
                       </p>
-                      
+
                       <div className="flex flex-col gap-2 mt-auto">
                         <div className="flex items-center gap-2 text-[13px] text-gray-600 font-medium">
                           <Users size={16} className="text-gray-400" /> Tối đa {court.capacity} người

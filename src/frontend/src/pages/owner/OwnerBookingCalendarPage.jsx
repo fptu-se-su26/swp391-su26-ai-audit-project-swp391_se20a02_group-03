@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useOutletContext } from 'react-router-dom';
 import { ownerApi } from '../../api/ownerApi';
-import { 
-  OwnerPageHeader, 
-  OwnerBtn, 
-  OwnerCard, 
+import {
+  OwnerPageHeader,
+  OwnerBtn,
+  OwnerCard,
   OwnerToolbar,
   OwnerStatusBadge,
   OwnerEmptyState,
@@ -85,8 +85,8 @@ export default function OwnerBookingCalendarPage() {
 
   return (
     <div className="space-y-6 auth-animate-in pb-12">
-      <OwnerPageHeader 
-        title="Lịch đặt sân" 
+      <OwnerPageHeader
+        title="Lịch đặt sân"
         description="Xem danh sách đặt sân theo ngày và theo từng sân."
       >
         <OwnerBtn to="/owner/bookings" variant="secondary">
@@ -102,11 +102,11 @@ export default function OwnerBookingCalendarPage() {
 
       <OwnerToolbar>
         <div className="flex flex-wrap items-center gap-3 w-full">
-          <input 
-            type="date" 
-            className={ownerInputCls} 
-            value={date} 
-            onChange={e => setDate(e.target.value)} 
+          <input
+            type="date"
+            className={ownerInputCls}
+            value={date}
+            onChange={e => setDate(e.target.value)}
             title="Chọn ngày"
           />
           <select className={ownerInputCls} value={courtId} onChange={e => setCourtId(e.target.value)}>
@@ -133,9 +133,9 @@ export default function OwnerBookingCalendarPage() {
       )}
 
       {!loading && !error && Object.keys(byCourt).length === 0 && (
-        <OwnerEmptyState 
-          icon={Calendar} 
-          title="Không có booking nào trong ngày này." 
+        <OwnerEmptyState
+          icon={Calendar}
+          title="Không có booking nào trong ngày này."
         />
       )}
 

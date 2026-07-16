@@ -21,7 +21,7 @@ public class Court : BaseEntity
     public int CourtTypeId { get; set; }
 
     /// <summary>
-    /// [NotMapped]: Không có cột SportType trong migration. 
+    /// [NotMapped]: Không có cột SportType trong migration.
     /// Giữ lại property để không break DTO/code khác nhưng EF sẽ bỏ qua.
     /// </summary>
     [NotMapped]

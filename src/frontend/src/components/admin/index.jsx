@@ -201,18 +201,18 @@ export function AdminModal({ open, onClose, title, description, children, width 
     previousFocusRef.current = document.activeElement
     const previousOverflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
-    
+
     const focusTimer = setTimeout(() => {
       const el = modalRef.current?.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')
       if (el && !el.hasAttribute('disabled')) el.focus()
       else modalRef.current?.focus()
     }, 0)
-    
+
     function onKey(e) {
       if (e.key === 'Escape') onCloseRef.current?.()
     }
     document.addEventListener('keydown', onKey)
-    
+
     return () => {
       clearTimeout(focusTimer)
       document.body.style.overflow = previousOverflow
@@ -225,7 +225,7 @@ export function AdminModal({ open, onClose, title, description, children, width 
     if (!open) return
     const modal = modalRef.current
     if (!modal) return
-    
+
     const handleTab = (e) => {
       if (e.key !== 'Tab') return
       const focusable = Array.from(modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'))

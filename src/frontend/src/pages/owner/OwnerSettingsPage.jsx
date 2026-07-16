@@ -4,33 +4,33 @@ import { Building2, Clock, ShieldCheck, Users, ChevronRight } from 'lucide-react
 
 export default function OwnerSettingsPage() {
   const links = [
-    { 
-      to: '/owner/complex', 
-      label: 'Thông tin tổ hợp', 
+    {
+      to: '/owner/complex',
+      label: 'Thông tin tổ hợp',
       desc: 'Cập nhật tên, địa chỉ, số điện thoại và email liên hệ của tổ hợp.',
       icon: Building2,
       color: 'text-blue-500',
       bg: 'bg-blue-50'
     },
-    { 
-      to: '/owner/operating-hours', 
-      label: 'Lịch vận hành & Ngày nghỉ', 
+    {
+      to: '/owner/operating-hours',
+      label: 'Lịch vận hành & Ngày nghỉ',
       desc: 'Cấu hình giờ mở cửa, độ dài mỗi lượt chơi và các ngày đóng cửa dự kiến.',
       icon: Clock,
       color: 'text-orange-500',
       bg: 'bg-orange-50'
     },
-    { 
-      to: '/owner/cancellation-policy', 
-      label: 'Chính sách hủy sân', 
+    {
+      to: '/owner/cancellation-policy',
+      label: 'Chính sách hủy sân',
       desc: 'Thiết lập thời gian cho phép hủy và tỷ lệ hoàn tiền tương ứng cho khách hàng.',
       icon: ShieldCheck,
       color: 'text-[#14b8a6]',
       bg: 'bg-teal-50'
     },
-    { 
-      to: '/owner/memberships', 
-      label: 'Gói hội viên', 
+    {
+      to: '/owner/memberships',
+      label: 'Gói hội viên',
       desc: 'Quản lý danh sách khách hàng thân thiết và các cấp độ giảm giá đặc quyền.',
       icon: Users,
       color: 'text-purple-500',
@@ -40,8 +40,8 @@ export default function OwnerSettingsPage() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6 auth-animate-in pb-12">
-      <OwnerPageHeader 
-        title="Cài đặt tổ hợp" 
+      <OwnerPageHeader
+        title="Cài đặt tổ hợp"
         description="Cấu hình các thông số vận hành và chính sách chung cho tổ hợp đang chọn."
       />
 

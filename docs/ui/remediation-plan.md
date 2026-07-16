@@ -4,7 +4,7 @@
 
 ### Batch 1: Core Foundation (Cơ sở hạ tầng UI)
 - **Mục tiêu:** Cập nhật `src/frontend/src/index.css` với các Canonical Tokens mới.
-- **Hành động:** 
+- **Hành động:**
   - Tạo các helper classes cho button, card dựa trên token.
   - Chuẩn hóa lại các typography utilities.
   - Chạy Regression Test để đảm bảo không làm gãy UI hiện tại (đặc biệt là Staff/Mobile App).

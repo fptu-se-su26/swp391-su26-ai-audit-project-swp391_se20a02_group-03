@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { ownerApi } from '../../api/ownerApi';
-import { 
-  OwnerPageHeader, 
-  OwnerCard, 
+import {
+  OwnerPageHeader,
+  OwnerCard,
   OwnerBtn,
   OwnerFormField,
   OwnerErrorState,
@@ -105,8 +105,8 @@ export default function OwnerCancellationPolicyPage() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-6 auth-animate-in pb-12">
-      <OwnerPageHeader 
-        title="Chính sách hủy sân" 
+      <OwnerPageHeader
+        title="Chính sách hủy sân"
         description="Thiết lập các quy định hoàn tiền khi khách hàng hủy hoặc vắng mặt."
       />
 
@@ -134,12 +134,12 @@ export default function OwnerCancellationPolicyPage() {
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
                   <Clock size={16} />
                 </div>
-                <input 
-                  type="number" 
-                  min={0} 
-                  className={`${ownerInputCls} pl-10`} 
-                  value={form.fullRefundHoursBefore} 
-                  onChange={e => setForm({ ...form, fullRefundHoursBefore: +e.target.value })} 
+                <input
+                  type="number"
+                  min={0}
+                  className={`${ownerInputCls} pl-10`}
+                  value={form.fullRefundHoursBefore}
+                  onChange={e => setForm({ ...form, fullRefundHoursBefore: +e.target.value })}
                 />
                 <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-sm text-gray-500 font-bold">
                   Giờ
@@ -151,12 +151,12 @@ export default function OwnerCancellationPolicyPage() {
             <div className="grid sm:grid-cols-2 gap-6 p-4 bg-gray-50 rounded-[12px] border border-gray-100">
               <OwnerFormField label="Hoàn một phần nếu hủy trước">
                 <div className="relative">
-                  <input 
-                    type="number" 
-                    min={0} 
-                    className={ownerInputCls} 
-                    value={form.partialRefundHoursBefore} 
-                    onChange={e => setForm({ ...form, partialRefundHoursBefore: +e.target.value })} 
+                  <input
+                    type="number"
+                    min={0}
+                    className={ownerInputCls}
+                    value={form.partialRefundHoursBefore}
+                    onChange={e => setForm({ ...form, partialRefundHoursBefore: +e.target.value })}
                   />
                   <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-sm text-gray-500 font-bold">
                     Giờ
@@ -166,13 +166,13 @@ export default function OwnerCancellationPolicyPage() {
 
               <OwnerFormField label="Tỷ lệ hoàn tiền">
                 <div className="relative">
-                  <input 
-                    type="number" 
-                    min={0} 
-                    max={100} 
-                    className={ownerInputCls} 
-                    value={form.partialRefundPercent} 
-                    onChange={e => setForm({ ...form, partialRefundPercent: +e.target.value })} 
+                  <input
+                    type="number"
+                    min={0}
+                    max={100}
+                    className={ownerInputCls}
+                    value={form.partialRefundPercent}
+                    onChange={e => setForm({ ...form, partialRefundPercent: +e.target.value })}
                   />
                   <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-sm text-gray-500 font-bold">
                     %
@@ -186,13 +186,13 @@ export default function OwnerCancellationPolicyPage() {
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-red-400">
                   <AlertCircle size={16} />
                 </div>
-                <input 
-                  type="number" 
-                  min={0} 
-                  max={100} 
-                  className={`${ownerInputCls} pl-10`} 
-                  value={form.penaltyPercentAfterPartial} 
-                  onChange={e => setForm({ ...form, penaltyPercentAfterPartial: +e.target.value })} 
+                <input
+                  type="number"
+                  min={0}
+                  max={100}
+                  className={`${ownerInputCls} pl-10`}
+                  value={form.penaltyPercentAfterPartial}
+                  onChange={e => setForm({ ...form, penaltyPercentAfterPartial: +e.target.value })}
                 />
                 <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-sm text-gray-500 font-bold">
                   %
@@ -206,11 +206,11 @@ export default function OwnerCancellationPolicyPage() {
         <OwnerCard>
           <label className="flex items-start gap-3 cursor-pointer group">
             <div className="flex items-center h-5 mt-0.5">
-              <input 
-                type="checkbox" 
-                checked={form.weatherFullRefundEnabled} 
-                onChange={e => setForm({ ...form, weatherFullRefundEnabled: e.target.checked })} 
-                className="w-4 h-4 text-[#14b8a6] border-gray-300 rounded focus:ring-[#14b8a6]" 
+              <input
+                type="checkbox"
+                checked={form.weatherFullRefundEnabled}
+                onChange={e => setForm({ ...form, weatherFullRefundEnabled: e.target.checked })}
+                className="w-4 h-4 text-[#14b8a6] border-gray-300 rounded focus:ring-[#14b8a6]"
               />
             </div>
             <div>

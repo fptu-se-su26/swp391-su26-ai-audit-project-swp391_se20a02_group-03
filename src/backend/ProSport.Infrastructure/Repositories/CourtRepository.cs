@@ -90,12 +90,12 @@ public class CourtRepository : ICourtRepository
             .AsNoTracking()
             .Include(c => c.CourtType)
             .Where(c => !c.IsDeleted && c.Status == "Available")
-            .Where(c => !c.BookingDetails.Any(b => 
+            .Where(c => !c.BookingDetails.Any(b =>
                 b.Booking.Status != "Cancelled" && // Bỏ qua các booking đã hủy
                 // Bỏ qua booking Pending đã quá hạn thanh toán (ghost holds)
                 !(b.Booking.Status == "Pending" && b.Booking.PaymentDeadline.HasValue && b.Booking.PaymentDeadline < DateTime.UtcNow) &&
                 !b.Booking.IsDeleted &&
-                b.BookingDate == date.Date && 
+                b.BookingDate == date.Date &&
                 ((b.StartTime <= startTime && b.EndTime > startTime) ||
                  (b.StartTime < endTime && b.EndTime >= endTime) ||
                  (b.StartTime >= startTime && b.EndTime <= endTime))))
@@ -150,7 +150,7 @@ public class CourtRepository : ICourtRepository
         {
             query = query.Where(c => c.Name.Contains(parameters.SearchTerm));
         }
-        
+
         if (!string.IsNullOrEmpty(parameters.Status))
         {
             var normalizedStatus = CourtStatuses.NormalizeApiStatus(parameters.Status);
@@ -179,7 +179,7 @@ public class CourtRepository : ICourtRepository
         var now = DateTime.UtcNow;
         return await _context.BookingDetails
             .Include(bd => bd.Booking)
-            .AnyAsync(bd => bd.CourtId == courtId 
+            .AnyAsync(bd => bd.CourtId == courtId
                          && !bd.Booking.IsDeleted
                          && bd.Booking.Status != "Cancelled"
                          && bd.BookingDate.Date >= now.Date);

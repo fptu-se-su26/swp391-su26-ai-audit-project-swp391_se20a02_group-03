@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { ownerApi } from '../../api/ownerApi';
-import { 
-  OwnerPageHeader, 
-  OwnerCard, 
+import {
+  OwnerPageHeader,
+  OwnerCard,
   OwnerBtn,
   OwnerFormField,
   OwnerErrorState,
@@ -112,8 +112,8 @@ export default function OwnerComplexPage() {
 
   return (
     <div className="max-w-3xl mx-auto space-y-6 auth-animate-in pb-12">
-      <OwnerPageHeader 
-        title="Thông tin tổ hợp" 
+      <OwnerPageHeader
+        title="Thông tin tổ hợp"
         description="Cập nhật thông tin cơ bản, địa chỉ và thông tin liên hệ của tổ hợp."
       />
 
@@ -135,7 +135,7 @@ export default function OwnerComplexPage() {
             <Store size={20} className="text-[#14b8a6]" />
             <h3 className="font-heading text-base uppercase tracking-tight text-[#0f172a] m-0">Thông tin cơ bản</h3>
           </div>
-          
+
           <div className="space-y-6">
             <OwnerFormField label="Tên tổ hợp" required>
               <input

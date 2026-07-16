@@ -55,7 +55,10 @@ const focusableSelector = [
 
 function useDialogFocus(isOpen, dialogRef, returnFocusRef, close) {
   const closeRef = useRef(close)
-  closeRef.current = close
+
+  useEffect(() => {
+    closeRef.current = close
+  }, [close])
 
   useEffect(() => {
     if (!isOpen) return undefined
@@ -119,7 +122,7 @@ export default function ApexShopPage() {
   const cartDialogRef = useRef(null)
   const quickViewTriggerRef = useRef(null)
   const quickViewDialogRef = useRef(null)
-  
+
   const navigate = useNavigate()
   const { cartItems, cartCount, addToCart: ctxAddToCart, removeFromCart: ctxRemoveFromCart } = useCart()
 
@@ -188,7 +191,7 @@ export default function ApexShopPage() {
 
   const handleRemoveFromCart = (cartItemId) => ctxRemoveFromCart(cartItemId)
   const cartTotal = cartItems.reduce((sum, i) => sum + (i.unitPrice || i.price) * (i.quantity || i.qty), 0)
-  
+
   const resetFilters = () => { setCategory('All'); setSportFilter(''); setStockFilter('all') }
 
   return (
@@ -299,7 +302,7 @@ export default function ApexShopPage() {
               <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-4 gap-6">
                 {!loading && filtered.map(p => (
                   <article
-                    key={p.id} 
+                    key={p.id}
                     className="product-card bg-white rounded-[12px] shadow-[0_2px_12px_rgba(0,0,0,0.05)] border border-gray-100 overflow-hidden flex flex-col transition-all hover:-translate-y-1 hover:shadow-[0_12px_28px_rgba(0,0,0,0.10)] relative group animate-in fade-in slide-in-from-bottom-4 duration-500"
                   >
 
@@ -377,9 +380,9 @@ export default function ApexShopPage() {
 
       {/* CART DRAWER */}
       {showCart && <div className="fixed inset-0 z-[999] animate-in fade-in duration-200">
-        <div 
-          className="absolute inset-0 bg-black/40 backdrop-blur-sm" 
-          onClick={() => setShowCart(false)} 
+        <div
+          className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+          onClick={() => setShowCart(false)}
         />
         <div
           id="apex-cart-drawer"
@@ -432,7 +435,7 @@ export default function ApexShopPage() {
                 <span className="text-[13px] font-bold uppercase tracking-wider text-gray-500">Tổng thanh toán</span>
                 <strong className="text-[24px] font-bold text-gray-900">{cartTotal.toLocaleString('vi-VN')}₫</strong>
               </div>
-              <button 
+              <button
                 className="w-full h-12 bg-[#14b8a6] hover:bg-[#0f9e8c] text-white rounded-xl text-[14px] font-bold uppercase tracking-wide transition-colors shadow-lg shadow-[#14b8a6]/30 cursor-pointer border-0"
                 onClick={() => navigate('/gear/cart/checkout')}
               >

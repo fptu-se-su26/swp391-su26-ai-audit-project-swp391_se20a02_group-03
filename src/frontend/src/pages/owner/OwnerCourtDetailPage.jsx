@@ -2,10 +2,10 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { ownerApi } from '../../api/ownerApi';
 import { useToast } from '../../components/Toast';
-import { 
-  OwnerCard, 
-  OwnerFormField, 
-  OwnerBtn, 
+import {
+  OwnerCard,
+  OwnerFormField,
+  OwnerBtn,
   ownerInputCls,
   OwnerErrorState,
   OwnerStatusBadge
@@ -106,8 +106,8 @@ export default function OwnerCourtDetailPage() {
   return (
     <div className="max-w-2xl mx-auto space-y-6 auth-animate-in pb-12">
       <div>
-        <Link 
-          to="/owner/courts" 
+        <Link
+          to="/owner/courts"
           className="inline-flex items-center gap-1 text-[12px] font-bold uppercase tracking-wide text-gray-500 hover:text-[#14b8a6] no-underline transition-colors mb-4"
         >
           <ChevronLeft size={16} /> Quay lại danh sách
@@ -129,7 +129,7 @@ export default function OwnerCourtDetailPage() {
               onChange={e => setForm({ ...form, name: e.target.value })}
             />
           </OwnerFormField>
-          
+
           <OwnerFormField label="Mã sân">
             <input
               className={`${ownerInputCls} font-mono uppercase`}
@@ -138,7 +138,7 @@ export default function OwnerCourtDetailPage() {
               placeholder="Mã sân"
             />
           </OwnerFormField>
-          
+
           <OwnerFormField label="Mô tả">
             <textarea
               className={`${ownerInputCls} h-auto py-3 resize-y`}

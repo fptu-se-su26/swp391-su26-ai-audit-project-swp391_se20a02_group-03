@@ -53,10 +53,10 @@ describe('AdminUsersPage', () => {
     });
 
     const searchInput = screen.getByPlaceholderText('Tìm theo tên hoặc email...');
-    
+
     // Simulate user typing
     fireEvent.change(searchInput, { target: { value: 'john' } });
-    
+
     // Timer hasn't fired yet, should not call API again
     expect(userApi.getUsers).toHaveBeenCalledTimes(1);
 
