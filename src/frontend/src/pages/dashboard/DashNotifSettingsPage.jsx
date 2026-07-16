@@ -26,6 +26,8 @@ export default function DashNotifSettingsPage() {
   const [masterEmail, setMasterEmail] = useState(true)
   const [masterSms,   setMasterSms]   = useState(false)
   const [quietHours,  setQuietHours]  = useState(true)
+  const [quietStart, setQuietStart] = useState('22:00')
+  const [quietEnd, setQuietEnd] = useState('07:00')
   const [timezone, setTimezone] = useState('UTC+7 (Hồ Chí Minh)')
 
   useEffect(() => {
@@ -38,13 +40,15 @@ export default function DashNotifSettingsPage() {
       if (typeof saved.masterEmail === 'boolean') setMasterEmail(saved.masterEmail)
       if (typeof saved.masterSms === 'boolean') setMasterSms(saved.masterSms)
       if (typeof saved.quietHours === 'boolean') setQuietHours(saved.quietHours)
+      if (saved.quietStart) setQuietStart(saved.quietStart)
+      if (saved.quietEnd) setQuietEnd(saved.quietEnd)
       if (saved.timezone) setTimezone(saved.timezone)
     } catch { /* ignore */ }
   }, [])
 
   function saveSettings() {
     localStorage.setItem(NOTIF_SETTINGS_KEY, JSON.stringify({
-      topicState, masterPush, masterEmail, masterSms, quietHours, timezone,
+      topicState, masterPush, masterEmail, masterSms, quietHours, quietStart, quietEnd, timezone,
     }))
     addToast('Đã lưu tùy chọn trên thiết bị này (demo — chưa đồng bộ server)', 'success')
   }
@@ -55,6 +59,8 @@ export default function DashNotifSettingsPage() {
     setMasterEmail(true)
     setMasterSms(false)
     setQuietHours(true)
+    setQuietStart('22:00')
+    setQuietEnd('07:00')
     setTimezone('UTC+7 (Hồ Chí Minh)')
     localStorage.removeItem(NOTIF_SETTINGS_KEY)
     addToast('Đã khôi phục mặc định', 'info')
@@ -142,22 +148,24 @@ export default function DashNotifSettingsPage() {
               <p className="text-xs text-foreground-subtle mb-3.5 leading-normal">Tắt tiếng mọi thông báo không khẩn cấp trong khung giờ này.</p>
               <div className="grid grid-cols-2 gap-3 mt-2.5">
                 <div>
-                  <p className="label-mono text-foreground-subtle mb-1.5">Từ</p>
-                  <div className="flex items-center gap-1.5 border-2 border-border-strong rounded-[2px] px-2.5 py-2 text-[13px] text-foreground font-medium cursor-pointer bg-background-base">
-                    22:00
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-                    </svg>
-                  </div>
+                  <label className="label-mono text-foreground-subtle mb-1.5 block" htmlFor="quiet-start">Từ</label>
+                  <input
+                    id="quiet-start"
+                    type="time"
+                    value={quietStart}
+                    onChange={e => setQuietStart(e.target.value)}
+                    className="input-base w-full text-[13px]"
+                  />
                 </div>
                 <div>
-                  <p className="label-mono text-foreground-subtle mb-1.5">Đến</p>
-                  <div className="flex items-center gap-1.5 border-2 border-border-strong rounded-[2px] px-2.5 py-2 text-[13px] text-foreground font-medium cursor-pointer bg-background-base">
-                    07:00
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-                    </svg>
-                  </div>
+                  <label className="label-mono text-foreground-subtle mb-1.5 block" htmlFor="quiet-end">Đến</label>
+                  <input
+                    id="quiet-end"
+                    type="time"
+                    value={quietEnd}
+                    onChange={e => setQuietEnd(e.target.value)}
+                    className="input-base w-full text-[13px]"
+                  />
                 </div>
               </div>
               <div className="mt-3">
