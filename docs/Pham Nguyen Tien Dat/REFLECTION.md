@@ -485,3 +485,5 @@ Giai đoạn hai khác biệt hoàn toàn về hình thức yêu cầu: không c
 - Một số hạng mục responsive chuyên biệt, như Admin Pricing ở viewport rất hẹp, cần kiểm chứng browser riêng.
 - Nhánh `fix/main-bug-sweep-post-PR50` đã push nhưng chưa mở PR/merge vào `main` — chờ quyết định.
 - Tính năng "host duyệt người xin tham gia kèo" vẫn chưa có bất kỳ trang UI nào (chỉ tồn tại ở tầng API/service) — cần quyết định phạm vi sản phẩm riêng trước khi xây dựng.
+
+---
