@@ -572,3 +572,35 @@
 - Chủ động không mở rộng phạm vi thành xây UI mới khi phát hiện tính năng "host duyệt joiner" thiếu giao diện hoàn toàn — chỉ sửa đúng contract API.
 - **ESLint 0 lỗi**, **Vitest 63/63 pass**, `npm run build` thành công; **`dotnet test` 145/149 pass** (4 skip, +4 test mới).
 - Tạo nhánh riêng `fix/main-bug-sweep-post-PR50` thay vì commit thẳng lên `main`, giữ đúng quy ước PR-review; commit `b7775a8` — chưa push.
+
+
+
+
+
+
+---
+
+## [2026-07-19] - Giai đoạn: Đồng bộ State Machine Booking/Tournament, Audit đa vai trò & Thử nghiệm Redesign UI (đã rollback)
+
+### Thêm mới (Added)
+- Tournament lifecycle đầy đủ: state Close/Complete/Cancel + cạnh "player tự rút khỏi trận".
+- Domain constants mới: `TournamentStatus`, `ReportStatus`.
+- 4 migration ràng buộc status DB: `TournamentStatusConstraint`, `UserStatusConstraints`, `AdminEntityStatusConstraints`, `OwnerEntityStatusConstraints`.
+- Test mới: `TournamentLifecycleTests`, mở rộng `SqlServerIntegrationTests`.
+- Tài liệu spec-kit `specs/001`–`specs/007`; `STATE_DIAGRAM_PRO-SPORT.drawio` đã đối chiếu và sửa khớp code.
+
+### Thay đổi (Changed)
+- Booking: mọi nhánh timeout nhất quán set `Expired` (trước đây lẫn `Cancelled`).
+- Chốt tập status hợp lệ cho `Equipment`/`ComplexOwner`/`ComplexReview`/`Report`/`User`, enforce bằng DB check constraint.
+- `MatchParticipant.Status`: sửa comment lỗi thời (escrow đã tách sang cờ `HasPaidEscrow`).
+
+### Thử nghiệm & Rollback (Experimental — Reverted)
+- Redesign toàn bộ Admin UI (`specs/006`, 25 task) và Public/Customer UI (`specs/007`, 30 task) theo hệ nhận diện "editorial sports brutalism": 4 component dùng chung mới (`CourtCard`, `MatchCard`, `ProductCard`, `MatchDayRail`), ~29 trang được restyle.
+- Theo yêu cầu người dùng (đối chiếu PR #49 = commit `1348d57`), rollback toàn bộ phần UI **chưa commit** về đúng trạng thái commit `191cec1` — giữ nguyên bugfix đã có, loại bỏ hoàn toàn phần redesign thử nghiệm.
+
+### Version Control
+- Commit `7ecc942`: gộp toàn bộ thay đổi backend/database/spec-kit, loại trừ `.claude/skills/` (asset binary ~7.7MB, không phải code dự án).
+- Push fast-forward `origin/DE190147/audit-module` (`1348d57..7ecc942`).
+
+### Hỗ trợ từ AI (AI-assisted)
+- Claude Code (Claude Sonnet 5) thực hiện audit đối chiếu state diagram, quy trình spec-kit 4 giai đoạn có gate phê duyệt nghiêm ngặt cho redesign UI (từ chối tiến hành khi chưa nhận đúng cụm từ phê duyệt), và toàn bộ thao tác Git theo chỉ đạo trực tiếp. Người thực hiện kiểm soát chặt phạm vi rollback qua nhiều vòng làm rõ trước khi cho phép thực thi, và loại trừ asset không liên quan khỏi commit.
