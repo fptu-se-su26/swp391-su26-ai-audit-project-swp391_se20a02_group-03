@@ -253,7 +253,8 @@ public class EscrowService : IEscrowService
             // Kiểm tra booking đã hết hạn thanh toán chưa
             if (booking.PaymentDeadline.HasValue && DateTime.UtcNow > booking.PaymentDeadline.Value)
             {
-                booking.Status = BookingStatus.Cancelled;
+                // Quá hạn thanh toán = Expired (timeout), phân biệt với Cancelled (hủy chủ động).
+                booking.Status = BookingStatus.Expired;
                 await _bookingRepository.UpdateAsync(booking);
                 return new ApiResponseDto<bool>(400, "Đơn đặt sân đã hết hạn thanh toán. Vui lòng đặt lại.", false);
             }

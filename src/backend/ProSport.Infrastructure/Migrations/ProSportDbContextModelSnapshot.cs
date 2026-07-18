@@ -452,7 +452,10 @@ namespace ProSport.Infrastructure.Migrations
 
                     b.HasKey("ComplexId");
 
-                    b.ToTable("Complexes");
+                    b.ToTable("Complexes", t =>
+                        {
+                            t.HasCheckConstraint("CK_Complexes_Status", "[Status] IN ('Active','Inactive')");
+                        });
 
                     b.HasData(
                         new
@@ -687,7 +690,10 @@ namespace ProSport.Infrastructure.Migrations
                     b.HasIndex("UserId", "ComplexId")
                         .IsUnique();
 
-                    b.ToTable("ComplexOwners");
+                    b.ToTable("ComplexOwners", t =>
+                        {
+                            t.HasCheckConstraint("CK_ComplexOwners_Status", "[Status] IN ('Active','Inactive')");
+                        });
 
                     b.HasData(
                         new
@@ -760,7 +766,10 @@ namespace ProSport.Infrastructure.Migrations
                         .IsUnique()
                         .HasFilter("[IsDeleted] = 0");
 
-                    b.ToTable("ComplexReviews");
+                    b.ToTable("ComplexReviews", t =>
+                        {
+                            t.HasCheckConstraint("CK_ComplexReviews_Status", "[Status] IN ('Published','Hidden')");
+                        });
                 });
 
             modelBuilder.Entity("ProSport.Domain.Entities.Court", b =>
@@ -821,7 +830,10 @@ namespace ProSport.Infrastructure.Migrations
 
                     b.HasIndex("ComplexId", "IsDeleted");
 
-                    b.ToTable("Courts");
+                    b.ToTable("Courts", t =>
+                        {
+                            t.HasCheckConstraint("CK_Courts_Status", "[Status] IN ('Available','Maintenance','Inactive')");
+                        });
 
                     b.HasData(
                         new
@@ -1000,7 +1012,10 @@ namespace ProSport.Infrastructure.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("EkycProfiles");
+                    b.ToTable("EkycProfiles", t =>
+                        {
+                            t.HasCheckConstraint("CK_EkycProfiles_Status", "[Status] IN ('Pending','Approved','Rejected')");
+                        });
                 });
 
             modelBuilder.Entity("ProSport.Domain.Entities.Equipment", b =>
@@ -1072,7 +1087,10 @@ namespace ProSport.Infrastructure.Migrations
 
                     b.HasIndex("EquipmentCategoryId");
 
-                    b.ToTable("Equipments", (string)null);
+                    b.ToTable("Equipments", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_Equipments_Status", "[Status] IN ('Available','Discontinued')");
+                        });
 
                     b.HasData(
                         new
@@ -2005,7 +2023,10 @@ namespace ProSport.Infrastructure.Migrations
 
                     b.HasIndex("CourtTypeId");
 
-                    b.ToTable("PricingRules");
+                    b.ToTable("PricingRules", t =>
+                        {
+                            t.HasCheckConstraint("CK_PricingRules_Status", "[Status] IN ('Active','Inactive')");
+                        });
 
                     b.HasData(
                         new
@@ -2142,7 +2163,10 @@ namespace ProSport.Infrastructure.Migrations
                         .IsUnique()
                         .HasFilter("[IsDeleted] = 0");
 
-                    b.ToTable("ProductStocks");
+                    b.ToTable("ProductStocks", t =>
+                        {
+                            t.HasCheckConstraint("CK_ProductStocks_Status", "[Status] IN ('Active','Inactive')");
+                        });
                 });
 
             modelBuilder.Entity("ProSport.Domain.Entities.RecurringBookingRule", b =>
@@ -2270,7 +2294,10 @@ namespace ProSport.Infrastructure.Migrations
 
                     b.HasIndex("ResolvedByAdminId");
 
-                    b.ToTable("Reports");
+                    b.ToTable("Reports", t =>
+                        {
+                            t.HasCheckConstraint("CK_Reports_Status", "[Status] IN ('Pending','Investigating','Resolved','Rejected')");
+                        });
                 });
 
             modelBuilder.Entity("ProSport.Domain.Entities.StaffAssignment", b =>
@@ -2413,7 +2440,10 @@ namespace ProSport.Infrastructure.Migrations
 
                     b.HasIndex("ComplexId");
 
-                    b.ToTable("Tournaments");
+                    b.ToTable("Tournaments", t =>
+                        {
+                            t.HasCheckConstraint("CK_Tournaments_Status", "[Status] IN ('Open','Closed','Completed','Cancelled')");
+                        });
                 });
 
             modelBuilder.Entity("ProSport.Domain.Entities.TournamentRegistration", b =>
@@ -2632,7 +2662,12 @@ namespace ProSport.Infrastructure.Migrations
                         .IsUnique()
                         .HasFilter("[PhoneNumber] IS NOT NULL AND [IsDeleted] = 0");
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_Users_EKycStatus", "[EKycStatus] IN ('Unverified','Pending','Verified','Rejected')");
+
+                            t.HasCheckConstraint("CK_Users_Role", "[Role] IN ('Admin','Staff','Customer','CourtOwner')");
+                        });
 
                     b.HasData(
                         new

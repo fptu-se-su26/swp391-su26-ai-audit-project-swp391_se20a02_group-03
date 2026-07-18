@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import { Trash2, ShoppingBag, ArrowLeft, Plus, Minus, CreditCard, ShieldCheck, ShoppingCart } from 'lucide-react';
 import GearLayout from '../../layouts/GearLayout';
 import PageLoader from '../../components/ui/PageLoader';
 import { resolveProductImage, CATEGORY_FALLBACKS } from '../../utils/productImages';
+import { equipmentApi } from '../../api/equipmentApi';
 
 function formatVND(amount) {
     return new Intl.NumberFormat('vi-VN', {
@@ -13,17 +14,39 @@ function formatVND(amount) {
     }).format(amount);
 }
 
-// Dummy cross-sell products
-const CROSS_SELL_ITEMS = [
-    { id: 101, name: 'Quấn cán vợt Yonex AC102EX', category: 'Accessories', price: 65000, img: resolveProductImage('Yonex AC102EX', 'Accessories') },
-    { id: 102, name: 'Ống cầu lông Yonex AS-30', category: 'Ball / Birdie', price: 680000, img: resolveProductImage('Yonex AS-30', 'Ball / Birdie') },
-    { id: 103, name: 'Băng chặn mồ hôi tay Yonex', category: 'Accessories', price: 120000, img: resolveProductImage('Băng chặn mồ hôi tay', 'Accessories') },
-    { id: 104, name: 'Bột chống trơn Yonex AC470', category: 'Accessories', price: 150000, img: resolveProductImage('Bột chống trơn', 'Accessories') },
-];
+function useCrossSell(excludeIds) {
+    const [all, setAll] = useState({ list: [], loading: true, error: false });
+
+    // Chỉ tải danh sách thiết bị MỘT LẦN; việc loại trừ sản phẩm đã có trong giỏ được tính lại
+    // mỗi khi excludeIds đổi (useMemo bên dưới) — tránh bug cũ: nếu lọc ngay trong effect với
+    // dependency rỗng, excludeIds chụp lúc mount (khi giỏ hàng CHƯA tải xong) sẽ mãi là rỗng,
+    // khiến sản phẩm đã có trong giỏ vẫn hiện lại ở mục gợi ý.
+    useEffect(() => {
+        let active = true;
+        equipmentApi.getAll()
+            .then(res => {
+                if (!active) return;
+                const list = Array.isArray(res.data) ? res.data : (res.data?.items || []);
+                setAll({ list, loading: false, error: false });
+            })
+            .catch(() => {
+                if (active) setAll({ list: [], loading: false, error: true });
+            });
+        return () => { active = false };
+    }, []);
+
+    const items = useMemo(
+        () => all.list.filter(p => !excludeIds.includes(p.equipmentId)).slice(0, 4),
+        [all.list, excludeIds]
+    );
+
+    return { items, loading: all.loading, error: all.error };
+}
 
 export default function CartPage() {
     const navigate = useNavigate();
     const { cartItems, cartData, loading, removeFromCart, updateQuantity, addToCart } = useCart();
+    const crossSell = useCrossSell(cartItems.map(i => i.equipmentId));
 
     if (loading && cartItems.length === 0) {
         return (
@@ -135,7 +158,9 @@ export default function CartPage() {
                                     {/* Quantity selector */}
                                     <div className="flex items-center gap-3 bg-gray-50 rounded-[10px] border border-gray-200 p-1.5 shrink-0">
                                         <button
+                                            type="button"
                                             onClick={() => updateQuantity(item.cartItemId, item.quantity - 1)}
+                                            aria-label={`Giảm số lượng ${item.equipmentName}`}
                                             className="w-8 h-8 flex items-center justify-center rounded-[8px] text-gray-500 hover:bg-white hover:text-gray-900 hover:shadow-sm transition-all cursor-pointer bg-transparent border-0 disabled:opacity-30"
                                             disabled={item.quantity <= 1}
                                         >
@@ -143,7 +168,9 @@ export default function CartPage() {
                                         </button>
                                         <span className="w-8 text-center font-bold text-[14px] text-[#0f172a]">{item.quantity}</span>
                                         <button
+                                            type="button"
                                             onClick={() => updateQuantity(item.cartItemId, item.quantity + 1)}
+                                            aria-label={`Tăng số lượng ${item.equipmentName}`}
                                             className="w-8 h-8 flex items-center justify-center rounded-[8px] text-gray-500 hover:bg-white hover:text-gray-900 hover:shadow-sm transition-all cursor-pointer bg-transparent border-0"
                                         >
                                             <Plus size={14} />
@@ -157,7 +184,9 @@ export default function CartPage() {
 
                                     {/* Delete */}
                                     <button
+                                        type="button"
                                         onClick={() => removeFromCart(item.cartItemId)}
+                                        aria-label={`Gỡ ${item.equipmentName} khỏi giỏ hàng`}
                                         className="w-10 h-10 flex items-center justify-center rounded-[10px] text-gray-300 hover:text-red-400 hover:bg-red-50 transition-all cursor-pointer bg-transparent border-0 shrink-0 ml-2"
                                         title="Gỡ bỏ"
                                     >
@@ -211,36 +240,46 @@ export default function CartPage() {
                     </div>
 
                     {/* ── CROSS SELL SECTION ── */}
-                    <div className="mt-20 pt-16 border-t border-gray-200/60">
-                        <div className="flex items-center justify-between mb-8">
-                            <h2 className="font-heading text-2xl uppercase tracking-tight text-[#0f172a] m-0">Có thể bạn sẽ thích</h2>
-                            <Link to="/gear/catalog" className="text-[13px] font-bold text-gray-400 hover:text-[#14b8a6] transition-colors no-underline">Xem tất cả</Link>
-                        </div>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                            {CROSS_SELL_ITEMS.map(product => (
-                                <Link
-                                    to="/gear/catalog"
-                                    key={product.id}
-                                    className="bg-white rounded-[12px] p-5 shadow-[0_2px_12px_rgba(0,0,0,0.04)] border border-gray-100 flex flex-col group hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] transition-all no-underline relative"
-                                >
-                                    <div className="w-full h-32 bg-gray-50 rounded-[8px] flex items-center justify-center mb-4 overflow-hidden p-2 relative">
-                                        <img src={product.img} alt={product.name} className="w-full h-full object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-500" />
+                    {!crossSell.loading && !crossSell.error && crossSell.items.length > 0 && (
+                        <div className="mt-20 pt-16 border-t border-gray-200/60">
+                            <div className="flex items-center justify-between mb-8">
+                                <h2 className="font-heading text-2xl uppercase tracking-tight text-[#0f172a] m-0">Có thể bạn sẽ thích</h2>
+                                <Link to="/gear/catalog" className="text-[13px] font-bold text-gray-400 hover:text-[#14b8a6] transition-colors no-underline">Xem tất cả</Link>
+                            </div>
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                                {crossSell.items.map(product => (
+                                    <div
+                                        key={product.equipmentId}
+                                        className="bg-white rounded-[12px] p-5 shadow-[0_2px_12px_rgba(0,0,0,0.04)] border border-gray-100 flex flex-col hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] transition-all relative"
+                                    >
+                                        <Link to={`/gear/catalog/${product.equipmentId}`} className="no-underline flex flex-col flex-1">
+                                            <div className="w-full h-32 bg-gray-50 rounded-[8px] flex items-center justify-center mb-4 overflow-hidden p-2 relative">
+                                                <img
+                                                    src={resolveProductImage(product.name, product.category)}
+                                                    alt={product.name}
+                                                    className="w-full h-full object-contain mix-blend-multiply"
+                                                    onError={e => { e.currentTarget.onerror = null; e.currentTarget.src = CATEGORY_FALLBACKS[product.category] || CATEGORY_FALLBACKS.Accessories }}
+                                                />
+                                            </div>
+                                            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 m-0 mb-1.5">{product.category}</p>
+                                            <h4 className="font-bold text-[13px] text-[#0f172a] m-0 mb-3 leading-snug flex-1">{product.name}</h4>
+                                        </Link>
+                                        <div className="flex items-end justify-between">
+                                            <span className="font-bold text-[14px] text-gray-900 leading-none">{formatVND(product.price)}</span>
+                                            <button
+                                                type="button"
+                                                onClick={() => addToCart(product.equipmentId, 1)}
+                                                aria-label={`Thêm ${product.name} vào giỏ`}
+                                                className="w-8 h-8 rounded-full bg-[#14b8a6] text-white flex items-center justify-center shadow-[0_4px_10px_rgba(20,184,166,0.3)] border-0 cursor-pointer"
+                                            >
+                                                <ShoppingCart size={12} />
+                                            </button>
+                                        </div>
                                     </div>
-                                    <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 m-0 mb-1.5">{product.category}</p>
-                                    <h4 className="font-bold text-[13px] text-[#0f172a] m-0 mb-3 leading-snug flex-1">{product.name}</h4>
-                                    <div className="flex items-end justify-between">
-                                        <span className="font-bold text-[14px] text-gray-900 leading-none">{formatVND(product.price)}</span>
-                                        <button
-                                            onClick={(e) => { e.preventDefault(); addToCart(product.id, 1) }}
-                                            className="w-8 h-8 rounded-full bg-[#14b8a6] text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all shadow-[0_4px_10px_rgba(20,184,166,0.3)] border-0 cursor-pointer -mt-4 translate-y-2 group-hover:translate-y-0"
-                                        >
-                                            <ShoppingCart size={12} />
-                                        </button>
-                                    </div>
-                                </Link>
-                            ))}
+                                ))}
+                            </div>
                         </div>
-                    </div>
+                    )}
 
                 </div>
             </div>

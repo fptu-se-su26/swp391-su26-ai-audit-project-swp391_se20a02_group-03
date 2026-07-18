@@ -95,31 +95,20 @@ export default function MobileWalletPage() {
               {isLoading ? "..." : (wallet?.balance?.toLocaleString('vi-VN') || "0")} đ
             </h1>
           </div>
-          <button className="bg-[var(--theme-surface-hover)] border-none w-9 h-9 rounded-full text-[var(--theme-primary)] flex items-center justify-center cursor-pointer hover:bg-white/20">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
-          </button>
         </div>
+        {/* NOTE: nút info tròn trước đây không có onClick/aria-label và không dẫn tới đâu — đã bỏ. */}
 
-        {/* Card Scroll */}
+        {/* Wallet card — chỉ hiển thị dữ liệu thật (ví ký quỹ nội bộ, không phải thẻ ngân hàng
+            thật nên KHÔNG bịa số thẻ/HSD giả). */}
         <div className="flex gap-4 overflow-x-auto p-5 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           <div className="w-full min-w-[280px] bg-slate-900 text-[var(--theme-primary)] rounded-2xl p-5 shadow-lg relative overflow-hidden flex flex-col gap-4 border border-border-default">
             <div className="flex justify-between items-center">
-              <h3 className="font-['Oswald'] text-base font-bold tracking-wide">PRO-SPORT</h3>
+              <h3 className="font-['Oswald'] text-base font-bold tracking-wide">PRO-SPORT · VÍ KÝ QUỸ</h3>
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M8.56 2.75c4.37 6.03 6.02 9.42 8.03 17.72"/></svg>
             </div>
             <div>
-              <p className="text-[0.55rem] font-bold tracking-wider opacity-50">SỐ THẺ</p>
-              <p className="text-sm font-semibold tracking-[0.1em] mt-1">**** **** **** 4928</p>
-            </div>
-            <div className="flex justify-between items-center mt-2">
-              <div>
-                <p className="text-[0.55rem] font-bold tracking-wider opacity-50">CHỦ THẺ</p>
-                <p className="text-xs font-bold">{displayName}</p>
-              </div>
-              <div>
-                <p className="text-[0.55rem] font-bold tracking-wider opacity-50">HSD</p>
-                <p className="text-xs font-bold">12/28</p>
-              </div>
+              <p className="text-[0.55rem] font-bold tracking-wider opacity-50">CHỦ VÍ</p>
+              <p className="text-sm font-semibold mt-1">{displayName}</p>
             </div>
           </div>
         </div>
@@ -136,7 +125,6 @@ export default function MobileWalletPage() {
         <div className="px-5 mb-6">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-sm font-bold text-slate-900">Giao dịch gần đây</h3>
-            <span className="text-xs font-semibold text-[#008ba3] cursor-pointer">Xem tất cả</span>
           </div>
 
           <div className="flex flex-col gap-3">

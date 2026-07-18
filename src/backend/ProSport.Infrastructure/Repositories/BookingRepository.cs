@@ -124,13 +124,15 @@ public class BookingRepository : IBookingRepository
     }
 
     /// <summary>
-    /// Tự động hủy các booking Pending đã quá hạn thanh toán.
+    /// Đánh dấu Expired các booking Pending (thanh toán đơn) đã quá hạn thanh toán.
+    /// Expired = hết hạn chờ thanh toán, phân biệt với Cancelled (hủy chủ động).
+    /// Booking chia bill (PendingPayment) do SplitPaymentService.ExpireUnpaidSharesAsync xử lý.
     /// Nên gọi từ background job (Hangfire/Timer).
     /// </summary>
     public async Task<int> CancelExpiredBookingsAsync()
     {
         var expiredBookings = await _context.Bookings
-            .Where(b => b.Status == "Pending"
+            .Where(b => b.Status == BookingStatus.Pending
                      && b.PaymentDeadline.HasValue
                      && b.PaymentDeadline < DateTime.UtcNow
                      && !b.IsDeleted)
@@ -138,7 +140,7 @@ public class BookingRepository : IBookingRepository
 
         foreach (var booking in expiredBookings)
         {
-            booking.Status = "Cancelled";
+            booking.Status = BookingStatus.Expired;
         }
 
         if (expiredBookings.Any())

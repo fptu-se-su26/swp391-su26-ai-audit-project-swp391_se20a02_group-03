@@ -112,7 +112,13 @@ public class ProSportDbContext : DbContext
         // --- User ---
         modelBuilder.Entity<User>(entity =>
         {
-            entity.ToTable("Users");
+            entity.ToTable("Users", t =>
+            {
+                t.HasCheckConstraint("CK_Users_EKycStatus",
+                    $"[EKycStatus] IN ('{EKycStatuses.Unverified}','{EKycStatuses.Pending}','{EKycStatuses.Verified}','{EKycStatuses.Rejected}')");
+                t.HasCheckConstraint("CK_Users_Role",
+                    $"[Role] IN ('{Roles.Admin}','{Roles.Staff}','{Roles.Customer}','{Roles.CourtOwner}')");
+            });
             entity.HasKey(e => e.UserId);
             entity.HasIndex(e => e.Email).IsUnique();
             entity.HasIndex(e => e.GoogleId).IsUnique().HasFilter("[GoogleId] IS NOT NULL");
@@ -168,6 +174,8 @@ public class ProSportDbContext : DbContext
         // --- EkycProfile ---
         modelBuilder.Entity<EkycProfile>(entity =>
         {
+            entity.ToTable(t => t.HasCheckConstraint("CK_EkycProfiles_Status",
+                "[Status] IN ('Pending','Approved','Rejected')"));
             entity.HasKey(e => e.EkycProfileId);
             entity.Property(e => e.FullName).IsRequired().HasMaxLength(100);
             entity.Property(e => e.IdentityNumber).IsRequired().HasMaxLength(20);
@@ -185,6 +193,8 @@ public class ProSportDbContext : DbContext
         // --- Court ---
         modelBuilder.Entity<Court>(entity =>
         {
+            entity.ToTable(t => t.HasCheckConstraint("CK_Courts_Status",
+                $"[Status] IN ('{CourtStatuses.Active}','{CourtStatuses.Maintenance}','{CourtStatuses.Inactive}')"));
             entity.HasKey(e => e.CourtId);
             entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
             entity.Property(e => e.Code).HasMaxLength(20);
@@ -201,6 +211,8 @@ public class ProSportDbContext : DbContext
         // --- PricingRule (FIX: thêm CourtTypeId, DayOfWeek) ---
         modelBuilder.Entity<PricingRule>(entity =>
         {
+            entity.ToTable(t => t.HasCheckConstraint("CK_PricingRules_Status",
+                "[Status] IN ('Active','Inactive')"));
             entity.HasKey(e => e.PricingRuleId);
             entity.Property(e => e.PricePerHour).HasColumnType("decimal(18,2)");
             entity.Property(e => e.Multiplier).HasColumnType("decimal(8,4)");
@@ -376,7 +388,8 @@ public class ProSportDbContext : DbContext
         // --- Equipment (Merged) ---
         modelBuilder.Entity<Equipment>(entity =>
         {
-            entity.ToTable("Equipments");
+            entity.ToTable("Equipments", t =>
+                t.HasCheckConstraint("CK_Equipments_Status", "[Status] IN ('Available','Discontinued')"));
             entity.HasKey(e => e.EquipmentId);
             entity.Property(e => e.Name).HasMaxLength(100);
             entity.Property(e => e.Status).HasDefaultValue("Available").HasMaxLength(20);
@@ -418,6 +431,8 @@ public class ProSportDbContext : DbContext
         // --- Complex ---
         modelBuilder.Entity<Complex>(entity =>
         {
+            entity.ToTable(t => t.HasCheckConstraint("CK_Complexes_Status",
+                "[Status] IN ('Active','Inactive')"));
             entity.HasKey(e => e.ComplexId);
             entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
             entity.Property(e => e.Address).HasMaxLength(255);
@@ -465,6 +480,8 @@ public class ProSportDbContext : DbContext
         // --- ComplexOwner ---
         modelBuilder.Entity<ComplexOwner>(entity =>
         {
+            entity.ToTable(t => t.HasCheckConstraint("CK_ComplexOwners_Status",
+                "[Status] IN ('Active','Inactive')"));
             entity.HasKey(e => e.ComplexOwnerId);
             entity.Property(e => e.Status).HasDefaultValue("Active").HasMaxLength(20);
             
@@ -569,6 +586,8 @@ public class ProSportDbContext : DbContext
 
         modelBuilder.Entity<ProductStock>(entity =>
         {
+            entity.ToTable(t => t.HasCheckConstraint("CK_ProductStocks_Status",
+                "[Status] IN ('Active','Inactive')"));
             entity.HasKey(e => e.ProductStockId);
             entity.HasIndex(e => new { e.ComplexId, e.Sku }).IsUnique().HasFilter("[IsDeleted] = 0");
             entity.Property(e => e.SellingPrice).HasColumnType("decimal(18,2)");
@@ -577,6 +596,8 @@ public class ProSportDbContext : DbContext
 
         modelBuilder.Entity<ComplexReview>(entity =>
         {
+            entity.ToTable(t => t.HasCheckConstraint("CK_ComplexReviews_Status",
+                "[Status] IN ('Published','Hidden')"));
             entity.HasKey(e => e.ComplexReviewId);
             entity.HasIndex(e => new { e.ComplexId, e.UserId }).IsUnique().HasFilter("[IsDeleted] = 0");
             entity.HasOne(e => e.Complex).WithMany().HasForeignKey(e => e.ComplexId).OnDelete(DeleteBehavior.Cascade);
@@ -609,6 +630,8 @@ public class ProSportDbContext : DbContext
         // --- Report (UC-C14, UC-A07) ---
         modelBuilder.Entity<Report>(entity =>
         {
+            entity.ToTable(t => t.HasCheckConstraint("CK_Reports_Status",
+                $"[Status] IN ('{ReportStatus.Pending}','{ReportStatus.Investigating}','{ReportStatus.Resolved}','{ReportStatus.Rejected}')"));
             entity.HasKey(e => e.ReportId);
             entity.Property(e => e.Reason).IsRequired().HasMaxLength(500);
             entity.Property(e => e.Status).HasDefaultValue("Pending").HasMaxLength(20);
@@ -724,7 +747,13 @@ public class ProSportDbContext : DbContext
 
         modelBuilder.Entity<Tournament>(entity =>
         {
+            entity.ToTable(t =>
+            {
+                t.HasCheckConstraint("CK_Tournaments_Status",
+                    $"[Status] IN ('{TournamentStatus.Open}','{TournamentStatus.Closed}','{TournamentStatus.Completed}','{TournamentStatus.Cancelled}')");
+            });
             entity.HasKey(e => e.TournamentId);
+            entity.Property(e => e.Status).HasMaxLength(20);
             entity.Property(e => e.Name).HasMaxLength(200);
             entity.Property(e => e.EntryFee).HasColumnType("decimal(18,2)");
             entity.Property(e => e.Format).HasMaxLength(50);

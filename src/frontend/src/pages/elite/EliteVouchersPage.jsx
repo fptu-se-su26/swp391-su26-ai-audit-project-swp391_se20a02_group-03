@@ -212,7 +212,14 @@ export default function EliteVouchersPage() {
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
                         <span className={`label-mono px-2.5 py-1 rounded-[2px] ${st.cls}`}>{st.label}</span>
-                        <button onClick={() => handleDelete(v.voucherId)} className="text-foreground-subtle hover:text-danger p-1"><Trash2 size={16} /></button>
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(v.voucherId)}
+                          aria-label={`Xóa voucher ${v.code}`}
+                          className="text-foreground-subtle hover:text-danger w-10 h-10 flex items-center justify-center"
+                        >
+                          <Trash2 size={16} />
+                        </button>
                       </div>
                     </div>
                   )

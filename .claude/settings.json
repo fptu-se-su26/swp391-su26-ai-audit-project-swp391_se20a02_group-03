@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File .claude/hooks/speckit-feature-nudge.ps1",
+            "timeout": 10,
+            "statusMessage": "Checking for new-feature request (spec-kit)"
+          }
+        ]
+      }
+    ]
+  }
+}

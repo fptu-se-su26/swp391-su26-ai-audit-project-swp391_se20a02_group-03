@@ -3,8 +3,11 @@ import MobileLayout from '../../layouts/MobileLayout'
 import { useAuth } from '../../context/AuthContext'
 
 export default function MobileDashboardPage() {
-  const { user } = useAuth()
+  const { user, isStaff, isAdmin } = useAuth()
   const displayName = user?.fullName?.split(' ')[0] || user?.email?.split('@')[0] || 'bạn'
+  // Route /mobile/scanner bị gate bởi EliteRoute (chỉ Staff/Admin) — chỉ hiện CTA cho đúng
+  // nhóm này, tránh Customer bấm vào rồi bị văng sang /403 khó hiểu.
+  const canScan = isStaff || isAdmin
 
   return (
     <MobileLayout>
@@ -29,16 +32,18 @@ export default function MobileDashboardPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4 px-5 mb-6">
-          <Link
-            to="/mobile/scanner"
-            className="bg-[#13222d] border border-border-default rounded-2xl p-4 flex flex-col items-center justify-center gap-2 no-underline transition-all hover:bg-[#1a2d3b]"
-          >
-            <div className="w-12 h-12 rounded-full flex items-center justify-center bg-[#00c2ff]/10 text-[#00c2ff]">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h4v4H4z"/><path d="M16 4h4v4h-4z"/><path d="M4 16h4v4H4z"/><path d="M16 16h4v4h-4z"/><path d="M10 10h4v4h-4z"/></svg>
-            </div>
-            <span className="text-[0.78rem] font-semibold text-slate-300">Quét QR vào sân</span>
-          </Link>
+        <div className={`grid ${canScan ? 'grid-cols-2' : 'grid-cols-1'} gap-4 px-5 mb-6`}>
+          {canScan && (
+            <Link
+              to="/mobile/scanner"
+              className="bg-[#13222d] border border-border-default rounded-2xl p-4 flex flex-col items-center justify-center gap-2 no-underline transition-all hover:bg-[#1a2d3b]"
+            >
+              <div className="w-12 h-12 rounded-full flex items-center justify-center bg-[#00c2ff]/10 text-[#00c2ff]">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h4v4H4z"/><path d="M16 4h4v4h-4z"/><path d="M4 16h4v4H4z"/><path d="M16 16h4v4h-4z"/><path d="M10 10h4v4h-4z"/></svg>
+              </div>
+              <span className="text-[0.78rem] font-semibold text-slate-300">Quét QR vào sân</span>
+            </Link>
+          )}
           <Link
             to="/apex/booking"
             className="bg-[#13222d] border border-border-default rounded-2xl p-4 flex flex-col items-center justify-center gap-2 no-underline transition-all hover:bg-[#1a2d3b]"

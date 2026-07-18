@@ -283,7 +283,7 @@ public class EscrowRepository : IEscrowRepository
                 .FirstOrDefaultAsync(b => b.BookingId == bookingId && !b.IsDeleted);
 
             if (share == null || booking == null || !booking.IsSplitPayment
-                || booking.Status != BookingStatus.Pending
+                || booking.Status != BookingStatus.PendingPayment
                 || booking.PaymentStatus == PaymentStatus.Paid)
             {
                 await dbTransaction.RollbackAsync();
@@ -477,7 +477,8 @@ public class EscrowRepository : IEscrowRepository
 
             if (booking.PaymentDeadline.HasValue && DateTime.UtcNow > booking.PaymentDeadline.Value)
             {
-                booking.Status = BookingStatus.Cancelled;
+                // Quá hạn thanh toán = Expired (timeout), phân biệt với Cancelled (hủy chủ động).
+                booking.Status = BookingStatus.Expired;
                 booking.PaymentStatus = PaymentStatus.Cancelled;
                 await _context.SaveChangesAsync();
                 await dbTransaction.CommitAsync();
