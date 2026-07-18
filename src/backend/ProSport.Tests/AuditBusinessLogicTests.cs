@@ -184,7 +184,7 @@ public class AuditBusinessLogicTests
         {
             UserId = 1001,
             TotalAmount = 200000,
-            Status = BookingStatus.Pending,
+            Status = BookingStatus.PendingPayment,
             PaymentStatus = PaymentStatus.Pending,
             IsSplitPayment = true,
             SplitPaymentDeadline = DateTime.UtcNow.AddHours(-1),
@@ -215,7 +215,7 @@ public class AuditBusinessLogicTests
         expired.Should().Be(1);
 
         var updated = await db.Bookings.Include(b => b.PaymentShares).FirstAsync();
-        updated.Status.Should().Be(BookingStatus.Cancelled);
+        updated.Status.Should().Be(BookingStatus.Expired);
         updated.PaymentStatus.Should().Be(PaymentStatus.Refunded);
         updated.PaymentShares.First(s => s.UserId == 1002).Status.Should().Be(PaymentShareStatus.Refunded);
     }

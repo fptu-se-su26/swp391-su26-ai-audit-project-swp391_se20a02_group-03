@@ -6,7 +6,7 @@ public class MatchParticipant : BaseEntity
     public int MatchId { get; set; }
     public int UserId { get; set; }
     public string Role { get; set; } = "Joiner"; // Host, Joiner
-    public string Status { get; set; } = "Pending"; // Pending, Approved, Rejected, Cancelled, EscrowPaid
+    public string Status { get; set; } = "Pending"; // Pending, Approved, Rejected (see Constants.MatchParticipantStatus). Escrow-paid is tracked by HasPaidEscrow, not a status.
     public bool HasPaidEscrow { get; set; } = false;
 
     // Navigation properties

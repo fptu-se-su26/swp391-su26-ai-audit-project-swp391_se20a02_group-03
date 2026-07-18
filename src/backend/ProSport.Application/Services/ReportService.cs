@@ -7,8 +7,8 @@ namespace ProSport.Application.Services;
 
 public class ReportService : IReportService
 {
-    private static readonly string[] AllowedStatuses = { "Investigating", "Resolved", "Rejected" };
-    private static readonly string[] StaffAllowedStatuses = { "Investigating" };
+    private static readonly string[] AllowedStatuses = { ReportStatus.Investigating, ReportStatus.Resolved, ReportStatus.Rejected };
+    private static readonly string[] StaffAllowedStatuses = { ReportStatus.Investigating };
 
     private readonly IReportRepository _repository;
     private readonly IUserRepository _userRepository;
@@ -70,7 +70,7 @@ public class ReportService : IReportService
             MatchId = dto.MatchId,
             Reason = dto.Reason,
             Evidence = dto.Evidence,
-            Status = "Pending"
+            Status = ReportStatus.Pending
         };
 
         await _repository.AddAsync(report);

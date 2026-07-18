@@ -71,6 +71,139 @@ public class SqlServerIntegrationTests
     }
 
     [SqlServerFact]
+    public async Task Tournament_CheckConstraint_RejectsInvalidStatus()
+    {
+        await using var db = CreateContext();
+        await using var tx = await db.Database.BeginTransactionAsync();
+
+        var complexId = await db.Complexes.AsNoTracking()
+            .OrderBy(c => c.ComplexId).Select(c => c.ComplexId).FirstAsync();
+
+        var tournament = new Tournament
+        {
+            ComplexId = complexId,
+            Name = "Integration invalid status",
+            StartDate = DateTime.UtcNow.Date.AddDays(7),
+            EndDate = DateTime.UtcNow.Date.AddDays(8),
+            EntryFee = 0,
+            MaxTeams = 8,
+            Status = "Opened", // invalid — not in {Open, Closed, Completed, Cancelled}
+            CreatedAt = DateTime.UtcNow,
+            IsDeleted = false
+        };
+
+        db.Tournaments.Add(tournament);
+        var act = async () => await db.SaveChangesAsync();
+        var ex = await act.Should().ThrowAsync<DbUpdateException>();
+        ex.Which.InnerException.Should().BeOfType<SqlException>();
+
+        await tx.RollbackAsync();
+    }
+
+    [SqlServerFact]
+    public async Task User_CheckConstraint_RejectsInvalidEKycStatus()
+    {
+        await using var db = CreateContext();
+        await using var tx = await db.Database.BeginTransactionAsync();
+
+        db.Users.Add(new User
+        {
+            FullName = "IT Invalid EKyc",
+            Email = $"it-{Guid.NewGuid():N}@test.local",
+            Role = Roles.Customer,
+            EKycStatus = "BadStatus", // invalid — not in {Unverified, Pending, Verified, Rejected}
+            CreatedAt = DateTime.UtcNow,
+            IsDeleted = false
+        });
+
+        var act = async () => await db.SaveChangesAsync();
+        var ex = await act.Should().ThrowAsync<DbUpdateException>();
+        ex.Which.InnerException.Should().BeOfType<SqlException>();
+
+        await tx.RollbackAsync();
+    }
+
+    [SqlServerFact]
+    public async Task User_CheckConstraint_RejectsInvalidRole()
+    {
+        await using var db = CreateContext();
+        await using var tx = await db.Database.BeginTransactionAsync();
+
+        db.Users.Add(new User
+        {
+            FullName = "IT Invalid Role",
+            Email = $"it-{Guid.NewGuid():N}@test.local",
+            Role = "SuperUser", // invalid — not in Roles constants
+            EKycStatus = EKycStatuses.Unverified,
+            CreatedAt = DateTime.UtcNow,
+            IsDeleted = false
+        });
+
+        var act = async () => await db.SaveChangesAsync();
+        var ex = await act.Should().ThrowAsync<DbUpdateException>();
+        ex.Which.InnerException.Should().BeOfType<SqlException>();
+
+        await tx.RollbackAsync();
+    }
+
+    [SqlServerFact]
+    public async Task Report_CheckConstraint_RejectsInvalidStatus()
+    {
+        await using var db = CreateContext();
+        await using var tx = await db.Database.BeginTransactionAsync();
+
+        var userIds = await db.Users.AsNoTracking().OrderBy(u => u.UserId)
+            .Select(u => u.UserId).Take(2).ToListAsync();
+        var matchId = await db.Matches.AsNoTracking().OrderBy(m => m.MatchId)
+            .Select(m => m.MatchId).FirstAsync();
+
+        db.Reports.Add(new Report
+        {
+            ReporterId = userIds[0],
+            ReportedUserId = userIds.Count > 1 ? userIds[1] : userIds[0],
+            MatchId = matchId,
+            Reason = "IT invalid status",
+            Status = "Investigatin", // invalid typo — not in {Pending,Investigating,Resolved,Rejected}
+            CreatedAt = DateTime.UtcNow,
+            IsDeleted = false
+        });
+
+        var act = async () => await db.SaveChangesAsync();
+        var ex = await act.Should().ThrowAsync<DbUpdateException>();
+        ex.Which.InnerException.Should().BeOfType<SqlException>();
+
+        await tx.RollbackAsync();
+    }
+
+    [SqlServerFact]
+    public async Task Equipment_CheckConstraint_RejectsInvalidStatus()
+    {
+        await using var db = CreateContext();
+        await using var tx = await db.Database.BeginTransactionAsync();
+
+        var catId = await db.EquipmentCategories.AsNoTracking()
+            .OrderBy(c => c.EquipmentCategoryId).Select(c => c.EquipmentCategoryId).FirstAsync();
+
+        db.Equipments.Add(new Equipment
+        {
+            EquipmentCategoryId = catId,
+            Name = "IT invalid status",
+            EquipmentName = "IT invalid status",
+            RetailPrice = 100000,
+            StockQuantity = 1,
+            Status = "Retired", // invalid — not in {Available, Discontinued}
+            CreatedAt = DateTime.UtcNow,
+            IsDeleted = false
+        });
+
+        var act = async () => await db.SaveChangesAsync();
+        var ex = await act.Should().ThrowAsync<DbUpdateException>();
+        ex.Which.InnerException.Should().BeOfType<SqlException>();
+
+        await tx.RollbackAsync();
+    }
+
+    [SqlServerFact]
     public async Task BookingPaymentShare_UniqueIndex_RejectsDuplicateUser()
     {
         await using var db = CreateContext();
