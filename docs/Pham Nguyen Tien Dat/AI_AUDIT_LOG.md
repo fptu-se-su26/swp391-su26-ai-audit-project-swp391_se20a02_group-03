@@ -836,3 +836,58 @@
 - Frontend: ESLint **0 lỗi**; Vitest **63/63 pass**; `npm run build` — thành công.
 - Backend: `dotnet build` — 0 warning, 0 error; `dotnet test` — **145/149 pass** (4 skip SQL Server integration, +4 test mới so với baseline `main`).
 - Commit cục bộ `b7775a8` trên nhánh `fix/main-bug-sweep-post-PR50` (dựa trên `main` @ `e935c10`) — **chưa push, chưa mở PR**, chờ quyết định của người dùng.
+
+
+
+
+---
+
+## Log #21
+- **Ngày:** 2026-07-17 → 2026-07-19
+- **Người thực hiện:** Phạm Nguyễn Tiến Đạt
+- **Công cụ AI:** Claude Code (Claude Sonnet 5)
+- **Mục đích:** Đối chiếu State Diagram với codebase thật và vá lệch pha; hoàn thiện vòng đời Tournament và chuẩn hóa status Booking/Equipment/ComplexOwner/ComplexReview/Report/User qua audit theo từng phạm vi vai trò (User/Admin/Owner) bằng spec-kit; thử nghiệm redesign toàn bộ UI Admin và Public/Customer theo hướng "editorial sports brutalism"; sau đó rollback phần UI theo yêu cầu và chốt commit/push phần backend/database lên `DE190147/audit-module`.
+- **Tham chiếu Prompt:** Prompt #21
+- **Trạng thái:** **Đã commit & push** (`7ecc942`, fast-forward `1348d57..7ecc942`) — riêng phần redesign UI Admin/Customer (mục D) **đã bị rollback theo yêu cầu, không nằm trong commit**.
+
+### Tóm tắt kết quả AI
+
+**A. Đối chiếu State Diagram ↔ Codebase**
+- Đọc `STATE_DIAGRAM_PRO-SPORT.drawio`, đối chiếu từng state/transition với code thật. Phát hiện Booking thiếu kích hoạt `PendingPayment`/`Expired`, Tournament thiếu state Close/Complete/Cancel, thiếu cạnh player tự rút khỏi trận. Sửa lại `.drawio` cho khớp code làm baseline.
+
+**B. Backlog P1–P3 (spec-kit `specs/001`, `specs/002`)**
+- P1: kích hoạt đầy đủ `PendingPayment`/`Expired` cho Booking.
+- P2: hoàn thiện Tournament lifecycle Close/Complete/Cancel.
+- P3: sửa comment lỗi thời tại `MatchParticipant.Status` (escrow đã tách sang cờ `HasPaidEscrow`, không còn là status).
+
+**C. Re-audit sau P1–P3 — chọn A1 + B**
+- Phát hiện các nhánh timeout Booking vẫn lẫn lộn `Cancelled`/`Expired`. Hai hướng sửa (A1: luôn `Expired`; A2: revert `Cancelled`) loại trừ lẫn nhau — chọn **A1** (nhất quán "hết hạn do không thao tác"), cộng thêm **B**: bổ sung cạnh Tournament "player tự rút khỏi trận" còn thiếu.
+
+**D. Audit DB/Frontend theo phạm vi vai trò (`specs/003–005`) + thử nghiệm redesign UI (`specs/006–007`, đã rollback)**
+- Audit lần lượt User → Admin → Owner, phát hiện bug thật: `OwnerMembershipsPage` gửi status `'Suspended'` không hợp lệ lên API.
+- Chốt tập status hợp lệ cho `Equipment`/`ComplexOwner`/`ComplexReview`/`Report`/`User`, enforce bằng 4 migration DB check constraint.
+- Redesign thử nghiệm Admin UI (25 task) và Public/Customer UI (30 task, 4 component dùng chung `CourtCard`/`MatchCard`/`ProductCard`/`MatchDayRail`) theo quy trình spec-kit 4 giai đoạn có gate phê duyệt bắt buộc đúng cụm từ. **Toàn bộ phần này đã bị rollback ở mục E, không còn trong working tree.**
+
+**E. Rollback UI & Version Control**
+- Theo yêu cầu người dùng, xác nhận PR #49 (`github.com/.../pull/49`) = commit `1348d57`; sau khi làm rõ phạm vi (giữ bugfix đã commit ở `191cec1`, chỉ bỏ UI **chưa commit**), chạy `git checkout -- src/frontend` + `git clean -fd` cho 4 component mới → `src/frontend` sạch, về đúng `191cec1`.
+- Commit `7ecc942` gộp toàn bộ thay đổi backend/database/spec-kit, **cố ý loại trừ** `.claude/skills/` (~7.7MB font asset, không phải code dự án). Push fast-forward `origin/DE190147/audit-module`.
+
+### Quyết định & Can thiệp của con người
+- **Chỉ đạo có nguyên tắc:** khi A1/A2 loại trừ nhau, yêu cầu AI tự chọn và giải thích rõ lý do thay vì hỏi lại; giao quyền quyết định data-modeling (status set) cho AI với điều kiện có nghiên cứu evidence trước khi chốt.
+- **Ép gate phê duyệt nghiêm ngặt:** với brief redesign UI dài, yêu cầu AI chỉ tiến từng giai đoạn spec-kit khi nhận đúng cụm từ (`APPROVE SPEC`/`APPROVE PLAN`/`APPROVE IMPLEMENTATION`) — từ chối "tiếp tục" mơ hồ 2 lần, AI tuân thủ đúng.
+- **Chặn hành động ngoài phạm vi đã duyệt:** khi AI định xóa `MatchProLayout.css` dựa trên một câu trả lời chung chung, hệ thống permission tự động chặn vì mâu thuẫn với chính plan đã `APPROVE PLAN` trước đó — AI khôi phục ngay và giải thích lý do dừng thay vì lách qua.
+- **Quyết định rollback UI:** sau khi xem preview, yêu cầu rollback UI về một PR cụ thể; làm rõ qua nhiều vòng hỏi đáp để xác định đúng phạm vi (giữ bugfix `191cec1`, chỉ bỏ phần chưa commit) trước khi cho phép AI thực thi thao tác mất dữ liệu không hoàn tác.
+- **Kiểm soát Version Control:** chỉ định rõ commit đúng nhánh `DE190147/audit-module` rồi mới push; AI chủ động loại `.claude/skills/` khỏi commit để tránh phình repo bằng asset không liên quan.
+
+### Áp dụng cho
+- **Backend:** `TournamentController.cs`, `ITournamentService.cs`, `EscrowService.cs`, `ReportService.cs`, `MatchParticipant.cs`, `ProSportDbContext.cs`, `BookingRepository.cs`, `EscrowRepository.cs`, `SplitPaymentService.cs`, `TournamentService.cs`.
+- **Test:** `AuditBusinessLogicTests.cs`, `PlayerFeaturesServiceTests.cs`, `SqlServerIntegrationTests.cs`, `TournamentLifecycleTests.cs` (mới).
+- **Database:** 4 migration mới (`TournamentStatusConstraint`, `UserStatusConstraints`, `AdminEntityStatusConstraints`, `OwnerEntityStatusConstraints`), `ProSportDB_EFCore_AutoGenerated.sql`.
+- **Tài liệu:** `specs/001`–`specs/007`, `STATE_DIAGRAM_PRO-SPORT.drawio`, `.specify/`, `CLAUDE.md`.
+- **Frontend (đã rollback, không còn trong working tree):** `CourtCard.jsx`, `MatchCard.jsx`, `ProductCard.jsx`, `MatchDayRail.jsx` và ~29 trang Admin/Apex/Gear/Match từng được restyle.
+
+### Kiểm chứng
+- `dotnet test`: **161/161 pass**, 9 skip (integration, cần connection string thật) — không hồi quy sau các thay đổi backend.
+- Trước rollback: Vitest **71/71 pass**, ESLint **0 lỗi**, `npm run build` thành công; live browser xác nhận luồng booking/match/shop hoạt động đúng (đăng nhập `customer1@prosport.vn`).
+- Sau rollback: `git status -- src/frontend` sạch, xác nhận UI về đúng trạng thái commit `191cec1`.
+- `git push origin DE190147/audit-module`: fast-forward `1348d57..7ecc942`, không xung đột.
