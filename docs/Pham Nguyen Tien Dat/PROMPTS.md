@@ -336,3 +336,20 @@
   - **Nhánh riêng:** không commit thẳng `main`, tạo `fix/main-bug-sweep-post-PR50`, chưa push, báo cáo lại chờ quyết định.
 - **Evaluation:** AI tuân thủ đúng tinh thần "tự nghiên cứu, không đoán" — trước khi kết luận bất kỳ field nào là bug, đều grep trực tiếp vào file DTO/entity backend thật để xác nhận, tránh lặp lại sai lầm "sửa theo cảm tính" đã từng bị nhắc ở các tuần trước. Điểm nổi bật: AI phát hiện một chuỗi bug liên hoàn xuất phát từ cùng một nguyên nhân gốc (đợt merge conflict-resolution của PR #50 không kỹ) — không chỉ dừng ở lỗi hiển thị bề mặt (heading rỗng, badge sai môn) mà truy ngược ra được bug tài chính nghiêm trọng hơn nhiều (escrow amount bị ghi đè âm thầm) và một tính năng cốt lõi (đánh giá uy tín người chơi) chưa từng hoạt động dù đã có đủ UI. Quyết định của tôi: yêu cầu bổ sung tài liệu (log/changelog/prompt/reflection) đầy đủ trước khi quyết định có push/mở PR nhánh vá lỗi này hay không — giữ đúng kỷ luật "không tự ý push" đã thiết lập từ các phiên trước.
   - Chưa thể khẳng định hoàn tất toàn bộ brief UI ban đầu vì Mobile, Staff/Elite và smoke test browser responsive toàn bộ route vẫn cần audit sâu hơn.
+ 
+
+
+
+
+
+---
+
+### Prompt #21
+- **Date:** 2026-07-17 → 2026-07-19
+- **AI Tool:** Claude Code (Claude Sonnet 5)
+- **Author:** Phạm Nguyễn Tiến Đạt
+- **Audit Log:** Log #21
+- **Purpose:** Đối chiếu State Diagram với codebase, hoàn thiện vòng đời Tournament và chuẩn hóa status Booking/Equipment/ComplexOwner/ComplexReview/Report/User theo audit đa vai trò, thử nghiệm redesign UI Admin & Customer, rồi rollback UI và chốt commit/push backend/database lên nhánh `DE190147/audit-module`.
+- **Prompt:** *"Hãy check xem file State Diagram này đã vẽ đúng so với dự án chưa"* — mở đầu chuỗi chỉ đạo nối tiếp gồm: lập backlog P1/P2/P3 vá lệch pha Booking/Tournament; audit DB/Frontend lần lượt theo phạm vi User → Admin → Owner qua spec-kit và tự sửa các điểm bất cập; chốt tập status cho các entity còn thiếu; sau đó "dùng specKit và Frontend Design để sửa lại UI của Admin/Customer"; cuối cùng "roll back UI về [PR #49]" (giữ lại bugfix đã commit), "commit code lên nhánh DE190147/audit-module" và "push code lên nhánh".
+- **Expected Output:** State diagram khớp code thật; Tournament lifecycle đầy đủ; status hợp lệ được enforce ở tầng DB; audit report + fix cho 3 phạm vi vai trò; UI Admin/Customer redesign theo hệ nhận diện nhất quán (sau đó rollback theo quyết định của người dùng); lịch sử Git sạch, đúng nhánh, đã push.
+- **Evaluation:** AI thực hiện đúng quy trình audit-trước-khi-sửa cho toàn bộ phần backend/database, tự phát hiện thêm vấn đề ngoài yêu cầu gốc (bug `OwnerMembershipsPage` gửi status không hợp lệ) và báo cáo minh bạch thay vì âm thầm bỏ qua. Với phần redesign UI, AI tuân thủ nghiêm ngặt các gate phê duyệt theo đúng cụm từ được yêu cầu, không tự ý mở rộng phạm vi (từ chối "tiếp tục" mơ hồ 2 lần), và khi định thực hiện một hành động (xóa file) mâu thuẫn với chính kế hoạch đã được duyệt, hệ thống tự chặn và AI khôi phục ngay thay vì lách qua. Điểm cần lưu ý: toàn bộ công sức redesign UI (Admin + Customer, ~30 task) cuối cùng bị rollback theo quyết định của người dùng sau khi xem preview thực tế — cho thấy giá trị của việc giữ các thay đổi UI ở trạng thái uncommitted/dễ hoàn tác cho đến khi được xác nhận trực quan, thay vì commit sớm.
