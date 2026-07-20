@@ -325,7 +325,7 @@ public class PlayerFeaturesServiceTests
         {
             UserId = 1001,
             TotalAmount = 200000,
-            Status = BookingStatus.Pending,
+            Status = BookingStatus.PendingPayment,
             PaymentStatus = PaymentStatus.Pending,
             IsSplitPayment = true,
             SplitPaymentDeadline = DateTime.UtcNow.AddHours(-1),
@@ -364,7 +364,7 @@ public class PlayerFeaturesServiceTests
         share.Status.Should().Be(PaymentShareStatus.Refunded);
 
         var updatedBooking = await db.Bookings.FirstAsync(b => b.BookingId == booking.BookingId);
-        updatedBooking.Status.Should().Be(BookingStatus.Cancelled);
+        updatedBooking.Status.Should().Be(BookingStatus.Expired);
         updatedBooking.PaymentStatus.Should().Be(PaymentStatus.Refunded);
     }
 

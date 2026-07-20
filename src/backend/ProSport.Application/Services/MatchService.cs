@@ -73,9 +73,6 @@ public class MatchService : IMatchService
             if (dto.MaxParticipants <= 0)
                 return new ApiResponseDto<MatchDto>(400, "MaxParticipants must be greater than zero.");
 
-            // Tự động thiết lập số tiền chia đều (Escrow Amount) dựa trên tổng tiền Booking và số lượng người tham gia tối đa
-            var splitAmount = Math.Round(booking.TotalAmount / dto.MaxParticipants, 0);
-
             var match = new Match
             {
                 HostId = hostId,
@@ -86,7 +83,10 @@ public class MatchService : IMatchService
                 EndTime = dto.EndTime,
                 MaxParticipants = dto.MaxParticipants,
                 CurrentParticipants = 1, // Host
-                EscrowAmount = splitAmount,
+                // Dùng đúng số tiền ký quỹ host đã cấu hình ở UI (dto.EscrowAmount) — trước đây
+                // bị bỏ qua và tự tính lại TotalAmount/MaxParticipants, khiến số tiền hiển thị
+                // cho host trước khi submit không khớp với số tiền thực sự lưu vào DB.
+                EscrowAmount = dto.EscrowAmount,
                 Status = ProSport.Domain.Constants.MatchStatus.Open,
                 LevelRequirement = dto.LevelRequirement,
                 Notes = dto.Notes
@@ -180,6 +180,37 @@ public class MatchService : IMatchService
                 p.Role,
                 p.Status,
                 p.HasPaidEscrow
+            });
+
+            return new ApiResponseDto<IEnumerable<object>>(200, "Success", result);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting members for match {MatchId}", matchId);
+            return new ApiResponseDto<IEnumerable<object>>(500, "Lỗi hệ thống", null);
+        }
+    }
+
+    public async Task<ApiResponseDto<IEnumerable<object>>> GetMatchMembersAsync(int matchId, int requestingUserId)
+    {
+        try
+        {
+            var match = await _matchRepository.GetMatchByIdAsync(matchId);
+            if (match == null)
+                return new ApiResponseDto<IEnumerable<object>>(404, "Không tìm thấy kèo", null);
+
+            var members = await _matchRepository.GetParticipantsByMatchAsync(matchId, ProSport.Domain.Constants.MatchParticipantStatus.Approved);
+
+            var isMember = match.HostId == requestingUserId || members.Any(m => m.UserId == requestingUserId);
+            if (!isMember)
+                return new ApiResponseDto<IEnumerable<object>>(403, "Bạn không phải thành viên của kèo này", null);
+
+            var result = members.Select(p => new
+            {
+                p.UserId,
+                UserName = p.User?.FullName ?? "Unknown",
+                p.Role,
+                IsHost = p.Role == ProSport.Domain.Constants.MatchParticipantRole.Host,
             });
 
             return new ApiResponseDto<IEnumerable<object>>(200, "Success", result);

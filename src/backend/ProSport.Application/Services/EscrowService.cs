@@ -43,7 +43,10 @@ public class EscrowService : IEscrowService
                 EscrowWalletId = wallet.EscrowWalletId,
                 UserId = wallet.UserId,
                 Balance = wallet.Balance,
-                LockedBalance = wallet.LockedBalance
+                LockedBalance = wallet.LockedBalance,
+                LinkedProvider = wallet.LinkedProvider,
+                LinkedAccountNumber = wallet.LinkedAccountNumber,
+                LinkedAccountName = wallet.LinkedAccountName
             });
         }
         catch (Exception ex)
@@ -250,7 +253,8 @@ public class EscrowService : IEscrowService
             // Kiểm tra booking đã hết hạn thanh toán chưa
             if (booking.PaymentDeadline.HasValue && DateTime.UtcNow > booking.PaymentDeadline.Value)
             {
-                booking.Status = BookingStatus.Cancelled;
+                // Quá hạn thanh toán = Expired (timeout), phân biệt với Cancelled (hủy chủ động).
+                booking.Status = BookingStatus.Expired;
                 await _bookingRepository.UpdateAsync(booking);
                 return new ApiResponseDto<bool>(400, "Đơn đặt sân đã hết hạn thanh toán. Vui lòng đặt lại.", false);
             }
@@ -446,6 +450,76 @@ public class EscrowService : IEscrowService
         {
             _logger.LogError(ex, "Error refunding to escrow for user {UserId} by operator {OperatorId}", userId, operatorId);
             return new ApiResponseDto<bool>(500, "Lỗi server khi hoàn tiền vào ví", false);
+        }
+    }
+
+    public async Task<ApiResponseDto<bool>> LinkAccountAsync(int userId, string provider, string accountNumber, string accountName)
+    {
+        try
+        {
+            var wallet = await _escrowRepository.GetWalletByUserIdAsync(userId);
+            if (wallet == null)
+            {
+                return new ApiResponseDto<bool>(404, "Ví Escrow không tồn tại", false);
+            }
+
+            wallet.LinkedProvider = provider;
+            wallet.LinkedAccountNumber = accountNumber;
+            wallet.LinkedAccountName = accountName;
+
+            await _escrowRepository.UpdateWalletAsync(wallet);
+
+            return new ApiResponseDto<bool>(200, "Liên kết tài khoản thành công", true);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error linking account for user {UserId}", userId);
+            return new ApiResponseDto<bool>(500, "Lỗi server khi liên kết tài khoản", false);
+        }
+    }
+
+    public async Task<ApiResponseDto<bool>> WithdrawAsync(int userId, decimal amount)
+    {
+        try
+        {
+            if (amount <= 0)
+                return new ApiResponseDto<bool>(400, "Số tiền rút phải lớn hơn 0", false);
+
+            return await _escrowRepository.ExecuteInTransactionAsync(async () =>
+            {
+                var wallet = await _escrowRepository.GetWalletByUserIdAsync(userId);
+                if (wallet == null)
+                    return new ApiResponseDto<bool>(404, "Ví Escrow không tồn tại", false);
+
+                if (string.IsNullOrWhiteSpace(wallet.LinkedProvider) || string.IsNullOrWhiteSpace(wallet.LinkedAccountNumber))
+                    return new ApiResponseDto<bool>(400, "Vui lòng liên kết tài khoản ngân hàng hoặc ví trước khi rút tiền", false);
+
+                if (wallet.Balance < amount)
+                    return new ApiResponseDto<bool>(400, $"Số dư không đủ. Khả dụng: {wallet.Balance:N0} VND", false);
+
+                var debited = await _escrowRepository.TryDebitWalletAsync(userId, amount);
+                if (!debited)
+                    return new ApiResponseDto<bool>(400, "Giao dịch thất bại. Vui lòng thử lại sau.", false);
+
+                var transaction = new Domain.Entities.Transaction
+                {
+                    EscrowWalletId = wallet.EscrowWalletId,
+                    Amount = amount,
+                    Type = TransactionType.Withdraw,
+                    Status = TransactionStatus.Completed,
+                    ReferenceId = $"WITHDRAW-{userId}-{Guid.NewGuid().ToString("N")[..8].ToUpper()}",
+                    Description = $"Rút tiền về {wallet.LinkedProvider} - {wallet.LinkedAccountNumber}"
+                };
+
+                await _escrowRepository.AddTransactionAsync(transaction);
+
+                return new ApiResponseDto<bool>(200, $"Rút tiền thành công về {wallet.LinkedProvider}", true);
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error withdrawing from escrow for user {UserId}", userId);
+            return new ApiResponseDto<bool>(500, "Lỗi server khi rút tiền", false);
         }
     }
 }

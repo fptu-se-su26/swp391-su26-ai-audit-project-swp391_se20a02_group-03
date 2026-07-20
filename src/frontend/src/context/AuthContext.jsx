@@ -13,7 +13,10 @@ export function AuthProvider({ children }) {
     const storedUser = getAuthUserRaw()
     if (storedToken && storedUser) {
       try {
-        const payload = JSON.parse(atob(storedToken.split('.')[1]))
+        let base64Url = storedToken.split('.')[1]
+        let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
+        const padding = '='.repeat((4 - base64.length % 4) % 4)
+        const payload = JSON.parse(atob(base64 + padding))
         const isExpired = payload.exp && Date.now() / 1000 > payload.exp
         if (isExpired) {
           clearAuthStorage()

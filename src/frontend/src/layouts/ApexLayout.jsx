@@ -11,6 +11,7 @@ import {
   Home,
   Calendar,
   Swords,
+  Users,
   ShoppingBag,
   BookOpen,
   Activity,
@@ -20,13 +21,14 @@ import {
   LogOut,
   Menu,
   X,
+  Wallet,
 } from 'lucide-react'
 
 /* ─── Navigation Config ─── */
 const mainNav = [
   {
     path: '/apex',
-    label: 'Tổng quan',
+    label: 'Trang chủ',
     icon: <Home className="w-4 h-4" />,
     exact: true,
   },
@@ -37,11 +39,16 @@ const mainNav = [
   },
   {
     path: '/apex/matches',
-    label: 'Kèo đấu',
+    label: 'Ghép trận',
     icon: <Swords className="w-4 h-4" />,
   },
   {
-    path: '/gear/catalog',
+    path: '/apex/community',
+    label: 'Cộng Đồng',
+    icon: <Users className="w-4 h-4" />,
+  },
+  {
+    path: '/apex/shop',
     label: 'Cửa hàng',
     icon: <ShoppingBag className="w-4 h-4" />,
   },
@@ -64,6 +71,11 @@ const accountNav = [
     icon: <User className="w-4 h-4" />,
   },
   {
+    path: '/apex/wallet',
+    label: 'Ví của tôi',
+    icon: <Wallet className="w-4 h-4" />,
+  },
+  {
     path: '/apex/settings',
     label: 'Cài đặt',
     icon: <Settings className="w-4 h-4" />,
@@ -84,13 +96,13 @@ function NavItem({ link, isActive, onClick }) {
     <Link
       to={link.path}
       onClick={onClick}
-      className={`flex items-center gap-3 px-3 py-2.5 rounded-[2px] font-bold text-[13px] uppercase tracking-[0.02em] transition-colors no-underline ${
+      className={`flex items-center gap-3 px-4 py-3 mx-4 rounded-[8px] font-bold text-[13px] uppercase tracking-[0.02em] transition-all duration-200 ease-in-out no-underline ${
         isActive
-          ? 'bg-paper text-ink'
-          : 'text-paper/50 hover:text-paper'
+          ? 'bg-white/10 text-white shadow-sm'
+          : 'text-white/50 hover:text-white hover:bg-white/5'
       }`}
     >
-      <span className="shrink-0">{link.icon}</span>
+      <span className={`shrink-0 ${isActive ? 'text-[#14b8a6]' : ''}`}>{link.icon}</span>
       <span>{link.label}</span>
     </Link>
   )
@@ -99,7 +111,7 @@ function NavItem({ link, isActive, onClick }) {
 /* ─── Group Label ─── */
 function GroupLabel({ children }) {
   return (
-    <p className="label-mono px-3 pt-5 pb-2 text-paper/40">
+    <p className="px-8 pt-6 pb-2 text-[10px] font-bold uppercase tracking-widest text-white/40">
       {children}
     </p>
   )
@@ -146,8 +158,7 @@ export default function ApexLayout({ children }) {
           <ProSportLogo size="sm" variant="light" />
         </div>
 
-        {/* Nav groups */}
-        <nav className="flex-1 px-3 py-4 flex flex-col overflow-y-auto">
+        <nav className="flex-1 py-4 flex flex-col overflow-y-auto scrollbar-hide">
           <GroupLabel>Chính</GroupLabel>
           <div className="flex flex-col gap-0.5">
             {mainNav.map(link => (
@@ -172,7 +183,7 @@ export default function ApexLayout({ children }) {
             ))}
             <button
               onClick={handleLogout}
-              className="flex items-center gap-3 px-3 py-2.5 rounded-[2px] font-bold text-[13px] uppercase tracking-[0.02em] transition-colors text-danger hover:bg-white/5 text-left w-full"
+              className="flex items-center gap-3 px-4 py-3 mx-4 rounded-[8px] font-bold text-[13px] uppercase tracking-[0.02em] transition-all duration-200 ease-in-out text-red-400 hover:text-red-300 hover:bg-white/5 text-left"
             >
               <LogOut className="w-4 h-4 shrink-0" />
               <span>Đăng xuất</span>
@@ -184,10 +195,10 @@ export default function ApexLayout({ children }) {
       {/* ─── Main content ─── */}
       <div className={`flex-1 flex flex-col min-h-screen transition-all duration-200 ${desktopSidebarCollapsed ? 'ml-0' : 'ml-[260px]'} max-[900px]:!ml-0`}>
         {/* Top bar */}
-        <header className="h-16 bg-surface border-b-2 border-border-strong flex items-center gap-4 px-8 sticky top-0 z-[100]">
+        <header className="h-16 bg-white border-b border-gray-200 flex items-center gap-4 px-8 sticky top-0 z-[100]">
           {/* Mobile hamburger */}
           <button
-            className="hidden max-[900px]:flex items-center justify-center w-10 h-10 rounded-[2px] text-foreground-muted hover:bg-surface-hover hover:text-foreground transition-colors"
+            className="hidden max-[900px]:flex items-center justify-center w-10 h-10 rounded-[8px] text-gray-500 hover:bg-teal-50 hover:text-[#14b8a6] transition-colors"
             onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}
             aria-label="Mở menu"
           >
@@ -196,7 +207,7 @@ export default function ApexLayout({ children }) {
 
           {/* Desktop sidebar toggle */}
           <button
-            className="max-[900px]:hidden flex items-center justify-center w-10 h-10 rounded-[2px] text-foreground-muted hover:bg-surface-hover hover:text-foreground transition-colors"
+            className="max-[900px]:hidden flex items-center justify-center w-10 h-10 rounded-[8px] text-gray-500 hover:bg-teal-50 hover:text-[#14b8a6] transition-colors"
             onClick={() => setDesktopSidebarCollapsed(!desktopSidebarCollapsed)}
             aria-label="Thu gọn menu"
           >
@@ -205,7 +216,7 @@ export default function ApexLayout({ children }) {
 
           {/* Back to Home Button */}
           <button
-            className="flex items-center justify-center w-10 h-10 rounded-[2px] text-foreground-muted hover:bg-surface-hover hover:text-foreground transition-colors sm:ml-2"
+            className="flex items-center justify-center w-10 h-10 rounded-[8px] text-gray-500 hover:bg-teal-50 hover:text-[#14b8a6] transition-colors sm:ml-2"
             onClick={() => navigate('/')}
             title="Quay về trang chính"
             aria-label="Về trang chủ"
@@ -218,15 +229,9 @@ export default function ApexLayout({ children }) {
           </div>
 
           <div className="flex items-center gap-4 ml-auto">
-            {/* Cart */}
-            <Link to="/gear/cart" className="relative flex items-center justify-center w-10 h-10 rounded-[2px] text-foreground-muted hover:bg-surface-hover hover:text-foreground transition-colors" title="Giỏ hàng">
-              <ShoppingBag className="w-5 h-5" />
-              {cartCount > 0 && (
-                <span className="absolute top-1.5 right-1.5 bg-accent text-ink w-4 h-4 flex items-center justify-center rounded-full text-[10px] font-bold">
-                  {cartCount}
-                </span>
-              )}
-            </Link>
+
+
+
 
             <NotificationMenu />
             <ProfileDropdown user={userProfile} />

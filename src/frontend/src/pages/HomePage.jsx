@@ -31,10 +31,10 @@ const facilities = [
   },
   {
     id: 3,
-    name: 'Xem toàn bộ 42 cơ sở',
-    sub: 'Khám phá toàn bộ hệ thống',
-    isViewAll: true,
-    image: 'https://images.unsplash.com/photo-1734161081396-0f0572a16bf6?w=600&q=80',
+    name: 'Velocity Court',
+    sub: 'Sân Cầu Lông Trong Nhà • 6 Sân',
+    tag: 'HOT',
+    image: 'https://images.unsplash.com/photo-1599474924187-334a4ae5bd3c?w=600&q=80',
     large: false,
   },
 ]
@@ -103,10 +103,10 @@ export default function HomePage() {
         { opacity: 1, y: 0, duration: 0.8, stagger: 0.12, ease: 'power3.out', delay: 0.5 }
       )
 
-      // Hero — ảnh nền zoom-out lúc vào trang + parallax nhẹ khi cuộn
+      // Hero — ảnh nền blurred zoom-out lúc vào trang + parallax nhẹ khi cuộn
       gsap.fromTo(heroImgRef.current,
-        { scale: 1.12 },
-        { scale: 1, duration: 1.8, ease: 'power2.out' }
+        { scale: 1.14 },
+        { scale: 1.08, duration: 1.8, ease: 'power2.out' }
       )
       gsap.to(heroImgRef.current, {
         yPercent: 12,
@@ -189,40 +189,136 @@ export default function HomePage() {
       <Navbar />
 
       {/* ═══════════════════════════════════════════
-          HERO — Dark, Bold, Premium
+          HERO — 3D BREAKOUT (4 Layers)
           ═══════════════════════════════════════════ */}
-      <section ref={heroSectionRef} className="relative pt-[76px] min-h-screen overflow-hidden bg-ink">
-        {/* Background court image */}
-        <img
-          ref={heroImgRef}
-          src="https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=1920&q=80"
-          alt=""
-          aria-hidden="true"
-          className="absolute inset-0 w-full h-full object-cover will-change-transform"
-        />
-        {/* Dark overlay for text readability */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/55 to-ink" />
+      <section ref={heroSectionRef} className="relative min-h-screen overflow-hidden" style={{paddingTop:'76px', backgroundColor:'#050810'}}>
 
-        <div ref={heroRef} className="relative z-10 flex flex-col justify-end h-full min-h-[calc(100vh-76px)] max-w-[1400px] mx-auto px-6 sm:px-10 pb-16 sm:pb-24">
-          <p className="hero-fade label-mono text-paper mb-5">{'// Cầu lông & Pickleball chuyên nghiệp'}</p>
-          <h1 className="font-heading text-[clamp(2.6rem,9vw,9rem)] leading-[0.92] tracking-[-0.01em] text-paper uppercase mb-8 max-w-[1100px]">
-            {heroLines.map((line) => (
-              <span key={line} className="block overflow-hidden pb-[0.08em] -mb-[0.08em]">
-                <span className="hero-line block will-change-transform">{line}</span>
-              </span>
+        {/* ── LAYER 1: Background — blurred dark court (── */}
+        <div className="absolute inset-0 z-0">
+          <img
+            ref={heroImgRef}
+            src="https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=1920&q=80"
+            alt=""
+            aria-hidden="true"
+            className="w-full h-full object-cover will-change-transform"
+            style={{ filter: 'blur(5px) brightness(0.28)', transform: 'scale(1.08)' }}
+          />
+          {/* Dual gradient vignette for depth */}
+          <div className="absolute inset-0" style={{background: 'linear-gradient(to bottom, rgba(5,8,16,0.5) 0%, transparent 40%, rgba(5,8,16,0.75) 100%)'}} />
+          <div className="absolute inset-0" style={{background: 'linear-gradient(to right, rgba(5,8,16,0.85) 0%, rgba(5,8,16,0.3) 50%, transparent 100%)'}} />
+        </div>
+
+        {/* ── LAYER 2: Athlete body BEHIND text (bottom 58%, z=2) ── */}
+        <div
+          className="absolute inset-0 z-[2] pointer-events-none"
+          style={{ clipPath: 'inset(42% 0 0 0)' }}
+        >
+          <img
+            src="https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=1920&q=80"
+            alt="Vận động viên cầu lông"
+            className="absolute inset-0 w-full h-full object-cover"
+            style={{ objectPosition: '62% center' }}
+          />
+          <div className="absolute inset-0" style={{background: 'linear-gradient(to right, rgba(5,8,16,0.90) 0%, rgba(5,8,16,0.25) 45%, transparent 100%)'}} />
+          <div className="absolute inset-0" style={{background: 'linear-gradient(to top, rgba(5,8,16,0.7) 0%, transparent 40%)'}} />
+        </div>
+
+        {/* ── LAYER 3: Giant typography backdrop — hollow text-stroke (── */}
+        <div
+          className="absolute inset-0 z-[3] flex items-center pointer-events-none overflow-hidden"
+          aria-hidden="true"
+        >
+          <div
+            className="w-full pl-[4%] sm:pl-[6%] uppercase select-none"
+            style={{
+              fontFamily: "'Montserrat', 'Be Vietnam Pro', sans-serif",
+              fontWeight: 900,
+              fontSize: 'clamp(5.5rem, 14vw, 17rem)',
+              lineHeight: 0.88,
+              letterSpacing: '-0.02em',
+            }}
+          >
+            {[['HIỆU', false], ['SUẤT', false], ['ĐỈNH', true], ['CAO', true]].map(([word, teal]) => (
+              <div
+                key={word}
+                style={{
+                  WebkitTextStroke: teal
+                    ? '1px rgba(20,184,166,0.08)'
+                    : '1px rgba(255,255,255,0.05)',
+                  color: teal ? 'rgba(20,184,166,0.03)' : 'transparent',
+                }}
+              >
+                {word}
+              </div>
             ))}
-          </h1>
-          <p className="hero-fade text-paper/70 text-base sm:text-lg leading-[1.7] max-w-[520px] mb-11">
-            Nền tảng đặt sân cầu lông & pickleball hàng đầu —
-            đặt sân, ghép trận và thuê thiết bị chuyên nghiệp một cách liền mạch.
-          </p>
-          <div className="hero-fade flex gap-4 flex-wrap">
-            <Link to="/register" className="btn-primary h-[58px] px-10 text-sm bg-accent border-accent text-ink hover:bg-accent-bright hover:border-accent-bright">
-              Bắt đầu miễn phí
-            </Link>
-            <Link to="/courts" className="btn-outline h-[58px] px-10 text-sm text-paper border-paper/40 hover:border-paper">
-              Xem demo
-            </Link>
+          </div>
+        </div>
+
+        {/* ── LAYER 4: Athlete upper-body IN FRONT of text (top 42%, z=4) ── */}
+        <div
+          className="absolute inset-0 z-[4] pointer-events-none"
+          style={{ clipPath: 'inset(0 0 58% 0)' }}
+        >
+          <img
+            src="https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=1920&q=80"
+            alt=""
+            aria-hidden="true"
+            className="absolute inset-0 w-full h-full object-cover"
+            style={{ objectPosition: '62% center' }}
+          />
+        </div>
+
+        {/* ── LAYER 5: Foreground UI — bottom-left (── */}
+        <div
+          ref={heroRef}
+          className="relative z-[5] flex flex-col justify-end min-h-[calc(100vh-76px)] max-w-[1400px] mx-auto px-6 sm:px-10 pb-14 sm:pb-20"
+        >
+          <div style={{ maxWidth: '500px' }}>
+            <p className="hero-fade label-mono mb-5">
+              Cầu lông & Pickleball chuyên nghiệp
+            </p>
+            <h1
+              className="hero-fade uppercase mb-5"
+              style={{
+                fontFamily: "'Montserrat', 'Be Vietnam Pro', sans-serif",
+                fontSize: 'clamp(1.9rem, 3.8vw, 3.2rem)',
+                fontWeight: 900,
+                lineHeight: 1.18,
+                letterSpacing: '0.025em',
+                color: '#F5F5F5',
+              }}
+            >
+              <span className="block overflow-hidden"><span className="hero-line block will-change-transform">Mượt mà.</span></span>
+              <span className="block overflow-hidden"><span className="hero-line block will-change-transform">Kiểm soát.</span></span>
+              <span className="block overflow-hidden"><span className="hero-line block will-change-transform" style={{ color: '#14b8a6' }}>Chính xác.</span></span>
+            </h1>
+            <p
+              className="hero-fade leading-[1.7] mb-9"
+              style={{ color: 'rgba(255,255,255,0.55)', fontSize: '1rem', maxWidth: '420px' }}
+            >
+              Nền tảng đặt sân cầu lông & pickleball hàng đầu —
+              đặt sân, ghép trận và thuê thiết bị chuyên nghiệp một cách liền mạch.
+            </p>
+            <div className="hero-fade flex gap-4 flex-wrap">
+              <Link
+                to="/register"
+                className="inline-flex items-center justify-center h-[54px] px-9 text-sm font-extrabold uppercase tracking-[0.06em] rounded-[2px] no-underline transition-all duration-200"
+                style={{ backgroundColor: '#14b8a6', color: '#050810' }}
+                onMouseEnter={e => e.currentTarget.style.backgroundColor='#17cdbe'}
+                onMouseLeave={e => e.currentTarget.style.backgroundColor='#14b8a6'}
+              >
+                Bắt đầu miễn phí
+              </Link>
+              <Link
+                to="/courts"
+                className="inline-flex items-center justify-center h-[54px] px-9 text-sm font-extrabold uppercase tracking-[0.06em] rounded-[2px] no-underline transition-all duration-200"
+                style={{ border: '2px solid rgba(255,255,255,0.35)', color: '#F5F5F5' }}
+                onMouseEnter={e => e.currentTarget.style.borderColor='rgba(255,255,255,0.75)'}
+                onMouseLeave={e => e.currentTarget.style.borderColor='rgba(255,255,255,0.35)'}
+              >
+                Xem demo
+              </Link>
+            </div>
           </div>
         </div>
       </section>
@@ -232,7 +328,7 @@ export default function HomePage() {
           ═══════════════════════════════════════════ */}
       <section className="bg-ink border-b border-white/10 py-9 px-6 sm:px-10">
         <div className="max-w-[1400px] mx-auto flex items-center gap-10">
-          <span className="label-mono text-[#6b6b6b] shrink-0">Đối tác & thương hiệu</span>
+          <span className="label-mono shrink-0">Đối tác & thương hiệu</span>
           <div className="marquee flex-1 min-w-0">
             <div className="marquee-track items-center">
               {marqueeHalf.map((b, i) => (
@@ -253,12 +349,20 @@ export default function HomePage() {
         <div className="max-w-[1400px] mx-auto">
           <div className="flex items-end justify-between flex-wrap gap-8 mb-14">
             <div>
-              <p className="label-mono text-ink mb-4">{'// Cơ sở nổi bật'}</p>
-              <h2 className="font-heading text-[clamp(2rem,5vw,4.5rem)] leading-[0.95] tracking-[-0.01em] uppercase text-ink">
+              <p className="label-mono mb-4">Cơ sở nổi bật</p>
+              <h2
+                className="uppercase leading-[1.05] tracking-[-0.01em] mb-0"
+                style={{
+                  fontFamily: "'Montserrat', sans-serif",
+                  fontWeight: 900,
+                  fontSize: 'clamp(2rem,5vw,4.2rem)',
+                  color: '#111827',
+                }}
+              >
                 Sân đấu đẳng cấp.<br />Sẵn sàng mỗi ngày.
               </h2>
             </div>
-            <Link to="/courts" className="btn-outline h-[52px] px-8 text-sm text-ink border-ink/30 hover:border-ink">
+            <Link to="/courts" className="inline-flex items-center justify-center h-[52px] px-8 text-sm font-extrabold uppercase tracking-[0.06em] rounded-[2px] no-underline transition-colors duration-200" style={{backgroundColor:'#14b8a6', color:'#0a121e'}}>
               Xem tất cả
             </Link>
           </div>
@@ -277,23 +381,24 @@ export default function HomePage() {
                     loading="lazy"
                     className="absolute inset-0 w-full h-full object-cover"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-ink/90 via-ink/25 to-transparent" />
+                  {/* Mandatory bottom gradient for white text contrast */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
                   {f.tag && (
-                    <span className="absolute top-5 left-5 label-mono bg-accent text-ink px-3 py-1.5 rounded-[2px]">{f.tag}</span>
+                    <span
+                      className="absolute top-5 left-5 rounded-[2px] bg-accent text-[#050810]"
+                      style={{
+                        fontFamily:"'JetBrains Mono',monospace",
+                        fontSize:'11px',
+                        fontWeight:700,
+                        textTransform:'uppercase',
+                        letterSpacing:'0.14em',
+                        padding:'4px 10px',
+                      }}
+                    >{f.tag}</span>
                   )}
-                  <div className="absolute bottom-0 left-0 right-0 p-7 flex items-end justify-between gap-4">
-                    <div>
-                      <h3 className="font-heading text-xl sm:text-2xl uppercase text-paper mb-1.5">{f.name}</h3>
-                      <p className="label-mono text-paper/60">{f.sub}</p>
-                    </div>
-                    {f.isViewAll && (
-                      <span className="shrink-0 w-11 h-11 border-2 border-paper/50 rounded-[2px] flex items-center justify-center text-paper transition-colors duration-300 group-hover:bg-accent group-hover:border-accent group-hover:text-ink" aria-hidden="true">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                          <line x1="7" y1="17" x2="17" y2="7" />
-                          <polyline points="7 7 17 7 17 17" />
-                        </svg>
-                      </span>
-                    )}
+                  <div className="absolute bottom-0 left-0 right-0 p-7">
+                    <h3 className="uppercase text-paper mb-2" style={{fontFamily:"'Montserrat',sans-serif",fontWeight:900,fontSize:'clamp(1.1rem,2vw,1.4rem)',letterSpacing:'0.01em'}}>{f.name}</h3>
+                    <p className="label-mono" style={{color:'rgba(255,255,255,0.65)'}}>{f.sub}</p>
                   </div>
                 </div>
               </Link>
@@ -308,8 +413,16 @@ export default function HomePage() {
       <section id="discover" className="pb-24 sm:pb-[140px] px-6 sm:px-10 bg-paper">
         <div className="max-w-[1400px] mx-auto">
           <div className="mb-16 sm:mb-[72px]">
-            <p className="label-mono text-ink mb-4">{'// Tính năng hệ thống'}</p>
-            <h2 className="font-heading text-[clamp(2rem,5vw,4.5rem)] leading-[0.95] tracking-[-0.01em] uppercase text-ink">
+            <p className="label-mono mb-4">Tính năng hệ thống</p>
+            <h2
+              className="uppercase leading-[1.05] tracking-[-0.01em]"
+              style={{
+                fontFamily: "'Montserrat', sans-serif",
+                fontWeight: 900,
+                fontSize: 'clamp(2rem,5vw,4.2rem)',
+                color: '#111827',
+              }}
+            >
               Mọi thứ bạn cần.<br />Không thừa thãi.
             </h2>
           </div>
@@ -318,12 +431,19 @@ export default function HomePage() {
             {features.map((f) => (
               <article
                 key={f.num}
-                className={`p-11 sm:p-11 flex flex-col gap-6 transition-colors duration-300 ${f.dark ? 'bg-ink' : 'bg-paper hover:bg-[#eceae2]'}`}
+                className={`flex flex-col gap-6 transition-colors duration-300 ${f.dark ? 'bg-ink' : 'bg-paper hover:bg-[#eceae2]'}`}
+                style={{padding: '52px'}}
               >
-                <span className={`font-heading text-5xl leading-none ${f.dark ? 'text-paper/15' : 'text-ink/15'}`}>{f.num}</span>
+                <span
+                  className={`leading-none ${f.dark ? 'text-paper/15' : 'text-ink/15'}`}
+                  style={{fontFamily:"'Montserrat',sans-serif",fontWeight:900,fontSize:'3rem'}}
+                >{f.num}</span>
                 <div>
-                  <h3 className={`font-heading text-lg uppercase tracking-[0.01em] mb-2.5 ${f.dark ? 'text-paper' : 'text-ink'}`}>{f.title}</h3>
-                  <p className={`text-sm leading-[1.65] ${f.dark ? 'text-paper/60' : 'text-ink/70'}`}>{f.desc}</p>
+                  <h3
+                    className={`uppercase tracking-[0.02em] mb-2.5 ${f.dark ? 'text-paper' : 'text-ink'}`}
+                    style={{fontFamily:"'Montserrat',sans-serif",fontWeight:900,fontSize:'1rem'}}
+                  >{f.title}</h3>
+                  <p className={`text-sm leading-[1.65] ${f.dark ? 'text-paper/60' : ''}`} style={!f.dark ? {color:'#4A4A4A'} : {}}>{f.desc}</p>
                 </div>
               </article>
             ))}
@@ -335,26 +455,43 @@ export default function HomePage() {
           HOW IT WORKS — 3 Steps
           ═══════════════════════════════════════════ */}
       <section className="pb-24 sm:pb-[140px] px-6 sm:px-10 bg-paper">
-        <div className="max-w-[1400px] mx-auto grid grid-cols-1 lg:grid-cols-[1fr_1.6fr] gap-12 lg:gap-20">
-          <div>
-            <p className="label-mono text-ink mb-4">{'// Cách hoạt động'}</p>
-            <h2 className="font-heading text-[clamp(1.7rem,4vw,3.2rem)] leading-[0.98] uppercase tracking-[-0.01em] text-ink mb-6">
+        <div className="max-w-[1400px] mx-auto grid grid-cols-1 lg:grid-cols-[1fr_1.6fr] gap-12 lg:gap-20 lg:items-center">
+          <div className="flex flex-col justify-center">
+            <p className="label-mono mb-4">Cách hoạt động</p>
+            <h2
+              className="uppercase leading-[1.05] tracking-[-0.01em] mb-6"
+              style={{
+                fontFamily: "'Montserrat', sans-serif",
+                fontWeight: 900,
+                fontSize: 'clamp(1.7rem,4vw,3.2rem)',
+                color: '#111827',
+              }}
+            >
               Từ đăng ký<br />đến ngày ra sân.
             </h2>
             <p className="text-ink/70 text-[15px] leading-[1.7] max-w-[360px] mb-9">
               3 bước đơn giản để thay đổi cách bạn đặt sân, tìm đối thủ và quản lý thể thao.
             </p>
-            <Link to="/register" className="btn-primary h-[54px] px-9 text-sm">
+            <Link
+              to="/register"
+              className="inline-flex items-center justify-center h-[54px] px-9 text-sm font-extrabold uppercase tracking-[0.06em] rounded-[2px] no-underline transition-all duration-200 self-start"
+              style={{backgroundColor:'#14b8a6', color:'#050810'}}
+              onMouseEnter={e => e.currentTarget.style.backgroundColor='#17cdbe'}
+              onMouseLeave={e => e.currentTarget.style.backgroundColor='#14b8a6'}
+            >
               Bắt đầu ngay
             </Link>
           </div>
 
           <div ref={stepsRef} className="flex flex-col">
             {steps.map((s, i) => (
-              <article key={i} className={`flex gap-8 py-9 border-t-2 border-ink ${i === steps.length - 1 ? 'border-b-2' : ''}`}>
-                <span className="font-heading text-4xl text-ink leading-none shrink-0">{s.num}</span>
+              <article key={i} className={`flex gap-8 py-9 items-center border-t-2 border-ink ${i === steps.length - 1 ? 'border-b-2' : ''}`}>
+                <span
+                  className="leading-none shrink-0"
+                  style={{fontFamily:"'Montserrat',sans-serif",fontWeight:900,fontSize:'2.5rem',color:'#111827'}}
+                >{s.num}</span>
                 <div>
-                  <h3 className="font-heading text-xl uppercase text-ink mb-2">{s.title}</h3>
+                  <h3 className="uppercase text-ink mb-2" style={{fontFamily:"'Montserrat',sans-serif",fontWeight:900,fontSize:'1.05rem',letterSpacing:'0.02em'}}>{s.title}</h3>
                   <p className="text-sm text-ink/70 leading-[1.65]">{s.desc}</p>
                 </div>
               </article>
@@ -370,12 +507,12 @@ export default function HomePage() {
         <div ref={statsRef} className="max-w-[1400px] mx-auto grid grid-cols-2 lg:grid-cols-4 gap-6 text-center">
           {stats.map((s, i) => (
             <div key={i}>
-              <p className="font-heading text-[clamp(2rem,5vw,4.2rem)] text-paper mb-2 leading-none">
+              <p className="font-heading text-[clamp(2rem,5vw,4.2rem)] text-paper mb-3 leading-none">
                 <span data-counter data-end={s.end} data-decimals={s.decimals || 0} data-suffix={s.suffix}>
                   {formatStat(s)}
                 </span>
               </p>
-              <p className="label-mono text-[#8a8a84]">{s.label}</p>
+              <p className="font-mono uppercase text-[#a0a09a] tracking-[0.12em]" style={{fontSize:'13px'}}>{s.label}</p>
             </div>
           ))}
         </div>
@@ -385,10 +522,18 @@ export default function HomePage() {
           CTA — Final Conversion Section
           ═══════════════════════════════════════════ */}
       <section className="py-24 sm:py-[140px] px-6 sm:px-10 bg-paper text-center">
-        <div ref={ctaRef} className="max-w-[680px] mx-auto">
-          <p className="label-mono text-ink mb-5">{'// Sẵn sàng ra sân?'}</p>
-          <h2 className="font-heading text-[clamp(2rem,6vw,5.5rem)] leading-[0.95] uppercase tracking-[-0.01em] text-ink mb-7">
-            Tham gia mạng lưới<br />Pro-Sport ngay hôm nay.
+        <div ref={ctaRef} className="max-w-[960px] mx-auto">
+          <p className="label-mono mb-5">Sẵn sàng ra sân?</p>
+          <h2
+            className="uppercase leading-[1.08] tracking-[-0.01em] mb-7"
+            style={{
+              fontFamily: "'Montserrat', sans-serif",
+              fontWeight: 900,
+              fontSize: 'clamp(1.6rem,4.5vw,3.75rem)',
+              color: '#111827',
+            }}
+          >
+            Tham gia mạng lưới Pro-Sport<br />ngay hôm nay.
           </h2>
           <p className="text-ink/70 text-base leading-[1.7] max-w-[480px] mx-auto mb-11">
             Bắt đầu đặt sân, tìm đối thủ và nâng tầm trận đấu của bạn. Tham gia miễn phí, không ràng buộc.

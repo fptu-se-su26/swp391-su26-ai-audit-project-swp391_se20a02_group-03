@@ -433,31 +433,57 @@ Song song, nhóm tích hợp **Superpowers** (submodule, quy trình brainstormin
 
 ---
 
-
-# Reflection - Tuần 9: Tổng kiểm định vận hành (Operational Audit), Kỷ luật TDD và Vá lỗi diện rộng
+# Reflection - Tuần 9: Tổng kiểm định vận hành, TDD, hòa giải xung đột và tự rà soát bug sau tích hợp
 
 ## Tổng quan quá trình
-Trong tuần này, trọng tâm của chúng tôi là thực hiện Tổng kiểm định vận hành (Operational Audit) toàn hệ thống ProSport, trải dài từ hạ tầng Database Migration, luồng Customer (đặt sân, mua sắm, ghép trận), cho đến các phân hệ Admin, Owner và Staff Portal. Chúng tôi áp dụng triệt để kỷ luật Planning Gate (lập root-cause matrix trước khi sửa) và Test-Driven Development (TDD) để đảm bảo mọi lỗi đều được tái hiện bằng code và sửa ở phạm vi nhỏ nhất. Kết quả là hệ thống đã được vá hơn 14 lỗi nghiêm trọng, tái cấu trúc an toàn cơ sở dữ liệu, dọn dẹp sạch sẽ repository và vượt qua toàn bộ 113 bài test hồi quy.
+Tuần này gồm hai giai đoạn nối tiếp trên cùng một nhánh `DE190147/audit-module` rồi tiếp tục trên `main`. Giai đoạn đầu là tổng kiểm định vận hành hệ thống ProSport trên các luồng booking, mua sắm, KYC, quản lý sân, Admin/Owner/Apex/Gear Portal — không chỉ làm build/test xanh mà kiểm tra tính đúng đắn của API contract, nghiệp vụ, accessibility, responsive và độ an toàn khi tích hợp code từ worktree Antigravity/Codex. Antigravity triển khai đồng bộ UI Admin, Owner, Gear/Apex cùng UI primitives và design system; Codex tiếp quản worktree, rà lỗi nền, hòa giải xung đột và chạy regression toàn hệ thống. Kết quả được commit qua `72d0529 feat: unify portal UI and harden workflows` và `1348d57 fix: reconcile conflicted portal workflows`, đẩy lên `origin/DE190147/audit-module`.
+
+Giai đoạn hai khác biệt hoàn toàn về hình thức yêu cầu: không có checklist hay brief cụ thể, chỉ đơn giản là "tải `main` mới nhất về, tự rà soát và tự fix". Sau khi `git pull main` (từ `ad03418` lên `e935c10`, gộp thêm PR #48/#49/#50 với gần 5300 dòng thay đổi mới — bao gồm tính năng Escrow wallet-linking và viết lại lớn nhiều trang Apex/MatchPro), AI phải tự quyết định nên nhìn vào đâu: chạy baseline lint/test/build trước, sau đó dùng chính commit message của PR mới nhất ("fix(frontend): resolve conflicts and fix Create Match payload") làm manh mối để đào sâu vào đúng vùng rủi ro cao thay vì rà soát dàn trải toàn bộ 34 file. Kết quả được commit trên nhánh riêng `fix/main-bug-sweep-post-PR50` (`b7775a8`), đã push nhưng chưa mở PR.
 
 ## Hạn chế của AI và Khó khăn kỹ thuật
-Quá trình rà soát diện rộng và tích hợp sâu đã bộc lộ nhiều điểm mù kỹ thuật mà AI không thể tự nhận biết nếu thiếu sự giám sát:
-- **Ngộ nhận về Môi trường thực thi & Format Chuỗi:** AI sinh ra chuỗi định dạng thời gian `HH\:mm` cho kiểu `TimeSpan`, gây lỗi `FormatException` phá sập trang lịch của Staff Portal. Thậm chí khi vá lỗi trong verbatim string, AI không nhận ra sự khác biệt giữa `hh\:mm` và `hh\\:mm`, khiến lỗi vẫn tồn tại ngầm trên server.
-- **Lỗ hổng Logic Kế toán & Múi giờ:** AI tính toán thời hạn hoàn tiền dựa trên `DateTime.UtcNow` trần, gây lệch 7 tiếng so với giờ Việt Nam (UTC+7), dẫn đến việc khách hàng được hưởng mức hoàn tiền cao sai quy định. AI cũng không xử lý triệt để Race Condition trong ví Escrow, gây lỗi chặn sai người dùng khi thanh toán.
-- **Rủi ro Dữ liệu ngầm (Silent Bugs):** AI để lọt các lỗi logic như "bảng giá vô hình" (tính tiền gọi sai ID loại sân) khiến hệ thống fallback về giá mặc định, hoặc đếm sai số lượng người tham gia trận đấu (`CurrentParticipants` lệch với `MatchMembers` thực tế).
-- **Phá vỡ kiến trúc Bootstrap & Build Dependency:** AI hard-code danh sách migration ID vào `DatabaseBootstrap`, gây lỗi crash "duplicate column" ở lần khởi động thứ hai. AI cũng đổi constructor của `EscrowService` ở code chính nhưng quên cập nhật file Unit Test, chặn đứng toàn bộ quá trình biên dịch (build failed).
+- **Git không báo conflict không đồng nghĩa code đã an toàn:** Snapshot Antigravity có thể commit bình thường nhưng khi cherry-pick vào nhánh cá nhân vẫn phát sinh xung đột tại Admin, Owner, Apex, Gear, API và package. Resolve marker chỉ là bước đầu; phải chạy regression để tìm lỗi hành vi sau merge.
+- **"Conflict đã resolve" chỉ là nửa câu chuyện:** Commit fixup `bae6c1e` tự nhận đã "resolve conflicts and fix Create Match payload" — nghĩa là frontend đã được sửa đúng payload. Nhưng sửa đúng một phía của hợp đồng API không đảm bảo phía còn lại (backend) dùng đúng giá trị đó: `CreateMatchAsync` vẫn âm thầm tự tính lại escrow amount, bỏ qua hoàn toàn giá trị đã được sửa đúng ở phía client.
+- **Contract API dễ vỡ bởi khác biệt dữ liệu hiển thị và dữ liệu lưu trữ:** Status sân API dùng `ACTIVE`, DB dùng `Available` — lưu trực tiếp `ACTIVE` khiến luồng bookable sai ngầm. Tương tự, `MatchDetailPage` tham chiếu các field không tồn tại trên `MatchDto` thật (`title`, `skillLevel`, `location`, `participants`).
+- **Feature "trông như hoạt động" nhưng chưa từng chạy thật:** Tính năng đánh giá uy tín người chơi (TK-035) có đủ UI hoàn chỉnh (nút bấm, form sao, submit) khiến đọc lướt code dễ kết luận "đã xong". Chỉ khi lần theo dữ liệu ngược từ JSX lên tới DTO backend mới lộ ra `match.participants` không bao giờ có giá trị vì trường này không tồn tại trên response thật.
+- **Không có checklist thì dễ rà soát hời hợt nếu chỉ dừng ở lint/test/build:** Baseline sau khi khôi phục `@testing-library/jest-dom` bị mất đều xanh — lint 0 lỗi, test pass, build pass. Nếu dừng ở đây, bug tài chính nghiêm trọng nhất (escrow amount bị ghi đè) sẽ hoàn toàn không bị phát hiện, vì đây là lỗi logic/contract không hiện qua build/lint sạch.
+- **Ranh giới giữa "sửa bug" và "xây tính năng mới" không phải lúc nào cũng rõ ràng:** Phát hiện `matchApi.approveJoiner` sai URL dẫn tới việc lộ ra tính năng "host duyệt người xin tham gia" chưa từng có trang UI nào gọi tới — sửa đúng URL không làm tính năng "hoạt động" theo nghĩa người dùng dùng được, vì không có nơi nào để bấm duyệt.
+- **UI test có thể thiếu dependency runtime thật:** Apex Shop test từng lỗi vì thiếu Router và CartContext mock — dấu hiệu test chưa tái tạo đầy đủ môi trường component.
+- **Accessibility không chỉ là thêm ARIA:** Modal, sidebar và drawer cần Escape, focus trap, focus restore, scroll lock, trạng thái `aria-hidden`/`inert` và không để phần tử ẩn còn tabbable.
+- **Dễ vô tình đưa artifact cục bộ vào commit:** Khi staging toàn bộ working tree, các thư mục audit `.claude/`, `.codex-work/`, `outputs/` có thể lọt vào commit dù không thuộc source code.
 
 ## Giải pháp và Can thiệp của con người
-Để giữ vững tính toàn vẹn của một hệ thống tài chính/đặt sân, chúng tôi đã đóng vai trò Người điều phối kiến trúc (Architect) và Kỹ sư trưởng (Lead Engineer) để áp dụng các can thiệp khắt khe:
-- **Thiết lập Mandatory Planning Gate:** Cấm AI tự ý sửa code. AI bắt buộc phải khảo sát working tree, lập ma trận nguyên nhân cốt lõi (root-cause matrix), viết đặc tả và chờ con người phê duyệt mới được tiến hành vá lỗi.
-- **Áp đặt kỷ luật TDD (Test-Driven Development):** Bắt buộc AI viết test tái hiện lỗi trước tiên, chứng minh test thất bại đúng nguyên nhân, sửa lỗi ở phạm vi nhỏ nhất rồi mới chạy lại regression suite. Trực tiếp tiêm `TimeProvider.System` và viết FakeTimeProvider để giải quyết triệt để lỗi hoàn tiền lệch múi giờ.
-- **Can thiệp Kỹ thuật trực tiếp:** Đứng trước lỗi crash của Staff Portal, chúng tôi không tin vào kết quả "build pass" mà tự tay test trên trình duyệt, từ đó ép AI sửa đúng cơ chế escape verbatim string của C#. Trực tiếp can thiệp thiết kế lại logic `DatabaseBootstrap` bằng API chuẩn của Entity Framework thay vì hard-code DDL.
-- **Điều phối phạm vi Audit & Repo Hygiene:** Chỉ đạo AI thực hiện tuần tự theo luồng nghiệp vụ để tránh phình to commit. Yêu cầu AI dọn dẹp toàn bộ rác (lộ JWT secret, file `.bak`, thư mục `.vs`) và làm sạch lịch sử Git trước khi đẩy code lên nhánh chính.
+- **Thiết lập Planning Gate và TDD xuyên suốt cả hai giai đoạn:** Trước khi sửa phải kiểm tra working tree, contract frontend/backend và có regression test đi kèm mỗi bản vá (status sân, checkout, KYC, Users, Complaints, Apex filters, escrow amount, match members).
+- **Ưu tiên snapshot Antigravity có kiểm soát khi hòa giải xung đột:** Con người xác nhận ưu tiên snapshot tại vùng xung đột, AI tiếp tục sửa regression thay vì coi merge là hoàn tất.
+- **Giao việc hoàn toàn mở ở giai đoạn hai:** Không cung cấp checklist, đặt gánh nặng lên AI phải tự tìm nơi cần nhìn ("tự nghiên cứu và fix bug") thay vì chỉ thực thi danh sách có sẵn.
+- **Chấp nhận việc AI bổ sung endpoint backend mới (`GET /matches/{id}/members`) để sửa đúng gốc rễ:** Thay vì vá tạm ở frontend (ví dụ ẩn hẳn phần đánh giá người chơi), quyết định đúng là bổ sung đúng API còn thiếu ở tầng phù hợp (service + controller có kiểm tra quyền).
+- **Giữ kỷ luật không lấn phạm vi:** Chủ động dừng ở việc sửa contract URL cho `approveJoiner`/thêm `rejectJoiner`, không tự ý dựng trang "Duyệt người tham gia" mới cho host dù khả thi kỹ thuật.
+- **Yêu cầu bằng chứng kiểm chứng, không chấp nhận báo cáo định tính:** Bắt buộc chạy test frontend/backend, lint, build và `git diff --check` sau mỗi lần hòa giải xung đột hoặc trước khi commit.
+- **Không commit thẳng lên `main`:** Cả hai giai đoạn đều tạo nhánh riêng (`DE190147/audit-module`, sau đó `fix/main-bug-sweep-post-PR50`) thay vì commit trực tiếp lên nhánh chính, giữ đúng quy trình PR-review của repo.
+- **Kiểm soát repository hygiene:** Artifact audit cục bộ (`.claude/`, `.codex-work/`, `outputs/`) được loại khỏi mọi commit nhưng vẫn giữ trên máy.
 
 ## Bài học rút ra
-- **Build Pass không đồng nghĩa với Không có Bug:** Hơn 10 lỗi nghiêm trọng ở các Portal đều tồn tại trong một codebase biên dịch thành công. Smoke test bằng trình duyệt và thao tác người dùng thật (Blackbox) là lớp phòng thủ cuối cùng không thể thay thế.
-- **Kỷ luật TDD bảo vệ túi tiền của dự án:** Trong các module tài chính (Hoàn tiền, Ví Escrow), việc test ranh giới thời gian (fixed-time tests) và kiểm thử đồng thời (concurrency) giúp ngăn chặn rò rỉ doanh thu — điều mà code viết bằng cảm quan không bao giờ bao quát hết.
-- **AI cần một "Cổng kiểm duyệt" (Planning Gate):** Việc bắt AI phân tích nguyên nhân gốc rễ và lập kế hoạch trước khi gõ code giúp loại bỏ triệt để hiện tượng AI "chữa triệu chứng" (chữa cháy bề mặt) và phá hỏng các module liên quan.
-- **Thời gian (Timezone) là một nghiệp vụ, không phải là Format:** Xử lý thời gian không nhất quán giữa Backend (UTC) và Frontend (Local) không chỉ làm sai hiển thị mà còn gây thiệt hại tài chính. Mọi logic so sánh thời gian phải dùng chung một abstraction nhất quán.
-- **Vệ sinh kho chứa (Repo Hygiene) là thước đo chất lượng:** Một dự án Production-ready không được phép chứa log rác, API key hard-code hay các warning bị phớt lờ. Kỹ sư phần mềm phải là người ra lệnh dọn dẹp cuối cùng.
+- **"Build pass" không đồng nghĩa "đúng nghiệp vụ":** Lỗi status `ACTIVE`/`Available`, checkout xóa nhầm giỏ hàng, KYC dùng ảnh fallback, và escrow amount bị ghi đè âm thầm — tất cả đều có thể tồn tại trong một hệ thống vẫn build/lint sạch hoàn toàn.
+- **"Resolve conflict" không đồng nghĩa "đã tích hợp đúng ở cả hai phía":** Một commit message tự nhận đã sửa payload không đồng nghĩa mọi tầng liên quan (frontend gửi, backend nhận và dùng) đều nhất quán. Sau bất kỳ lần resolve conflict nào chạm vào một API, phải lần theo dữ liệu từ nơi gửi đến nơi dùng thật.
+- **UI hoàn chỉnh không chứng minh tính năng hoạt động:** Một form/nút bấm/luồng UX đầy đủ có thể che giấu hoàn toàn việc dữ liệu nền tảng phía sau không bao giờ tồn tại. Luôn cần lần theo dữ liệu tới tận nguồn (network response thật hoặc DTO backend).
+- **Dữ liệu hiển thị phải trung thực với backend:** Không dùng status giả như `Premium/New/Trial` nếu API chỉ có status tồn kho thực. Không dùng ảnh stock thay bằng chứng KYC thật. Không dùng fake ID cho cross-sell/cart, không giữ field form không được gửi lên server.
+- **Phát hiện gap tính năng không tự động là lệnh xây tính năng đó:** Ranh giới giữa "sửa cho đúng những gì đã có" và "xây thêm cái chưa có" cần giữ rõ ràng, đặc biệt khi làm việc không có brief cụ thể.
+- **Accessibility cần được xem là hành vi, không chỉ thuộc tính:** Một dialog chỉ có `role="dialog"` là chưa đủ; phải thao tác được bằng bàn phím, không mất focus và không để người dùng truy cập phần tử đang ẩn.
+- **Audit không cần checklist vẫn cần một điểm neo để không rà soát dàn trải:** Dùng chính commit message của thay đổi mới nhất làm gợi ý vùng rủi ro cao là chiến lược hiệu quả khi phải tự quyết định phạm vi rà soát trong một diff lớn.
+- **Git hygiene là một phần của chất lượng:** `git add -A` không phù hợp khi working tree chứa artifact/tooling cục bộ. Luôn kiểm tra stage trước commit.
+- **Phân biệt rõ ba mức độ kiểm chứng — chỉ báo cáo ở mức đã thực sự đạt:**
+  1. Đã sửa code.
+  2. Đã pass lint/test/build.
+  3. Đã smoke test trực quan trên browser thật.
+
+## Kết quả kiểm chứng
+- **Giai đoạn 1 (hòa giải xung đột, commit `1348d57`):** Frontend — Vitest 63/63 pass, ESLint 0 lỗi, build pass. Backend — `dotnet test` 142 pass / 4 skip / 0 fail. `git diff --check` pass, không còn conflict marker.
+- **Giai đoạn 2 (rà soát main sau PR #50, commit `b7775a8`):** Frontend — Vitest 63/63 pass (sau khi khôi phục `@testing-library/jest-dom`), ESLint 0 lỗi, build pass. Backend — `dotnet test` 145/149 pass (4 skip, +4 test mới cho escrow amount và match members).
+
+## Phần còn tồn đọng
+- Chưa smoke test trực quan tất cả route tại viewport mobile 320px.
+- Mobile Portal và Staff/Elite Portal cần audit sâu hơn.
+- Một số hạng mục responsive chuyên biệt, như Admin Pricing ở viewport rất hẹp, cần kiểm chứng browser riêng.
+- Nhánh `fix/main-bug-sweep-post-PR50` đã push nhưng chưa mở PR/merge vào `main` — chờ quyết định.
+- Tính năng "host duyệt người xin tham gia kèo" vẫn chưa có bất kỳ trang UI nào (chỉ tồn tại ở tầng API/service) — cần quyết định phạm vi sản phẩm riêng trước khi xây dựng.
 
 ---

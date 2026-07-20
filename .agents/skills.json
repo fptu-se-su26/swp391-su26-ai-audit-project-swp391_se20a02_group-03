@@ -1,5 +1,6 @@
 {
   "entries": [
-    { "path": "skills/taste-skill/skills" }
+    { "path": "skills/taste-skill/skills" },
+    { "path": "skills/andrej-karpathy-skills/skills" }
   ]
 }

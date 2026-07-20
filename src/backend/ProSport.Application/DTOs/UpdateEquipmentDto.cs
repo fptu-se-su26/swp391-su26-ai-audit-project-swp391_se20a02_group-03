@@ -19,6 +19,7 @@ public class UpdateEquipmentDto
 
     [Required(ErrorMessage = "Trạng thái là bắt buộc.")]
     [StringLength(20)]
+    [RegularExpression("^(Available|Discontinued)$", ErrorMessage = "Trạng thái thiết bị chỉ được là 'Available' hoặc 'Discontinued'.")]
     public string Status { get; set; } = null!;
 
     [Url(ErrorMessage = "ImageUrl không đúng định dạng URL.")]

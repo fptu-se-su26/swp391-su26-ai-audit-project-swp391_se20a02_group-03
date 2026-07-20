@@ -2,24 +2,107 @@ import { useState, useEffect, useCallback, useMemo } from 'react'
 import AdminLayout from '../../layouts/AdminLayout'
 import { kycApi } from '../../api/kycApi'
 import { useToast } from '../../components/Toast'
-import { Loader2, X } from 'lucide-react'
-import PageLoader from '../../components/ui/PageLoader'
-import EmptyState from '../../components/ui/EmptyState'
+import { Loader2, CheckCircle, XCircle } from 'lucide-react'
+import {
+  AdminPageHeader,
+  AdminFilterPills,
+  AdminStatusBadge,
+  AdminModal,
+  AdminFormField,
+  adminInputCls,
+  AdminBtn,
+  AdminCard,
+} from '../../components/admin'
 
-const STATUS_META = {
-  Pending: { label: 'CHỜ DUYỆT', cls: 'bg-transparent text-warning border border-warning' },
-  Approved: { label: 'ĐÃ DUYỆT', cls: 'bg-ink text-paper border-2 border-ink' },
-  Rejected: { label: 'TỪ CHỐI', cls: 'bg-transparent text-danger border border-danger' },
-}
-
-const FILTERS = [
+const KYC_FILTERS = [
   { key: 'Pending', label: 'Chờ duyệt' },
   { key: 'Approved', label: 'Đã duyệt' },
   { key: 'Rejected', label: 'Từ chối' },
   { key: '', label: 'Tất cả' },
 ]
 
-const IMG_FALLBACK = 'https://images.unsplash.com/photo-1633265486064-086b219458ce?w=300&q=80'
+const STATUS_VARIANT = {
+  Pending: 'warning',
+  Approved: 'success',
+  Rejected: 'danger',
+}
+
+const STATUS_LABEL = {
+  Pending: 'Chờ duyệt',
+  Approved: 'Đã duyệt',
+  Rejected: 'Từ chối',
+}
+
+const INITIAL_EVIDENCE_STATE = {
+  front: 'missing',
+  back: 'missing',
+  face: 'missing',
+}
+
+function KycEvidenceImage({ evidenceKey, label, url, required, status, onStatusChange }) {
+  const [retryKey, setRetryKey] = useState(0)
+
+  if (!url) {
+    return (
+      <div>
+        <p className="text-[11px] text-gray-400 mb-1.5 m-0">
+          {label}{required && <span className="text-red-500 ml-0.5">*</span>}
+        </p>
+        <div className="h-28 rounded-[8px] bg-gray-50 border border-dashed border-gray-200 flex items-center justify-center px-3 text-center">
+          <span className="text-[11px] font-medium text-gray-400">
+            {required ? 'Chưa có bằng chứng' : 'Không có ảnh (không bắt buộc)'}
+          </span>
+        </div>
+      </div>
+    )
+  }
+
+  if (status === 'error') {
+    return (
+      <div>
+        <p className="text-[11px] text-gray-400 mb-1.5 m-0">
+          {label}{required && <span className="text-red-500 ml-0.5">*</span>}
+        </p>
+        <div className="h-28 rounded-[8px] bg-red-50/60 border border-red-100 flex flex-col items-center justify-center gap-2 px-3 text-center" role="status">
+          <span className="text-[11px] font-medium text-red-600">Không tải được ảnh</span>
+          <button
+            type="button"
+            className="text-[11px] font-bold text-red-600 underline underline-offset-2 bg-transparent border-0 cursor-pointer"
+            onClick={() => {
+              setRetryKey(key => key + 1)
+              onStatusChange(evidenceKey, 'loading')
+            }}
+          >
+            Thử tải lại
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div>
+      <p className="text-[11px] text-gray-400 mb-1.5 m-0">
+        {label}{required && <span className="text-red-500 ml-0.5">*</span>}
+      </p>
+      <div className="relative h-28 rounded-[8px] bg-gray-50 border border-gray-100 overflow-hidden">
+        {status !== 'loaded' && (
+          <div className="absolute inset-0 flex items-center justify-center text-[11px] font-medium text-gray-400" role="status">
+            Đang tải ảnh...
+          </div>
+        )}
+        <img
+          key={`${url}-${retryKey}`}
+          src={url}
+          alt={label}
+          className={`w-full h-full object-cover ${status === 'loaded' ? 'opacity-100' : 'opacity-0'}`}
+          onLoad={() => onStatusChange(evidenceKey, 'loaded')}
+          onError={() => onStatusChange(evidenceKey, 'error')}
+        />
+      </div>
+    </div>
+  )
+}
 
 export default function AdminKycPage() {
   const { addToast } = useToast()
@@ -30,6 +113,8 @@ export default function AdminKycPage() {
   const [acting, setActing] = useState(false)
   const [rejectDialogOpen, setRejectDialogOpen] = useState(false)
   const [rejectReason, setRejectReason] = useState('')
+  const [approveDialogOpen, setApproveDialogOpen] = useState(false)
+  const [evidenceState, setEvidenceState] = useState(INITIAL_EVIDENCE_STATE)
 
   const load = useCallback(async () => {
     try {
@@ -51,24 +136,43 @@ export default function AdminKycPage() {
 
   useEffect(() => { load() }, [load])
 
-  const selected = useMemo(() => requests.find(r => r.ekycProfileId === selectedId) || null, [requests, selectedId])
+  const selected = useMemo(
+    () => requests.find(r => r.ekycProfileId === selectedId) || null,
+    [requests, selectedId]
+  )
+
+  useEffect(() => {
+    setEvidenceState({
+      front: selected?.frontImageUrl ? 'loading' : 'missing',
+      back: selected?.backImageUrl ? 'loading' : 'missing',
+      face: selected?.faceImageUrl ? 'loading' : 'missing',
+    })
+    setApproveDialogOpen(false)
+  }, [selected?.ekycProfileId, selected?.frontImageUrl, selected?.backImageUrl, selected?.faceImageUrl])
+
+  const requiredEvidenceReady = evidenceState.front === 'loaded' && evidenceState.back === 'loaded'
+
+  const handleEvidenceStatus = useCallback((key, status) => {
+    setEvidenceState(current => current[key] === status ? current : { ...current, [key]: status })
+  }, [])
 
   async function approve() {
-    if (!selected) return
+    if (!selected || !requiredEvidenceReady || acting) return
     try {
       setActing(true)
       const res = await kycApi.approve(selected.ekycProfileId)
-      if (res.statusCode === 200) { addToast('Đã phê duyệt hồ sơ.', 'success'); load() }
-      else addToast(res.message || 'Phê duyệt thất bại.', 'error')
+      if (res.statusCode === 200) {
+        addToast('Đã phê duyệt hồ sơ.', 'success')
+        setApproveDialogOpen(false)
+        load()
+      } else {
+        addToast(res.message || 'Phê duyệt thất bại.', 'error')
+      }
     } catch (err) {
       addToast(typeof err === 'string' ? err : 'Phê duyệt thất bại.', 'error')
-    } finally { setActing(false) }
-  }
-
-  function openRejectDialog() {
-    if (!selected) return
-    setRejectReason('')
-    setRejectDialogOpen(true)
+    } finally {
+      setActing(false)
+    }
   }
 
   async function confirmReject() {
@@ -92,155 +196,260 @@ export default function AdminKycPage() {
 
   return (
     <AdminLayout>
-      <div>
-        <h1 className="font-heading text-3xl md:text-4xl uppercase tracking-tight text-foreground mb-2">Phê duyệt E-KYC</h1>
-        <p className="text-sm text-foreground-muted mb-6">Kiểm tra giấy tờ tùy thân để mở khóa ví ký quỹ và quyền tạo kèo.</p>
+      <AdminPageHeader
+        title="Phê duyệt E-KYC"
+        description="Kiểm tra giấy tờ tùy thân để mở khóa ví ký quỹ và quyền tạo kèo."
+      />
 
-        <div className="flex gap-2 flex-wrap mb-6">
-          {FILTERS.map(f => (
-            <button
-              key={f.key}
-              onClick={() => setFilter(f.key)}
-              className={`py-2.5 px-4 font-sans font-extrabold text-[11.5px] uppercase tracking-wide rounded-[2px] border-2 transition-colors ${
-                filter === f.key
-                  ? 'bg-ink text-paper border-ink'
-                  : 'bg-transparent text-foreground border-border-strong font-bold hover:bg-surface-hover'
-              }`}
-            >
-              {f.label}
-            </button>
-          ))}
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-          {/* List */}
-          <div className="border-2 border-border-strong bg-surface">
-            <div className="p-4 border-b-2 border-border-strong">
-              <h2 className="label-mono text-foreground">{loading ? 'Đang tải...' : `${requests.length} hồ sơ chờ duyệt`}</h2>
-            </div>
-            <div className="divide-y divide-border-default max-h-[560px] overflow-y-auto">
-              {!loading && requests.length === 0 && (
-                <EmptyState title="Không có hồ sơ nào" />
-              )}
-              {requests.map(req => {
-                const meta = STATUS_META[req.status] || STATUS_META.Pending
-                const active = req.ekycProfileId === selectedId
-                return (
-                  <div key={req.ekycProfileId} onClick={() => setSelectedId(req.ekycProfileId)} className={`p-4 flex justify-between items-center cursor-pointer ${active ? 'bg-background-base' : 'hover:bg-surface-hover'}`}>
-                    <div>
-                      <p className="font-extrabold text-foreground text-sm mb-1">{req.fullName}</p>
-                      <p className="label-mono text-foreground-subtle">KYC-{req.ekycProfileId} • {req.identityNumber}</p>
-                    </div>
-                    <span className={`label-mono px-2 py-1 rounded-[2px] h-fit ${meta.cls}`}>{meta.label}</span>
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-
-          {/* Detail */}
-          <div className="border-2 border-border-strong bg-surface flex flex-col">
-            {!selected ? (
-              <div className="flex-1 flex items-center justify-center text-foreground-subtle text-sm min-h-[300px]">Chọn một hồ sơ để xem chi tiết.</div>
-            ) : (
-              <>
-                <div className="p-5 border-b-2 border-border-strong flex justify-between items-center">
-                  <h2 className="font-heading text-base uppercase text-foreground">Chi tiết KYC-{selected.ekycProfileId}</h2>
-                  <span className={`label-mono px-2.5 py-1 rounded-[2px] ${(STATUS_META[selected.status] || STATUS_META.Pending).cls}`}>
-                    {(STATUS_META[selected.status] || STATUS_META.Pending).label}
-                  </span>
-                </div>
-                <div className="p-6 flex-1 space-y-6">
-                  <div className="grid grid-cols-3 gap-3">
-                    {[['Mặt trước', selected.frontImageUrl], ['Mặt sau', selected.backImageUrl], ['Chân dung', selected.faceImageUrl]].map(([label, url]) => (
-                      <div key={label}>
-                        <p className="label-mono text-foreground-subtle mb-2">{label}</p>
-                        <div className="bg-background-base h-28 flex items-center justify-center border border-border-default overflow-hidden rounded-[2px]">
-                          <img src={url || IMG_FALLBACK} alt={label} className="w-full h-full object-cover" onError={e => { e.currentTarget.src = IMG_FALLBACK }} />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="bg-background-base p-4 border border-border-default grid grid-cols-2 gap-4 rounded-[2px]">
-                    <div>
-                      <p className="label-mono text-foreground-subtle mb-1">Họ tên trên thẻ</p>
-                      <p className="text-sm font-extrabold text-foreground">{selected.fullName}</p>
-                    </div>
-                    <div>
-                      <p className="label-mono text-foreground-subtle mb-1">Họ tên hồ sơ</p>
-                      <p className="text-sm font-extrabold text-foreground">{selected.profileFullName || '—'}</p>
-                    </div>
-                    <div>
-                      <p className="label-mono text-foreground-subtle mb-1">Số CMND/CCCD</p>
-                      <p className="text-sm font-extrabold text-foreground">{selected.identityNumber}</p>
-                    </div>
-                    <div>
-                      <p className="label-mono text-foreground-subtle mb-1">Thư điện tử</p>
-                      <p className="text-sm font-extrabold text-foreground truncate">{selected.userEmail || '—'}</p>
-                    </div>
-                  </div>
-
-                  {selected.status === 'Rejected' && selected.rejectionReason && (
-                    <div className="bg-danger-bg border border-danger p-3 text-sm text-danger rounded-[2px]">
-                      <span className="font-semibold">Lý do từ chối:</span> {selected.rejectionReason}
-                    </div>
-                  )}
-
-                  {selected.status === 'Pending' && (
-                    <div className="flex gap-3 pt-4 border-t border-border-default">
-                      <button onClick={openRejectDialog} disabled={acting} className="flex-1 border-2 border-danger text-danger font-bold text-xs uppercase tracking-wide py-3 rounded-[2px] hover:bg-danger-bg transition-colors disabled:opacity-60">Từ chối</button>
-                      <button onClick={approve} disabled={acting} className="flex-1 bg-ink text-paper font-extrabold text-xs uppercase tracking-wide py-3 rounded-[2px] hover:opacity-90 transition-colors disabled:opacity-60 flex items-center justify-center gap-2">
-                        {acting && <Loader2 size={15} className="animate-spin" />} Phê duyệt
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </>
-            )}
-          </div>
-        </div>
+      <div className="mb-6">
+        <AdminFilterPills
+          tabs={KYC_FILTERS}
+          activeKey={filter}
+          onChange={setFilter}
+        />
       </div>
 
-      {/* Reject Dialog */}
-      {rejectDialogOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="bg-surface border-2 border-border-strong rounded-[2px] w-full max-w-md p-6">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="font-heading text-lg uppercase text-foreground">Nhập lý do từ chối</h3>
-              <button onClick={() => setRejectDialogOpen(false)} className="text-foreground-muted hover:text-foreground">
-                <X size={20} />
-              </button>
-            </div>
-            <p className="text-sm text-foreground-muted mb-3">
-              Hồ sơ KYC-{selected?.ekycProfileId} · <span className="font-semibold text-foreground">{selected?.fullName}</span>
+      <div className="grid grid-cols-1 lg:grid-cols-[340px_1fr] gap-5">
+        {/* List panel */}
+        <AdminCard noPad className="flex flex-col overflow-hidden">
+          <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+            <p className="text-[12px] font-bold uppercase tracking-widest text-gray-500 m-0">
+              {loading ? 'Đang tải...' : `${requests.length} hồ sơ`}
             </p>
+          </div>
+          <div className="flex-1 overflow-y-auto divide-y divide-gray-50 max-h-[560px]">
+            {loading && (
+              <div className="flex items-center justify-center py-16">
+                <Loader2 size={24} className="animate-spin text-[#14b8a6]" />
+              </div>
+            )}
+            {!loading && requests.length === 0 && (
+              <div className="py-12 text-center text-sm text-gray-400">
+                Không có hồ sơ nào.
+              </div>
+            )}
+            {!loading && requests.map(req => {
+              const isActive = req.ekycProfileId === selectedId
+              return (
+                <button
+                  key={req.ekycProfileId}
+                  type="button"
+                  onClick={() => setSelectedId(req.ekycProfileId)}
+                  className={`w-full text-left px-5 py-4 flex justify-between items-start gap-3 transition-colors cursor-pointer border-0 border-l-2 ${
+                    isActive
+                      ? 'bg-teal-50/60 border-l-[#14b8a6]'
+                      : 'bg-white border-l-transparent hover:bg-gray-50'
+                  }`}
+                >
+                  <div className="min-w-0">
+                    <p className="font-semibold text-gray-900 text-sm m-0 mb-0.5 truncate">{req.fullName}</p>
+                    <p className="text-[11px] text-gray-400 m-0 font-mono">
+                      KYC-{req.ekycProfileId} · {req.identityNumber}
+                    </p>
+                  </div>
+                  <AdminStatusBadge
+                    label={STATUS_LABEL[req.status] || req.status}
+                    variant={STATUS_VARIANT[req.status] || 'neutral'}
+                  />
+                </button>
+              )
+            })}
+          </div>
+        </AdminCard>
+
+        {/* Detail panel */}
+        <AdminCard noPad className="flex flex-col">
+          {!selected ? (
+            <div className="flex-1 flex flex-col items-center justify-center py-20 text-center">
+              <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mb-3">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-gray-400">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                  <circle cx="12" cy="7" r="4" />
+                </svg>
+              </div>
+              <p className="text-sm text-gray-400 m-0">Chọn một hồ sơ để xem chi tiết.</p>
+            </div>
+          ) : (
+            <>
+              {/* Header */}
+              <div className="flex items-center justify-between gap-4 px-6 py-5 border-b border-gray-100">
+                <div>
+                  <p className="font-heading text-base uppercase tracking-wide text-gray-900 m-0">
+                    Chi tiết KYC-{selected.ekycProfileId}
+                  </p>
+                  <p className="text-[12px] text-gray-400 m-0 mt-0.5">{selected.fullName}</p>
+                </div>
+                <AdminStatusBadge
+                  label={STATUS_LABEL[selected.status] || selected.status}
+                  variant={STATUS_VARIANT[selected.status] || 'neutral'}
+                />
+              </div>
+
+              <div className="p-6 space-y-6 flex-1">
+                {/* Document images */}
+                <div>
+                  <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400 mb-3">Hình ảnh giấy tờ</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    {[
+                      { key: 'front', label: 'Mặt trước', url: selected.frontImageUrl, required: true },
+                      { key: 'back', label: 'Mặt sau', url: selected.backImageUrl, required: true },
+                      { key: 'face', label: 'Chân dung', url: selected.faceImageUrl, required: false },
+                    ].map(item => (
+                      <KycEvidenceImage
+                        key={`${selected.ekycProfileId}-${item.key}`}
+                        evidenceKey={item.key}
+                        label={item.label}
+                        url={item.url}
+                        required={item.required}
+                        status={evidenceState[item.key]}
+                        onStatusChange={handleEvidenceStatus}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                {/* Info grid */}
+                <div className="bg-gray-50 rounded-[8px] p-4 grid grid-cols-2 gap-4">
+                  {[
+                    ['Họ tên trên thẻ', selected.fullName],
+                    ['Họ tên hồ sơ', selected.profileFullName || '—'],
+                    ['Số CMND/CCCD', selected.identityNumber],
+                    ['Email', selected.userEmail || '—'],
+                  ].map(([key, val]) => (
+                    <div key={key}>
+                      <p className="text-[11px] text-gray-400 m-0 mb-0.5">{key}</p>
+                      <p className="text-sm font-semibold text-gray-900 m-0 truncate">{val}</p>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Rejection reason */}
+                {selected.status === 'Rejected' && selected.rejectionReason && (
+                  <div className="bg-red-50 border border-red-100 rounded-[8px] p-4">
+                    <p className="text-[11px] font-bold uppercase tracking-widest text-red-400 m-0 mb-1">Lý do từ chối</p>
+                    <p className="text-sm text-red-700 m-0">{selected.rejectionReason}</p>
+                  </div>
+                )}
+
+                {/* Action buttons (Pending only) */}
+                {selected.status === 'Pending' && (
+                  <div className="pt-4 border-t border-gray-100">
+                    {!requiredEvidenceReady && (
+                      <p className="text-[12px] text-amber-700 bg-amber-50 border border-amber-100 rounded-[8px] px-3 py-2.5 m-0 mb-3" role="status">
+                        Cần tải thành công ảnh mặt trước và mặt sau trước khi phê duyệt.
+                      </p>
+                    )}
+                    <div className="flex gap-3">
+                    <AdminBtn
+                      variant="danger"
+                      onClick={() => { setRejectReason(''); setRejectDialogOpen(true) }}
+                      disabled={acting}
+                      icon={<XCircle size={14} />}
+                      className="flex-1"
+                    >
+                      Từ chối
+                    </AdminBtn>
+                    <AdminBtn
+                      variant="primary"
+                      onClick={() => setApproveDialogOpen(true)}
+                      disabled={acting || !requiredEvidenceReady}
+                      loading={acting}
+                      icon={<CheckCircle size={14} />}
+                      className="flex-1"
+                    >
+                      Phê duyệt
+                    </AdminBtn>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+        </AdminCard>
+      </div>
+
+      {/* Reject Modal */}
+      <AdminModal
+        open={rejectDialogOpen}
+        onClose={() => setRejectDialogOpen(false)}
+        title="Từ chối hồ sơ KYC"
+        description={selected ? `KYC-${selected.ekycProfileId} · ${selected.fullName}` : ''}
+      >
+        <div className="space-y-5">
+          <AdminFormField
+            label="Lý do từ chối"
+            htmlFor="reject-reason"
+            required
+            hint="Mô tả rõ ràng để người dùng biết cần sửa chữa điều gì."
+          >
             <textarea
+              id="reject-reason"
               rows={4}
               value={rejectReason}
               onChange={e => setRejectReason(e.target.value)}
-              placeholder="Ví dụ: Ảnh CMND bị mờ, không khớp với họ tên hồ sơ..."
-              className="w-full border-2 border-border-strong rounded-[2px] px-3 py-2 text-sm outline-none focus:border-danger resize-none bg-background-base text-foreground"
+              placeholder="VD: Ảnh CMND bị mờ, không khớp với họ tên hồ sơ..."
+              className={`${adminInputCls(!rejectReason.trim() ? false : false)} h-auto py-3 resize-none`}
               autoFocus
             />
-            <div className="flex gap-3 mt-4">
-              <button
-                onClick={() => setRejectDialogOpen(false)}
-                className="flex-1 border-2 border-border-strong text-foreground font-semibold py-2.5 rounded-[2px] hover:bg-surface-hover transition-colors"
-              >
-                Hủy
-              </button>
-              <button
-                onClick={confirmReject}
-                disabled={acting || !rejectReason.trim()}
-                className="flex-1 bg-danger text-paper font-bold py-2.5 rounded-[2px] hover:opacity-90 transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
-              >
-                {acting && <Loader2 size={15} className="animate-spin" />} Xác nhận từ chối
-              </button>
-            </div>
+          </AdminFormField>
+
+          <div className="flex gap-3">
+            <AdminBtn
+              variant="secondary"
+              onClick={() => setRejectDialogOpen(false)}
+              className="flex-1"
+            >
+              Hủy
+            </AdminBtn>
+            <AdminBtn
+              variant="danger"
+              onClick={confirmReject}
+              disabled={acting || !rejectReason.trim()}
+              loading={acting}
+              className="flex-1"
+            >
+              Xác nhận từ chối
+            </AdminBtn>
           </div>
         </div>
-      )}
+      </AdminModal>
+
+      {/* Approve Modal */}
+      <AdminModal
+        open={approveDialogOpen}
+        onClose={() => setApproveDialogOpen(false)}
+        title="Xác nhận phê duyệt"
+        description={selected ? `Bạn có chắc chắn muốn phê duyệt KYC-${selected.ekycProfileId} của ${selected.fullName}?` : ''}
+      >
+        <div className="space-y-5">
+          <p className="text-sm text-gray-600 m-0">
+            Hành động này sẽ xác thực hồ sơ và cho phép người dùng thực hiện các giao dịch yêu cầu KYC.
+          </p>
+          {!requiredEvidenceReady && (
+            <p className="text-[12px] text-red-600 bg-red-50 border border-red-100 rounded-[8px] px-3 py-2.5 m-0" role="alert">
+              Không thể phê duyệt vì bằng chứng bắt buộc chưa tải thành công.
+            </p>
+          )}
+          <div className="flex gap-3">
+            <AdminBtn
+              variant="secondary"
+              onClick={() => setApproveDialogOpen(false)}
+              className="flex-1"
+            >
+              Hủy
+            </AdminBtn>
+            <AdminBtn
+              variant="primary"
+              onClick={approve}
+              disabled={acting || !requiredEvidenceReady}
+              loading={acting}
+              className="flex-1"
+            >
+              Xác nhận phê duyệt
+            </AdminBtn>
+          </div>
+        </div>
+      </AdminModal>
     </AdminLayout>
   )
 }

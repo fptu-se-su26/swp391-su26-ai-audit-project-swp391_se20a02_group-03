@@ -21,7 +21,7 @@ public class Court : BaseEntity
     public int CourtTypeId { get; set; }
 
     /// <summary>
-    /// [NotMapped]: Không có cột SportType trong migration. 
+    /// [NotMapped]: Không có cột SportType trong migration.
     /// Giữ lại property để không break DTO/code khác nhưng EF sẽ bỏ qua.
     /// </summary>
     [NotMapped]
@@ -31,7 +31,7 @@ public class Court : BaseEntity
     public string? ImageUrl { get; set; }
 
     /// <summary>
-    /// Default "Available" khớp với DB default trong migration (HasDefaultValue("Available")).
+    /// Default "Available" khớp với default của database và availability queries.
     /// </summary>
     public string Status { get; set; } = "Available";
 

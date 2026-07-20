@@ -30,5 +30,11 @@ public interface IEscrowService
 
     // Hoàn tiền thủ công vào ví Escrow (Admin/Staff)
     Task<ApiResponseDto<bool>> RefundToEscrowAsync(int userId, decimal amount, string reason, string? referenceId, int operatorId);
+
+    // Liên kết tài khoản nhận tiền
+    Task<ApiResponseDto<bool>> LinkAccountAsync(int userId, string provider, string accountNumber, string accountName);
+
+    // Rút tiền về tài khoản đã liên kết
+    Task<ApiResponseDto<bool>> WithdrawAsync(int userId, decimal amount);
 }
 

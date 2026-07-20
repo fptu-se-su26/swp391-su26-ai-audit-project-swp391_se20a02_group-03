@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using ProSport.Application.DTOs;
+using ProSport.Application.Exceptions;
 using ProSport.Application.Interfaces;
 using ProSport.Domain.Constants;
 using ProSport.Domain.Entities;
@@ -105,6 +106,127 @@ public class TournamentService : ITournamentService
             await _db.SaveChangesAsync();
             await tx.CommitAsync();
             return new ApiResponseDto<bool>(200, "Đăng ký giải thành công.", true);
+        }
+        catch
+        {
+            await tx.RollbackAsync();
+            throw;
+        }
+    }
+
+    public async Task<ApiResponseDto<TournamentDto>> CloseRegistrationAsync(int userId, int tournamentId, bool isAdmin = false)
+    {
+        var tournament = await _db.Tournaments.FirstOrDefaultAsync(t => t.TournamentId == tournamentId);
+        if (tournament == null) return new ApiResponseDto<TournamentDto>(404, "Tournament not found");
+
+        try { await _ownerAccess.RequireComplexAccessAsync(userId, tournament.ComplexId, isAdmin); }
+        catch (OwnerAccessDeniedException ex) { return new ApiResponseDto<TournamentDto>(403, ex.Message); }
+
+        if (tournament.Status != TournamentStatus.Open)
+            return new ApiResponseDto<TournamentDto>(400, "Chỉ có thể đóng đăng ký khi giải đang mở (Open).");
+
+        tournament.Status = TournamentStatus.Closed;
+        await _db.SaveChangesAsync();
+        return new ApiResponseDto<TournamentDto>(200, "Đã đóng đăng ký giải.", Map(tournament));
+    }
+
+    public async Task<ApiResponseDto<TournamentDto>> CompleteAsync(int userId, int tournamentId, bool isAdmin = false)
+    {
+        var tournament = await _db.Tournaments.FirstOrDefaultAsync(t => t.TournamentId == tournamentId);
+        if (tournament == null) return new ApiResponseDto<TournamentDto>(404, "Tournament not found");
+
+        try { await _ownerAccess.RequireComplexAccessAsync(userId, tournament.ComplexId, isAdmin); }
+        catch (OwnerAccessDeniedException ex) { return new ApiResponseDto<TournamentDto>(403, ex.Message); }
+
+        if (tournament.Status != TournamentStatus.Closed)
+            return new ApiResponseDto<TournamentDto>(400, "Chỉ có thể hoàn thành khi giải đã đóng đăng ký (Closed).");
+
+        tournament.Status = TournamentStatus.Completed;
+        await _db.SaveChangesAsync();
+        return new ApiResponseDto<TournamentDto>(200, "Đã hoàn thành giải.", Map(tournament));
+    }
+
+    public async Task<ApiResponseDto<TournamentDto>> CancelAsync(int userId, int tournamentId, bool isAdmin = false)
+    {
+        var tournament = await _db.Tournaments
+            .Include(t => t.Registrations)
+            .FirstOrDefaultAsync(t => t.TournamentId == tournamentId);
+        if (tournament == null) return new ApiResponseDto<TournamentDto>(404, "Tournament not found");
+
+        try { await _ownerAccess.RequireComplexAccessAsync(userId, tournament.ComplexId, isAdmin); }
+        catch (OwnerAccessDeniedException ex) { return new ApiResponseDto<TournamentDto>(403, ex.Message); }
+
+        if (tournament.Status is TournamentStatus.Completed or TournamentStatus.Cancelled)
+            return new ApiResponseDto<TournamentDto>(400, "Giải đã kết thúc hoặc đã hủy.");
+
+        await using var tx = await _db.Database.BeginTransactionAsync();
+        try
+        {
+            // Chỉ hoàn cho các đăng ký còn hiệu lực + đã trả phí → idempotent: chạy lại không hoàn kép.
+            foreach (var reg in tournament.Registrations.Where(r => r.Status == "Registered"))
+            {
+                if (reg.EntryFeePaid && tournament.EntryFee > 0)
+                {
+                    var wallet = await _escrowRepository.CreditWalletAsync(reg.CaptainUserId, tournament.EntryFee);
+                    _db.Transactions.Add(new Transaction
+                    {
+                        EscrowWalletId = wallet.EscrowWalletId,
+                        Amount = tournament.EntryFee,
+                        Type = TransactionType.Refund,
+                        Status = TransactionStatus.Completed,
+                        ReferenceId = $"TournamentRefund_{reg.TournamentRegistrationId}",
+                        Description = $"Hoàn phí đăng ký giải #{tournament.TournamentId} — {reg.TeamName}"
+                    });
+                }
+                reg.Status = "Cancelled";
+            }
+
+            tournament.Status = TournamentStatus.Cancelled;
+            await _db.SaveChangesAsync();
+            await tx.CommitAsync();
+        }
+        catch
+        {
+            await tx.RollbackAsync();
+            throw;
+        }
+
+        return new ApiResponseDto<TournamentDto>(200, "Đã hủy giải và hoàn phí cho các đội đã thanh toán.", Map(tournament));
+    }
+
+    public async Task<ApiResponseDto<bool>> WithdrawAsync(int userId, int tournamentId)
+    {
+        await using var tx = await _db.Database.BeginTransactionAsync();
+        try
+        {
+            var tournament = await _db.Tournaments.FirstOrDefaultAsync(t => t.TournamentId == tournamentId);
+            if (tournament == null) return new ApiResponseDto<bool>(404, "Tournament not found");
+            if (tournament.Status is TournamentStatus.Completed or TournamentStatus.Cancelled)
+                return new ApiResponseDto<bool>(400, "Giải đã kết thúc hoặc đã hủy.");
+
+            var reg = await _db.TournamentRegistrations.FirstOrDefaultAsync(r =>
+                r.TournamentId == tournamentId && r.CaptainUserId == userId && r.Status == "Registered");
+            if (reg == null) return new ApiResponseDto<bool>(404, "Bạn chưa đăng ký hoặc đã rút khỏi giải này.");
+
+            if (reg.EntryFeePaid && tournament.EntryFee > 0)
+            {
+                var wallet = await _escrowRepository.CreditWalletAsync(userId, tournament.EntryFee);
+                _db.Transactions.Add(new Transaction
+                {
+                    EscrowWalletId = wallet.EscrowWalletId,
+                    Amount = tournament.EntryFee,
+                    Type = TransactionType.Refund,
+                    Status = TransactionStatus.Completed,
+                    ReferenceId = $"TournamentWithdraw_{reg.TournamentRegistrationId}",
+                    Description = $"Hoàn phí rút khỏi giải #{tournamentId} — {reg.TeamName}"
+                });
+            }
+
+            reg.Status = "Cancelled";
+            tournament.RegisteredTeams = Math.Max(0, tournament.RegisteredTeams - 1);
+            await _db.SaveChangesAsync();
+            await tx.CommitAsync();
+            return new ApiResponseDto<bool>(200, "Đã rút khỏi giải và hoàn phí (nếu có).", true);
         }
         catch
         {

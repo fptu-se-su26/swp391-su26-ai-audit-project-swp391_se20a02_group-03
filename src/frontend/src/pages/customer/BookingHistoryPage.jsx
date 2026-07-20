@@ -1,15 +1,15 @@
 import { useState, useEffect, useCallback } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import Navbar from '../../components/Navbar'
 import Footer from '../../components/Footer'
 import { bookingApi } from '../../api/bookingApi'
 import { paymentApi } from '../../api/paymentApi'
 import { useToast } from '../../components/Toast'
 import { useConfirm, BOOKING_CANCEL_CONFIRM } from '../../components/ui/ConfirmDialog'
-import StatusBadge from '../../components/ui/StatusBadge'
 import PageLoader from '../../components/ui/PageLoader'
 import EmptyState from '../../components/ui/EmptyState'
-import { CalendarDays } from 'lucide-react'
+import { CalendarDays, Clock, MapPin, SearchX, CheckCircle2, XCircle, AlertCircle, RefreshCw } from 'lucide-react'
+import { statusLabels } from '../../utils/labels'
 
 const FILTERS = [
   { value: 'All', label: 'Tất cả' },
@@ -24,6 +24,7 @@ export default function BookingHistoryPage() {
   const [isLoading, setIsLoading] = useState(true);
   const { addToast } = useToast();
   const confirm = useConfirm();
+  const navigate = useNavigate();
 
   const fetchBookings = useCallback(async () => {
     setIsLoading(true);
@@ -41,7 +42,6 @@ export default function BookingHistoryPage() {
   }, [addToast]);
 
   useEffect(() => {
-    // HIGH FIX: Removed incorrect queueMicrotask wrapper — call fetchBookings directly inside useEffect
     fetchBookings();
   }, [fetchBookings]);
 
@@ -63,13 +63,12 @@ export default function BookingHistoryPage() {
   };
 
   async function handlePayment(bookingId, amount) {
-      // For simplicity, direct to VNPay. In a real app, you might want to show a modal to choose payment method.
       try {
-          const vnpayRes = await paymentApi.createVnPayUrl(amount, 'Booking', bookingId);
-          if (vnpayRes.statusCode === 200 && vnpayRes.data) {
-              window.location.assign(vnpayRes.data);
+          const payosRes = await paymentApi.createPayOsUrl(amount, 'Booking', bookingId);
+          if (payosRes.statusCode === 200 && payosRes.data) {
+              window.location.assign(payosRes.data);
           } else {
-              addToast("Không thể tạo link thanh toán VNPay", "error");
+              addToast("Không thể tạo link thanh toán PayOS", "error");
           }
       } catch(error) {
           addToast(error?.message || "Có lỗi xảy ra", "error");
@@ -89,7 +88,6 @@ export default function BookingHistoryPage() {
     return t.length > 5 ? t.slice(0, 5) : t;
   }
 
-  // Tính thời gian còn lại cho PaymentDeadline
   const getDeadlineRemaining = useCallback((deadline) => {
     if (!deadline) return null;
     const deadlineTime = new Date(deadline).getTime();
@@ -101,7 +99,6 @@ export default function BookingHistoryPage() {
     return `${mins}:${String(secs).padStart(2, '0')}`;
   }, []);
 
-  // Refresh countdown mỗi giây
   const [, setTick] = useState(0);
   useEffect(() => {
     const hasPending = bookings.some(b => b.status === 'Pending' && b.paymentDeadline);
@@ -110,93 +107,151 @@ export default function BookingHistoryPage() {
     return () => clearInterval(timer);
   }, [bookings]);
 
+  function getStatusUI(status) {
+      switch(status) {
+          case 'Confirmed': return { bg: 'bg-[#14b8a6]/10', text: 'text-[#14b8a6]', icon: <CheckCircle2 size={12} /> };
+          case 'Completed': return { bg: 'bg-blue-50', text: 'text-blue-600', icon: <CheckCircle2 size={12} /> };
+          case 'Pending': return { bg: 'bg-orange-50', text: 'text-orange-500', icon: <Clock size={12} /> };
+          case 'Cancelled': return { bg: 'bg-red-50', text: 'text-red-500', icon: <XCircle size={12} /> };
+          case 'Refunded': return { bg: 'bg-gray-100', text: 'text-gray-500', icon: <RefreshCw size={12} /> };
+          default: return { bg: 'bg-gray-100', text: 'text-gray-500', icon: <AlertCircle size={12} /> };
+      }
+  }
+
   return (
-    <div className="flex flex-col min-h-screen bg-background-base">
+    <div className="flex flex-col min-h-screen bg-[#F8F9FA] font-sans">
       <Navbar theme="light" />
 
-      <div className="max-w-[1000px] mx-auto px-6 pt-[100px] sm:pt-[130px] pb-20 w-full flex-1">
-        <div className="flex flex-wrap items-end justify-between gap-5 mb-8">
+      <div className="max-w-[1200px] mx-auto px-4 md:px-8 pt-[100px] sm:pt-[120px] pb-24 w-full flex-1">
+        
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-10">
           <div>
-            <h1 className="font-heading text-3xl md:text-4xl uppercase tracking-tight text-foreground mb-2">Lịch sử đặt sân</h1>
-            <p className="text-sm text-foreground-muted">Theo dõi các lượt đặt sân và trạng thái thanh toán của bạn.</p>
+            <h1 className="font-heading text-3xl md:text-4xl uppercase tracking-tight text-[#0f172a] mb-2 m-0">Lịch sử đặt sân</h1>
+            <p className="text-[14px] text-gray-500 m-0">Theo dõi các lượt đặt sân và trạng thái thanh toán của bạn.</p>
           </div>
-          <Link to="/courts" className="btn-primary no-underline">
+          <button 
+            onClick={() => navigate('/courts')}
+            className="h-12 px-6 bg-[#14b8a6] hover:bg-[#0f9e8c] text-white rounded-full text-[13px] font-bold uppercase tracking-wide transition-all shadow-[0_4px_14px_rgba(20,184,166,0.25)] border-0 cursor-pointer whitespace-nowrap w-fit"
+          >
             + Đặt sân mới
-          </Link>
+          </button>
         </div>
 
-        <div className="border-2 border-border-strong bg-surface overflow-hidden">
-          <div className="flex border-b-2 border-border-strong overflow-x-auto">
-            {FILTERS.map(f => (
-              <button
-                key={f.value}
-                onClick={() => setFilter(f.value)}
-                className={`flex-1 min-w-[120px] py-4 label-mono transition-colors ${filter === f.value ? 'text-accent border-b-2 border-accent -mb-[2px] bg-surface-hover' : 'text-foreground-muted hover:text-foreground'}`}
-              >
-                {f.label}
-              </button>
-            ))}
-          </div>
+        {/* Filter Pills */}
+        <div className="flex flex-wrap items-center gap-3 mb-8">
+          {FILTERS.map(f => (
+            <button
+              key={f.value}
+              onClick={() => setFilter(f.value)}
+              className={`h-10 px-5 rounded-full text-[13px] font-bold transition-all border-0 cursor-pointer ${
+                  filter === f.value 
+                  ? 'bg-[#14b8a6] text-white shadow-md' 
+                  : 'bg-white text-gray-500 hover:bg-gray-100 border border-gray-200'
+              }`}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
 
-          <div className="p-4 sm:p-6">
-            {isLoading ? (
-              <PageLoader label="Đang tải lịch sử..." />
-            ) : filteredBookings.length === 0 ? (
-              <EmptyState title="Chưa có dữ liệu" subtitle="Chưa có lượt đặt sân nào phù hợp." />
-            ) : (
-            <div className="flex flex-col gap-4">
-              {filteredBookings.map(b => (
-                <div key={b.bookingId} className="border-2 border-border-default hover:border-border-hover transition-colors p-5 flex flex-wrap gap-4 items-center justify-between">
-                  <div className="flex gap-4 items-center min-w-0">
-                    <div className="w-12 h-12 border-2 border-border-strong bg-background-base flex items-center justify-center text-accent shrink-0">
-                      <CalendarDays size={22} />
-                    </div>
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2 mb-1 flex-wrap">
-                        <h3 className="font-extrabold text-foreground">{b.details?.[0]?.courtName || 'Sân chưa xác định'}</h3>
-                        <StatusBadge status={b.status} />
+        {/* Content */}
+        {isLoading ? (
+          <div className="py-20 flex justify-center"><PageLoader message="Đang tải lịch sử..." /></div>
+        ) : filteredBookings.length === 0 ? (
+          <div className="bg-white rounded-[20px] shadow-[0_2px_16px_rgba(0,0,0,0.04)] border border-gray-100 py-24 px-6 text-center mt-6">
+              <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <SearchX className="w-10 h-10 text-gray-300" />
+              </div>
+              <h3 className="font-heading text-xl uppercase tracking-tight text-[#0f172a] mb-2 m-0">Chưa có dữ liệu</h3>
+              <p className="text-[14px] text-gray-500 mb-6">Bạn chưa có lượt đặt sân nào trong danh mục này.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {filteredBookings.map(b => {
+              const statusUI = getStatusUI(b.status);
+              const isExpired = getDeadlineRemaining(b.paymentDeadline) === 'Hết hạn';
+              
+              return (
+                <div key={b.bookingId} className="bg-white rounded-[16px] shadow-[0_2px_16px_rgba(0,0,0,0.04)] border border-gray-100 p-6 flex flex-col hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] transition-all">
+                  
+                  {/* Card Header */}
+                  <div className="flex items-start justify-between gap-4 mb-5">
+                    <div className="flex gap-4 items-center min-w-0">
+                      <div className="w-12 h-12 rounded-[12px] bg-teal-50 flex items-center justify-center text-[#14b8a6] shrink-0">
+                        <CalendarDays size={22} strokeWidth={1.5} />
                       </div>
-                      <p className="text-sm text-foreground-muted">{new Date(b.details?.[0]?.bookingDate).toLocaleDateString('vi-VN')} • {formatTime(b.details?.[0]?.startTime)} - {formatTime(b.details?.[0]?.endTime)}</p>
-                      <p className="label-mono text-foreground-subtle mt-1">Mã đơn: #{b.bookingId}</p>
+                      <div className="min-w-0">
+                        <h3 className="font-bold text-[16px] text-[#0f172a] m-0 mb-1.5 truncate">
+                          {b.details?.[0]?.courtName || 'Sân chưa xác định'}
+                        </h3>
+                        <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider ${statusUI.bg} ${statusUI.text}`}>
+                          {statusUI.icon}
+                          {statusLabels[b.status] || b.status}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
 
-                      {/* Countdown thanh toán cho Pending */}
-                      {b.status === 'Pending' && b.paymentDeadline && (
-                        <p className={`text-xs font-bold mt-1.5 ${getDeadlineRemaining(b.paymentDeadline) === 'Hết hạn' ? 'text-danger' : 'text-warning'}`}>
-                          ⏳ {getDeadlineRemaining(b.paymentDeadline) === 'Hết hạn' ? 'Đã hết hạn thanh toán' : `Còn ${getDeadlineRemaining(b.paymentDeadline)} để thanh toán`}
-                        </p>
+                  {/* Card Body */}
+                  <div className="space-y-3 mb-6 flex-1">
+                    <div className="flex items-center gap-3 text-[14px] text-gray-600">
+                      <Clock size={16} className="text-gray-400" />
+                      <span>{new Date(b.details?.[0]?.bookingDate).toLocaleDateString('vi-VN')} • {formatTime(b.details?.[0]?.startTime)} - {formatTime(b.details?.[0]?.endTime)}</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-[14px] text-gray-600">
+                      <MapPin size={16} className="text-gray-400" />
+                      <span className="font-mono text-[13px] text-gray-500">Mã đơn: #{b.bookingId}</span>
+                    </div>
+
+                    {b.status === 'Pending' && b.paymentDeadline && (
+                      <div className={`mt-3 p-3 rounded-[8px] text-[13px] font-medium flex items-center gap-2 ${isExpired ? 'bg-red-50 text-red-500' : 'bg-orange-50 text-orange-600'}`}>
+                        <Clock size={16} />
+                        {isExpired ? 'Đã hết hạn thanh toán' : `Còn ${getDeadlineRemaining(b.paymentDeadline)} để thanh toán`}
+                      </div>
+                    )}
+
+                    {b.status === 'Confirmed' && b.checkInCode && (
+                      <div className="mt-4 p-3.5 bg-[#14b8a6]/10 rounded-[10px] border border-[#14b8a6]/20 flex items-center justify-between">
+                        <span className="text-[13px] font-bold text-[#14b8a6] uppercase tracking-wider">Mã vào sân</span>
+                        <span className="font-mono font-bold text-[16px] text-[#0f172a] bg-white px-3 py-1 rounded-[6px] shadow-sm tracking-[0.2em]">{b.checkInCode}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Card Footer */}
+                  <div className="border-t border-dashed border-gray-200 pt-5 flex items-end justify-between gap-4 mt-auto">
+                    <div>
+                      <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400 m-0 mb-1">Tổng tiền</p>
+                      <p className="font-heading text-xl text-[#0f172a] m-0">{b.totalAmount.toLocaleString('vi-VN')} đ</p>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      {(b.status === 'Confirmed' || (b.status === 'Pending' && !isExpired)) && (
+                        <button 
+                          onClick={() => handleCancel(b.bookingId)} 
+                          className="h-10 px-4 rounded-[8px] border-2 border-red-100 text-red-500 hover:bg-red-50 text-[12px] font-bold uppercase tracking-wide transition-colors cursor-pointer bg-white"
+                        >
+                          Hủy sân
+                        </button>
                       )}
-
-                      {/* Mã Check-in cho Confirmed */}
-                      {b.status === 'Confirmed' && b.checkInCode && (
-                        <p className="text-xs mt-1.5 flex items-center gap-1.5">
-                          <span className="text-foreground-subtle">Mã vào sân:</span>
-                          <span className="font-mono font-bold text-accent bg-background-base border border-border-default px-2 py-0.5">{b.checkInCode}</span>
-                        </p>
+                      
+                      {b.status === 'Pending' && !isExpired && (
+                        <button 
+                          onClick={() => handlePayment(b.bookingId, b.totalAmount)} 
+                          className="h-10 px-5 rounded-[8px] bg-[#14b8a6] hover:bg-[#0f9e8c] text-white text-[12px] font-bold uppercase tracking-wide transition-colors shadow-[0_4px_12px_rgba(20,184,166,0.25)] border-0 cursor-pointer"
+                        >
+                          Thanh toán
+                        </button>
                       )}
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-6">
-                    <div className="text-right max-sm:text-left">
-                      <p className="label-mono text-foreground-subtle mb-0.5">Tổng tiền</p>
-                      <p className="font-heading text-lg text-foreground">{b.totalAmount.toLocaleString('vi-VN')} đ</p>
-                    </div>
-
-                    <div className="flex gap-2">
-                      {b.status === 'Pending' && (
-                        <button onClick={() => handlePayment(b.bookingId, b.totalAmount)} className="btn-primary text-xs">Thanh toán</button>
-                      )}
-                      {(b.status === 'Confirmed' || b.status === 'Pending') && (
-                        <button onClick={() => handleCancel(b.bookingId)} className="px-4 h-10 border-2 border-danger text-danger text-xs font-bold uppercase tracking-[0.04em] rounded-[2px] hover:bg-danger-bg transition-colors">Hủy sân</button>
-                      )}
-                    </div>
-                  </div>
                 </div>
-              ))}
-            </div>
-            )}
+              );
+            })}
           </div>
-        </div>
+        )}
       </div>
 
       <Footer variant="light" />

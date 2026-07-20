@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { ShieldCheck, Upload, Loader2, X } from 'lucide-react'
+import { ShieldCheck, Upload, Loader2, X, Info } from 'lucide-react'
 import { kycApi } from '../../api/kycApi'
 import { useToast } from '../Toast'
 
@@ -8,17 +8,17 @@ import { useToast } from '../Toast'
 // → POST /api/kyc/submit → hồ sơ Pending chờ Admin duyệt trên AdminKycPage.
 
 const STATUS_BADGE = {
-  Pending:  { label: 'Chờ duyệt',      cls: 'bg-warning-bg text-warning border border-warning' },
-  Approved: { label: 'Đã xác thực',    cls: 'bg-ink text-paper border border-ink' },
-  Rejected: { label: 'Bị từ chối',     cls: 'bg-danger-bg text-danger border border-danger' },
-  None:     { label: 'Chưa xác thực',  cls: 'bg-warning-bg text-warning border border-warning' },
+  Pending:  { label: 'Chờ duyệt',      cls: 'bg-yellow-50 text-yellow-700 border-yellow-200/50' },
+  Approved: { label: 'Đã xác thực',    cls: 'bg-green-50 text-green-700 border-green-200/50' },
+  Rejected: { label: 'Bị từ chối',     cls: 'bg-red-50 text-red-700 border-red-200/50' },
+  None:     { label: 'Chưa xác thực',  cls: 'bg-gray-100 text-gray-600 border-gray-200' },
 }
 
 function ImagePicker({ label, file, previewUrl, onPick, onClear, disabled }) {
   const inputRef = useRef(null)
   return (
     <div>
-      <label className="block label-mono text-foreground-muted mb-2">{label}</label>
+      <label className="block text-[13px] font-semibold text-gray-700 mb-2">{label}</label>
       <input
         ref={inputRef}
         type="file"
@@ -31,20 +31,22 @@ function ImagePicker({ label, file, previewUrl, onPick, onClear, disabled }) {
         }}
       />
       {previewUrl ? (
-        <div className="relative border-2 border-border-strong h-40 overflow-hidden">
-          <img src={previewUrl} alt={label} className="w-full h-full object-cover" />
+        <div className="relative border border-gray-200 rounded-xl h-48 overflow-hidden bg-gray-50">
+          <img src={previewUrl} alt={label} className="w-full h-full object-contain p-2" />
           {!disabled && (
             <button
               type="button"
               onClick={onClear}
-              className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center bg-surface border-2 border-border-strong text-foreground-muted hover:text-danger hover:border-danger transition-colors"
+              className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center bg-white rounded-full shadow-sm text-gray-500 hover:text-red-500 hover:bg-red-50 transition-colors"
               aria-label={`Xóa ${label}`}
             >
-              <X size={13} />
+              <X size={16} />
             </button>
           )}
           {file && (
-            <span className="absolute bottom-0 inset-x-0 bg-ink/80 text-paper text-[11px] px-2 py-1 truncate">{file.name}</span>
+            <div className="absolute bottom-0 inset-x-0 bg-black/60 text-white text-[12px] px-3 py-2 truncate backdrop-blur-sm">
+              {file.name}
+            </div>
           )}
         </div>
       ) : (
@@ -52,11 +54,13 @@ function ImagePicker({ label, file, previewUrl, onPick, onClear, disabled }) {
           type="button"
           disabled={disabled}
           onClick={() => inputRef.current?.click()}
-          className="w-full border-2 border-dashed border-border-hover h-40 flex flex-col items-center justify-center text-foreground-muted hover:border-accent hover:bg-accent/5 cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full border-2 border-dashed border-gray-300 rounded-xl h-48 flex flex-col items-center justify-center text-gray-500 hover:border-teal-500 hover:bg-teal-50/50 cursor-pointer transition-all disabled:opacity-50 disabled:cursor-not-allowed group"
         >
-          <Upload size={32} className="mb-2" />
-          <span className="text-sm font-medium">Nhấn để tải ảnh lên</span>
-          <span className="label-mono text-foreground-subtle mt-1">JPG, PNG, WEBP · tối đa 5MB</span>
+          <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center group-hover:bg-teal-100 group-hover:text-teal-600 transition-colors mb-3">
+            <Upload size={24} />
+          </div>
+          <span className="text-[14px] font-medium text-gray-900 group-hover:text-teal-600">Nhấn để tải ảnh lên</span>
+          <span className="text-[12px] text-gray-500 mt-1">JPG, PNG, WEBP · tối đa 5MB</span>
         </button>
       )}
     </div>
@@ -145,67 +149,76 @@ export default function EkycPanel() {
 
   if (loading) {
     return (
-      <div className="flex items-center gap-2 text-sm text-foreground-muted py-8 justify-center">
+      <div className="flex items-center gap-2 text-sm text-gray-500 py-12 justify-center">
         <Loader2 size={16} className="animate-spin" /> Đang tải trạng thái E-KYC...
       </div>
     )
   }
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
-        <h2 className="font-heading text-xl uppercase text-foreground">Xác thực danh tính (E-KYC)</h2>
-        <span className={`label-mono px-3 py-1.5 ${badge.cls}`}>{badge.label}</span>
+    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 md:p-8 animate-in fade-in duration-300">
+      <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
+        <div>
+          <h2 className="font-heading text-2xl uppercase tracking-tight text-gray-900 mb-1">Xác thực danh tính</h2>
+          <p className="text-gray-500 text-[14px]">Cung cấp thông tin CCCD để xác minh tài khoản của bạn</p>
+        </div>
+        <span className={`px-3 py-1.5 rounded-full text-[13px] font-medium border ${badge.cls}`}>{badge.label}</span>
       </div>
 
-      <div className="border-2 border-border-strong bg-background-base p-4 flex gap-3 mb-6">
-        <ShieldCheck size={20} className="text-accent shrink-0 mt-0.5" />
-        <p className="text-sm text-foreground-muted leading-relaxed">
-          Xác thực E-KYC là bắt buộc để bạn có thể <b className="text-foreground">Tạo kèo</b> và{' '}
-          <b className="text-foreground">Sử dụng ví ký quỹ</b>. Thông tin của bạn được mã hóa an toàn.
+      <div className="bg-teal-50 border border-teal-100 rounded-xl p-4 flex gap-3 mb-8">
+        <ShieldCheck size={20} className="text-teal-600 shrink-0 mt-0.5" />
+        <p className="text-[14px] text-teal-800 leading-relaxed">
+          Xác thực E-KYC là bắt buộc để bạn có thể <span className="font-bold">Tạo kèo</span> và{' '}
+          <span className="font-bold">Sử dụng ví ký quỹ</span>. Thông tin của bạn được mã hóa an toàn.
         </p>
       </div>
 
       {status === 'Pending' && (
-        <div className="bg-warning-bg border border-warning p-4 text-sm text-warning mb-6">
-          Hồ sơ của bạn (họ tên <b>{profile.fullName}</b>, CCCD <b>{profile.identityNumber}</b>) đang chờ quản trị viên phê duyệt.
+        <div className="bg-yellow-50 border border-yellow-200/50 rounded-xl p-4 text-[14px] text-yellow-800 mb-8 flex items-start gap-3">
+          <Info size={20} className="text-yellow-600 shrink-0 mt-0.5" />
+          <div>
+            Hồ sơ của bạn (họ tên <span className="font-bold">{profile.fullName}</span>, CCCD <span className="font-bold">{profile.identityNumber}</span>) đang chờ quản trị viên phê duyệt.
+          </div>
         </div>
       )}
       {status === 'Approved' && (
-        <div className="bg-background-base border-2 border-border-strong p-4 text-sm text-foreground mb-6 flex items-center gap-2">
-          <ShieldCheck size={18} className="text-accent" />
+        <div className="bg-green-50 border border-green-200/50 rounded-xl p-4 text-[14px] text-green-800 mb-8 flex items-center gap-3">
+          <ShieldCheck size={20} className="text-green-600 shrink-0" />
           Tài khoản đã được xác thực định danh. Bạn có thể tạo kèo và sử dụng ví ký quỹ.
         </div>
       )}
       {status === 'Rejected' && (
-        <div className="bg-danger-bg border border-danger p-4 text-sm text-danger mb-6">
-          <span className="font-semibold">Hồ sơ bị từ chối:</span> {profile.rejectionReason || 'Không có lý do.'}
-          <span className="block mt-1">Vui lòng nộp lại hồ sơ với ảnh rõ nét hơn.</span>
+        <div className="bg-red-50 border border-red-200/50 rounded-xl p-4 text-[14px] text-red-800 mb-8 flex items-start gap-3">
+          <Info size={20} className="text-red-600 shrink-0 mt-0.5" />
+          <div>
+            <span className="font-bold">Hồ sơ bị từ chối:</span> {profile.rejectionReason || 'Không có lý do.'}
+            <span className="block mt-1">Vui lòng nộp lại hồ sơ với ảnh rõ nét hơn.</span>
+          </div>
         </div>
       )}
 
       {canSubmit && (
         <>
-          <div className="grid grid-cols-2 max-sm:grid-cols-1 gap-6 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             <div>
-              <label className="block label-mono text-foreground-muted mb-2">Họ tên trên CCCD</label>
+              <label className="block text-[13px] font-semibold text-gray-700 mb-2">Họ tên trên CCCD</label>
               <input
                 type="text"
                 value={form.fullName}
                 onChange={e => setForm(p => ({ ...p, fullName: e.target.value }))}
                 placeholder="NGUYEN VAN A"
-                className="input-base"
+                className="w-full px-4 py-2.5 rounded-[8px] border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-colors text-[14px]"
               />
             </div>
             <div>
-              <label className="block label-mono text-foreground-muted mb-2">Số CMND / CCCD</label>
+              <label className="block text-[13px] font-semibold text-gray-700 mb-2">Số CMND / CCCD</label>
               <input
                 type="text"
                 value={form.identityNumber}
                 onChange={e => setForm(p => ({ ...p, identityNumber: e.target.value }))}
                 placeholder="0790XXXXXXXX"
                 maxLength={20}
-                className="input-base"
+                className="w-full px-4 py-2.5 rounded-[8px] border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-colors text-[14px]"
               />
             </div>
           </div>
@@ -232,9 +245,9 @@ export default function EkycPanel() {
           <button
             onClick={handleSubmit}
             disabled={submitting}
-            className="btn-primary w-full h-12 disabled:opacity-60 flex items-center justify-center gap-2"
+            className="w-full bg-teal-500 hover:bg-teal-600 text-white font-medium py-3 rounded-[8px] transition-colors flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            {submitting && <Loader2 size={16} className="animate-spin" />}
+            {submitting && <Loader2 size={18} className="animate-spin" />}
             {submitting ? 'Đang gửi hồ sơ...' : 'Gửi yêu cầu xác thực'}
           </button>
         </>

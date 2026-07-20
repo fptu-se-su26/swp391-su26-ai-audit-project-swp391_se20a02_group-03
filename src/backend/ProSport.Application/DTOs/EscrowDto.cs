@@ -7,6 +7,10 @@ public class EscrowWalletDto
     public decimal Balance { get; set; }
     public decimal LockedBalance { get; set; }
     public decimal TotalBalance => Balance + LockedBalance;
+
+    public string? LinkedProvider { get; set; }
+    public string? LinkedAccountNumber { get; set; }
+    public string? LinkedAccountName { get; set; }
 }
 
 public class TransactionDto
@@ -20,25 +24,27 @@ public class TransactionDto
     public DateTime CreatedAt { get; set; }
 }
 
-/// <summary>Request body cho POST /api/escrow/deposit — tạo URL thanh toán VNPay để nạp tiền thật vào ví.</summary>
 public class EscrowDepositRequestDto
 {
-    /// <summary>Số tiền nạp vào ví (VND), phải > 0.</summary>
     public decimal Amount { get; set; }
 }
 
-/// <summary>Request body cho POST /api/escrow/refund — Admin/Staff hoàn tiền thủ công vào ví Escrow.</summary>
 public class EscrowRefundRequestDto
 {
-    /// <summary>UserId của người nhận hoàn tiền.</summary>
     public int UserId { get; set; }
-
-    /// <summary>Số tiền hoàn (VND), phải > 0.</summary>
     public decimal Amount { get; set; }
-
-    /// <summary>Lý do hoàn tiền (bắt buộc).</summary>
     public string Reason { get; set; } = null!;
-
-    /// <summary>Mã tham chiếu nội bộ (BookingId, MatchId, ticket số...). Nullable.</summary>
     public string? ReferenceId { get; set; }
+}
+
+public class LinkAccountRequestDto
+{
+    public string Provider { get; set; } = null!; // Ngân hàng Vietcombank, Momo, PayOS, etc.
+    public string AccountNumber { get; set; } = null!; // Số tài khoản
+    public string AccountName { get; set; } = null!; // Tên chủ tài khoản
+}
+
+public class EscrowWithdrawRequestDto
+{
+    public decimal Amount { get; set; }
 }

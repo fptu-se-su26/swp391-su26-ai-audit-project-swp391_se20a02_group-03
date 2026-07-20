@@ -252,3 +252,104 @@
   - **QA & release:** `dotnet build` 0 warning; `dotnet test` toàn suite; Vitest + ESLint + `npm run build`; truy vấn audit DB integrity; commit và push fast-forward lên `origin/DE190147/audit-module`.
 - **Evaluation:** AI tuân thủ nghiêm planning gate: khảo sát trước, phát hiện phần lớn fix đã tồn tại trong working tree nên chuyển hướng sang review + retrofit regression test thay vì viết lại tùy tiện — đúng tinh thần prompt. TDD được thực thi thật (test đỏ vì đúng nguyên nhân → sửa → xanh): 14 boundary test fixed-time cho chính sách hoàn tiền chạy ổn định mọi timezone, kèm test regression minh họa đúng lỗi lệch 7 tiếng cũ. Điểm sáng là AI tự phát hiện thêm các lỗi ngoài danh sách ban đầu qua audit thực tế trên browser: `CalculateMatchLeaveReleaseAsync` cùng bug UtcNow, bảng giá seed theo `CourtTypeId` bị cả API lẫn `BookingPriceCalculator` bỏ qua khiến mọi booking tính giá fallback 100k (lỗi tài chính nghiêm trọng thứ hai). Tôi đóng vai trò kiểm soát (Human Decision): phê duyệt kế hoạch và chốt 3 quyết định thiết kế (không thêm dev-dependency Sqlite cho test concurrency, wording countdown, hoãn dọn tz block trong `BookingService` do `VnTimeHelper` là internal khác assembly); trực tiếp tinh chỉnh `DatabaseBootstrap` theo hướng fail-fast kèm danh sách bảng thiếu thay vì baseline mù; cung cấp Google OAuth Client ID từ GCP; ra lệnh loại rác session (`.claude/`, `.codex-work/`, `outputs/`) khỏi staging và đẩy fast-forward (xác minh ancestry trước, không force). Kết quả: `dotnet test` **113/113 pass**, Vitest **25/25**, ESLint 0 lỗi, build 0 warning, audit DB **0/9 vi phạm**; commit **`1bf691f`** (101 files) push `b53e171..1bf691f` → `origin/DE190147/audit-module`.
   Ở hai vòng audit tiếp theo (Owner, Staff), AI không dừng ở review code mà chủ động đăng nhập và thao tác thật trên browser (Claude Browser tool) để bắt lỗi mà static review bỏ sót — cách này lộ ra bug nghiêm trọng nhất của cả phiên: `DashboardService` dùng specifier `HH` cho kiểu `TimeSpan` (chỉ hợp lệ với `DateTime`), khiến trang Lịch thời gian thực của Staff crash bất kỳ ngày nào có booking, và cùng lỗi đó làm walk-in trả 500 (booking đã lưu DB trước khi crash) khi khách có tài khoản email. Điểm cần lưu ý (Human Decision): lần sửa đầu `HH\:mm → hh\\:mm` vẫn sai vì `BookingService` dùng verbatim string (`$@"..."`), tôi yêu cầu AI test lại bằng thao tác thật thay vì tin build pass, mới lộ ra phải dùng `hh\:mm` (một backslash). Cũng quyết định tách phần audit log còn thiếu (pricing, staff, booking, membership, cancellation policy) thành task nền riêng thay vì gộp vào cùng đợt sửa, giữ mỗi commit nhỏ và dễ review. Kết quả bổ sung: 4 commit cục bộ (`a912fc7`, `5269efa`, `fc46b44`, `89fbc99`), build/test pass lại sau mỗi lần, smoke test Owner + Staff xác nhận hết lỗi 400/500 và crash trang Lịch — các commit này chưa push lên remote.
+
+---
+
+### Prompt #19
+- **Date:** 2026-07-16
+- **AI Tool:** Claude Code (Claude Sonnet 5), Antigravity, Codex
+- **Author:** Phạm Nguyễn Tiến Đạt
+- **Audit Log:** Log #19
+- **Purpose:** Tiếp nối tổng kiểm định vận hành sau Log #18; xử lý các lỗi UI/UX, accessibility, API contract và regression trên Admin, Owner, Gear/Apex; tiếp nhận phần việc dang dở từ worktree Codex/Antigravity; hòa giải xung đột và đưa kết quả đã kiểm chứng vào nhánh `DE190147/audit-module`.
+
+- **Prompt (bản chuẩn hóa):**
+
+> Tiếp tục trên nhánh làm việc hiện tại và khắc phục triệt để các lỗi còn tồn đọng sau các đợt đồng bộ giao diện gần đây trên toàn bộ portal. Tiếp nhận phần việc đang dang dở của Codex/Antigravity; không reset, không ghi đè mù quáng thay đổi hiện có.
+>
+> Trước khi sửa, đọc tài liệu quy ước dự án, kiểm tra `git status`, diff, route trong `App.jsx` và đối chiếu trực tiếp contract thật giữa frontend API client, backend controller, DTO, service và repository. Không suy đoán enum, field API hoặc dữ liệu nghiệp vụ. Không dùng dữ liệu giả, ảnh stock giả hoặc ID giả trong giao diện production.
+>
+> Với từng lỗi, viết regression test trước hoặc song song với bản vá; sửa đúng nguyên nhân gốc; không tắt lint hoặc thêm điều kiện chắp vá chỉ để CI xanh. Các lỗi P1 bắt buộc gồm:
+>
+> 1. `CartCheckoutPage` xóa nhầm toàn bộ giỏ khi thanh toán theo booking.
+> 2. `AdminUsersPage` tự reset phân trang do debounce/race condition.
+> 3. Contract trạng thái sân sai lệch giữa API `ACTIVE/MAINTENANCE/INACTIVE` và giá trị DB.
+> 4. `AdminKycPage` dùng ảnh stock/fallback giả cho bằng chứng KYC.
+> 5. `GearCatalogPage` có runtime error và nguy cơ lặp vô hạn khi ảnh lỗi.
+>
+> Sau P1, tiếp tục xử lý Admin/Owner/Gear/Apex: stale selection, sidebar/modal accessibility, thiếu accessible name, nested interactive element, filter gửi sai giá trị API, cart drawer/quick view không thao tác được bằng bàn phím, và các lỗi phát sinh sau merge.
+>
+> Khi đưa snapshot Antigravity sang nhánh cá nhân, phải kiểm tra conflict marker, chạy regression và sửa lỗi phát sinh từ conflict resolution; không dừng ở việc cherry-pick thành công.
+>
+> Kiểm thử bắt buộc trước khi kết luận:
+>
+> - Frontend: `npm test -- --run`, `npm run lint -- --quiet`, `npm run build`
+> - Backend: `dotnet test ProSport.sln --no-restore` nếu có thay đổi API/status/nghiệp vụ
+> - `git diff --check`
+> - Smoke test browser cho các route/viewport còn trong phạm vi
+>
+> Chỉ báo cáo hoàn tất đối với phần đã thực sự kiểm tra. Phải ghi rõ các route hoặc portal còn chưa audit/kiểm thử.
+
+- **Expected Output:**
+  - Xử lý an toàn worktree Antigravity và mọi xung đột khi tích hợp.
+  - Có regression test cho các bug P1 và bug sau merge.
+  - Giữ contract status sân thống nhất: API `ACTIVE` ↔ DB `Available`.
+  - Cart checkout không xóa nhầm toàn bộ giỏ.
+  - Admin Users không reset trang; Admin KYC không dùng bằng chứng giả.
+  - Apex Shop lọc đúng dữ liệu API và dùng tồn kho thật.
+  - Modal/sidebar/drawer có accessibility cơ bản: keyboard, Escape, focus management, aria.
+  - Báo cáo trung thực phần đã làm, phần còn tồn đọng, commit và kết quả kiểm chứng.
+
+- **Kết quả thực hiện:**
+  - Antigravity hoàn thiện phần lớn UI Admin, Owner, Gear/Apex; thêm UI primitives, design system, tài liệu UI audit và test regression.
+  - Codex tiếp quản worktree, sửa regression `matchMedia`, contract Court Status, repository filter status API, Apex Shop, Admin Complaints, test Router/CartContext, React refs và whitespace sau merge.
+  - Đã hòa giải xung đột tại các file Admin/Owner/Apex/Gear/package/API; theo xác nhận người dùng, ưu tiên snapshot Antigravity ở vùng xung đột rồi tiếp tục chạy regression.
+  - Không đưa `.claude/`, `.codex-work/`, `outputs/` vào commit.
+
+- **Kiểm chứng cuối cùng:**
+  - Frontend: **63/63 test pass**, lint pass, production build pass.
+  - Backend: **142 pass, 4 skipped, 0 fail**.
+  - `git diff --check` pass; không còn conflict marker trong source.
+
+- **Commit và Push:**
+  - `72d0529 feat: unify portal UI and harden workflows`
+  - `1348d57 fix: reconcile conflicted portal workflows`
+  - Đã push lên `origin/DE190147/audit-module`; remote hiện trỏ tới `1348d57`.
+
+- **Evaluation:**
+  - AI đã xử lý lỗi gốc thay vì chỉ làm CI xanh: phát hiện merge-corruption, chuẩn hóa Court Status, sửa filter API thật và regression sau conflict resolution.
+  - Các kiểm chứng frontend/backend/build/lint/diff đều đạt trước khi commit/push.
+
+---
+
+### Prompt #20
+- **Date:** 2026-07-17
+- **AI Tool:** Claude Code (Claude Sonnet 5)
+- **Author:** Phạm Nguyễn Tiến Đạt
+- **Audit Log:** Log #20
+- **Purpose:** Tải `main` mới nhất từ GitHub sau khi các PR khác đã merge (tính năng Escrow wallet-linking, CommunityFeed, viết lại lớn ApexBookingPage/ApexWalletPage/CreateMatchPage), tự rà soát toàn diện tìm bug phát sinh và tự nghiên cứu, thực hiện fix mà không có danh sách lỗi được giao sẵn.
+- **Prompt (bản đã chuẩn hóa):** *"Tải nhánh `main` mới nhất từ GitHub về máy. Sau đó tự rà soát toàn bộ thay đổi mới trên `main` xem có phát sinh lỗi nào không — không dựa vào giả định rằng code đã merge là đúng, phải tự đối chiếu trực tiếp với contract thật (DTO/entity backend) trước khi kết luận là bug. Với mỗi bug tìm được: tự nghiên cứu nguyên nhân gốc, viết test tái hiện lỗi trước khi sửa (nếu là logic backend), sửa đúng nguyên nhân ở phạm vi nhỏ nhất, sau đó chạy lại toàn bộ lint/test/build để xác nhận không có gì bị hỏng thêm. Không dừng lại nếu chỉ sửa mỗi lỗi liên quan đến CI xanh — phải kiểm tra cả các tính năng nghiệp vụ và tài chính có khả năng bị merge conflict làm sai lệch âm thầm. Không tự ý mở rộng phạm vi thành xây dựng tính năng UI hoàn toàn mới nếu phát hiện một tính năng đang thiếu giao diện — chỉ sửa đúng phần bug/contract, việc bổ sung tính năng cần được quyết định riêng. Không commit trực tiếp lên `main` — tạo nhánh riêng cho các bản vá và báo cáo lại trước khi push."*
+- **Expected Output:**
+  - **Baseline:** `git fetch`/`checkout main`/`pull`, chạy đủ `npm install`, lint, test, build (FE) và `dotnet build`/`dotnet test` (BE) trước khi đào sâu tìm bug cụ thể.
+  - **Phát hiện bug thật, có bằng chứng:** đối chiếu trực tiếp `MatchDto`/`CreateMatchDto` ở backend với các field được frontend tham chiếu, không đoán tên field.
+  - **TDD cho bug backend:** viết test tái hiện lỗi trước, xác nhận test đỏ đúng nguyên nhân (không phải lỗi biên dịch/test sai), sửa, chạy lại xanh.
+  - **Không lấn phạm vi:** phát hiện tính năng "host duyệt joiner" thiếu UI hoàn toàn nhưng chỉ sửa contract API, không tự dựng trang mới.
+  - **Nhánh riêng:** không commit thẳng `main`, tạo `fix/main-bug-sweep-post-PR50`, chưa push, báo cáo lại chờ quyết định.
+- **Evaluation:** AI tuân thủ đúng tinh thần "tự nghiên cứu, không đoán" — trước khi kết luận bất kỳ field nào là bug, đều grep trực tiếp vào file DTO/entity backend thật để xác nhận, tránh lặp lại sai lầm "sửa theo cảm tính" đã từng bị nhắc ở các tuần trước. Điểm nổi bật: AI phát hiện một chuỗi bug liên hoàn xuất phát từ cùng một nguyên nhân gốc (đợt merge conflict-resolution của PR #50 không kỹ) — không chỉ dừng ở lỗi hiển thị bề mặt (heading rỗng, badge sai môn) mà truy ngược ra được bug tài chính nghiêm trọng hơn nhiều (escrow amount bị ghi đè âm thầm) và một tính năng cốt lõi (đánh giá uy tín người chơi) chưa từng hoạt động dù đã có đủ UI. Quyết định của tôi: yêu cầu bổ sung tài liệu (log/changelog/prompt/reflection) đầy đủ trước khi quyết định có push/mở PR nhánh vá lỗi này hay không — giữ đúng kỷ luật "không tự ý push" đã thiết lập từ các phiên trước.
+  - Chưa thể khẳng định hoàn tất toàn bộ brief UI ban đầu vì Mobile, Staff/Elite và smoke test browser responsive toàn bộ route vẫn cần audit sâu hơn.
+ 
+
+
+
+
+
+---
+
+### Prompt #21
+- **Date:** 2026-07-17 → 2026-07-19
+- **AI Tool:** Claude Code (Claude Sonnet 5)
+- **Author:** Phạm Nguyễn Tiến Đạt
+- **Audit Log:** Log #21
+- **Purpose:** Đối chiếu State Diagram với codebase, hoàn thiện vòng đời Tournament và chuẩn hóa status Booking/Equipment/ComplexOwner/ComplexReview/Report/User theo audit đa vai trò, thử nghiệm redesign UI Admin & Customer, rồi rollback UI và chốt commit/push backend/database lên nhánh `DE190147/audit-module`.
+- **Prompt:** *"Hãy check xem file State Diagram này đã vẽ đúng so với dự án chưa"* — mở đầu chuỗi chỉ đạo nối tiếp gồm: lập backlog P1/P2/P3 vá lệch pha Booking/Tournament; audit DB/Frontend lần lượt theo phạm vi User → Admin → Owner qua spec-kit và tự sửa các điểm bất cập; chốt tập status cho các entity còn thiếu; sau đó "dùng specKit và Frontend Design để sửa lại UI của Admin/Customer"; cuối cùng "roll back UI về [PR #49]" (giữ lại bugfix đã commit), "commit code lên nhánh DE190147/audit-module" và "push code lên nhánh".
+- **Expected Output:** State diagram khớp code thật; Tournament lifecycle đầy đủ; status hợp lệ được enforce ở tầng DB; audit report + fix cho 3 phạm vi vai trò; UI Admin/Customer redesign theo hệ nhận diện nhất quán (sau đó rollback theo quyết định của người dùng); lịch sử Git sạch, đúng nhánh, đã push.
+- **Evaluation:** AI thực hiện đúng quy trình audit-trước-khi-sửa cho toàn bộ phần backend/database, tự phát hiện thêm vấn đề ngoài yêu cầu gốc (bug `OwnerMembershipsPage` gửi status không hợp lệ) và báo cáo minh bạch thay vì âm thầm bỏ qua. Với phần redesign UI, AI tuân thủ nghiêm ngặt các gate phê duyệt theo đúng cụm từ được yêu cầu, không tự ý mở rộng phạm vi (từ chối "tiếp tục" mơ hồ 2 lần), và khi định thực hiện một hành động (xóa file) mâu thuẫn với chính kế hoạch đã được duyệt, hệ thống tự chặn và AI khôi phục ngay thay vì lách qua. Điểm cần lưu ý: toàn bộ công sức redesign UI (Admin + Customer, ~30 task) cuối cùng bị rollback theo quyết định của người dùng sau khi xem preview thực tế — cho thấy giá trị của việc giữ các thay đổi UI ở trạng thái uncommitted/dễ hoàn tác cho đến khi được xác nhận trực quan, thay vì commit sớm.

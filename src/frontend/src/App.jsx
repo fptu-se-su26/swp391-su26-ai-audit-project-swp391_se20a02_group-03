@@ -39,7 +39,9 @@ const OrdersPage = lazy(() => import('./pages/gear/OrdersPage'))
 const ApexHomePage = lazy(() => import('./pages/apex/ApexHomePage'))
 const ApexBookingPage = lazy(() => import('./pages/apex/ApexBookingPage'))
 const ApexMatchesPage = lazy(() => import('./pages/apex/ApexMatchesPage'))
+const ApexShopPage = lazy(() => import('./pages/apex/ApexShopPage'))
 const ApexProfilePage = lazy(() => import('./pages/apex/ApexProfilePage'))
+const ApexWalletPage = lazy(() => import('./pages/apex/ApexWalletPage'))
 const ApexActivityPage = lazy(() => import('./pages/apex/ApexActivityPage'))
 const ApexSettingsPage = lazy(() => import('./pages/apex/ApexSettingsPage'))
 const ApexSupportPage = lazy(() => import('./pages/apex/ApexSupportPage'))
@@ -47,7 +49,6 @@ const ApexBookingsPage = lazy(() => import('./pages/apex/ApexBookingsPage'))
 
 // PRO-SPORT MatchPro
 const MatchProFeedPage = lazy(() => import('./pages/matchpro/MatchProFeedPage'))
-const MatchProNearbyPage = lazy(() => import('./pages/matchpro/MatchProNearbyPage'))
 const MatchProCommunityPage = lazy(() => import('./pages/matchpro/MatchProCommunityPage'))
 const MatchProLeaderboardPage = lazy(() => import('./pages/matchpro/MatchProLeaderboardPage'))
 
@@ -135,9 +136,14 @@ function ShopProductRedirect() {
 // CRITICAL FIX: Route guards now use AuthContext instead of direct localStorage reads
 // This ensures guards react to context-driven login/logout actions
 function GuestRoute({ children }) {
-    const { isAuthenticated, loading } = useAuth()
+    const { isAuthenticated, isAdmin, isStaff, isCourtOwner, loading } = useAuth()
     if (loading) return <RouteLoader />
-    if (isAuthenticated) return <Navigate to="/" replace />
+    if (isAuthenticated) {
+        if (isAdmin) return <Navigate to="/admin/dashboard" replace />
+        if (isStaff) return <Navigate to="/elite/dashboard" replace />
+        if (isCourtOwner) return <Navigate to="/owner/dashboard" replace />
+        return <Navigate to="/apex" replace />
+    }
     return children
 }
 
@@ -211,8 +217,8 @@ function App() {
                     {/* Matches / MatchPro — IMPORTANT: static routes BEFORE :id param */}
                     <Route path="/matches" element={<MatchProFeedPage />} />
                     <Route path="/matches/create" element={<ProtectedRoute><CreateMatchPage /></ProtectedRoute>} />
-                    <Route path="/matches/nearby" element={<MatchProNearbyPage />} />
-                    <Route path="/matches/community" element={<MatchProCommunityPage />} />
+                    <Route path="/matches/nearby" element={<Navigate to="/apex/booking" replace />} />
+                    <Route path="/matches/community" element={<Navigate to="/apex/community" replace />} />
                     <Route path="/matches/leaderboard" element={<MatchProLeaderboardPage />} />
                     <Route path="/matches/:id" element={<MatchDetailPage />} />
 
@@ -245,8 +251,10 @@ function App() {
                     <Route path="/apex" element={<ProtectedRoute><ApexHomePage /></ProtectedRoute>} />
                     <Route path="/apex/booking" element={<ProtectedRoute><ApexBookingPage /></ProtectedRoute>} />
                     <Route path="/apex/matches" element={<ProtectedRoute><ApexMatchesPage /></ProtectedRoute>} />
-                    <Route path="/apex/shop" element={<Navigate to="/gear/catalog" replace />} />
+                    <Route path="/apex/community" element={<ProtectedRoute><MatchProCommunityPage /></ProtectedRoute>} />
+                    <Route path="/apex/shop" element={<ProtectedRoute><ApexShopPage /></ProtectedRoute>} />
                     <Route path="/apex/profile" element={<ProtectedRoute><ApexProfilePage /></ProtectedRoute>} />
+                    <Route path="/apex/wallet" element={<ProtectedRoute><ApexWalletPage /></ProtectedRoute>} />
                     <Route path="/apex/activity" element={<ProtectedRoute><ApexActivityPage /></ProtectedRoute>} />
                     <Route path="/apex/bookings" element={<ProtectedRoute><ApexBookingsPage /></ProtectedRoute>} />
                     <Route path="/apex/settings" element={<ProtectedRoute><ApexSettingsPage /></ProtectedRoute>} />

@@ -103,7 +103,9 @@ public class SplitPaymentService : ISplitPaymentService
             {
                 UserId = hostUserId,
                 TotalAmount = total,
-                Status = BookingStatus.Pending,
+                // Split payment giữ booking ở PendingPayment tới khi mọi share được trả
+                // (-> Confirmed) hoặc quá hạn (-> Expired). Khác với booking thường (Pending).
+                Status = BookingStatus.PendingPayment,
                 PaymentMethod = PaymentMethod.Escrow,
                 PaymentStatus = PaymentStatus.Pending,
                 PaymentDeadline = deadline,
@@ -198,7 +200,7 @@ public class SplitPaymentService : ISplitPaymentService
         var expiredBookings = await _db.Bookings
             .Include(b => b.PaymentShares)
             .Where(b => b.IsSplitPayment
-                && b.Status == BookingStatus.Pending
+                && b.Status == BookingStatus.PendingPayment
                 && b.PaymentStatus != PaymentStatus.Paid
                 && b.SplitPaymentDeadline != null
                 && b.SplitPaymentDeadline < now)
@@ -227,7 +229,9 @@ public class SplitPaymentService : ISplitPaymentService
                     });
                 }
 
-                booking.Status = BookingStatus.Cancelled;
+                // Quá hạn chia bill: booking -> Expired (hết hạn), share chưa trả -> Expired,
+                // share đã trả được hoàn về ví (Refunded, xử lý ở vòng lặp trên).
+                booking.Status = BookingStatus.Expired;
                 booking.PaymentStatus = PaymentStatus.Refunded;
                 foreach (var share in booking.PaymentShares.Where(s => s.Status == PaymentShareStatus.Pending))
                     share.Status = PaymentShareStatus.Expired;
@@ -239,7 +243,7 @@ public class SplitPaymentService : ISplitPaymentService
                 {
                     Type = "split_payment_expired",
                     Title = "Chia bill hết hạn",
-                    Message = $"Booking #{booking.BookingId} đã bị hủy do chưa thanh toán đủ. Các khoản đã trả được hoàn về ví.",
+                    Message = $"Booking #{booking.BookingId} đã hết hạn do chưa thanh toán đủ. Các khoản đã trả được hoàn về ví.",
                     Data = new { bookingId = booking.BookingId }
                 });
 

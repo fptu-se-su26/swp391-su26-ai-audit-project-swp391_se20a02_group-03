@@ -655,3 +655,239 @@
 - Smoke test browser (owner, `courtowner@prosport.vn`): lưu tổ hợp thành công, khung giờ walk-in đủ 05:00–22:00, logo sidebar không còn cảnh báo `validateDOMNesting`, audit log ghi nhận đúng.
 - Smoke test browser (staff, `staff1@prosport.vn`): 14 trang `/elite/*` + `/dashboard/*` duyệt không lỗi console mới; 2 lần tạo walk-in (khách vãng lai + khách có email) đều `201 Created`; trang Lịch thời gian thực render đúng slot vừa tạo, không crash.
 - Push fast-forward thành công: `origin/DE190147/audit-module` @ **`1bf691f`** (`b53e171..1bf691f`, 101 files); các commit audit Owner/Staff (`a912fc7`, `5269efa`, `fc46b44`, `89fbc99`) hiện ở local, chưa push lên remote — cần `git push` (và có thể `git pull --rebase` trước, vì nhánh đang behind 42 so với remote) để đồng bộ.
+
+---
+
+## Log #19
+- **Ngày:** 2026-07-16
+- **Người thực hiện:** Phạm Nguyễn Tiến Đạt
+- **Công cụ AI:** Claude Code (Claude Sonnet 5), Antigravity, Codex
+- **Mục đích:** Tiếp nối tổng kiểm định vận hành sau Log #18; tiếp quản và hoàn thiện phần UI/UX Admin, Owner, Gear/Apex đang làm dở; xử lý lỗi merge, lỗi contract dữ liệu và regression; hòa giải các xung đột khi đưa thay đổi vào nhánh `DE190147/audit-module`.
+- **Tham chiếu Prompt:** Prompt #19
+- **Trạng thái:** **Đã hoàn tất commit và push** lên `origin/DE190147/audit-module`.
+
+### Tóm tắt kết quả AI
+
+**A. Tích hợp nhánh song song và xử lý merge-corruption**
+- Kiểm tra worktree `implement-ui-from-design` của Antigravity/Codex và xác định đây là phần UI đang làm dở cần tiếp quản.
+- Phát hiện và xử lý các lỗi merge-corruption chặn build/test:
+  - `DatabaseBootstrap.cs`: còn text tên nhánh git trong thân hàm `BaselineAsync`, gây lỗi biên dịch.
+  - `EscrowServiceTests.cs`: tham số mock `IVnPayService` bị nhân đôi sau merge, gây sai constructor `EscrowService`.
+  - `ApexShopPage.jsx`: còn JSX/logic trùng lặp và text tên nhánh git, làm ESLint parser lỗi.
+- Đối chiếu contract thật của backend (`EquipmentDto`, seed data, `CourtStatuses`) trước khi sửa, không chỉ chỉnh để build xanh.
+
+**B. Các lỗi P1 đã xử lý**
+1. **CartCheckoutPage**
+   - Checkout theo `bookingId` không còn gọi `clearCart()` để xóa toàn bộ giỏ hàng.
+   - Chỉ coi thanh toán thành công khi `response?.success === true`.
+   - Tổng tiền có fallback an toàn từ danh sách item checkout.
+   - Sau thanh toán thành công dùng `refreshCart()` để đồng bộ lại dữ liệu giỏ hàng.
+
+2. **AdminUsersPage**
+   - Sửa debounce search làm tự reset trang về trang 1.
+   - Tách state tìm kiếm đã debounce, giữ đúng trang hiện tại khi phân trang.
+   - Dùng `AbortController` để tránh race condition giữa request cũ và request mới.
+   - Bổ sung xử lý chuỗi lỗi `'canceled'` từ axios interceptor.
+   - Bổ sung role `CourtOwner` vào bộ lọc người dùng.
+
+3. **Court status contract**
+   - Khôi phục giá trị lưu DB chuẩn là `Available`; API vẫn trả/nhận `ACTIVE`.
+   - `CourtService.UpdateAsync` chuẩn hóa status trước khi lưu.
+   - `CourtRepository.GetPagedCourtsAsync` chuẩn hóa status API trước khi lọc DB.
+   - Bổ sung `CourtStatusesTests` và `CourtRepositoryTests`.
+   - Sửa form Admin Courts chỉ hiển thị các status hợp lệ: `ACTIVE`, `MAINTENANCE`, `INACTIVE`.
+
+4. **AdminKycPage**
+   - Loại bỏ ảnh Unsplash giả làm fallback cho bằng chứng CCCD.
+   - Hiển thị trạng thái rõ ràng cho ảnh thiếu/lỗi tải.
+   - Khóa nút phê duyệt khi chưa có hoặc chưa tải được ảnh bắt buộc.
+   - Thêm xác nhận trước khi phê duyệt và chặn thao tác double-click.
+
+5. **GearCatalogPage**
+   - Bổ sung import fallback ảnh theo category để tránh crash runtime.
+   - Chặn vòng lặp `onError` khi ảnh fallback cũng tải lỗi.
+   - Sửa cấu trúc tương tác lồng `Link`/`button`.
+
+**C. Hoàn thiện Admin Portal**
+- `AdminComplaintsPage`
+  - Dòng danh sách chuyển từ `<div onClick>` sang `<button>` để dùng được bằng bàn phím.
+  - Khi trạng thái khiếu nại thay đổi và không còn thuộc filter hiện tại, hệ thống tự bỏ chọn bản ghi để tránh detail panel hiển thị dữ liệu lạc trạng thái.
+  - Bổ sung regression test cho trường hợp này.
+
+- `AdminLayout` và modal
+  - Bổ sung `matchMedia` guard cho môi trường test.
+  - Sidebar mobile có `inert`, `aria-hidden`, Escape để đóng, focus restore và scroll lock.
+  - Modal có role/label/focus management tốt hơn.
+
+- `AdminUsersPage`, `AdminBookingsPage`, `AdminCourtsPage`, `AdminInventoryPage`, `AdminKycPage`
+  - Bổ sung accessible name cho ô tìm kiếm.
+  - Cải thiện filter-pill, trạng thái loading/error/empty và thao tác bằng bàn phím.
+  - Đồng bộ lại test để phản ánh contract API thật.
+
+**D. Hoàn thiện Owner Portal**
+- Bổ sung và dùng chung owner UI primitives: button, card, form field, modal, trạng thái rỗng/lỗi, search input.
+- Cải thiện `OwnerSidebar`, `OwnerHeader`, `OwnerLayout`:
+  - Sidebar mobile/desktop không còn tabbable khi bị ẩn.
+  - Có Escape, focus restore, aria state và scroll lock hợp lý.
+- Tách tương tác lồng `Link > button` tại các trang Booking/Court.
+- Bổ sung nhãn truy cập cho Complex Selector, search input và reply input.
+- Cải thiện modal Owner: focus trap, trả focus về phần tử mở modal, bảo toàn body overflow.
+- Cô lập state theo `complexId` trong Owner Layout để giảm nguy cơ giữ state của cụm sân cũ khi đổi complex.
+- Bổ sung test cho Owner primitives, Owner layout, Owner bookings và Owner operating hours.
+
+**E. Hoàn thiện Apex/Gear Portal**
+- `ApexShopPage`
+  - Viết lại thành một component thống nhất sau merge conflict.
+  - Sửa filter môn thể thao để map đúng dữ liệu API:
+    - `Badminton` ↔ `Cầu lông`
+    - `Pickleball`
+    - `Tennis`
+  - Loại bỏ filter trạng thái giả `Premium/New/Trial`; thay bằng filter tồn kho thật `Còn hàng/Hết hàng`.
+  - Bổ sung modal quick view và cart drawer có dialog semantics, Escape, focus restore, scroll lock và accessible label.
+  - Sửa test Apex để có Router và CartContext mock.
+
+- `CartPage`, `CartCheckoutPage`, `GearCatalogPage`, `GearDetailPage`
+  - Sửa fallback ảnh, error handling, accessibility và các flow checkout/cart liên quan.
+  - Không còn dùng cross-sell fake ID gây request lỗi.
+
+**F. Hòa giải xung đột khi đưa vào nhánh cá nhân**
+- Snapshot UI của Antigravity được commit trước ở worktree riêng.
+- Khi cherry-pick sang `DE190147/audit-module`, xuất hiện xung đột tại các file Admin, Owner, Apex, Gear, package và API.
+- Theo xác nhận của người dùng, ưu tiên snapshot Antigravity tại vùng xung đột.
+- Codex tiếp tục kiểm tra sau merge thay vì dừng ở mức resolve marker:
+  - Không còn conflict marker trong source.
+  - Sửa test Admin Complaints, Admin Courts và Apex Shop bị sai/thiếu dependency sau merge.
+  - Sửa lỗi React refs bị cập nhật trong render làm ESLint chặn `OwnerModal` và dialog Apex.
+  - Làm sạch trailing whitespace để `git diff --check` sạch.
+- Không commit các thư mục audit cục bộ `.claude/`, `.codex-work/`, `outputs/`.
+
+### Quyết định và can thiệp của con người
+- Yêu cầu AI tiếp quản phần Codex/Antigravity đang làm dở, xử lý tận gốc thay vì chỉ làm test/build xanh.
+- Đồng ý mở rộng phạm vi để sửa lỗi merge-corruption vì đây là điều kiện cần để chạy kiểm chứng toàn hệ thống.
+- Xác nhận ưu tiên snapshot Antigravity khi hòa giải xung đột với nhánh `DE190147/audit-module`.
+- Yêu cầu commit và push sau khi xử lý conflict, regression và kiểm chứng xong.
+- Yêu cầu không đưa các file audit cục bộ, output và script tạm vào commit.
+
+### Áp dụng cho
+- **Backend:** `CourtService.cs`, `CourtStatuses.cs`, `Court.cs`, `CourtRepository.cs`, `DatabaseBootstrap.cs`, `EscrowServiceTests.cs`.
+- **Backend test mới/cập nhật:** `CourtStatusesTests.cs`, `CourtRepositoryTests.cs`.
+- **Frontend Admin:** `AdminLayout`, `AdminBookingsPage`, `AdminComplaintsPage`, `AdminCourtsPage`, `AdminDashboardPage`, `AdminInventoryPage`, `AdminKycPage`, `AdminPricingPage`, `AdminUsersPage`.
+- **Frontend Owner:** `OwnerLayout`, `OwnerHeader`, `OwnerSidebar`, `ComplexSelector`, owner UI primitives và các trang Owner liên quan.
+- **Frontend User/Gear/Apex:** `ApexShopPage`, `ApexBookingPage`, `ApexHomePage`, `CartCheckoutPage`, `CartPage`, `GearCatalogPage`, `GearDetailPage`.
+- **Tài liệu:** `docs/ui/design-system-spec.md`, `docs/ui/market-benchmark.md`, `docs/ui/remediation-plan.md`, `docs/ui/ui-audit.md`.
+- **Frontend test:** Admin Complaints, Admin Courts, Admin KYC, Admin Users, Apex Shop, Cart Checkout, Gear Catalog, Owner Layout, Owner Primitives, Owner Bookings, Owner Operating Hours.
+
+### Kiểm chứng cuối cùng
+- Frontend:
+  - `npm test -- --run` — **63/63 pass**.
+  - `npm run lint -- --quiet` — pass.
+  - `npm run build` — pass.
+- Backend:
+  - `dotnet test ProSport.sln --no-restore` — **142 pass, 4 skipped, 0 fail**.
+- Chất lượng merge:
+  - `git diff --check` — pass.
+  - Không còn conflict marker trong mã nguồn.
+
+### Commit và push
+- `72d0529 feat: unify portal UI and harden workflows`
+- `1348d57 fix: reconcile conflicted portal workflows`
+- Đã push thành công lên `origin/DE190147/audit-module`.
+- Remote branch hiện trỏ tới commit `1348d57`.
+
+### Phần còn tồn đọng
+- Chưa hoàn tất kiểm thử trực quan toàn bộ route bằng browser ở viewport mobile 320px.
+- Cần tiếp tục audit sâu Mobile và Staff/Elite Portal để bao phủ toàn bộ brief UI ban đầu.
+- Một số hạng mục responsive chuyên biệt, ví dụ Admin Pricing ở viewport rất hẹp, cần kiểm chứng trực quan riêng trước khi kết luận hoàn tất toàn bộ UI.
+
+---
+
+## Log #20
+- **Ngày:** 2026-07-17
+- **Người thực hiện:** Phạm Nguyễn Tiến Đạt
+- **Công cụ AI:** Claude Code (Claude Sonnet 5)
+- **Mục đích:** Tải `main` mới nhất từ GitHub (sau khi PR #48/#49/#50 được merge, bao gồm tính năng Escrow wallet-linking, CommunityFeed, viết lại ApexBookingPage/ApexWalletPage/CreateMatchPage), tự rà soát tìm bug phát sinh và tự nghiên cứu, thực hiện fix — không chờ danh sách lỗi được giao sẵn.
+- **Tham chiếu Prompt:** Prompt #20
+- **Trạng thái:** Đã commit trên nhánh mới `fix/main-bug-sweep-post-PR50` (từ `main` @ `e935c10`), **chưa push/mở PR**.
+
+### Tóm tắt kết quả AI
+
+**A. Rà soát ban đầu**
+- `git fetch` + `git checkout main` + `git pull` — cập nhật `main` từ `ad03418` lên `e935c10` (34 commit, bao gồm PR #48 gộp audit-module, PR #49 gộp tiếp Task III/IV UI, PR #50 gộp `feat/DE190130_Hoan_Thien_Frontend_P2` + commit fixup `bae6c1e fix(frontend): resolve conflicts and fix Create Match payload`).
+- Diff `f4411d2..e935c10`: 34 file, +5308/-648 dòng — Escrow wallet-linking (backend), `CommunityFeed.jsx` mới, viết lại lớn `ApexBookingPage`/`ApexWalletPage`/`CreateMatchPage`/`MatchProCommunityPage`/`MatchProLeaderboardPage`.
+- Chạy `npm install`, `npx eslint .`, `npm run build`, `npx vitest run`, `dotnet build`, `dotnet test` trên `main` để xác lập baseline trước khi tìm bug cụ thể.
+
+**B. Năm bug thật tìm được và đã sửa**
+1. **[P0 — chặn toàn bộ test]** `package.json` thiếu hẳn `@testing-library/jest-dom` (bị rơi mất khi resolve conflict merge PR #50, dù `081ae16` trước đó đã thêm) → cả 13 file test fail ngay từ bước resolve import, 0 test nào chạy được. Khôi phục dependency + `npm install` lại → 63/63 pass.
+2. **[P0 — tài chính]** `MatchService.CreateMatchAsync` bỏ qua hoàn toàn `dto.EscrowAmount` (số tiền ký quỹ host tự cấu hình ở Step 3 UI, có nút "Gợi ý chia đều") và luôn tự tính lại `Math.Round(booking.TotalAmount / dto.MaxParticipants)` — số tiền hiển thị cho host trước khi submit không khớp số tiền thực sự lưu vào DB. Viết test tái hiện (`CreateMatchAsync_UsesHostConfiguredEscrowAmount_NotAutoSplitOfBookingTotal`) xác nhận lỗi đúng nguyên nhân (100000 thay vì 60000 mong đợi), sửa dùng `dto.EscrowAmount`.
+3. **[P1 — tính năng hỏng hoàn toàn]** `MatchDetailPage.jsx` tham chiếu các field không tồn tại trên `MatchDto` thật (`match.title`, `match.skillLevel`, `match.location`, `match.participants`) — heading trận đấu luôn rỗng, badge môn thể thao hardcode "Cầu Lông" bất kể môn thật, và toàn bộ tính năng "Đánh giá người chơi" (TK-035) không bao giờ hoạt động vì `participants` luôn `undefined` (không có field này trên `MatchDto`, và endpoint `/participants` duy nhất chỉ host mới gọi được). Bổ sung endpoint mới `GET /matches/{id}/members` (host hoặc joiner đã duyệt mới xem được, 403 với người ngoài) ở cả `IMatchService`/`MatchService`/`MatchController`, viết 2 test (`GetMatchMembersAsync_ReturnsApprovedMembers_ForHostOrApprovedJoiner`, `GetMatchMembersAsync_Returns403_ForUserNotInMatch`), rồi sửa lại toàn bộ field hiển thị theo đúng contract thật (`courtName`/`levelRequirement`/`sportType`/`hostName`).
+4. **[P2 — dữ liệu giả]** `CreateMatchPage.jsx` có 2 field "Tên trận đấu" và "Bộ môn" (dropdown không có `value`/`onChange`) mà người dùng nhập/chọn vào nhưng không bao giờ được gửi lên backend (không tồn tại trong `CreateMatchDto`) — bỏ khỏi form, tránh đánh lừa người dùng nghĩ trận đấu có tên/môn tùy chỉnh.
+5. **[P2 — contract sai]** `matchApi.approveJoiner` gọi sai hoàn toàn URL/method (`POST /matches/{id}/approve/{pid}`) so với route backend thật (`PUT /matches/{id}/participants/{pid}/approve`) — sửa lại đúng, đồng thời phát hiện tính năng "host duyệt người xin tham gia" hiện **chưa có bất kỳ trang UI nào gọi tới** (chỉ tồn tại ở tầng API/service, không sử dụng được từ giao diện) — bổ sung `rejectJoiner`/`getPendingJoiners` cho đối xứng nhưng **không** tự ý xây dựng trang UI mới cho tính năng này (vượt phạm vi sửa bug, cần quyết định sản phẩm riêng).
+
+### Quyết định & Can thiệp của con người
+- **Chỉ đạo:** Tải `main` mới nhất, tự rà soát tìm bug, tự nghiên cứu và tự sửa — không chờ danh sách lỗi được giao sẵn.
+- **Không mở rộng phạm vi thành xây tính năng mới:** Khi phát hiện tính năng "host duyệt joiner" thiếu UI hoàn toàn, chỉ sửa contract API (URL/method) cho đúng và bổ sung hàm client sẵn sàng dùng, không tự ý dựng thêm một trang quản trị mới — việc đó cần quyết định phạm vi sản phẩm, không phải một bug fix đơn thuần.
+- **Không commit thẳng lên `main`:** Tạo nhánh riêng `fix/main-bug-sweep-post-PR50` cho các bản vá, giữ đúng quy ước PR-review của repo thay vì commit trực tiếp lên nhánh chính.
+
+### Áp dụng cho
+- **Backend:** `MatchController.cs` (endpoint mới `GET /matches/{id}/members`), `IMatchService.cs`, `MatchService.cs` (bỏ auto-split escrow, thêm `GetMatchMembersAsync`), `MatchServiceTests.cs` (+4 test).
+- **Frontend:** `package.json`/`package-lock.json` (khôi phục `@testing-library/jest-dom`), `api/matchApi.js` (sửa `approveJoiner`, thêm `getMatchMembers`/`rejectJoiner`/`getPendingJoiners`), `pages/matches/CreateMatchPage.jsx` (bỏ 2 field giả), `pages/matches/MatchDetailPage.jsx` (sửa contract field + wiring members thật).
+
+### Kiểm chứng
+- Frontend: ESLint **0 lỗi**; Vitest **63/63 pass**; `npm run build` — thành công.
+- Backend: `dotnet build` — 0 warning, 0 error; `dotnet test` — **145/149 pass** (4 skip SQL Server integration, +4 test mới so với baseline `main`).
+- Commit cục bộ `b7775a8` trên nhánh `fix/main-bug-sweep-post-PR50` (dựa trên `main` @ `e935c10`) — **chưa push, chưa mở PR**, chờ quyết định của người dùng.
+
+
+
+
+---
+
+## Log #21
+- **Ngày:** 2026-07-17 → 2026-07-19
+- **Người thực hiện:** Phạm Nguyễn Tiến Đạt
+- **Công cụ AI:** Claude Code (Claude Sonnet 5)
+- **Mục đích:** Đối chiếu State Diagram với codebase thật và vá lệch pha; hoàn thiện vòng đời Tournament và chuẩn hóa status Booking/Equipment/ComplexOwner/ComplexReview/Report/User qua audit theo từng phạm vi vai trò (User/Admin/Owner) bằng spec-kit; thử nghiệm redesign toàn bộ UI Admin và Public/Customer theo hướng "editorial sports brutalism"; sau đó rollback phần UI theo yêu cầu và chốt commit/push phần backend/database lên `DE190147/audit-module`.
+- **Tham chiếu Prompt:** Prompt #21
+- **Trạng thái:** **Đã commit & push** (`7ecc942`, fast-forward `1348d57..7ecc942`) — riêng phần redesign UI Admin/Customer (mục D) **đã bị rollback theo yêu cầu, không nằm trong commit**.
+
+### Tóm tắt kết quả AI
+
+**A. Đối chiếu State Diagram ↔ Codebase**
+- Đọc `STATE_DIAGRAM_PRO-SPORT.drawio`, đối chiếu từng state/transition với code thật. Phát hiện Booking thiếu kích hoạt `PendingPayment`/`Expired`, Tournament thiếu state Close/Complete/Cancel, thiếu cạnh player tự rút khỏi trận. Sửa lại `.drawio` cho khớp code làm baseline.
+
+**B. Backlog P1–P3 (spec-kit `specs/001`, `specs/002`)**
+- P1: kích hoạt đầy đủ `PendingPayment`/`Expired` cho Booking.
+- P2: hoàn thiện Tournament lifecycle Close/Complete/Cancel.
+- P3: sửa comment lỗi thời tại `MatchParticipant.Status` (escrow đã tách sang cờ `HasPaidEscrow`, không còn là status).
+
+**C. Re-audit sau P1–P3 — chọn A1 + B**
+- Phát hiện các nhánh timeout Booking vẫn lẫn lộn `Cancelled`/`Expired`. Hai hướng sửa (A1: luôn `Expired`; A2: revert `Cancelled`) loại trừ lẫn nhau — chọn **A1** (nhất quán "hết hạn do không thao tác"), cộng thêm **B**: bổ sung cạnh Tournament "player tự rút khỏi trận" còn thiếu.
+
+**D. Audit DB/Frontend theo phạm vi vai trò (`specs/003–005`) + thử nghiệm redesign UI (`specs/006–007`, đã rollback)**
+- Audit lần lượt User → Admin → Owner, phát hiện bug thật: `OwnerMembershipsPage` gửi status `'Suspended'` không hợp lệ lên API.
+- Chốt tập status hợp lệ cho `Equipment`/`ComplexOwner`/`ComplexReview`/`Report`/`User`, enforce bằng 4 migration DB check constraint.
+- Redesign thử nghiệm Admin UI (25 task) và Public/Customer UI (30 task, 4 component dùng chung `CourtCard`/`MatchCard`/`ProductCard`/`MatchDayRail`) theo quy trình spec-kit 4 giai đoạn có gate phê duyệt bắt buộc đúng cụm từ. **Toàn bộ phần này đã bị rollback ở mục E, không còn trong working tree.**
+
+**E. Rollback UI & Version Control**
+- Theo yêu cầu người dùng, xác nhận PR #49 (`github.com/.../pull/49`) = commit `1348d57`; sau khi làm rõ phạm vi (giữ bugfix đã commit ở `191cec1`, chỉ bỏ UI **chưa commit**), chạy `git checkout -- src/frontend` + `git clean -fd` cho 4 component mới → `src/frontend` sạch, về đúng `191cec1`.
+- Commit `7ecc942` gộp toàn bộ thay đổi backend/database/spec-kit, **cố ý loại trừ** `.claude/skills/` (~7.7MB font asset, không phải code dự án). Push fast-forward `origin/DE190147/audit-module`.
+
+### Quyết định & Can thiệp của con người
+- **Chỉ đạo có nguyên tắc:** khi A1/A2 loại trừ nhau, yêu cầu AI tự chọn và giải thích rõ lý do thay vì hỏi lại; giao quyền quyết định data-modeling (status set) cho AI với điều kiện có nghiên cứu evidence trước khi chốt.
+- **Ép gate phê duyệt nghiêm ngặt:** với brief redesign UI dài, yêu cầu AI chỉ tiến từng giai đoạn spec-kit khi nhận đúng cụm từ (`APPROVE SPEC`/`APPROVE PLAN`/`APPROVE IMPLEMENTATION`) — từ chối "tiếp tục" mơ hồ 2 lần, AI tuân thủ đúng.
+- **Chặn hành động ngoài phạm vi đã duyệt:** khi AI định xóa `MatchProLayout.css` dựa trên một câu trả lời chung chung, hệ thống permission tự động chặn vì mâu thuẫn với chính plan đã `APPROVE PLAN` trước đó — AI khôi phục ngay và giải thích lý do dừng thay vì lách qua.
+- **Quyết định rollback UI:** sau khi xem preview, yêu cầu rollback UI về một PR cụ thể; làm rõ qua nhiều vòng hỏi đáp để xác định đúng phạm vi (giữ bugfix `191cec1`, chỉ bỏ phần chưa commit) trước khi cho phép AI thực thi thao tác mất dữ liệu không hoàn tác.
+- **Kiểm soát Version Control:** chỉ định rõ commit đúng nhánh `DE190147/audit-module` rồi mới push; AI chủ động loại `.claude/skills/` khỏi commit để tránh phình repo bằng asset không liên quan.
+
+### Áp dụng cho
+- **Backend:** `TournamentController.cs`, `ITournamentService.cs`, `EscrowService.cs`, `ReportService.cs`, `MatchParticipant.cs`, `ProSportDbContext.cs`, `BookingRepository.cs`, `EscrowRepository.cs`, `SplitPaymentService.cs`, `TournamentService.cs`.
+- **Test:** `AuditBusinessLogicTests.cs`, `PlayerFeaturesServiceTests.cs`, `SqlServerIntegrationTests.cs`, `TournamentLifecycleTests.cs` (mới).
+- **Database:** 4 migration mới (`TournamentStatusConstraint`, `UserStatusConstraints`, `AdminEntityStatusConstraints`, `OwnerEntityStatusConstraints`), `ProSportDB_EFCore_AutoGenerated.sql`.
+- **Tài liệu:** `specs/001`–`specs/007`, `STATE_DIAGRAM_PRO-SPORT.drawio`, `.specify/`, `CLAUDE.md`.
+- **Frontend (đã rollback, không còn trong working tree):** `CourtCard.jsx`, `MatchCard.jsx`, `ProductCard.jsx`, `MatchDayRail.jsx` và ~29 trang Admin/Apex/Gear/Match từng được restyle.
+
+### Kiểm chứng
+- `dotnet test`: **161/161 pass**, 9 skip (integration, cần connection string thật) — không hồi quy sau các thay đổi backend.
+- Trước rollback: Vitest **71/71 pass**, ESLint **0 lỗi**, `npm run build` thành công; live browser xác nhận luồng booking/match/shop hoạt động đúng (đăng nhập `customer1@prosport.vn`).
+- Sau rollback: `git status -- src/frontend` sạch, xác nhận UI về đúng trạng thái commit `191cec1`.
+- `git push origin DE190147/audit-module`: fast-forward `1348d57..7ecc942`, không xung đột.

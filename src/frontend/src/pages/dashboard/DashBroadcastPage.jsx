@@ -115,7 +115,11 @@ export default function DashBroadcastPage() {
             <h1 className="font-heading text-3xl md:text-4xl uppercase tracking-tight text-foreground mb-2">Quản lý phát sóng</h1>
             <p className="text-[13px] text-foreground-muted">Thiết kế, lên lịch và phân tích thông điệp theo đối tượng.</p>
           </div>
-          <button className="btn-primary text-xs">
+          <button
+            type="button"
+            className="btn-primary text-xs"
+            onClick={() => document.getElementById('camp-name')?.focus()}
+          >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
             </svg>
@@ -199,7 +203,12 @@ export default function DashBroadcastPage() {
             </div>
 
             <div className="flex items-center justify-between mt-1">
-              <button className="flex items-center gap-1.5 bg-transparent border-none cursor-pointer text-[0.82rem] text-accent hover:underline">
+              <button
+                type="button"
+                disabled
+                title="Lên lịch gửi sau chưa được hỗ trợ ở chế độ demo"
+                className="flex items-center gap-1.5 bg-transparent border-none text-[0.82rem] text-foreground-subtle cursor-not-allowed opacity-60"
+              >
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
                 </svg>
@@ -216,7 +225,6 @@ export default function DashBroadcastPage() {
           <div className="border-2 border-border-strong bg-surface p-6 rounded-[2px]">
             <div className="flex items-center justify-between mb-4">
               <h2 className="font-heading text-[15px] uppercase tracking-tight text-foreground">Phát sóng gần đây</h2>
-              <button className="bg-transparent border-none cursor-pointer text-foreground-subtle text-base">···</button>
             </div>
             {recentBroadcasts.length === 0 && !loading && (
               <p className="text-sm text-foreground-subtle py-4">Chưa có hoạt động gần đây.</p>
@@ -232,7 +240,6 @@ export default function DashBroadcastPage() {
                 {b.open  && <div className="flex gap-2.5 text-[11px] text-foreground-muted mt-1.5"><span>👁 {b.open}</span><span>🔗 {b.click}</span></div>}
               </div>
             ))}
-            <a href="#" className="block text-center text-xs font-bold text-foreground mt-3.5 no-underline hover:underline">Xem toàn bộ lịch sử →</a>
           </div>
         </div>
       </div>

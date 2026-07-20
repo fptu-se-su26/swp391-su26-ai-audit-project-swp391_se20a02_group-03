@@ -40,7 +40,7 @@ export default function PaymentReturnPage() {
             }
         }
 
-        const response = await axiosClient.get(`/payment/vnpay/return?${queryString}`);
+        const response = await axiosClient.get(`/payment/payos/return?${queryString}`);
         
         if (response.statusCode === 200) {
           setStatus('success');

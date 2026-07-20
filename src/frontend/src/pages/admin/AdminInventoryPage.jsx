@@ -1,14 +1,27 @@
 import { useState, useEffect, useMemo } from 'react'
 import AdminLayout from '../../layouts/AdminLayout'
 import { equipmentApi } from '../../api/equipmentApi'
-import { Search, Loader2, ShieldAlert } from 'lucide-react'
+import {
+  AdminPageHeader,
+  AdminCard,
+  AdminToolbar,
+  AdminSearchInput,
+  AdminTable,
+  AdminThead,
+  AdminTh,
+  AdminTd,
+  AdminStatusBadge,
+  AdminTableLoader,
+  AdminEmptyState,
+  AdminErrorState,
+} from '../../components/admin'
 
 const LOW_STOCK_THRESHOLD = 5
 
-function stockBadge(qty) {
-  if (qty <= 0) return { label: 'HẾT HÀNG', cls: 'bg-surface-hover text-foreground-subtle' }
-  if (qty <= LOW_STOCK_THRESHOLD) return { label: 'SẮP HẾT', cls: 'border border-danger text-danger' }
-  return { label: 'TỐT', cls: 'bg-ink text-paper' }
+function getStockVariant(qty) {
+  if (qty <= 0) return { label: 'Hết hàng', variant: 'danger' }
+  if (qty <= LOW_STOCK_THRESHOLD) return { label: 'Sắp hết', variant: 'warning' }
+  return { label: 'Tốt', variant: 'success' }
 }
 
 export default function AdminInventoryPage() {
@@ -54,75 +67,121 @@ export default function AdminInventoryPage() {
       i.name?.toLowerCase().includes(q) || i.category?.toLowerCase().includes(q))
   }, [items, search])
 
+  const lowStockCount = items.filter(i => i.stock <= LOW_STOCK_THRESHOLD && i.stock > 0).length
+  const outOfStockCount = items.filter(i => i.stock <= 0).length
+
   return (
     <AdminLayout>
-      <div className="space-y-6">
-        <div className="flex justify-between items-end flex-wrap gap-3.5 mb-6">
-          <div>
-            <h1 className="font-heading text-3xl md:text-4xl uppercase tracking-tight text-foreground mb-2">Quản lý kho dụng cụ</h1>
-            <p className="text-[13px] text-foreground-muted">Theo dõi tồn kho thiết bị thể thao theo thời gian thực.</p>
-          </div>
-          <p className="label-mono text-foreground">
-            Tổng: <strong>{items.length}</strong> sản phẩm
-          </p>
-        </div>
+      <AdminPageHeader
+        title="Quản lý kho dụng cụ"
+        description="Theo dõi tồn kho thiết bị thể thao theo thời gian thực."
+      />
 
-        <div className="flex items-center gap-2 bg-surface border-2 border-border-strong h-11 px-3.5 min-w-[300px] max-w-md rounded-[2px] mb-[22px]">
-          <Search size={15} className="text-foreground-subtle shrink-0" />
-          <input
-            type="text"
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            placeholder="Tìm kiếm vật phẩm..."
-            className="border-none outline-none text-[13px] text-foreground w-full bg-transparent"
-          />
-        </div>
-
-        <div className="border-2 border-border-strong bg-surface rounded-[2px]">
-          <div className="overflow-x-auto">
-            <table className="w-full text-[13px]">
-              <thead className="bg-ink text-paper">
-                <tr>
-                  <th className="text-left px-[18px] py-3.5 label-mono">Vật phẩm</th>
-                  <th className="text-left px-[18px] py-3.5 label-mono">Phân loại</th>
-                  <th className="text-left px-[18px] py-3.5 label-mono">Môn</th>
-                  <th className="text-right px-[18px] py-3.5 label-mono">Giá bán lẻ</th>
-                  <th className="text-right px-[18px] py-3.5 label-mono">Tồn kho</th>
-                  <th className="text-left px-[18px] py-3.5 label-mono">Trạng thái</th>
-                </tr>
-              </thead>
-              <tbody>
-                {loading && (
-                  <tr><td colSpan={6} className="px-[18px] py-12 text-center text-foreground-subtle">
-                    <Loader2 className="inline animate-spin mr-2" size={18} /> Đang tải...
-                  </td></tr>
-                )}
-                {!loading && error && (
-                  <tr><td colSpan={6} className="px-[18px] py-12 text-center text-danger">
-                    <ShieldAlert className="inline mr-2" size={18} /> {error}
-                  </td></tr>
-                )}
-                {!loading && !error && filtered.length === 0 && (
-                  <tr><td colSpan={6} className="px-[18px] py-12 text-center text-foreground-subtle">Không có sản phẩm nào.</td></tr>
-                )}
-                {!loading && !error && filtered.map(i => {
-                  const badge = stockBadge(i.stock)
-                  return (
-                    <tr key={i.id} className="border-t border-border-default hover:bg-surface-hover">
-                      <td className="px-[18px] py-3.5 font-extrabold text-foreground">{i.name}</td>
-                      <td className="px-[18px] py-3.5 text-foreground-muted">{i.category}</td>
-                      <td className="px-[18px] py-3.5 text-foreground-muted">{i.sport || '—'}</td>
-                      <td className="px-[18px] py-3.5 text-right text-foreground">{Number(i.price).toLocaleString('vi-VN')} ₫</td>
-                      <td className={`px-[18px] py-3.5 text-right font-extrabold ${i.stock <= LOW_STOCK_THRESHOLD ? 'text-danger' : 'text-foreground'}`}>{i.stock}</td>
-                      <td className="px-[18px] py-3.5"><span className={`label-mono px-2.5 py-1 ${badge.cls}`}>{badge.label}</span></td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
-        </div>
+      {/* Summary */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+        {[
+          { label: 'Tổng sản phẩm', value: items.length, variant: 'gray' },
+          { label: 'Sắp hết hàng', value: lowStockCount, variant: 'orange' },
+          { label: 'Hết hàng', value: outOfStockCount, variant: 'red' },
+        ].map(card => (
+          <AdminCard key={card.label} className="flex flex-col gap-1 hover:shadow-md transition-shadow">
+            <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400 m-0">{card.label}</p>
+            <p className={`font-heading text-3xl m-0 ${
+              card.variant === 'orange' ? 'text-orange-500'
+              : card.variant === 'red' ? 'text-red-500'
+              : 'text-gray-900'
+            }`}>
+              {card.value}
+            </p>
+          </AdminCard>
+        ))}
       </div>
+
+      <AdminToolbar>
+        <AdminSearchInput
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          placeholder="Tìm theo tên hoặc danh mục..."
+          className="flex-1 max-w-[380px]"
+        />
+        {search && (
+          <p className="text-[12px] text-gray-400">
+            Hiển thị <span className="font-semibold text-gray-600">{filtered.length}</span> / {items.length} sản phẩm
+          </p>
+        )}
+      </AdminToolbar>
+
+      <AdminCard noPad>
+        <AdminTable>
+          <AdminThead>
+            <AdminTh>Vật phẩm</AdminTh>
+            <AdminTh>Phân loại</AdminTh>
+            <AdminTh>Môn thể thao</AdminTh>
+            <AdminTh right>Giá bán lẻ</AdminTh>
+            <AdminTh right>Tồn kho</AdminTh>
+            <AdminTh>Trạng thái</AdminTh>
+          </AdminThead>
+
+          {loading && <AdminTableLoader cols={6} />}
+
+          {!loading && error && (
+            <tbody>
+              <tr>
+                <td colSpan={6}>
+                  <AdminErrorState message={error} />
+                </td>
+              </tr>
+            </tbody>
+          )}
+
+          {!loading && !error && filtered.length === 0 && (
+            <tbody>
+              <tr>
+                <td colSpan={6}>
+                  <AdminEmptyState
+                    message={search ? 'Không tìm thấy sản phẩm nào phù hợp.' : 'Chưa có sản phẩm nào trong kho.'}
+                    isSearch={!!search}
+                  />
+                </td>
+              </tr>
+            </tbody>
+          )}
+
+          {!loading && !error && filtered.length > 0 && (
+            <tbody className="divide-y divide-gray-50">
+              {filtered.map(i => {
+                const { label: stockLabel, variant: stockVariant } = getStockVariant(i.stock)
+                return (
+                  <tr key={i.id} className="hover:bg-gray-50/60 transition-colors">
+                    <AdminTd>
+                      <span className="font-semibold text-gray-900 text-sm">{i.name}</span>
+                    </AdminTd>
+                    <AdminTd>
+                      <span className="text-sm text-gray-500">{i.category}</span>
+                    </AdminTd>
+                    <AdminTd>
+                      <span className="text-sm text-gray-500">{i.sport || '—'}</span>
+                    </AdminTd>
+                    <AdminTd className="text-right">
+                      <span className="font-semibold text-gray-800">
+                        {Number(i.price).toLocaleString('vi-VN')} ₫
+                      </span>
+                    </AdminTd>
+                    <AdminTd className="text-right">
+                      <span className={`font-bold text-[15px] ${i.stock <= LOW_STOCK_THRESHOLD ? 'text-red-500' : 'text-gray-900'}`}>
+                        {i.stock}
+                      </span>
+                    </AdminTd>
+                    <AdminTd>
+                      <AdminStatusBadge label={stockLabel} variant={stockVariant} />
+                    </AdminTd>
+                  </tr>
+                )
+              })}
+            </tbody>
+          )}
+        </AdminTable>
+      </AdminCard>
     </AdminLayout>
   )
 }

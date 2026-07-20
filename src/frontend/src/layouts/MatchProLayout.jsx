@@ -6,10 +6,7 @@ import ProSportLogo from '../components/ui/ProSportLogo'
 
 const navLinks = [
   { path: '/matches', label: 'Bảng tin' },
-  { path: '/matches/nearby', label: 'Sân gần bạn' },
-  { path: '/matches/community', label: 'Cộng đồng' },
   { path: '/matches/leaderboard', label: 'Xếp hạng' },
-  { path: '/matches/create', label: 'Tạo trận' },
 ]
 
 export default function MatchProLayout({ children }) {

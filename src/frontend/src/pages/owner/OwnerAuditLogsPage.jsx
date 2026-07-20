@@ -1,8 +1,18 @@
 import { useEffect, useState } from 'react';
+import { Search } from 'lucide-react';
 import { useOutletContext } from 'react-router-dom';
 import { ownerApi } from '../../api/ownerApi';
-import PageLoader from '../../components/ui/PageLoader';
-import EmptyState from '../../components/ui/EmptyState';
+import {
+  OwnerPageHeader,
+  OwnerCard,
+  OwnerTable,
+  OwnerThead,
+  OwnerTh,
+  OwnerTd,
+  OwnerEmptyState,
+  OwnerErrorState,
+  OwnerTableLoader
+} from '../../components/owner';
 
 export default function OwnerAuditLogsPage() {
   const { complexId } = useOutletContext();
@@ -10,7 +20,7 @@ export default function OwnerAuditLogsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
+  function load() {
     if (!complexId) return;
     setLoading(true);
     setError(null);
@@ -21,41 +31,73 @@ export default function OwnerAuditLogsPage() {
       })
       .catch(err => setError(typeof err === 'string' ? err : 'Không tải được audit log.'))
       .finally(() => setLoading(false));
-  }, [complexId]);
+  }
 
-  if (loading) return <PageLoader label="Đang tải audit log..." />;
-  if (error) return <div className="text-sm text-danger">{error}</div>;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { load(); }, [complexId]);
 
   return (
-    <div className="space-y-6">
-      <h1 className="font-heading text-3xl md:text-4xl uppercase tracking-tight text-foreground">Nhật ký (Audit Log)</h1>
+    <div className="space-y-6 auth-animate-in pb-12">
+      <OwnerPageHeader
+        title="Nhật ký thao tác"
+        description="Xem lịch sử các thao tác quan trọng trong tổ hợp (Audit Log)."
+      />
 
-      {!items.length ? (
-        <EmptyState title="Chưa có bản ghi" subtitle="Nhật ký thao tác sẽ hiển thị tại đây." />
-      ) : (
-        <div className="overflow-x-auto border-2 border-border-strong bg-surface">
-          <table className="w-full text-sm border-collapse">
-            <thead>
-              <tr className="bg-[var(--theme-primary)] text-[var(--theme-secondary)]">
-                <th className="text-left px-4 py-3.5 label-mono">Thời gian</th>
-                <th className="text-left px-4 py-3.5 label-mono">Hành động</th>
-                <th className="text-left px-4 py-3.5 label-mono">Đối tượng</th>
-                <th className="text-left px-4 py-3.5 label-mono">Chi tiết</th>
-              </tr>
-            </thead>
+      {error && <OwnerErrorState message={error} onRetry={load} />}
+
+      <OwnerCard noPad>
+        <OwnerTable>
+          <OwnerThead>
+            <OwnerTh>Thời gian</OwnerTh>
+            <OwnerTh>Hành động</OwnerTh>
+            <OwnerTh>Đối tượng</OwnerTh>
+            <OwnerTh>Chi tiết</OwnerTh>
+          </OwnerThead>
+
+          {loading && <OwnerTableLoader cols={4} rows={6} />}
+
+          {!loading && !error && !items.length && (
             <tbody>
+              <tr>
+                <td colSpan={4}>
+                  <OwnerEmptyState
+                    icon={Search}
+                    title="Chưa có dữ liệu nhật ký thao tác nào."
+                  />
+                </td>
+              </tr>
+            </tbody>
+          )}
+
+          {!loading && !error && items.length > 0 && (
+            <tbody className="divide-y divide-gray-50">
               {items.map(a => (
-                <tr key={a.auditLogId} className="border-t border-border-default">
-                  <td className="px-4 py-3.5 font-mono text-xs text-foreground-muted whitespace-nowrap">{new Date(a.createdAt).toLocaleString('vi-VN')}</td>
-                  <td className="px-4 py-3.5 font-bold text-foreground">{a.action}</td>
-                  <td className="px-4 py-3.5 text-foreground">{a.entityType} #{a.entityId}</td>
-                  <td className="px-4 py-3.5 text-xs text-foreground-muted truncate max-w-[240px]">{a.newValues}</td>
+                <tr key={a.auditLogId} className="hover:bg-gray-50/50 transition-colors">
+                  <OwnerTd>
+                    <span className="font-mono text-[12px] text-gray-500 whitespace-nowrap">
+                      {new Date(a.createdAt).toLocaleString('vi-VN')}
+                    </span>
+                  </OwnerTd>
+                  <OwnerTd>
+                    <span className="font-bold text-[#0f172a] uppercase tracking-wide text-xs bg-gray-100 px-2 py-1 rounded-[4px]">
+                      {a.action}
+                    </span>
+                  </OwnerTd>
+                  <OwnerTd>
+                    <span className="font-medium text-gray-700">{a.entityType}</span>
+                    <span className="font-mono text-xs text-gray-400 ml-1">#{a.entityId}</span>
+                  </OwnerTd>
+                  <OwnerTd>
+                    <div className="text-xs text-gray-600 truncate max-w-sm font-mono" title={a.newValues}>
+                      {a.newValues}
+                    </div>
+                  </OwnerTd>
                 </tr>
               ))}
             </tbody>
-          </table>
-        </div>
-      )}
+          )}
+        </OwnerTable>
+      </OwnerCard>
     </div>
   );
 }

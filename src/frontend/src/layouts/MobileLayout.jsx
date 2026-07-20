@@ -12,13 +12,17 @@ export default function MobileLayout({ children, hideBottomNav = false, title = 
         <header className="h-[60px] bg-surface flex items-center justify-between px-4 border-b-2 border-border-strong shrink-0 z-10">
           <div className="w-10 flex items-center">
             {showBack ? (
-              <Link to="/mobile/home" className="bg-transparent border-none text-foreground flex items-center justify-center cursor-pointer p-0 no-underline">
+              <Link
+                to="/mobile/home"
+                aria-label="Quay lại trang chủ"
+                className="bg-transparent border-none text-foreground flex items-center justify-center cursor-pointer p-0 no-underline w-11 h-11 -ml-2.5"
+              >
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
               </Link>
             ) : (
-              <button className="bg-transparent border-none text-foreground flex items-center justify-center cursor-pointer p-0">
+              <div aria-hidden="true" className="text-foreground flex items-center justify-center p-0">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-              </button>
+              </div>
             )}
           </div>
 
@@ -31,14 +35,14 @@ export default function MobileLayout({ children, hideBottomNav = false, title = 
 
           <div className="w-10 flex items-center justify-end">
             {!showBack && (
-              <button className="bg-transparent border-none text-foreground flex items-center justify-center cursor-pointer p-0">
+              <div aria-hidden="true" className="text-foreground flex items-center justify-center p-0">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h16v16H4z"/><path d="M4 9h16"/><path d="M9 4v16"/></svg>
-              </button>
+              </div>
             )}
             {showBack && (
-              <button className="bg-transparent border-none text-foreground flex items-center justify-center cursor-pointer p-0">
+              <div aria-hidden="true" className="text-foreground flex items-center justify-center p-0">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
-              </button>
+              </div>
             )}
           </div>
         </header>

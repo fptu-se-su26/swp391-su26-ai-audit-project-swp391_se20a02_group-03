@@ -16,6 +16,11 @@ public interface IMatchService
     
     // Host xem danh sách xin vào kèo
     Task<ApiResponseDto<IEnumerable<object>>> GetParticipantsByMatchAsync(int matchId, int hostId, string status);
+
+    // Bất kỳ thành viên đã được duyệt (host hoặc joiner) xem danh sách thành viên cùng kèo để
+    // đánh giá uy tín lẫn nhau (TK-035) — khác GetParticipantsByMatchAsync (chỉ host, dùng cho
+    // duyệt/từ chối yêu cầu tham gia đang Pending).
+    Task<ApiResponseDto<IEnumerable<object>>> GetMatchMembersAsync(int matchId, int requestingUserId);
     
     // Host duyệt Joiner
     Task<ApiResponseDto<bool>> ApproveJoinerAsync(int matchId, int hostId, int joinerId);

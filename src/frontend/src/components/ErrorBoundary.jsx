@@ -1,5 +1,4 @@
 import { Component } from 'react';
-import { Link } from 'react-router-dom';
 
 export default class ErrorBoundary extends Component {
   constructor(props) {
@@ -46,9 +45,12 @@ export default class ErrorBoundary extends Component {
               >
                 Tải lại trang
               </button>
-              <Link to={homePath} className="px-4 py-2 rounded-lg border text-sm text-slate-700 no-underline">
+              {/* Dùng <a> thường thay vì <Link>: ErrorBoundary này bọc NGOÀI <Router> (App.jsx),
+                  nên khi bắt lỗi, cây con bị crash (bao gồm cả Router) đã unmount — <Link> sẽ
+                  không còn Router context và tự crash tiếp, khiến cả trang trắng hoàn toàn. */}
+              <a href={homePath} className="px-4 py-2 rounded-lg border text-sm text-slate-700 no-underline">
                 Quay lại
-              </Link>
+              </a>
             </div>
           </div>
         </div>

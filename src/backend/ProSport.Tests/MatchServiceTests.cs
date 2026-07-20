@@ -182,4 +182,93 @@ public class MatchServiceTests
         // Verify match participant count decreased
         _matchRepoMock.Verify(x => x.UpdateMatchAsync(It.Is<ProSport.Domain.Entities.Match>(m => m.CurrentParticipants == 1)), Times.Once);
     }
+
+    [Fact]
+    public async Task CreateMatchAsync_UsesHostConfiguredEscrowAmount_NotAutoSplitOfBookingTotal()
+    {
+        // BUG: CreateMatchAsync bỏ qua hoàn toàn dto.EscrowAmount (số tiền host tự cấu hình ở
+        // Step 3 UI, có thể khác với chia đều mặc định) và luôn tự tính lại
+        // Math.Round(booking.TotalAmount / dto.MaxParticipants) — khiến số tiền ký quỹ hiển thị
+        // trên UI trước khi submit không khớp với số tiền thực sự lưu vào DB.
+        var hostId = 7;
+        var booking = new Booking
+        {
+            BookingId = 20,
+            UserId = hostId,
+            TotalAmount = 400_000,
+            PaymentStatus = ProSport.Domain.Constants.PaymentStatus.Paid,
+        };
+        _bookingRepoMock.Setup(b => b.GetByIdAsync(booking.BookingId)).ReturnsAsync(booking);
+
+        ProSport.Domain.Entities.Match? createdMatch = null;
+        _matchRepoMock.Setup(x => x.CreateMatchAsync(It.IsAny<ProSport.Domain.Entities.Match>()))
+            .Callback<ProSport.Domain.Entities.Match>(m => { m.MatchId = 99; createdMatch = m; })
+            .ReturnsAsync(() => createdMatch!);
+
+        var dto = new ProSport.Application.DTOs.CreateMatchDto
+        {
+            CourtId = 1,
+            BookingId = booking.BookingId,
+            MatchDate = DateTime.Today.AddDays(1),
+            StartTime = TimeSpan.FromHours(18),
+            EndTime = TimeSpan.FromHours(19),
+            MaxParticipants = 4,
+            EscrowAmount = 60_000, // Host tự chọn — KHÁC với auto-split 400000/4 = 100000
+        };
+
+        var result = await _matchService.CreateMatchAsync(hostId, dto);
+
+        result.StatusCode.Should().Be(201);
+        createdMatch.Should().NotBeNull();
+        createdMatch!.EscrowAmount.Should().Be(60_000, "phải dùng đúng số tiền host đã cấu hình, không tự ý tính lại");
+    }
+
+    [Fact]
+    public async Task GetMatchMembersAsync_ReturnsApprovedMembers_ForHostOrApprovedJoiner()
+    {
+        // BUG: MatchDetailPage cần danh sách host + joiner đã duyệt để hiển thị/đánh giá uy tín
+        // (TK-035), nhưng GetParticipantsByMatchAsync hiện có chỉ cho phép HOST gọi (403 với
+        // joiner) và mặc định lọc status=Pending — không dùng được cho mục đích này.
+        var matchId = 5;
+        var hostId = 1;
+        var joinerId = 2;
+        var host = new ProSport.Domain.Entities.User { UserId = hostId, FullName = "Chủ kèo A" };
+        var joiner = new ProSport.Domain.Entities.User { UserId = joinerId, FullName = "Người chơi B" };
+
+        _matchRepoMock.Setup(x => x.GetMatchByIdAsync(matchId))
+            .ReturnsAsync(new ProSport.Domain.Entities.Match { MatchId = matchId, HostId = hostId });
+
+        _matchRepoMock.Setup(x => x.GetParticipantsByMatchAsync(matchId, ProSport.Domain.Constants.MatchParticipantStatus.Approved))
+            .ReturnsAsync(new List<MatchParticipant>
+            {
+                new() { MatchParticipantId = 1, MatchId = matchId, UserId = hostId, Role = ProSport.Domain.Constants.MatchParticipantRole.Host, Status = "Approved", User = host },
+                new() { MatchParticipantId = 2, MatchId = matchId, UserId = joinerId, Role = ProSport.Domain.Constants.MatchParticipantRole.Joiner, Status = "Approved", User = joiner },
+            });
+
+        // Joiner đã duyệt cũng xem được (không chỉ host).
+        var result = await _matchService.GetMatchMembersAsync(matchId, joinerId);
+
+        result.StatusCode.Should().Be(200);
+        result.Data.Should().HaveCount(2);
+    }
+
+    [Fact]
+    public async Task GetMatchMembersAsync_Returns403_ForUserNotInMatch()
+    {
+        var matchId = 5;
+        var hostId = 1;
+        var strangerId = 999;
+
+        _matchRepoMock.Setup(x => x.GetMatchByIdAsync(matchId))
+            .ReturnsAsync(new ProSport.Domain.Entities.Match { MatchId = matchId, HostId = hostId });
+        _matchRepoMock.Setup(x => x.GetParticipantsByMatchAsync(matchId, ProSport.Domain.Constants.MatchParticipantStatus.Approved))
+            .ReturnsAsync(new List<MatchParticipant>
+            {
+                new() { MatchParticipantId = 1, MatchId = matchId, UserId = hostId, Role = ProSport.Domain.Constants.MatchParticipantRole.Host, Status = "Approved", User = new ProSport.Domain.Entities.User { UserId = hostId, FullName = "Chủ kèo A" } },
+            });
+
+        var result = await _matchService.GetMatchMembersAsync(matchId, strangerId);
+
+        result.StatusCode.Should().Be(403);
+    }
 }

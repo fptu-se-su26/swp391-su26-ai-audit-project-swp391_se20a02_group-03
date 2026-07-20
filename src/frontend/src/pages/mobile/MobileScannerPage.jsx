@@ -50,22 +50,33 @@ export default function MobileScannerPage() {
   useEffect(() => {
     if (scanResult || manualOpen) return undefined
     let active = true
-    const scanner = new Html5Qrcode('mobile-qr-reader')
-    scannerRef.current = scanner
-
-    scanner.start(
-      { facingMode: 'environment' },
-      { fps: 10, qrbox: { width: 220, height: 220 } },
-      (text) => { if (active) doCheckIn(text) },
-      () => {},
-    ).catch(() => {
+    // Trình duyệt/thiết bị không hỗ trợ camera (thiếu navigator.mediaDevices, không phải chỉ
+    // từ chối quyền) khiến Html5Qrcode ném lỗi ĐỒNG BỘ ngay tại constructor/start — không rơi
+    // vào .catch() của promise. Bọc try/catch để luôn rơi về trạng thái "nhập mã thủ công"
+    // thay vì crash trắng trang.
+    let scanner
+    try {
+      scanner = new Html5Qrcode('mobile-qr-reader')
+      scannerRef.current = scanner
+      scanner.start(
+        { facingMode: 'environment' },
+        { fps: 10, qrbox: { width: 220, height: 220 } },
+        (text) => { if (active) doCheckIn(text) },
+        () => {},
+      ).catch(() => {
+        if (active) setCameraError(true)
+      })
+    } catch {
       if (active) setCameraError(true)
-    })
+    }
 
     return () => {
       active = false
-      scanner.stop().catch(() => {})
-      scanner.clear().catch(() => {})
+      // scanner.stop()/clear() có thể ném lỗi ĐỒNG BỘ (không phải Promise reject) khi scanner
+      // chưa từng start thành công (ví dụ camera không khả dụng) — .catch() không bắt được lỗi
+      // đồng bộ nên phải bọc try/catch riêng, nếu không cleanup effect sẽ crash cả trang.
+      try { scanner?.stop()?.catch(() => {}) } catch { /* noop */ }
+      try { scanner?.clear()?.catch(() => {}) } catch { /* noop */ }
     }
   }, [scanKey, scanResult, manualOpen])
 
@@ -90,12 +101,13 @@ export default function MobileScannerPage() {
           <button
             type="button"
             onClick={() => navigate(-1)}
-            className="bg-[var(--theme-surface-hover)] border-none w-9 h-9 rounded-full text-[var(--theme-primary)] flex items-center justify-center cursor-pointer hover:bg-white/20"
+            aria-label="Quay lại"
+            className="bg-[var(--theme-surface-hover)] border-none w-11 h-11 rounded-full text-[var(--theme-primary)] flex items-center justify-center cursor-pointer hover:bg-white/20"
           >
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           </button>
           <ProSportLogo size="sm" variant="light" />
-          <Link to="/elite/scanner" className="bg-[var(--theme-surface-hover)] border-none w-9 h-9 rounded-full text-[var(--theme-primary)] flex items-center justify-center cursor-pointer hover:bg-white/20 no-underline" title="Scanner desktop">
+          <Link to="/elite/scanner" aria-label="Scanner desktop" className="bg-[var(--theme-surface-hover)] border-none w-11 h-11 rounded-full text-[var(--theme-primary)] flex items-center justify-center cursor-pointer hover:bg-white/20 no-underline" title="Scanner desktop">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2M7 7h10v10H7z"/></svg>
           </Link>
         </div>

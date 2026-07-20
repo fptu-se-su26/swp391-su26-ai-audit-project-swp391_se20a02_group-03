@@ -1,12 +1,27 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { gsap } from 'gsap'
 import ApexLayout from '../../layouts/ApexLayout'
+import { Link } from 'react-router-dom'
+import { useCart } from '../../context/CartContext'
 import { equipmentApi } from '../../api/equipmentApi'
 import PageLoader from '../../components/ui/PageLoader'
 import EmptyState from '../../components/ui/EmptyState'
-import { ShoppingCart, X, Frown } from 'lucide-react'
+import { useToast } from '../../components/Toast'
+import { ShoppingCart, X, Frown, RotateCcw, Package } from 'lucide-react'
 
-const FALLBACK_IMG = 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&q=80'
+import { useNavigate } from 'react-router-dom'
+
+// Fallback: clean white-bg studio product shot
+const FALLBACK_IMG = 'https://images.unsplash.com/photo-1617634974415-8e0c61e4a23b?w=600&q=80'
+
+// Category-specific studio fallback images (isolated products on clean bg)
+const CATEGORY_FALLBACKS = {
+  Racket: 'https://images.unsplash.com/photo-1617634974415-8e0c61e4a23b?w=600&q=80',
+  Footwear: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&q=80',
+  Apparel: 'https://images.unsplash.com/photo-1556821840-3a63f15732ce?w=600&q=80',
+  'Ball / Birdie': 'https://images.unsplash.com/photo-1553361371-9b22f78e8b1d?w=600&q=80',
+  Accessories: 'https://images.unsplash.com/photo-1553361371-9b22f78e8b1d?w=600&q=80',
+}
 
 const categories = [
   { key: 'All', label: 'Tất cả' },
@@ -19,14 +34,98 @@ const categories = [
 
 const categoryLabels = Object.fromEntries(categories.map(c => [c.key, c.label]))
 
+const SPORT_FILTERS = [
+  { value: '', label: 'Tất cả môn' },
+  { value: 'Badminton', label: 'Cầu lông' },
+  { value: 'Pickleball', label: 'Pickleball' },
+  { value: 'Tennis', label: 'Tennis' },
+]
+const STOCK_FILTERS = [
+  { value: 'all', label: 'Tất cả' },
+  { value: 'in-stock', label: 'Còn hàng' },
+  { value: 'out-of-stock', label: 'Hết hàng' },
+]
+
+const focusableSelector = [
+  'a[href]',
+  'button:not([disabled])',
+  'input:not([disabled])',
+  'select:not([disabled])',
+  'textarea:not([disabled])',
+  '[tabindex]:not([tabindex="-1"])',
+].join(',')
+
+function useDialogFocus(isOpen, dialogRef, returnFocusRef, close) {
+  const closeRef = useRef(close)
+
+  useEffect(() => {
+    closeRef.current = close
+  }, [close])
+
+  useEffect(() => {
+    if (!isOpen) return undefined
+    const dialog = dialogRef.current
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+
+    const focusFirst = window.setTimeout(() => {
+      const first = dialog?.querySelector(focusableSelector)
+      ;(first || dialog)?.focus()
+    }, 0)
+
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        event.preventDefault()
+        closeRef.current()
+        return
+      }
+      if (event.key !== 'Tab' || !dialog) return
+      const focusable = [...dialog.querySelectorAll(focusableSelector)]
+        .filter(element => element.getClientRects().length > 0 || element === document.activeElement)
+      if (focusable.length === 0) {
+        event.preventDefault()
+        dialog.focus()
+        return
+      }
+      const first = focusable[0]
+      const last = focusable[focusable.length - 1]
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault()
+        last.focus()
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault()
+        first.focus()
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => {
+      window.clearTimeout(focusFirst)
+      document.removeEventListener('keydown', handleKeyDown)
+      document.body.style.overflow = previousOverflow
+      returnFocusRef.current?.focus()
+    }
+  }, [isOpen, dialogRef, returnFocusRef])
+}
+
 export default function ApexShopPage() {
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [category, setCategory] = useState('All')
-  const [cart, setCart] = useState([])
-  const [showCart, setShowCart] = useState(false)
+  const [sportFilter, setSportFilter] = useState('')
+  const [stockFilter, setStockFilter] = useState('all')
+  const [selectedProduct, setSelectedProduct] = useState(null)
+  const [quantity, setQuantity] = useState(1)
+  const { addToast } = useToast()
   const pageRef = useRef(null)
+  const quickViewTriggerRef = useRef(null)
+  const quickViewDialogRef = useRef(null)
+
+  const navigate = useNavigate()
+  const { cartCount, addToCart: globalAddToCart } = useCart()
+
+  useDialogFocus(Boolean(selectedProduct), quickViewDialogRef, quickViewTriggerRef, () => setSelectedProduct(null))
 
   useEffect(() => {
     let active = true
@@ -43,9 +142,11 @@ export default function ApexShopPage() {
             category: e.category,
             sport: e.type || e.sportType || 'Multi',
             price: e.retailPrice || e.price,
+            rental: e.price !== e.retailPrice ? e.price : null,
             stock: e.stockQuantity,
-            img: e.imageUrl || FALLBACK_IMG,
+            img: e.imageUrl || CATEGORY_FALLBACKS[e.category] || FALLBACK_IMG,
             status: e.status,
+            description: e.description || 'Chưa có thông tin mô tả chi tiết cho sản phẩm này.',
           })))
         } else {
           setError(res.message || 'Không tải được sản phẩm.')
@@ -68,128 +169,270 @@ export default function ApexShopPage() {
     return () => ctx.revert()
   }, [category])
 
-  const filtered = useMemo(() => products.filter(p =>
-    (category === 'All' || p.category === category) &&
-    p.status !== 'Discontinued'
-  ), [products, category])
+  const filtered = useMemo(() => products.filter(p => {
+    const catOk = category === 'All' || p.category === category
+    const sportOk = !sportFilter || p.sport === sportFilter
+    const stockOk = stockFilter === 'all'
+      || (stockFilter === 'in-stock' ? p.stock > 0 : p.stock <= 0)
+    return catOk && sportOk && stockOk && p.status?.toLowerCase() !== 'discontinued'
+  }), [products, category, sportFilter, stockFilter])
 
-  function addToCart(product) {
-    setCart(prev => {
-      const existing = prev.find(i => i.id === product.id)
-      if (existing) return prev.map(i => i.id === product.id ? { ...i, qty: i.qty + 1 } : i)
-      return [...prev, { ...product, qty: 1 }]
-    })
-    gsap.from(`#add-btn-${product.id}`, { scale: 0.85, duration: 0.25, ease: 'back.out(1.7)' })
+  async function addToCart(product, qty = 1) {
+    const res = await globalAddToCart(product.id, qty)
+    if (res && res.success) {
+      gsap.from(`#add-btn-${product.id}`, { scale: 0.8, duration: 0.25, ease: 'back.out(2)' })
+      addToast(`Đã thêm ${product.name} vào giỏ hàng`, 'success')
+      if (selectedProduct) setSelectedProduct(null)
+    } else {
+      addToast(res?.message || 'Có lỗi xảy ra', 'error')
+    }
   }
 
-  const removeFromCart = (id) => setCart(prev => prev.filter(i => i.id !== id))
-
-  const cartTotal = cart.reduce((sum, i) => sum + i.price * i.qty, 0)
-  const cartCount = cart.reduce((s, i) => s + i.qty, 0)
+  const resetFilters = () => { setCategory('All'); setSportFilter(''); setStockFilter('all') }
 
   return (
-    <ApexLayout title="Cửa hàng">
-      <div className="max-w-[1200px] mx-auto auth-animate-in" ref={pageRef}>
-        {/* Hero */}
-        <div className="shop-hero flex items-center justify-between gap-4 flex-wrap mb-6 bg-ink text-paper p-7">
-          <div>
-            <h1 className="font-heading text-2xl uppercase tracking-[-0.01em] text-paper mb-1">Cửa hàng Pro Gear</h1>
-            <p className="text-sm text-paper/65">Mua thiết bị cao cấp cho trận đấu tiếp theo của bạn.</p>
-          </div>
-          <button className="relative btn-outline !border-paper/30 !text-paper hover:!border-accent hover:!text-accent" onClick={() => setShowCart(!showCart)}>
-            <ShoppingCart size={16} />
-            Giỏ hàng
-            {cartCount > 0 && (
-              <span className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-accent text-ink text-[11px] font-bold flex items-center justify-center">
-                {cartCount}
-              </span>
-            )}
-          </button>
-        </div>
+    <ApexLayout title="Danh mục thiết bị">
+      <div className="bg-[#F6F8FA] min-h-screen" ref={pageRef}>
+        <div className="max-w-[1400px] mx-auto px-4 md:px-8 py-8 auth-animate-in">
 
-        {/* Categories */}
-        <div className="flex flex-wrap gap-2 mb-6">
-          {categories.map(c => (
-            <button
-              key={c.key}
-              className={`px-4 h-9 label-mono border-2 transition-colors ${
-                category === c.key
-                  ? 'bg-accent text-ink border-accent'
-                  : 'bg-surface border-border-default text-foreground-muted hover:border-border-hover hover:text-foreground'
-              }`}
-              onClick={() => setCategory(c.key)}
+          {/* ── HERO BANNER ── */}
+          <div className="shop-hero relative overflow-hidden rounded-[16px] mb-8 bg-[#0f172a] px-8 py-10 flex items-center justify-between gap-6">
+            {/* Decorative grid lines */}
+            <div className="absolute inset-0 opacity-5" style={{backgroundImage: 'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)', backgroundSize: '40px 40px'}} />
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#14b8a6] m-0 mb-2">{`// CỬA HÀNG CHÍNH THỨC`}</p>
+              <h1 className="font-heading text-4xl uppercase tracking-tight text-white m-0 mb-2">DANH MỤC THIẾT BỊ</h1>
+              <p className="text-[14px] text-white/60 m-0">Khám phá dụng cụ cao cấp cho cầu lông và pickleball.</p>
+            </div>
+            <Link
+              to="/gear/cart"
+              className="relative flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white border border-white/20 px-5 py-2.5 rounded-[8px] text-[13px] font-bold transition-all cursor-pointer shrink-0 backdrop-blur-sm no-underline"
             >
-              {c.label}
-            </button>
-          ))}
-        </div>
+              <ShoppingCart size={16} />
+              Giỏ hàng
+              {cartCount > 0 && (
+                <span className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-[#14b8a6] text-white text-[11px] font-bold flex items-center justify-center shadow-md">
+                  {cartCount}
+                </span>
+              )}
+            </Link>
+          </div>
+          {/* ── PILL CATEGORY TABS ── */}
+          <div className="flex flex-wrap gap-2 mb-8">
+            {categories.map(c => (
+              <button
+                key={c.key}
+                onClick={() => setCategory(c.key)}
+                className={`px-5 h-9 rounded-full text-[13px] font-bold transition-all cursor-pointer border-0 ${
+                  category === c.key
+                    ? 'bg-[#0f172a] text-white shadow-[0_4px_12px_rgba(15,23,42,0.2)]'
+                    : 'bg-white text-gray-500 border border-gray-200 hover:bg-gray-50 hover:text-gray-900'
+                }`}
+              >
+                {c.label}
+              </button>
+            ))}
+          </div>
 
-        {error && <div className="mb-4 p-4 border-2 border-danger bg-danger-bg text-danger text-sm">{error}</div>}
-        {loading && <PageLoader message="Đang tải sản phẩm..." />}
+          {error && <div className="mb-6 p-4 bg-red-50 text-red-600 text-[13px] rounded-[8px] border border-red-200">{error}</div>}
+          {loading && <PageLoader message="Đang tải sản phẩm..." />}
 
-        <div className="flex flex-col lg:flex-row gap-6 items-start">
-          <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5 w-full">
-            {!loading && filtered.map(p => (
-              <div key={p.id} className="product-card card-base !p-0 overflow-hidden flex flex-col">
-                <img src={p.img} alt={p.name} className="w-full h-40 object-cover border-b-2 border-border-strong" />
-                <div className="p-4 flex-1 flex flex-col">
-                  <p className="label-mono text-foreground-subtle mb-1">{categoryLabels[p.category] || p.category} · {p.sport}</p>
-                  <h3 className="font-sans font-extrabold text-[15px] text-foreground mb-3 flex-1">{p.name}</h3>
-                  <div className="flex items-end justify-between">
-                    <div>
-                      <span className="block font-heading text-lg text-foreground">{Number(p.price).toLocaleString('vi-VN')}₫</span>
-                      <span className="label-mono text-foreground-subtle">Còn {p.stock} sản phẩm</span>
-                    </div>
-                    <button id={`add-btn-${p.id}`} className="btn-primary !h-9 !px-4 text-xs" onClick={() => addToCart(p)} disabled={p.stock <= 0}>
-                      + Thêm
-                    </button>
-                  </div>
+          {/* ── MAIN LAYOUT: SIDEBAR + GRID + CART ── */}
+          <div className="flex flex-col lg:flex-row gap-6 items-start">
+
+            {/* LEFT SIDEBAR FILTERS */}
+            <div className="w-full lg:w-[240px] shrink-0 bg-white rounded-[12px] shadow-[0_2px_12px_rgba(0,0,0,0.05)] border border-gray-100 p-5 lg:sticky lg:top-24">
+              <div className="flex items-center justify-between mb-5">
+                <h3 className="font-bold text-[13px] text-gray-900 m-0 uppercase tracking-widest">BỘ LỌC</h3>
+                <button
+                  className="flex items-center gap-1 bg-transparent border-0 text-[11px] text-gray-400 hover:text-gray-700 cursor-pointer font-medium transition-colors"
+                  onClick={resetFilters}
+                >
+                  <RotateCcw size={11} /> Đặt lại
+                </button>
+              </div>
+
+
+
+              {/* Môn thi đấu */}
+              <div className="mb-5 pb-5 border-b border-gray-100">
+                <h4 className="text-[11px] font-bold text-gray-400 mb-3 m-0 uppercase tracking-widest">Môn thi đấu</h4>
+                <div className="flex flex-col gap-2.5">
+                  {SPORT_FILTERS.map(option => (
+                    <label key={option.value || 'all'} className="flex items-center gap-2.5 cursor-pointer group">
+                      <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${sportFilter === option.value ? 'border-[#14b8a6] bg-[#14b8a6]' : 'border-gray-300 group-hover:border-gray-400'}`}>
+                        {sportFilter === option.value && <span className="w-1.5 h-1.5 rounded-full bg-white" />}
+                      </span>
+                      <span className={`text-[13px] transition-colors ${sportFilter === option.value ? 'font-bold text-gray-900' : 'text-gray-500 group-hover:text-gray-800'}`}>{option.label}</span>
+                      <input name="sport-filter" type="radio" className="sr-only" checked={sportFilter === option.value} onChange={() => setSportFilter(option.value)} />
+                    </label>
+                  ))}
                 </div>
               </div>
-            ))}
-            {!loading && filtered.length === 0 && (
-              <div className="col-span-full">
-                <EmptyState
-                  icon={<Frown className="w-7 h-7" />}
-                  title="Không có sản phẩm"
-                  subtitle="Không có sản phẩm cho thuê trong danh mục này."
-                />
-              </div>
-            )}
-          </div>
 
-          {showCart && (
-            <div className="w-full lg:w-[280px] shrink-0 card-base lg:sticky lg:top-24">
-              <h3 className="font-heading text-lg uppercase text-foreground mb-4">Giỏ hàng</h3>
-              {cart.length === 0 ? (
-                <div className="text-center py-5 text-foreground-muted text-sm">Giỏ hàng trống</div>
-              ) : (
-                <>
-                  <div className="flex flex-col gap-2.5 mb-4">
-                    {cart.map(item => (
-                      <div key={item.id} className="flex items-start justify-between gap-2.5 p-2.5 bg-background-base border border-border-default">
+              {/* Tình trạng */}
+              <div>
+                <h4 className="text-[11px] font-bold text-gray-400 mb-3 m-0 uppercase tracking-widest">Tình trạng</h4>
+                <div className="flex flex-col gap-2.5">
+                  {STOCK_FILTERS.map(option => (
+                    <label key={option.value} className="flex items-center gap-2.5 cursor-pointer group">
+                      <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${stockFilter === option.value ? 'border-[#14b8a6] bg-[#14b8a6]' : 'border-gray-300 group-hover:border-gray-400'}`}>
+                        {stockFilter === option.value && (
+                          <svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1 4L3 6L7 2" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                        )}
+                      </span>
+                      <span className={`text-[13px] transition-colors ${stockFilter === option.value ? 'font-bold text-gray-900' : 'text-gray-500 group-hover:text-gray-800'}`}>{option.label}</span>
+                      <input name="stock-filter" type="radio" className="sr-only" checked={stockFilter === option.value} onChange={() => setStockFilter(option.value)} />
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* PRODUCT GRID */}
+            <div className="flex-1 min-w-0">
+              <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-4 gap-6">
+                {!loading && filtered.map(p => (
+                  <article
+                    key={p.id}
+                    className="product-card bg-white rounded-[12px] shadow-[0_2px_12px_rgba(0,0,0,0.05)] border border-gray-100 overflow-hidden flex flex-col transition-all hover:-translate-y-1 hover:shadow-[0_12px_28px_rgba(0,0,0,0.10)] relative group animate-in fade-in slide-in-from-bottom-4 duration-500"
+                  >
+
+                    {/* Product image — studio style */}
+                    <div className="w-full h-52 bg-gray-50 flex items-center justify-center p-6 relative overflow-hidden">
+                      <img
+                        src={p.img}
+                        alt={p.name}
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        onError={e => { e.currentTarget.onerror = null; e.currentTarget.src = CATEGORY_FALLBACKS[p.category] || FALLBACK_IMG }}
+                      />
+                    </div>
+
+                    {/* Card body */}
+                    <div className="p-5 flex-1 flex flex-col border-t border-gray-50">
+                      <p className="text-[10px] font-bold uppercase text-gray-400 m-0 mb-1.5 tracking-[0.12em]">
+                        {categoryLabels[p.category] || p.category} · {p.sport}
+                      </p>
+                      <h3 className="m-0 mb-4 flex-1 leading-snug">
+                        <button
+                          type="button"
+                          className="text-left font-bold text-[14px] text-gray-900 bg-transparent border-0 p-0 cursor-pointer hover:text-[#0f9e8c] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#14b8a6]"
+                          onClick={(event) => {
+                            quickViewTriggerRef.current = event.currentTarget
+                            setSelectedProduct(p)
+                            setQuantity(1)
+                          }}
+                        >
+                          {p.name}
+                        </button>
+                      </h3>
+
+                      <div className="flex justify-between items-end mt-auto">
                         <div>
-                          <p className="text-[13px] font-semibold text-foreground mb-0.5">{item.name}</p>
-                          <p className="text-xs text-foreground-muted">
-                            {item.price.toLocaleString('vi-VN')}₫ × {item.qty}
-                          </p>
+                          <span className="text-lg font-bold text-gray-800 block">{Number(p.price).toLocaleString('vi-VN')}₫</span>
+                          <span className="text-xs text-gray-500 mt-1 block">Còn {p.stock} sản phẩm</span>
                         </div>
-                        <button className="text-foreground-muted hover:text-danger transition-colors shrink-0" onClick={() => removeFromCart(item.id)}>
-                          <X size={14} />
+
+                        <button
+                          id={`add-btn-${p.id}`}
+                          className="w-10 h-10 rounded-full bg-white text-teal-500 border border-teal-500 flex items-center justify-center hover:bg-teal-500 hover:text-white transition-all duration-300 cursor-pointer disabled:bg-gray-100 disabled:border-gray-200 disabled:text-gray-400"
+                          onClick={(e) => { e.stopPropagation(); addToCart(p, 1); }}
+                          disabled={p.stock <= 0}
+                          aria-label={`Thêm ${p.name} vào giỏ`}
+                        >
+                          <ShoppingCart size={16} />
                         </button>
                       </div>
-                    ))}
+                    </div>
+                  </article>
+                ))}
+
+                {!loading && filtered.length === 0 && (
+                  <div className="col-span-full">
+                    <EmptyState
+                      icon={<Package className="w-8 h-8 text-gray-300" />}
+                      title="Không có sản phẩm"
+                      subtitle="Thử điều chỉnh bộ lọc hoặc chọn danh mục khác."
+                      action={
+                        <button
+                          className="bg-[#14b8a6] text-white px-5 py-2 rounded-[8px] text-[13px] font-bold cursor-pointer border-0 hover:bg-[#0f9e8c] transition-colors"
+                          onClick={resetFilters}
+                        >
+                          Xóa bộ lọc
+                        </button>
+                      }
+                    />
                   </div>
-                  <div className="flex justify-between font-heading text-base text-foreground mb-3.5 border-t border-border-default pt-3">
-                    <span>Tổng cộng</span><strong>{cartTotal.toLocaleString('vi-VN')}₫</strong>
-                  </div>
-                  <button className="btn-primary w-full justify-center">Thanh toán</button>
-                </>
-              )}
+                )}
+              </div>
             </div>
-          )}
+          </div>
         </div>
       </div>
+
+
+
+      {/* QUICK VIEW MODAL */}
+      {selectedProduct && (
+        <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-[#0d1b2a]/60 backdrop-blur-sm animate-in fade-in duration-200" onClick={() => setSelectedProduct(null)}>
+          <div
+            ref={quickViewDialogRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="quick-view-title"
+            aria-describedby="quick-view-description"
+            tabIndex={-1}
+            className="bg-white rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden flex flex-col md:flex-row animate-in zoom-in-95 duration-200"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="w-full md:w-1/2 bg-gray-50 flex items-center justify-center p-8 relative">
+              <img src={selectedProduct.img} alt={selectedProduct.name} className="w-full h-auto max-h-[300px] object-contain mix-blend-multiply" />
+            </div>
+            <div className="w-full md:w-1/2 p-6 md:p-8 flex flex-col">
+              <div className="flex justify-between items-start mb-4">
+                <div>
+                  <p className="text-[11px] font-bold uppercase tracking-widest text-[#14b8a6] mb-1">{categoryLabels[selectedProduct.category] || selectedProduct.category} · {selectedProduct.sport}</p>
+                  <h2 id="quick-view-title" className="text-xl font-bold text-gray-900 leading-tight m-0">{selectedProduct.name}</h2>
+                </div>
+                <button aria-label="Đóng chi tiết sản phẩm" className="text-gray-400 hover:text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-full p-1.5 transition-colors border-0 cursor-pointer" onClick={() => setSelectedProduct(null)}>
+                  <X size={18} />
+                </button>
+              </div>
+
+              <div className="mb-4">
+                <p id="quick-view-description" className="text-[13px] text-gray-600 leading-relaxed bg-[#F8F9FA] p-3.5 rounded-[12px] max-h-[110px] overflow-y-auto border border-gray-100 m-0">
+                  {selectedProduct.description}
+                </p>
+              </div>
+
+              <div className="mb-6">
+                <span className="text-2xl font-bold text-gray-900">{Number(selectedProduct.price).toLocaleString('vi-VN')}₫</span>
+                <p className="text-sm text-gray-500 mt-1 m-0">Còn {selectedProduct.stock} sản phẩm trong kho</p>
+              </div>
+
+              <div className="mt-auto">
+                <label htmlFor="quick-view-quantity" className="block text-[12px] font-bold text-gray-700 uppercase tracking-wider mb-2">Số lượng</label>
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="flex items-center border border-gray-200 rounded-lg bg-gray-50 p-1">
+                    <button aria-label="Giảm số lượng" className="w-8 h-8 flex items-center justify-center text-gray-600 hover:text-gray-900 hover:bg-gray-200 rounded-md transition-colors disabled:opacity-50 cursor-pointer border-0 bg-transparent" onClick={() => setQuantity(Math.max(1, quantity - 1))} disabled={quantity <= 1}>-</button>
+                    <input id="quick-view-quantity" type="number" className="w-12 h-8 text-center bg-transparent font-bold text-gray-900 focus:outline-none border-0" value={quantity} readOnly />
+                    <button aria-label="Tăng số lượng" className="w-8 h-8 flex items-center justify-center text-gray-600 hover:text-gray-900 hover:bg-gray-200 rounded-md transition-colors disabled:opacity-50 cursor-pointer border-0 bg-transparent" onClick={() => setQuantity(Math.min(selectedProduct.stock, quantity + 1))} disabled={quantity >= selectedProduct.stock}>+</button>
+                  </div>
+                </div>
+
+                <button
+                  className="w-full bg-[#14b8a6] hover:bg-[#0f9e8c] text-white font-bold py-3.5 rounded-xl transition-colors shadow-lg shadow-[#14b8a6]/30 flex items-center justify-center gap-2 disabled:bg-gray-300 disabled:shadow-none border-0 cursor-pointer"
+                  disabled={selectedProduct.stock <= 0}
+                  onClick={() => addToCart(selectedProduct, quantity)}
+                >
+                  <ShoppingCart size={18} />
+                  {selectedProduct.stock <= 0 ? 'Hết hàng' : 'Thêm vào giỏ hàng'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </ApexLayout>
   )
 }

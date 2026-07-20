@@ -1,0 +1,1222 @@
+<mxfile host="Electron" agent="Claude Code" pages="18">
+  <diagram id="booking-status" name="Booking Status">
+    <mxGraphModel dx="1187" dy="1073" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1360" pageHeight="680" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" parent="1" style="text;html=1;fontSize=22;fontStyle=1;align=center;verticalAlign=middle;" value="State Diagram - Booking" vertex="1">
+          <mxGeometry height="30" width="1320" x="20" y="10" as="geometry" />
+        </mxCell>
+        <mxCell id="titleline" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E6E6F0;strokeColor=none;" value="" vertex="1">
+          <mxGeometry height="2" width="1320" x="20" y="44" as="geometry" />
+        </mxCell>
+        <mxCell id="note" parent="1" style="text;html=1;fontSize=11;fontStyle=2;align=left;fontColor=#666666;" value="Full intended booking lifecycle (target design to implement). Split payment: Pending -&gt; PendingPayment -&gt; Confirmed (all shares paid) or Expired (a share times out). Cancel is reachable from Pending / PendingPayment / Confirmed before completion. Admin/Owner drives CheckedIn -&gt; Completed and can mark NoShow. Terminal states: Completed, Expired, Cancelled, NoShow." vertex="1">
+          <mxGeometry height="60" width="1240" x="40" y="560" as="geometry" />
+        </mxCell>
+        <mxCell id="start" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#000000;" value="" vertex="1">
+          <mxGeometry height="20" width="20" x="30" y="290" as="geometry" />
+        </mxCell>
+        <mxCell id="startlbl" parent="1" style="text;html=1;fontSize=12;align=center;" value="Beginning" vertex="1">
+          <mxGeometry height="20" width="80" y="315" as="geometry" />
+        </mxCell>
+        <mxCell id="pending" parent="1" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1B1B4D;strokeColor=#12123A;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" value="Pending" vertex="1">
+          <mxGeometry height="60" width="140" x="150" y="270" as="geometry" />
+        </mxCell>
+        <mxCell id="confirmed" parent="1" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1B1B4D;strokeColor=#12123A;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" value="Confirmed" vertex="1">
+          <mxGeometry height="60" width="140" x="430" y="270" as="geometry" />
+        </mxCell>
+        <mxCell id="checkedin" parent="1" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1B1B4D;strokeColor=#12123A;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" value="CheckedIn" vertex="1">
+          <mxGeometry height="60" width="140" x="700" y="270" as="geometry" />
+        </mxCell>
+        <mxCell id="completed" parent="1" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1B1B4D;strokeColor=#12123A;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" value="Completed" vertex="1">
+          <mxGeometry height="60" width="140" x="970" y="270" as="geometry" />
+        </mxCell>
+        <mxCell id="pendingpayment" parent="1" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1B1B4D;strokeColor=#12123A;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" value="PendingPayment" vertex="1">
+          <mxGeometry height="60" width="150" x="440" y="140" as="geometry" />
+        </mxCell>
+        <mxCell id="expired" parent="1" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1B1B4D;strokeColor=#12123A;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" value="Expired" vertex="1">
+          <mxGeometry height="60" width="140" x="840" y="140" as="geometry" />
+        </mxCell>
+        <mxCell id="cancelled" parent="1" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1B1B4D;strokeColor=#12123A;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" value="Cancelled" vertex="1">
+          <mxGeometry height="60" width="140" x="240" y="470" as="geometry" />
+        </mxCell>
+        <mxCell id="noshow" parent="1" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1B1B4D;strokeColor=#12123A;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" value="NoShow" vertex="1">
+          <mxGeometry height="60" width="140" x="600" y="420" as="geometry" />
+        </mxCell>
+        <mxCell id="endouter" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;strokeWidth=2;" value="" vertex="1">
+          <mxGeometry height="30" width="30" x="1235" y="285" as="geometry" />
+        </mxCell>
+        <mxCell id="endinner" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#000000;" value="" vertex="1">
+          <mxGeometry height="12" width="12" x="1244" y="294" as="geometry" />
+        </mxCell>
+        <mxCell id="endlbl" parent="1" style="text;html=1;fontSize=12;align=center;" value="Ending" vertex="1">
+          <mxGeometry height="20" width="80" x="1210" y="325" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" edge="1" parent="1" source="start" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="pending">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" edge="1" parent="1" source="pending" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="confirmed" value="full payment">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" edge="1" parent="1" source="confirmed" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="checkedin" value="check-in">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3b" edge="1" parent="1" source="checkedin" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="completed" value="admin/owner">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" edge="1" parent="1" source="pending" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;exitX=0.5;exitY=0;entryX=0;entryY=0.5;" target="pendingpayment" value="split payment">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="220" y="170" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e5" edge="1" parent="1" source="pendingpayment" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" target="confirmed" value="all shares paid">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" edge="1" parent="1" source="pendingpayment" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="expired" value="share expired">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" edge="1" parent="1" source="confirmed" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;exitX=0.25;exitY=1;entryX=0.5;entryY=0;" target="cancelled" value="cancel">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="465" y="430" />
+              <mxPoint x="310" y="430" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e8" edge="1" parent="1" source="confirmed" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;exitX=0.75;exitY=1;entryX=0.5;entryY=0;" target="noshow" value="admin (no-show)">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="535" y="380" />
+              <mxPoint x="670" y="380" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e9" edge="1" parent="1" source="completed" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="endouter">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e10" edge="1" parent="1" source="cancelled" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="endx_o">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e11" edge="1" parent="1" source="noshow" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="endn_o">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e12" edge="1" parent="1" source="expired" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;exitX=1;exitY=0.5;entryX=0.5;entryY=0;" target="endouter">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1250" y="170" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e13" edge="1" parent="1" source="pending" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;exitX=0.25;exitY=1;entryX=0;entryY=0.5;" target="cancelled" value="cancel">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="185" y="500" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="endx_o" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;strokeWidth=2;" value="" vertex="1">
+          <mxGeometry height="30" width="30" x="440" y="485" as="geometry" />
+        </mxCell>
+        <mxCell id="endx_i" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#000000;" value="" vertex="1">
+          <mxGeometry height="12" width="12" x="449" y="494" as="geometry" />
+        </mxCell>
+        <mxCell id="endn_o" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;strokeWidth=2;" value="" vertex="1">
+          <mxGeometry height="30" width="30" x="800" y="435" as="geometry" />
+        </mxCell>
+        <mxCell id="endn_i" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#000000;" value="" vertex="1">
+          <mxGeometry height="12" width="12" x="809" y="444" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="payment-status" name="Payment Status">
+    <mxGraphModel dx="1187" dy="1073" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="826" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" parent="1" style="text;html=1;fontSize=22;fontStyle=1;align=center;verticalAlign=middle;" value="State Diagram - Payment" vertex="1">
+          <mxGeometry height="30" width="1120" x="20" y="10" as="geometry" />
+        </mxCell>
+        <mxCell id="titleline" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E6E6F0;strokeColor=none;" value="" vertex="1">
+          <mxGeometry height="2" width="1120" x="20" y="44" as="geometry" />
+        </mxCell>
+        <mxCell id="start" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#000000;" value="" vertex="1">
+          <mxGeometry height="20" width="20" x="30" y="180" as="geometry" />
+        </mxCell>
+        <mxCell id="startlbl" parent="1" style="text;html=1;fontSize=12;align=center;" value="Beginning" vertex="1">
+          <mxGeometry height="20" width="80" y="205" as="geometry" />
+        </mxCell>
+        <mxCell id="pending" parent="1" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1B1B4D;strokeColor=#12123A;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" value="Pending" vertex="1">
+          <mxGeometry height="60" width="140" x="140" y="160" as="geometry" />
+        </mxCell>
+        <mxCell id="paid" parent="1" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1B1B4D;strokeColor=#12123A;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" value="Paid" vertex="1">
+          <mxGeometry height="60" width="140" x="420" y="160" as="geometry" />
+        </mxCell>
+        <mxCell id="refunded" parent="1" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1B1B4D;strokeColor=#12123A;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" value="Refunded" vertex="1">
+          <mxGeometry height="60" width="140" x="700" y="160" as="geometry" />
+        </mxCell>
+        <mxCell id="cancelled" parent="1" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1B1B4D;strokeColor=#12123A;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" value="Cancelled" vertex="1">
+          <mxGeometry height="60" width="140" x="140" y="320" as="geometry" />
+        </mxCell>
+        <mxCell id="endouter" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;strokeWidth=2;" value="" vertex="1">
+          <mxGeometry height="30" width="30" x="960" y="175" as="geometry" />
+        </mxCell>
+        <mxCell id="endinner" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#000000;" value="" vertex="1">
+          <mxGeometry height="12" width="12" x="969" y="184" as="geometry" />
+        </mxCell>
+        <mxCell id="endlbl" parent="1" style="text;html=1;fontSize=12;align=center;" value="Ending" vertex="1">
+          <mxGeometry height="20" width="80" x="935" y="215" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" edge="1" parent="1" source="start" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" target="pending">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" edge="1" parent="1" source="pending" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" target="paid" value="payment received">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" edge="1" parent="1" source="paid" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" target="refunded" value="booking cancelled">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" edge="1" parent="1" source="pending" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" target="cancelled" value="booking cancelled unpaid">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" edge="1" parent="1" source="refunded" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" target="endouter">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" edge="1" parent="1" source="cancelled" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" target="endouter">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="match-status" name="Match Status">
+    <mxGraphModel dx="1446" dy="841" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="900" pageHeight="540" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" parent="1" style="text;html=1;fontSize=22;fontStyle=1;align=center;verticalAlign=middle;" value="State Diagram - Match" vertex="1">
+          <mxGeometry height="30" width="860" x="20" y="10" as="geometry" />
+        </mxCell>
+        <mxCell id="titleline" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E6E6F0;strokeColor=none;" value="" vertex="1">
+          <mxGeometry height="2" width="860" x="20" y="44" as="geometry" />
+        </mxCell>
+        <mxCell id="start" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#000000;" value="" vertex="1">
+          <mxGeometry height="20" width="20" x="30" y="180" as="geometry" />
+        </mxCell>
+        <mxCell id="startlbl" parent="1" style="text;html=1;fontSize=12;align=center;" value="Beginning" vertex="1">
+          <mxGeometry height="20" width="80" y="205" as="geometry" />
+        </mxCell>
+        <mxCell id="open" parent="1" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1B1B4D;strokeColor=#12123A;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" value="Open" vertex="1">
+          <mxGeometry height="60" width="140" x="140" y="160" as="geometry" />
+        </mxCell>
+        <mxCell id="closed" parent="1" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1B1B4D;strokeColor=#12123A;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" value="Closed" vertex="1">
+          <mxGeometry height="60" width="140" x="480" y="160" as="geometry" />
+        </mxCell>
+        <mxCell id="completed" parent="1" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1B1B4D;strokeColor=#12123A;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" value="Completed" vertex="1">
+          <mxGeometry height="60" width="140" x="140" y="340" as="geometry" />
+        </mxCell>
+        <mxCell id="cancelled" parent="1" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1B1B4D;strokeColor=#12123A;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" value="Cancelled" vertex="1">
+          <mxGeometry height="60" width="140" x="480" y="340" as="geometry" />
+        </mxCell>
+        <mxCell id="endouter" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;strokeWidth=2;" value="" vertex="1">
+          <mxGeometry height="30" width="30" x="760" y="355" as="geometry" />
+        </mxCell>
+        <mxCell id="endinner" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#000000;" value="" vertex="1">
+          <mxGeometry height="12" width="12" x="769" y="364" as="geometry" />
+        </mxCell>
+        <mxCell id="endlbl" parent="1" style="text;html=1;fontSize=12;align=center;" value="Ending" vertex="1">
+          <mxGeometry height="20" width="80" x="735" y="395" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" edge="1" parent="1" source="start" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="open">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" edge="1" parent="1" source="open" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;exitX=1;exitY=0.3;entryX=0;entryY=0.3;" target="closed" value="capacity reached">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" edge="1" parent="1" source="closed" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;exitX=0;exitY=0.7;entryX=1;entryY=0.7;" target="open" value="participant rejected">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" edge="1" parent="1" source="open" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" target="completed" value="match ends">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" edge="1" parent="1" source="closed" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" target="cancelled" value="cancel">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" edge="1" parent="1" source="open" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;exitX=0.75;exitY=1;entryX=0.25;entryY=0;" target="cancelled" value="cancel">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="245" y="280" />
+              <mxPoint x="515" y="280" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e7" edge="1" parent="1" source="closed" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;exitX=0.25;exitY=1;entryX=1;entryY=0.5;" target="completed" value="match ends">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="515" y="310" />
+              <mxPoint x="280" y="310" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e8" edge="1" parent="1" source="completed" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;exitX=0.5;exitY=1;entryX=0.5;entryY=1;" target="endouter">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="210" y="460" />
+              <mxPoint x="775" y="460" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e9" edge="1" parent="1" source="cancelled" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="endouter">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="participant-status" name="Match Participant Status">
+    <mxGraphModel dx="1047" dy="947" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="826" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" parent="1" style="text;html=1;fontSize=22;fontStyle=1;align=center;verticalAlign=middle;" value="State Diagram - Match Participant" vertex="1">
+          <mxGeometry height="30" width="1000" x="20" y="10" as="geometry" />
+        </mxCell>
+        <mxCell id="titleline" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E6E6F0;strokeColor=none;" value="" vertex="1">
+          <mxGeometry height="2" width="1000" x="20" y="44" as="geometry" />
+        </mxCell>
+        <mxCell id="start" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#000000;" value="" vertex="1">
+          <mxGeometry height="20" width="20" x="30" y="180" as="geometry" />
+        </mxCell>
+        <mxCell id="startlbl" parent="1" style="text;html=1;fontSize=12;align=center;" value="Beginning" vertex="1">
+          <mxGeometry height="20" width="80" y="205" as="geometry" />
+        </mxCell>
+        <mxCell id="pending" parent="1" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1B1B4D;strokeColor=#12123A;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" value="Pending" vertex="1">
+          <mxGeometry height="60" width="140" x="140" y="160" as="geometry" />
+        </mxCell>
+        <mxCell id="approved" parent="1" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1B1B4D;strokeColor=#12123A;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" value="Approved" vertex="1">
+          <mxGeometry height="60" width="140" x="420" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="rejected" parent="1" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1B1B4D;strokeColor=#12123A;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" value="Rejected" vertex="1">
+          <mxGeometry height="60" width="140" x="550" y="360" as="geometry" />
+        </mxCell>
+        <mxCell id="endouter" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;strokeWidth=2;" value="" vertex="1">
+          <mxGeometry height="30" width="30" x="700" y="175" as="geometry" />
+        </mxCell>
+        <mxCell id="endinner" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#000000;" value="" vertex="1">
+          <mxGeometry height="12" width="12" x="709" y="184" as="geometry" />
+        </mxCell>
+        <mxCell id="endlbl" parent="1" style="text;html=1;fontSize=12;align=center;" value="Ending" vertex="1">
+          <mxGeometry height="20" width="80" x="675" y="215" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" edge="1" parent="1" source="start" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" target="pending">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" edge="1" parent="1" source="pending" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" target="approved" value="host approves">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" edge="1" parent="1" source="pending" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" target="rejected" value="host rejects">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" edge="1" parent="1" source="approved" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" target="rejected" value="match cancelled (refund)">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" edge="1" parent="1" source="approved" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" target="endouter">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" edge="1" parent="1" source="rejected" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" target="endouter">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="result-status" name="Match Result Status">
+    <mxGraphModel dx="1400" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="826" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="State Diagram - Match Result" style="text;html=1;fontSize=22;fontStyle=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="20" y="10" width="1000" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="titleline" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E6E6F0;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="20" y="44" width="1000" height="2" as="geometry" />
+        </mxCell>
+        <mxCell id="start" value="" style="ellipse;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="30" y="180" width="20" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="startlbl" value="Beginning" style="text;html=1;fontSize=12;align=center;" vertex="1" parent="1">
+          <mxGeometry x="0" y="205" width="80" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="pending" value="Pending" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1B1B4D;strokeColor=#12123A;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="140" y="160" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="confirmed" value="Confirmed&#xa;(Elo updated)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1B1B4D;strokeColor=#12123A;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="420" y="80" width="150" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="disputed" value="Disputed" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1B1B4D;strokeColor=#12123A;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="420" y="260" width="150" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="endouter" value="" style="ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="710" y="175" width="30" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="endinner" value="" style="ellipse;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="719" y="184" width="12" height="12" as="geometry" />
+        </mxCell>
+        <mxCell id="endlbl" value="Ending" style="text;html=1;fontSize=12;align=center;" vertex="1" parent="1">
+          <mxGeometry x="685" y="215" width="80" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" edge="1" parent="1" source="start" target="pending">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" value="players confirm result" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" edge="1" parent="1" source="pending" target="confirmed">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" value="player disputes" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" edge="1" parent="1" source="pending" target="disputed">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" edge="1" parent="1" source="confirmed" target="endouter">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" edge="1" parent="1" source="disputed" target="endouter">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="ekyc-status" name="EKYC Status">
+    <mxGraphModel dx="1369" dy="1238" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="826" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" parent="1" style="text;html=1;fontSize=22;fontStyle=1;align=center;verticalAlign=middle;" value="State Diagram - E-KYC" vertex="1">
+          <mxGeometry height="30" width="1000" x="20" y="10" as="geometry" />
+        </mxCell>
+        <mxCell id="titleline" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E6E6F0;strokeColor=none;" value="" vertex="1">
+          <mxGeometry height="2" width="1000" x="20" y="44" as="geometry" />
+        </mxCell>
+        <mxCell id="start" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#000000;" value="" vertex="1">
+          <mxGeometry height="20" width="20" x="30" y="180" as="geometry" />
+        </mxCell>
+        <mxCell id="startlbl" parent="1" style="text;html=1;fontSize=12;align=center;" value="Beginning" vertex="1">
+          <mxGeometry height="20" width="80" y="205" as="geometry" />
+        </mxCell>
+        <mxCell id="sub1" parent="1" style="text;html=1;fontSize=14;fontStyle=1;align=left;" value="① User.EKycStatus (cột User.EKycStatus — cổng xác thực đặt sân)" vertex="1">
+          <mxGeometry height="20" width="700" x="30" y="58" as="geometry" />
+        </mxCell>
+        <mxCell id="unverified" parent="1" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1B1B4D;strokeColor=#12123A;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" value="Unverified" vertex="1">
+          <mxGeometry height="60" width="140" x="140" y="160" as="geometry" />
+        </mxCell>
+        <mxCell id="pending" parent="1" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1B1B4D;strokeColor=#12123A;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" value="Pending" vertex="1">
+          <mxGeometry height="60" width="140" x="420" y="160" as="geometry" />
+        </mxCell>
+        <mxCell id="verified" parent="1" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1B1B4D;strokeColor=#12123A;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" value="Verified" vertex="1">
+          <mxGeometry height="60" width="140" x="700" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="rejected" parent="1" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1B1B4D;strokeColor=#12123A;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" value="Rejected" vertex="1">
+          <mxGeometry height="60" width="140" x="700" y="260" as="geometry" />
+        </mxCell>
+        <mxCell id="endouter" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;strokeWidth=2;" value="" vertex="1">
+          <mxGeometry height="30" width="30" x="960" y="175" as="geometry" />
+        </mxCell>
+        <mxCell id="endinner" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#000000;" value="" vertex="1">
+          <mxGeometry height="12" width="12" x="969" y="184" as="geometry" />
+        </mxCell>
+        <mxCell id="endlbl" parent="1" style="text;html=1;fontSize=12;align=center;" value="Ending" vertex="1">
+          <mxGeometry height="20" width="80" x="935" y="215" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" edge="1" parent="1" source="start" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" target="unverified">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" edge="1" parent="1" source="unverified" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" target="pending" value="submit profile">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" edge="1" parent="1" source="pending" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" target="verified" value="admin approves">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" edge="1" parent="1" source="pending" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" target="rejected" value="admin rejects">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" edge="1" parent="1" source="rejected" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" target="pending" value="resubmit">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="490" y="340" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e6" edge="1" parent="1" source="verified" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" target="endouter">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" edge="1" parent="1" source="rejected" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" target="endouter">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="sub2" parent="1" style="text;html=1;fontSize=14;fontStyle=1;align=left;" value="② EkycProfile.Status (trạng thái HỒ SƠ — UI Admin KYC)" vertex="1">
+          <mxGeometry height="20" width="700" x="30" y="410" as="geometry" />
+        </mxCell>
+        <mxCell id="pstart" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#000000;" value="" vertex="1">
+          <mxGeometry height="20" width="20" x="30" y="500" as="geometry" />
+        </mxCell>
+        <mxCell id="pstartlbl" parent="1" style="text;html=1;fontSize=12;align=center;" value="Beginning" vertex="1">
+          <mxGeometry height="20" width="80" y="525" as="geometry" />
+        </mxCell>
+        <mxCell id="ppending" parent="1" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1B1B4D;strokeColor=#12123A;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" value="Pending" vertex="1">
+          <mxGeometry height="60" width="140" x="140" y="480" as="geometry" />
+        </mxCell>
+        <mxCell id="papproved" parent="1" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1B1B4D;strokeColor=#12123A;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" value="Approved" vertex="1">
+          <mxGeometry height="60" width="140" x="430" y="430" as="geometry" />
+        </mxCell>
+        <mxCell id="prejected" parent="1" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1B1B4D;strokeColor=#12123A;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" value="Rejected" vertex="1">
+          <mxGeometry height="60" width="140" x="420" y="560" as="geometry" />
+        </mxCell>
+        <mxCell id="pendouter" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;strokeWidth=2;" value="" vertex="1">
+          <mxGeometry height="30" width="30" x="700" y="495" as="geometry" />
+        </mxCell>
+        <mxCell id="pendinner" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#000000;" value="" vertex="1">
+          <mxGeometry height="12" width="12" x="709" y="504" as="geometry" />
+        </mxCell>
+        <mxCell id="pendlbl" parent="1" style="text;html=1;fontSize=12;align=center;" value="Ending" vertex="1">
+          <mxGeometry height="20" width="80" x="675" y="535" as="geometry" />
+        </mxCell>
+        <mxCell id="pe1" edge="1" parent="1" source="pstart" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" target="ppending">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="pe2" edge="1" parent="1" source="ppending" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" target="papproved" value="admin approves">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="pe3" edge="1" parent="1" source="ppending" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" target="prejected" value="admin rejects">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="pe4" edge="1" parent="1" source="prejected" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;exitX=0;exitY=0.5;entryX=0.5;entryY=1;" target="ppending" value="resubmit (ghi đè hồ sơ cũ)">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="210" y="590" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="pe5" edge="1" parent="1" source="papproved" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" target="pendouter">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="pe6" edge="1" parent="1" source="prejected" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" target="pendouter">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="syncnote" parent="1" style="text;html=1;fontSize=11;fontStyle=2;align=left;fontColor=#666666;" value="Đồng bộ 2 máy trạng thái (EkycService): Submit → Profile=Pending &amp; User=Pending · Approve → Profile=Approved &amp; User=Verified · Reject → Profile=Rejected &amp; User=Rejected. Resubmit chỉ được phép khi hồ sơ trước đó = Rejected." vertex="1">
+          <mxGeometry height="40" width="960" x="30" y="660" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="report-status" name="Report/Complaint Status">
+    <mxGraphModel dx="1187" dy="1073" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="826" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" parent="1" style="text;html=1;fontSize=22;fontStyle=1;align=center;verticalAlign=middle;" value="State Diagram - Report / Complaint" vertex="1">
+          <mxGeometry height="30" width="1100" x="20" y="10" as="geometry" />
+        </mxCell>
+        <mxCell id="titleline" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E6E6F0;strokeColor=none;" value="" vertex="1">
+          <mxGeometry height="2" width="1100" x="20" y="44" as="geometry" />
+        </mxCell>
+        <mxCell id="start" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#000000;" value="" vertex="1">
+          <mxGeometry height="20" width="20" x="30" y="180" as="geometry" />
+        </mxCell>
+        <mxCell id="startlbl" parent="1" style="text;html=1;fontSize=12;align=center;" value="Beginning" vertex="1">
+          <mxGeometry height="20" width="80" y="205" as="geometry" />
+        </mxCell>
+        <mxCell id="pending" parent="1" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1B1B4D;strokeColor=#12123A;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" value="Pending" vertex="1">
+          <mxGeometry height="60" width="140" x="140" y="160" as="geometry" />
+        </mxCell>
+        <mxCell id="investigating" parent="1" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1B1B4D;strokeColor=#12123A;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" value="Investigating" vertex="1">
+          <mxGeometry height="60" width="140" x="420" y="160" as="geometry" />
+        </mxCell>
+        <mxCell id="resolved" parent="1" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1B1B4D;strokeColor=#12123A;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" value="Resolved" vertex="1">
+          <mxGeometry height="60" width="140" x="700" y="160" as="geometry" />
+        </mxCell>
+        <mxCell id="rejected" parent="1" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1B1B4D;strokeColor=#12123A;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" value="Rejected" vertex="1">
+          <mxGeometry height="60" width="140" x="420" y="340" as="geometry" />
+        </mxCell>
+        <mxCell id="endouter" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;strokeWidth=2;" value="" vertex="1">
+          <mxGeometry height="30" width="30" x="960" y="175" as="geometry" />
+        </mxCell>
+        <mxCell id="endinner" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#000000;" value="" vertex="1">
+          <mxGeometry height="12" width="12" x="969" y="184" as="geometry" />
+        </mxCell>
+        <mxCell id="endlbl" parent="1" style="text;html=1;fontSize=12;align=center;" value="Ending" vertex="1">
+          <mxGeometry height="20" width="80" x="935" y="215" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" edge="1" parent="1" source="start" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="pending">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" edge="1" parent="1" source="pending" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="investigating" value="admin investigates">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" edge="1" parent="1" source="pending" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;exitX=0.5;exitY=0;entryX=0.5;entryY=0;" target="resolved" value="admin resolves (direct)">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="210" y="100" />
+              <mxPoint x="770" y="100" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e4" edge="1" parent="1" source="pending" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;exitX=0.5;exitY=1;entryX=0.25;entryY=0;" target="rejected" value="admin rejects">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="210" y="300" />
+              <mxPoint x="455" y="300" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e5" edge="1" parent="1" source="investigating" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="resolved" value="admin resolves">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" edge="1" parent="1" source="investigating" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" target="rejected" value="admin rejects">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" edge="1" parent="1" source="resolved" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="endouter">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e8" edge="1" parent="1" source="rejected" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;exitX=1;exitY=0.5;entryX=0.5;entryY=1;" target="endouter">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="975" y="370" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="court-status" name="Court Status">
+    <mxGraphModel dx="1400" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="826" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="State Diagram - Court" style="text;html=1;fontSize=22;fontStyle=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="20" y="10" width="1000" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="titleline" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E6E6F0;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="20" y="44" width="1000" height="2" as="geometry" />
+        </mxCell>
+        <mxCell id="start" value="" style="ellipse;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="30" y="200" width="20" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="startlbl" value="Beginning" style="text;html=1;fontSize=12;align=center;" vertex="1" parent="1">
+          <mxGeometry x="0" y="225" width="80" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="available" value="Available (ACTIVE)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1B1B4D;strokeColor=#12123A;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="140" y="180" width="160" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="maintenance" value="Maintenance" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1B1B4D;strokeColor=#12123A;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="440" y="180" width="160" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="inactive" value="Inactive" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1B1B4D;strokeColor=#12123A;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="740" y="180" width="160" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="note" value="Cyclic operational state - no terminal state (court record persists)" style="text;html=1;fontSize=11;fontStyle=2;align=center;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="300" y="360" width="500" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" edge="1" parent="1" source="start" target="available">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" value="owner sets Maintenance" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" edge="1" parent="1" source="available" target="maintenance">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="220" y="220" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e3" value="owner sets Active" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" edge="1" parent="1" source="maintenance" target="available">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="520" y="160" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e4" value="owner sets Inactive" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" edge="1" parent="1" source="maintenance" target="inactive">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="520" y="220" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e5" value="owner sets Maintenance" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" edge="1" parent="1" source="inactive" target="maintenance">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="820" y="160" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e6" value="owner sets Active" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" edge="1" parent="1" source="inactive" target="available">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="220" y="300" />
+              <mxPoint x="820" y="300" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="paymentshare-status" name="Payment Share Status">
+    <mxGraphModel dx="1187" dy="1073" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="826" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" parent="1" style="text;html=1;fontSize=22;fontStyle=1;align=center;verticalAlign=middle;" value="State Diagram - Payment Share (Split Payment)" vertex="1">
+          <mxGeometry height="30" width="1120" x="20" y="10" as="geometry" />
+        </mxCell>
+        <mxCell id="titleline" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E6E6F0;strokeColor=none;" value="" vertex="1">
+          <mxGeometry height="2" width="1120" x="20" y="44" as="geometry" />
+        </mxCell>
+        <mxCell id="start" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#000000;" value="" vertex="1">
+          <mxGeometry height="20" width="20" x="30" y="180" as="geometry" />
+        </mxCell>
+        <mxCell id="startlbl" parent="1" style="text;html=1;fontSize=12;align=center;" value="Beginning" vertex="1">
+          <mxGeometry height="20" width="80" y="205" as="geometry" />
+        </mxCell>
+        <mxCell id="pending" parent="1" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1B1B4D;strokeColor=#12123A;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" value="Pending" vertex="1">
+          <mxGeometry height="60" width="140" x="120" y="195" as="geometry" />
+        </mxCell>
+        <mxCell id="paid" parent="1" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1B1B4D;strokeColor=#12123A;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" value="Paid" vertex="1">
+          <mxGeometry height="60" width="140" x="290" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="expired" parent="1" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1B1B4D;strokeColor=#12123A;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" value="Expired" vertex="1">
+          <mxGeometry height="60" width="140" x="120" y="400" as="geometry" />
+        </mxCell>
+        <mxCell id="refunded" parent="1" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1B1B4D;strokeColor=#12123A;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" value="Refunded" vertex="1">
+          <mxGeometry height="60" width="140" x="700" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="endouter" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;strokeWidth=2;" value="" vertex="1">
+          <mxGeometry height="30" width="30" x="960" y="175" as="geometry" />
+        </mxCell>
+        <mxCell id="endinner" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#000000;" value="" vertex="1">
+          <mxGeometry height="12" width="12" x="969" y="184" as="geometry" />
+        </mxCell>
+        <mxCell id="endlbl" parent="1" style="text;html=1;fontSize=12;align=center;" value="Ending" vertex="1">
+          <mxGeometry height="20" width="80" x="935" y="215" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" edge="1" parent="1" source="start" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" target="pending">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" edge="1" parent="1" source="pending" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" target="paid" value="share paid">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" edge="1" parent="1" source="pending" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" target="expired" value="booking cancelled before payment">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" edge="1" parent="1" source="paid" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" target="refunded" value="booking cancelled after payment">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" edge="1" parent="1" source="refunded" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" target="endouter">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" edge="1" parent="1" source="expired" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" target="endouter">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="975" y="350" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="transaction-status" name="Transaction Status">
+    <mxGraphModel dx="1187" dy="1073" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="826" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" parent="1" style="text;html=1;fontSize=22;fontStyle=1;align=center;verticalAlign=middle;" value="State Diagram - Transaction" vertex="1">
+          <mxGeometry height="30" width="1000" x="20" y="10" as="geometry" />
+        </mxCell>
+        <mxCell id="titleline" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E6E6F0;strokeColor=none;" value="" vertex="1">
+          <mxGeometry height="2" width="1000" x="20" y="44" as="geometry" />
+        </mxCell>
+        <mxCell id="start" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#000000;" value="" vertex="1">
+          <mxGeometry height="20" width="20" x="30" y="180" as="geometry" />
+        </mxCell>
+        <mxCell id="startlbl" parent="1" style="text;html=1;fontSize=12;align=center;" value="Beginning" vertex="1">
+          <mxGeometry height="20" width="80" y="205" as="geometry" />
+        </mxCell>
+        <mxCell id="pending" parent="1" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1B1B4D;strokeColor=#12123A;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" value="Pending" vertex="1">
+          <mxGeometry height="60" width="140" x="140" y="160" as="geometry" />
+        </mxCell>
+        <mxCell id="completed" parent="1" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1B1B4D;strokeColor=#12123A;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" value="Completed" vertex="1">
+          <mxGeometry height="60" width="140" x="420" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="failed" parent="1" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1B1B4D;strokeColor=#12123A;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" value="Failed" vertex="1">
+          <mxGeometry height="60" width="140" x="270" y="430" as="geometry" />
+        </mxCell>
+        <mxCell id="endouter" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;strokeWidth=2;" value="" vertex="1">
+          <mxGeometry height="30" width="30" x="700" y="175" as="geometry" />
+        </mxCell>
+        <mxCell id="endinner" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#000000;" value="" vertex="1">
+          <mxGeometry height="12" width="12" x="709" y="184" as="geometry" />
+        </mxCell>
+        <mxCell id="endlbl" parent="1" style="text;html=1;fontSize=12;align=center;" value="Ending" vertex="1">
+          <mxGeometry height="20" width="80" x="675" y="215" as="geometry" />
+        </mxCell>
+        <mxCell id="note" parent="1" style="text;html=1;fontSize=11;fontStyle=2;align=left;fontColor=#666666;" value="Note: most transactions in code are created directly as Completed (Deposit / Withdraw / Payment / Refund / EscrowLock / EscrowRelease); explicit Pending-&gt;Failed path not exercised in current services." vertex="1">
+          <mxGeometry height="40" width="600" x="80" y="550" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" edge="1" parent="1" source="start" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" target="pending">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" edge="1" parent="1" source="pending" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" target="completed" value="processed successfully">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" edge="1" parent="1" source="pending" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" target="failed" value="processing error">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" edge="1" parent="1" source="completed" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" target="endouter">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" edge="1" parent="1" source="failed" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" target="endouter">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="voucher-status" name="Voucher Status">
+    <mxGraphModel dx="1047" dy="947" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="826" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" parent="1" style="text;html=1;fontSize=22;fontStyle=1;align=center;verticalAlign=middle;" value="State Diagram - Voucher" vertex="1">
+          <mxGeometry height="30" width="1000" x="20" y="10" as="geometry" />
+        </mxCell>
+        <mxCell id="titleline" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E6E6F0;strokeColor=none;" value="" vertex="1">
+          <mxGeometry height="2" width="1000" x="20" y="44" as="geometry" />
+        </mxCell>
+        <mxCell id="start" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#000000;" value="" vertex="1">
+          <mxGeometry height="20" width="20" x="30" y="180" as="geometry" />
+        </mxCell>
+        <mxCell id="startlbl" parent="1" style="text;html=1;fontSize=12;align=center;" value="Beginning" vertex="1">
+          <mxGeometry height="20" width="80" y="205" as="geometry" />
+        </mxCell>
+        <mxCell id="active" parent="1" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1B1B4D;strokeColor=#12123A;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" value="Active" vertex="1">
+          <mxGeometry height="60" width="140" x="140" y="160" as="geometry" />
+        </mxCell>
+        <mxCell id="inactive" parent="1" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1B1B4D;strokeColor=#12123A;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" value="Inactive" vertex="1">
+          <mxGeometry height="60" width="140" x="520" y="145" as="geometry" />
+        </mxCell>
+        <mxCell id="expired" parent="1" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1B1B4D;strokeColor=#12123A;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" value="Expired" vertex="1">
+          <mxGeometry height="60" width="140" x="140" y="320" as="geometry" />
+        </mxCell>
+        <mxCell id="endouter" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;strokeWidth=2;" value="" vertex="1">
+          <mxGeometry height="30" width="30" x="700" y="175" as="geometry" />
+        </mxCell>
+        <mxCell id="endinner" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#000000;" value="" vertex="1">
+          <mxGeometry height="12" width="12" x="709" y="184" as="geometry" />
+        </mxCell>
+        <mxCell id="endlbl" parent="1" style="text;html=1;fontSize=12;align=center;" value="Ending" vertex="1">
+          <mxGeometry height="20" width="80" x="675" y="215" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" edge="1" parent="1" source="start" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" target="active">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" edge="1" parent="1" source="active" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" target="inactive" value="admin deactivates">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="360" y="175" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e3" edge="1" parent="1" source="inactive" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" target="active" value="admin reactivates">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="360" y="205" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e4" edge="1" parent="1" source="active" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" target="expired" value="valid-until date passed">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" edge="1" parent="1" source="expired" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" target="endouter">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="715" y="350" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="membership-status" name="Membership Status">
+    <mxGraphModel dx="1400" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="826" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="State Diagram - Membership" style="text;html=1;fontSize=22;fontStyle=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="20" y="10" width="1000" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="titleline" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E6E6F0;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="20" y="44" width="1000" height="2" as="geometry" />
+        </mxCell>
+        <mxCell id="start" value="" style="ellipse;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="30" y="180" width="20" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="startlbl" value="Beginning" style="text;html=1;fontSize=12;align=center;" vertex="1" parent="1">
+          <mxGeometry x="0" y="205" width="80" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="active" value="Active" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1B1B4D;strokeColor=#12123A;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="140" y="160" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="expired" value="Expired" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1B1B4D;strokeColor=#12123A;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="420" y="80" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="cancelled" value="Cancelled" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1B1B4D;strokeColor=#12123A;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="420" y="260" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="endouter" value="" style="ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="700" y="175" width="30" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="endinner" value="" style="ellipse;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="709" y="184" width="12" height="12" as="geometry" />
+        </mxCell>
+        <mxCell id="endlbl" value="Ending" style="text;html=1;fontSize=12;align=center;" vertex="1" parent="1">
+          <mxGeometry x="675" y="215" width="80" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="note" value="Note: MembershipService validates Status against an allowed-status set {Active, Expired, Cancelled} (case-insensitive, MembershipService.AllowedStatuses) before applying. &#39;Active&#39; is the entity default." style="text;html=1;fontSize=11;fontStyle=2;align=left;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="140" y="360" width="700" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" edge="1" parent="1" source="start" target="active">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" value="period ends" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" edge="1" parent="1" source="active" target="expired">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" value="user/admin cancels" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" edge="1" parent="1" source="active" target="cancelled">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" edge="1" parent="1" source="expired" target="endouter">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" edge="1" parent="1" source="cancelled" target="endouter">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="recurring-status" name="Recurring Booking Rule Status">
+    <mxGraphModel dx="1400" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="826" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="State Diagram - Recurring Booking Rule" style="text;html=1;fontSize=22;fontStyle=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="20" y="10" width="1000" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="titleline" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E6E6F0;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="20" y="44" width="1000" height="2" as="geometry" />
+        </mxCell>
+        <mxCell id="start" value="" style="ellipse;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="30" y="180" width="20" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="startlbl" value="Beginning" style="text;html=1;fontSize=12;align=center;" vertex="1" parent="1">
+          <mxGeometry x="0" y="205" width="80" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="active" value="Active" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1B1B4D;strokeColor=#12123A;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="200" y="160" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="cancelled" value="Cancelled" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1B1B4D;strokeColor=#12123A;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="480" y="160" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="endouter" value="" style="ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="740" y="175" width="30" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="endinner" value="" style="ellipse;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="749" y="184" width="12" height="12" as="geometry" />
+        </mxCell>
+        <mxCell id="endlbl" value="Ending" style="text;html=1;fontSize=12;align=center;" vertex="1" parent="1">
+          <mxGeometry x="715" y="215" width="80" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" edge="1" parent="1" source="start" target="active">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" value="user cancels rule" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" edge="1" parent="1" source="active" target="cancelled">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" edge="1" parent="1" source="cancelled" target="endouter">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="staff-status" name="Staff Assignment Status">
+    <mxGraphModel dx="1400" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="826" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="State Diagram - Staff Assignment" style="text;html=1;fontSize=22;fontStyle=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="20" y="10" width="1000" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="titleline" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E6E6F0;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="20" y="44" width="1000" height="2" as="geometry" />
+        </mxCell>
+        <mxCell id="start" value="" style="ellipse;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="30" y="180" width="20" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="startlbl" value="Beginning" style="text;html=1;fontSize=12;align=center;" vertex="1" parent="1">
+          <mxGeometry x="0" y="205" width="80" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="active" value="Active" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1B1B4D;strokeColor=#12123A;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="180" y="160" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="inactive" value="Inactive" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1B1B4D;strokeColor=#12123A;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="460" y="160" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="note" value="Owner.UpdateStatusAsync validates the new value against an allowed-status list (case-insensitive) before applying it." style="text;html=1;fontSize=11;fontStyle=2;align=left;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="180" y="300" width="600" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" edge="1" parent="1" source="start" target="active">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" value="owner deactivates staff" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" edge="1" parent="1" source="active" target="inactive">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="400" y="175" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e3" value="owner reactivates staff" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" edge="1" parent="1" source="inactive" target="active">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="400" y="205" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="inventory-status" name="Product Stock Status">
+    <mxGraphModel dx="1400" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="826" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="State Diagram - Product Stock (Inventory)" style="text;html=1;fontSize=22;fontStyle=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="20" y="10" width="1000" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="titleline" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E6E6F0;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="20" y="44" width="1000" height="2" as="geometry" />
+        </mxCell>
+        <mxCell id="start" value="" style="ellipse;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="30" y="180" width="20" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="startlbl" value="Beginning" style="text;html=1;fontSize=12;align=center;" vertex="1" parent="1">
+          <mxGeometry x="0" y="205" width="80" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="active" value="Active" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1B1B4D;strokeColor=#12123A;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="180" y="160" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="inactive" value="Inactive" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1B1B4D;strokeColor=#12123A;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="460" y="160" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="note" value="OwnerInventoryService uses a generic string setter (product.Status = dto.Status); values in practice mirror Active/Inactive." style="text;html=1;fontSize=11;fontStyle=2;align=left;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="180" y="300" width="600" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" edge="1" parent="1" source="start" target="active">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" value="owner deactivates product" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" edge="1" parent="1" source="active" target="inactive">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="400" y="175" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e3" value="owner reactivates product" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" edge="1" parent="1" source="inactive" target="active">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="400" y="205" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="tournament-status" name="Tournament and Registration Status">
+    <mxGraphModel dx="1187" dy="1073" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" parent="1" style="text;html=1;fontSize=22;fontStyle=1;align=center;verticalAlign=middle;" value="State Diagram - Tournament and Tournament Registration" vertex="1">
+          <mxGeometry height="30" width="1160" x="20" y="10" as="geometry" />
+        </mxCell>
+        <mxCell id="titleline" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E6E6F0;strokeColor=none;" value="" vertex="1">
+          <mxGeometry height="2" width="1160" x="20" y="44" as="geometry" />
+        </mxCell>
+        <mxCell id="sub1" parent="1" style="text;html=1;fontSize=14;fontStyle=1;align=left;" value="Tournament.Status" vertex="1">
+          <mxGeometry height="20" width="300" x="30" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="start" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#000000;" value="" vertex="1">
+          <mxGeometry height="20" width="20" x="30" y="130" as="geometry" />
+        </mxCell>
+        <mxCell id="startlbl" parent="1" style="text;html=1;fontSize=12;align=center;" value="Beginning" vertex="1">
+          <mxGeometry height="20" width="80" y="155" as="geometry" />
+        </mxCell>
+        <mxCell id="open" parent="1" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1B1B4D;strokeColor=#12123A;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" value="Open" vertex="1">
+          <mxGeometry height="60" width="130" x="140" y="110" as="geometry" />
+        </mxCell>
+        <mxCell id="closed" parent="1" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1B1B4D;strokeColor=#12123A;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" value="Closed" vertex="1">
+          <mxGeometry height="60" width="130" x="310" y="175" as="geometry" />
+        </mxCell>
+        <mxCell id="completed" parent="1" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1B1B4D;strokeColor=#12123A;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" value="Completed" vertex="1">
+          <mxGeometry height="60" width="130" x="450" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="cancelled" parent="1" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1B1B4D;strokeColor=#12123A;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" value="Cancelled" vertex="1">
+          <mxGeometry height="60" width="130" x="670" y="220" as="geometry" />
+        </mxCell>
+        <mxCell id="endouter1" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;strokeWidth=2;" value="" vertex="1">
+          <mxGeometry height="30" width="30" x="720" y="125" as="geometry" />
+        </mxCell>
+        <mxCell id="endinner1" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#000000;" value="" vertex="1">
+          <mxGeometry height="12" width="12" x="729" y="134" as="geometry" />
+        </mxCell>
+        <mxCell id="endlbl1" parent="1" style="text;html=1;fontSize=12;align=center;" value="Ending" vertex="1">
+          <mxGeometry height="20" width="80" x="695" y="165" as="geometry" />
+        </mxCell>
+        <mxCell id="note1" parent="1" style="text;html=1;fontSize=11;fontStyle=2;align=left;fontColor=#666666;" value="Intended tournament lifecycle (target design). Open -&gt; Closed (registration closes) -&gt; Completed (tournament ends) or Cancelled (organizer). Currently only &quot;Open&quot; is set in code; the remaining transitions are to be implemented." vertex="1">
+          <mxGeometry height="30" width="640" x="140" y="260" as="geometry" />
+        </mxCell>
+        <mxCell id="te1" edge="1" parent="1" source="start" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" target="open">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="te2" edge="1" parent="1" source="open" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" target="closed" value="registration closes">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="te3" edge="1" parent="1" source="closed" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" target="completed" value="tournament ends">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="te4" edge="1" parent="1" source="closed" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" target="cancelled" value="organizer cancels">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="te5" edge="1" parent="1" source="completed" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" target="endouter1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="te6" edge="1" parent="1" source="cancelled" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" target="endouter1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="sub2" parent="1" style="text;html=1;fontSize=14;fontStyle=1;align=left;" value="TournamentRegistration.Status" vertex="1">
+          <mxGeometry height="20" width="300" x="30" y="400" as="geometry" />
+        </mxCell>
+        <mxCell id="start2" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#000000;" value="" vertex="1">
+          <mxGeometry height="20" width="20" x="30" y="460" as="geometry" />
+        </mxCell>
+        <mxCell id="startlbl2" parent="1" style="text;html=1;fontSize=12;align=center;" value="Beginning" vertex="1">
+          <mxGeometry height="20" width="80" y="485" as="geometry" />
+        </mxCell>
+        <mxCell id="registered" parent="1" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1B1B4D;strokeColor=#12123A;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" value="Registered" vertex="1">
+          <mxGeometry height="60" width="140" x="140" y="440" as="geometry" />
+        </mxCell>
+        <mxCell id="rcancelled" parent="1" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1B1B4D;strokeColor=#12123A;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" value="Cancelled" vertex="1">
+          <mxGeometry height="60" width="140" x="420" y="440" as="geometry" />
+        </mxCell>
+        <mxCell id="endouter2" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;strokeWidth=2;" value="" vertex="1">
+          <mxGeometry height="30" width="30" x="700" y="455" as="geometry" />
+        </mxCell>
+        <mxCell id="endinner2" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#000000;" value="" vertex="1">
+          <mxGeometry height="12" width="12" x="709" y="464" as="geometry" />
+        </mxCell>
+        <mxCell id="endlbl2" parent="1" style="text;html=1;fontSize=12;align=center;" value="Ending" vertex="1">
+          <mxGeometry height="20" width="80" x="675" y="495" as="geometry" />
+        </mxCell>
+        <mxCell id="re1" edge="1" parent="1" source="start2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" target="registered">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="re2" edge="1" parent="1" source="registered" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" target="rcancelled" value="player withdraws">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="re3" edge="1" parent="1" source="rcancelled" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" target="endouter2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="userlock-status" name="User Account Lock">
+    <mxGraphModel dx="1400" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="826" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="State Diagram - User Account Lock" style="text;html=1;fontSize=22;fontStyle=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="20" y="10" width="1000" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="titleline" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E6E6F0;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="20" y="44" width="1000" height="2" as="geometry" />
+        </mxCell>
+        <mxCell id="start" value="" style="ellipse;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="30" y="180" width="20" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="startlbl" value="Beginning" style="text;html=1;fontSize=12;align=center;" vertex="1" parent="1">
+          <mxGeometry x="0" y="205" width="80" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="unlocked" value="Unlocked&#xa;(IsLocked = false)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1B1B4D;strokeColor=#12123A;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="180" y="160" width="160" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="locked" value="Locked&#xa;(IsLocked = true)" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1B1B4D;strokeColor=#12123A;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="480" y="160" width="160" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="note" value="Guard: Admin accounts can never be locked. No-op if account is already in the target state." style="text;html=1;fontSize=11;fontStyle=2;align=left;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="180" y="300" width="600" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" edge="1" parent="1" source="start" target="unlocked">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" value="admin locks account" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" edge="1" parent="1" source="unlocked" target="locked">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="420" y="175" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e3" value="admin unlocks account" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" edge="1" parent="1" source="locked" target="unlocked">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="420" y="205" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="facility-status" name="Facility Entities Active-Inactive">
+    <mxGraphModel dx="1483" dy="1342" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="826" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" parent="1" style="text;html=1;fontSize=20;fontStyle=1;align=center;verticalAlign=middle;" value="State Diagram - Facility Entities (Complex, ComplexOwner, PricingRule, Equipment)" vertex="1">
+          <mxGeometry height="30" width="1120" x="20" y="10" as="geometry" />
+        </mxCell>
+        <mxCell id="titleline" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E6E6F0;strokeColor=none;" value="" vertex="1">
+          <mxGeometry height="2" width="1120" x="20" y="44" as="geometry" />
+        </mxCell>
+        <mxCell id="start" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#000000;" value="" vertex="1">
+          <mxGeometry height="20" width="20" x="30" y="180" as="geometry" />
+        </mxCell>
+        <mxCell id="startlbl" parent="1" style="text;html=1;fontSize=12;align=center;" value="Beginning" vertex="1">
+          <mxGeometry height="20" width="80" y="205" as="geometry" />
+        </mxCell>
+        <mxCell id="active" parent="1" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1B1B4D;strokeColor=#12123A;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" value="Active" vertex="1">
+          <mxGeometry height="60" width="140" x="200" y="160" as="geometry" />
+        </mxCell>
+        <mxCell id="inactive" parent="1" style="rounded=1;arcSize=30;whiteSpace=wrap;html=1;fillColor=#1B1B4D;strokeColor=#12123A;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" value="Inactive" vertex="1">
+          <mxGeometry height="60" width="140" x="480" y="160" as="geometry" />
+        </mxCell>
+        <mxCell id="note" parent="1" style="text;html=1;fontSize=11;fontStyle=2;align=left;fontColor=#666666;" value="Applies to: Complex.Status, ComplexOwner.Status, PricingRule.Status, Equipment.Status - each defaults to &quot;Active&quot; and is toggled via generic owner/admin update endpoints. ComplexReview.Status defaults to &quot;Published&quot; with no further transition found in code." vertex="1">
+          <mxGeometry height="50" width="800" x="140" y="300" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" edge="1" parent="1" source="start" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" target="active">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" edge="1" parent="1" source="active" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" target="inactive" value="admin/owner deactivates">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="420" y="175" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e3" edge="1" parent="1" source="inactive" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" target="active" value="admin/owner reactivates">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="420" y="205" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
