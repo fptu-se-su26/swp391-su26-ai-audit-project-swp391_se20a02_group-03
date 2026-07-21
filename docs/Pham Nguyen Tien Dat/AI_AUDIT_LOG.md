@@ -891,3 +891,50 @@
 - Trước rollback: Vitest **71/71 pass**, ESLint **0 lỗi**, `npm run build` thành công; live browser xác nhận luồng booking/match/shop hoạt động đúng (đăng nhập `customer1@prosport.vn`).
 - Sau rollback: `git status -- src/frontend` sạch, xác nhận UI về đúng trạng thái commit `191cec1`.
 - `git push origin DE190147/audit-module`: fast-forward `1348d57..7ecc942`, không xung đột.
+
+
+
+---
+## Log #22
+- **Ngày:** 2026-07-21
+- **Người thực hiện:** Phạm Nguyễn Tiến Đạt
+- **Công cụ AI:** Claude Code (Claude Sonnet 5)
+- **Mục đích:** Bổ sung tính năng Thêm/Xóa sản phẩm cho Admin Inventory (`AdminInventoryPage`); trong quá trình đó phát hiện và vá 2 bug thật ở tầng backend/frontend: `EquipmentService.CreateAsync` hardcode Category/SportType/StockQuantity, và `resolveProductImage` ưu tiên sai thứ tự khiến ImageUrl admin đặt bị ghi đè bởi bảng match-từ-khóa.
+- **Tham chiếu Prompt:** Prompt #20
+- **Trạng thái:** Hoàn thành, đã kiểm chứng bằng test — **chưa commit**.
+
+### Tóm tắt kết quả AI
+
+**A. Tính năng Thêm sản phẩm (Admin Inventory)**
+- Thêm modal `AddProductModal` trong `AdminInventoryPage.jsx`: chọn danh mục (`EquipmentCategory` thật từ API `/equipment-categories`), môn thể thao (Badminton/Pickleball), giá, tồn kho, ảnh (URL tuỳ chọn), mô tả.
+- Thêm `equipmentApi.create()` (POST `/equipment`) và `equipmentApi.getCategories()` vào `equipmentApi.js`.
+- Nút "Thêm sản phẩm" bị `disabled` khi danh mục chưa load xong, tránh submit với `equipmentCategoryId` rỗng.
+
+**B. Tính năng Xóa sản phẩm (Admin Inventory)**
+- Thêm nút xóa từng dòng, dùng `useConfirm()` (dialog xác nhận) trước khi gọi `equipmentApi.delete(id)` (đã có sẵn ở backend, chỉ nối UI).
+- Cập nhật state lạc quan (`setItems(prev => prev.filter(...))`) sau khi xóa thành công, có toast thành công/thất bại.
+
+**C. Bug — `EquipmentService.CreateAsync` hardcode dữ liệu (`src/backend/ProSport.Application/Services/EquipmentService.cs`)**
+- Phát hiện khi nối tính năng Thêm sản phẩm ở FE: mọi thiết bị mới tạo qua API đều bị gắn cứng `Category = "Racket"`, `SportType = "Badminton"`, `StockQuantity = 0` bất kể DTO gửi lên gì — tạo giày Pickleball vẫn hiện là vợt cầu lông, và luôn hết hàng ngay khi tạo.
+- Sửa: `Category` lấy từ `EquipmentCategory.Name` thật của FK đã chọn (fallback `"Accessories"` nếu category null), `SportType`/`StockQuantity` lấy trực tiếp từ `dto`. Thêm `SportType` (regex `Badminton|Pickleball`) và `StockQuantity` vào `CreateEquipmentDto` với validation.
+- Thêm test khóa lại hành vi: `EquipmentServiceTests.CreateAsync_PickleballFootwear_SavesRealCategorySportTypeAndStock_NotHardcoded`.
+
+**D. Bug — `resolveProductImage` sai thứ tự ưu tiên (`src/frontend/src/utils/productImages.js`)**
+- Bảng match-từ-khóa (`LOCAL_PRODUCT_IMAGES`) được kiểm tra **trước** `ImageUrl` admin đã gán, nên một sản phẩm có `ImageUrl` hợp lệ vẫn bị âm thầm ghi đè nếu tên chỉ cần trùng từ khóa với sản phẩm khác (VD: mọi vợt có chữ "Astrox" trong tên đều bị gán nhầm ảnh Astrox 88D dù đã có ảnh riêng).
+- Sửa: kiểm tra `ImageUrl` hợp lệ trước, chỉ fallback về bảng từ khóa khi không có `ImageUrl` thật.
+- Thêm test khóa lại: `productImages.test.js` — 3 case (ImageUrl ưu tiên trước từ khóa; không có ImageUrl vẫn fallback từ khóa như cũ; không khớp gì thì fallback theo category).
+
+### Quyết định & Can thiệp của con người
+- **Phát hiện bug qua kiểm thử tính năng, không phải audit chủ động:** cả 2 bug (C, D) không nằm trong yêu cầu ban đầu ("thêm nút Thêm/Xóa sản phẩm") — lộ ra khi thử tạo sản phẩm Pickleball thật và khi gán ảnh cho các sản phẩm Yonex Astrox. Người dùng đồng ý mở rộng phạm vi sang sửa luôn 2 bug này thay vì chỉ né tránh ở tầng UI.
+- **Yêu cầu bắt buộc có test khóa hành vi** trước khi coi bug đã sửa xong — không chỉ sửa code mà không kiểm chứng bằng test tự động, tránh regressive về sau.
+- **Chưa commit:** theo thói quen làm việc đã thiết lập, giữ nguyên trạng thái working tree cho đến khi người dùng xác nhận rõ phạm vi commit tiếp theo.
+
+### Áp dụng cho
+- **Backend:** `CreateEquipmentDto.cs`, `EquipmentService.cs`.
+- **Test:** `EquipmentServiceTests.cs` (mới), `productImages.test.js` (mới).
+- **Frontend:** `AdminInventoryPage.jsx`, `equipmentApi.js`, `productImages.js`.
+
+### Kiểm chứng
+- `dotnet test --filter FullyQualifiedName~EquipmentServiceTests`: **1/1 pass**.
+- `npx vitest run src/utils/productImages.test.js`: **3/3 pass**.
+- `npx vitest run` (toàn bộ frontend): **74/74 pass**, 18/18 test file, không hồi quy.
