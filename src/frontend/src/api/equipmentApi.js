@@ -12,4 +12,13 @@ export const equipmentApi = {
 
   // Dashboard stats
   getDashboard: () => axiosClient.get('/equipment/dashboard'),
+
+  // Xóa thiết bị (Admin) — soft delete, thiết bị biến mất khỏi mọi danh sách GET sau đó
+  delete: (id) => axiosClient.delete(`/equipment/${id}`),
+
+  // Tạo thiết bị mới (Admin)
+  create: (data) => axiosClient.post('/equipment', data),
+
+  // Danh mục thiết bị (Racket/Footwear/Apparel/...) — dùng cho dropdown khi tạo/sửa
+  getCategories: () => axiosClient.get('/equipment-categories'),
 };

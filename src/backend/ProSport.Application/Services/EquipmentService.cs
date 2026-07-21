@@ -53,22 +53,26 @@ public class EquipmentService : IEquipmentService
 
     public async Task<EquipmentDto> CreateAsync(CreateEquipmentDto dto)
     {
+        // Category (chuỗi) phải khớp EquipmentCategory.Name thật của FK đã chọn, không
+        // được hardcode — trước đây mọi thiết bị mới đều bị gắn cứng "Racket"/"Badminton"
+        // bất kể danh mục/môn thể thao admin thực sự chọn, làm sai lệch toàn bộ filter
+        // và badge hiển thị trên Shop/Admin Inventory.
+        var category = await _categoryRepository.GetByIdAsync(dto.EquipmentCategoryId);
         var equipment = new Equipment
         {
             EquipmentCategoryId = dto.EquipmentCategoryId,
             Name = dto.Name,
             EquipmentName = dto.Name,
-            Category = "Racket",
-            SportType = "Badminton",
+            Category = category?.Name ?? "Accessories",
+            SportType = dto.SportType,
             Description = dto.Description,
             RetailPrice = dto.Price,
             ImageUrl = dto.ImageUrl,
-            StockQuantity = 0,
+            StockQuantity = dto.StockQuantity,
             Status = "Available"
         };
 
         var created = await _equipmentRepository.CreateAsync(equipment);
-        var category = await _categoryRepository.GetByIdAsync(created.EquipmentCategoryId);
         created.EquipmentCategory = category!; // MapEquipmentDtoCombined null-check qua ?.Name ?? "Unknown"
 
         return MapEquipmentDtoCombined(created);
