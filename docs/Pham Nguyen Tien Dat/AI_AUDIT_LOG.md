@@ -900,7 +900,7 @@
 - **Người thực hiện:** Phạm Nguyễn Tiến Đạt
 - **Công cụ AI:** Claude Code (Claude Sonnet 5)
 - **Mục đích:** Bổ sung tính năng Thêm/Xóa sản phẩm cho Admin Inventory (`AdminInventoryPage`); trong quá trình đó phát hiện và vá 2 bug thật ở tầng backend/frontend: `EquipmentService.CreateAsync` hardcode Category/SportType/StockQuantity, và `resolveProductImage` ưu tiên sai thứ tự khiến ImageUrl admin đặt bị ghi đè bởi bảng match-từ-khóa.
-- **Tham chiếu Prompt:** Prompt #20
+- **Tham chiếu Prompt:** "Yêu cầu bổ sung nút Thêm và Xóa sản phẩm ở trang Admin Inventory. Khi thử tạo một sản phẩm Pickleball thật để kiểm tra tính năng, phát hiện dữ liệu lưu vào hệ thống không khớp với lựa chọn thực tế và yêu cầu xử lý triệt để thay vì chỉ vá ở giao diện. Khi rà soát ảnh cho nhóm sản phẩm Yonex Astrox, phát hiện ảnh bị gán nhầm hàng loạt và yêu cầu xác định nguyên nhân gốc. Cuối cùng, cung cấp trực tiếp ảnh sản phẩm để thay thế ảnh hiển thị của "Giày Yonex Power Cushion Cascade Drive"
 - **Trạng thái:** Hoàn thành, đã kiểm chứng bằng test — **chưa commit**.
 
 ### Tóm tắt kết quả AI
