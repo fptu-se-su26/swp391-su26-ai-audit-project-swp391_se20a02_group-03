@@ -604,3 +604,26 @@
 
 ### Hỗ trợ từ AI (AI-assisted)
 - Claude Code (Claude Sonnet 5) thực hiện audit đối chiếu state diagram, quy trình spec-kit 4 giai đoạn có gate phê duyệt nghiêm ngặt cho redesign UI (từ chối tiến hành khi chưa nhận đúng cụm từ phê duyệt), và toàn bộ thao tác Git theo chỉ đạo trực tiếp. Người thực hiện kiểm soát chặt phạm vi rollback qua nhiều vòng làm rõ trước khi cho phép thực thi, và loại trừ asset không liên quan khỏi commit.
+
+
+
+
+---
+## [2026-07-21] - Giai đoạn: Tính năng Thêm/Xóa sản phẩm (Admin Inventory) & Vá 2 bug dữ liệu sản phẩm
+
+### Thêm mới (Added)
+- Tính năng **Thêm sản phẩm** trong Admin Inventory: modal `AddProductModal` (chọn danh mục thật từ API, môn thể thao, giá, tồn kho, ảnh URL tuỳ chọn, mô tả) + `equipmentApi.create()` / `equipmentApi.getCategories()`.
+- Tính năng **Xóa sản phẩm** trong Admin Inventory: nút xóa từng dòng có dialog xác nhận (`useConfirm`), cập nhật state lạc quan + toast kết quả.
+- `SportType`, `StockQuantity` được thêm vào `CreateEquipmentDto` (có validation) để admin có thể set thật khi tạo sản phẩm.
+- Test mới khóa hành vi: `EquipmentServiceTests.CreateAsync_PickleballFootwear_SavesRealCategorySportTypeAndStock_NotHardcoded`, `productImages.test.js` (3 case).
+
+### Sửa lỗi (Fixed)
+- **`EquipmentService.CreateAsync` hardcode dữ liệu:** mọi thiết bị mới tạo qua API trước đây đều bị gắn cứng `Category = "Racket"`, `SportType = "Badminton"`, `StockQuantity = 0` bất kể admin chọn gì — tạo giày Pickleball vẫn hiện thành vợt cầu lông, luôn hết hàng ngay khi tạo. Nay lấy đúng `EquipmentCategory.Name` theo FK đã chọn và giá trị thật từ DTO.
+- **`resolveProductImage` sai thứ tự ưu tiên:** bảng match-từ-khóa từng chạy trước `ImageUrl` admin đã gán, khiến một sản phẩm có ảnh riêng vẫn bị ghi đè nếu tên trùng từ khóa với sản phẩm khác (VD: mọi vợt có chữ "Astrox" bị gán nhầm ảnh Astrox 88D). Nay `ImageUrl` hợp lệ luôn được ưu tiên trước.
+- Cập nhật ảnh sản phẩm "Yonex Power Cushion Cascade Drive" (`shoe-yonex-cascade-drive.png`) theo ảnh thật do người dùng cung cấp.
+
+### Version Control
+- **Chưa commit** — toàn bộ thay đổi backend/frontend/test ở trên vẫn đang ở working tree, chờ xác nhận phạm vi commit tiếp theo.
+
+### Hỗ trợ từ AI (AI-assisted)
+- Claude Code (Claude Sonnet 5) triển khai tính năng Thêm/Xóa sản phẩm theo yêu cầu; phát hiện 2 bug dữ liệu (hardcode Category/SportType/StockQuantity, sai thứ tự ưu tiên ảnh) ngay trong quá trình kiểm thử tính năng thay vì qua audit chủ động, và được yêu cầu bổ sung test khóa hành vi trước khi coi bug đã sửa xong. Người thực hiện xác nhận mở rộng phạm vi sang sửa bug thay vì chỉ né tránh ở tầng UI, và cung cấp trực tiếp ảnh sản phẩm thay thế.
