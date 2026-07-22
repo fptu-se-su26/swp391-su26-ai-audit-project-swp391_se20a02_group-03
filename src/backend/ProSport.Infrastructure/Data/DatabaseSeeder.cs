@@ -56,339 +56,55 @@ public static class DatabaseSeeder
     }
 
     private static List<Equipment> BuildEquipmentCatalog(int categoryId = 1) => new()
-    {
-        // ── Racket ──────────────────────────────────────────────────────────
-        new Equipment { EquipmentCategoryId = categoryId,
-            EquipmentName = "Vợt Yonex Astrox 88D",
-            Category = "Racket",
-            SportType = "Badminton",
-            RetailPrice = 6_000_000m,
-            
-            StockQuantity = 5,
-            ImageUrl = "https://images.unsplash.com/photo-1617083934551-1af7da84de49?w=400&q=80",
-            Description = "Vợt tấn công nặng đầu, cân bằng 4U, phù hợp người chơi trung bình đến nâng cao."
-        },
-        new Equipment { EquipmentCategoryId = categoryId,
-            EquipmentName = "Vợt Lining Windstorm 72",
-            Category = "Racket",
-            SportType = "Badminton",
-            RetailPrice = 4_000_000m,
-            
-            StockQuantity = 8,
-            ImageUrl = "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&q=80",
-            Description = "Vợt siêu nhẹ, tốc độ cao, lý tưởng cho người mới bắt đầu và đánh đôi."
-        },
-        new Equipment { EquipmentCategoryId = categoryId,
-            EquipmentName = "Vợt Victor Thruster K Falcon",
-            Category = "Racket",
-            SportType = "Badminton",
-            RetailPrice = 5_500_000m,
-            
-            StockQuantity = 4,
-            ImageUrl = "https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=400&q=80",
-            Description = "Vợt công thủ toàn diện, độ cứng vừa phải, kiểm soát tốt ở lưới và phía sau sân."
-        },
-        new Equipment { EquipmentCategoryId = categoryId,
-            EquipmentName = "Vợt Selkirk AMPED Epic",
-            Category = "Racket",
-            SportType = "Pickleball",
-            RetailPrice = 7_000_000m,
-            
-            StockQuantity = 4,
-            ImageUrl = "https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=400&q=80",
-            Description = "Vợt polymer core FiberFlex, cân bằng giữa sức mạnh và kiểm soát bóng."
-        },
-        new Equipment { EquipmentCategoryId = categoryId,
-            EquipmentName = "Vợt HEAD Radical Elite",
-            Category = "Racket",
-            SportType = "Pickleball",
-            RetailPrice = 5_000_000m,
-            
-            StockQuantity = 6,
-            ImageUrl = "https://images.unsplash.com/photo-1612452040814-e42b8f2da8ea?w=400&q=80",
-            Description = "Vợt composite nhẹ, grip êm tay, phù hợp người mới chơi pickleball."
-        },
+{
+﻿        new Equipment { EquipmentCategoryId = 1, EquipmentName = "Vợt Cầu Lông Yonex Astrox 77 Tour Limited - Light Beige Chính Hãng", Category = "Racket", SportType = "Badminton", RetailPrice = 2939000.00m, StockQuantity = 10, ImageUrl = "/images/racket-yonex-astrox-77-tour-limited.png", Description = "Vợt cầu lông Yonex Astrox 77 Tour Limited - Light Beige, phiên bản giới hạn 2026, thiết kế cho lối đánh tấn công toàn diện, kế thừa DNA dòng Astrox 77 Tour với lớp sơn Light Beige độc bản." },
+        new Equipment { EquipmentCategoryId = 3, EquipmentName = "Áo thi đấu Adidas Climacool Pro", Category = "Apparel", SportType = "Badminton", RetailPrice = 890000.00m, StockQuantity = 10, ImageUrl = "/images/apparel-adidas-climacool-pro.png", Description = "Áo thi đấu chất liệu Climacool thoáng khí, thấm hút mồ hôi nhanh, phù hợp thi đấu cầu lông cường độ cao." },
+        new Equipment { EquipmentCategoryId = 3, EquipmentName = "Áo polo Adidas Club Tennis", Category = "Apparel", SportType = "Pickleball", RetailPrice = 750000.00m, StockQuantity = 10, ImageUrl = "/images/apparel-adidas-club-tennis-polo.png", Description = "Áo polo thể thao form rộng rãi, vải co giãn 4 chiều, phù hợp chơi pickleball ngoài trời." },
+        new Equipment { EquipmentCategoryId = 3, EquipmentName = "Quần short Adidas Aeroready", Category = "Apparel", SportType = "Badminton", RetailPrice = 550000.00m, StockQuantity = 10, ImageUrl = "/images/apparel-adidas-aeroready-shorts.png", Description = "Quần short công nghệ Aeroready giúp khô thoáng nhanh, có túi khóa kéo tiện lợi." },
+        new Equipment { EquipmentCategoryId = 3, EquipmentName = "Áo khoác gió Adidas Track Jacket", Category = "Apparel", SportType = "Badminton", RetailPrice = 1200000.00m, StockQuantity = 10, ImageUrl = "/images/apparel-adidas-track-jacket.png", Description = "Áo khoác gió 3 sọc kinh điển, chống gió nhẹ, phù hợp khởi động trước trận đấu." },
+        new Equipment { EquipmentCategoryId = 3, EquipmentName = "Quần dài thể thao Adidas Tiro", Category = "Apparel", SportType = "Pickleball", RetailPrice = 650000.00m, StockQuantity = 10, ImageUrl = "/images/apparel-adidas-tiro-pants.png", Description = "Quần dài thể thao form slim-fit, vải nhẹ co giãn tốt, thích hợp tập luyện và di chuyển." },
+        new Equipment { EquipmentCategoryId = 3, EquipmentName = "Áo ba lỗ Adidas Training Tank", Category = "Apparel", SportType = "Badminton", RetailPrice = 480000.00m, StockQuantity = 10, ImageUrl = "/images/apparel-adidas-training-tank.png", Description = "Áo tank top tập luyện, chất liệu nhẹ thoáng khí, hỗ trợ vận động linh hoạt." },
+        new Equipment { EquipmentCategoryId = 3, EquipmentName = "Áo hoodie Adidas Essentials", Category = "Apparel", SportType = "Pickleball", RetailPrice = 1450000.00m, StockQuantity = 10, ImageUrl = "/images/apparel-adidas-essentials-hoodie.png", Description = "Áo hoodie nỉ bông giữ ấm, phù hợp mặc ngoài sân sau khi tập luyện." },
+        new Equipment { EquipmentCategoryId = 3, EquipmentName = "Váy thể thao Adidas Match Skort", Category = "Apparel", SportType = "Pickleball", RetailPrice = 890000.00m, StockQuantity = 10, ImageUrl = "/images/apparel-adidas-match-skort.png", Description = "Váy thể thao nữ tích hợp quần lót trong, thoải mái vận động khi thi đấu pickleball." },
+        new Equipment { EquipmentCategoryId = 3, EquipmentName = "Áo dài tay Adidas UV Protection", Category = "Apparel", SportType = "Badminton", RetailPrice = 950000.00m, StockQuantity = 10, ImageUrl = "/images/apparel-adidas-uv-protection.png", Description = "Áo dài tay chống nắng UPF 50+, chất liệu co giãn nhẹ, phù hợp chơi sân ngoài trời." },
+        new Equipment { EquipmentCategoryId = 3, EquipmentName = "Bộ đồ thể thao Adidas Tracksuit 3-Stripes", Category = "Apparel", SportType = "Badminton", RetailPrice = 2100000.00m, StockQuantity = 10, ImageUrl = "/images/apparel-adidas-tracksuit-3stripes.png", Description = "Bộ áo khoác và quần dài đồng bộ 3 sọc, phong cách năng động, phù hợp mặc trước/sau trận." },
+        new Equipment { EquipmentCategoryId = 1, EquipmentName = "Vợt Yonex Astrox 100ZZ", Category = "Racket", SportType = "Badminton", RetailPrice = 7200000.00m, StockQuantity = 10, ImageUrl = "/images/racket-yonex-astrox-100zz.png", Description = "Vợt tấn công cao cấp, thân cứng, lực đập mạnh, dành cho vận động viên trình độ cao." },
+        new Equipment { EquipmentCategoryId = 1, EquipmentName = "Vợt Yonex Astrox 99 Pro", Category = "Racket", SportType = "Badminton", RetailPrice = 6800000.00m, StockQuantity = 10, ImageUrl = "/images/racket-yonex-astrox-99-pro.png", Description = "Vợt cân bằng đầu nặng, kiểm soát tốt kết hợp lực đập mạnh, phù hợp lối chơi tấn công." },
+        new Equipment { EquipmentCategoryId = 1, EquipmentName = "Vợt Yonex Nanoflare 800", Category = "Racket", SportType = "Badminton", RetailPrice = 6500000.00m, StockQuantity = 10, ImageUrl = "/images/racket-yonex-nanoflare-800.png", Description = "Vợt tốc độ cao, thân nhẹ, phù hợp lối đánh nhanh và phòng thủ phản công." },
+        new Equipment { EquipmentCategoryId = 1, EquipmentName = "Vợt Yonex Nanoflare 1000Z", Category = "Racket", SportType = "Badminton", RetailPrice = 7900000.00m, StockQuantity = 10, ImageUrl = "/images/racket-yonex-nanoflare-1000z.png", Description = "Vợt tốc độ vung cực nhanh, thiết kế khung khí động học, dành cho lối chơi tốc độ." },
+        new Equipment { EquipmentCategoryId = 1, EquipmentName = "Vợt Yonex Duora 10", Category = "Racket", SportType = "Badminton", RetailPrice = 4900000.00m, StockQuantity = 10, ImageUrl = "/images/racket-yonex-duora-10.png", Description = "Vợt thiết kế 2 mặt bất đối xứng, hỗ trợ cả tấn công và phòng thủ linh hoạt." },
+        new Equipment { EquipmentCategoryId = 1, EquipmentName = "Vợt Yonex Voltric Z-Force II", Category = "Racket", SportType = "Badminton", RetailPrice = 5600000.00m, StockQuantity = 10, ImageUrl = "/images/racket-yonex-voltric-zforce-ii.png", Description = "Vợt đầu nặng thiên về tấn công, lực đập cầu mạnh mẽ, phổ biến với VĐV chuyên nghiệp." },
+        new Equipment { EquipmentCategoryId = 1, EquipmentName = "Vợt Yonex Arcsaber 11", Category = "Racket", SportType = "Badminton", RetailPrice = 5200000.00m, StockQuantity = 10, ImageUrl = "/images/racket-yonex-arcsaber-11.png", Description = "Vợt cân bằng, kiểm soát cầu chính xác, phù hợp lối chơi kỹ thuật và cầu net." },
+        new Equipment { EquipmentCategoryId = 1, EquipmentName = "Vợt Yonex Astrox 88S Game", Category = "Racket", SportType = "Badminton", RetailPrice = 4700000.00m, StockQuantity = 10, ImageUrl = "/images/racket-yonex-astrox-88s-game.png", Description = "Vợt nhẹ, thao tác nhanh tay, phù hợp đánh đôi và phản xạ lưới nhanh." },
+        new Equipment { EquipmentCategoryId = 1, EquipmentName = "Vợt Yonex Astrox 88D Pro", Category = "Racket", SportType = "Badminton", RetailPrice = 5100000.00m, StockQuantity = 10, ImageUrl = "/images/racket-yonex-astrox-88d-pro.png", Description = "Vợt đầu nặng hỗ trợ lực đập cầu, phù hợp lối chơi tấn công từ cuối sân." },
+        new Equipment { EquipmentCategoryId = 1, EquipmentName = "Vợt Yonex Nanoflare 700", Category = "Racket", SportType = "Badminton", RetailPrice = 3800000.00m, StockQuantity = 10, ImageUrl = "/images/racket-yonex-nanoflare-700.png", Description = "Vợt tốc độ tầm trung, cân bằng giữa tốc độ vung và kiểm soát, phù hợp người chơi phong trào." },
+        new Equipment { EquipmentCategoryId = 2, EquipmentName = "Giày Yonex Power Cushion 65Z3", Category = "Footwear", SportType = "Badminton", RetailPrice = 3200000.00m, StockQuantity = 10, ImageUrl = "/images/shoe-yonex-power-cushion-65z3-v2.png", Description = "Giày cầu lông đế đệm Power Cushion, ổn định chuyển hướng nhanh, bám sân tốt." },
+        new Equipment { EquipmentCategoryId = 2, EquipmentName = "Giày Yonex Power Cushion Eclipsion Z2", Category = "Footwear", SportType = "Badminton", RetailPrice = 4500000.00m, StockQuantity = 10, ImageUrl = "/images/shoe-yonex-eclipsion-z2.png", Description = "Giày cao cấp hỗ trợ lực bật nhảy, đế Power Graphite Belt tăng độ ổn định." },
+        new Equipment { EquipmentCategoryId = 2, EquipmentName = "Giày Yonex Power Cushion Comfort Z2", Category = "Footwear", SportType = "Badminton", RetailPrice = 2600000.00m, StockQuantity = 10, ImageUrl = "/images/shoe-yonex-comfort-z2.png", Description = "Giày êm ái, đệm gót mềm, phù hợp tập luyện thường xuyên và chơi phong trào." },
+        new Equipment { EquipmentCategoryId = 2, EquipmentName = "Giày Yonex Power Cushion 88 Dial 3", Category = "Footwear", SportType = "Badminton", RetailPrice = 4200000.00m, StockQuantity = 10, ImageUrl = "/images/shoe-yonex-88-dial-3.png", Description = "Giày có khóa dial siết chặt cổ chân, hỗ trợ ổn định khi di chuyển ngang." },
+        new Equipment { EquipmentCategoryId = 2, EquipmentName = "Giày Yonex Power Cushion Aerus Z2", Category = "Footwear", SportType = "Badminton", RetailPrice = 3900000.00m, StockQuantity = 10, ImageUrl = "/images/shoe-yonex-aerus-z2.png", Description = "Giày siêu nhẹ, tối ưu tốc độ di chuyển, phù hợp lối chơi tấn công nhanh." },
+        new Equipment { EquipmentCategoryId = 2, EquipmentName = "Giày Yonex Power Cushion 65X3", Category = "Footwear", SportType = "Badminton", RetailPrice = 3000000.00m, StockQuantity = 10, ImageUrl = "/images/shoe-yonex-65x3.png", Description = "Giày cầu lông phổ thông, đế bám sân tốt, độ bền cao cho tập luyện hàng ngày." },
+        new Equipment { EquipmentCategoryId = 2, EquipmentName = "Giày Yonex Power Cushion Infinity", Category = "Footwear", SportType = "Badminton", RetailPrice = 3500000.00m, StockQuantity = 10, ImageUrl = "/images/shoe-yonex-infinity.png", Description = "Giày cân bằng giữa êm ái và ổn định, phù hợp cả tập luyện lẫn thi đấu." },
+        new Equipment { EquipmentCategoryId = 2, EquipmentName = "Giày Yonex Power Cushion 37", Category = "Footwear", SportType = "Badminton", RetailPrice = 2200000.00m, StockQuantity = 10, ImageUrl = "/images/shoe-yonex-power-cushion-37.png", Description = "Giày phổ thông giá tốt, phù hợp người mới chơi cầu lông." },
+        new Equipment { EquipmentCategoryId = 2, EquipmentName = "Giày Yonex Power Cushion Cascade Drive", Category = "Footwear", SportType = "Badminton", RetailPrice = 2800000.00m, StockQuantity = 10, ImageUrl = "/images/shoe-yonex-cascade-drive.png", Description = "Giày đế êm, hỗ trợ giảm chấn tốt khi bật nhảy đập cầu." },
+        new Equipment { EquipmentCategoryId = 2, EquipmentName = "Giày Yonex Power Cushion Fusionrev 5", Category = "Footwear", SportType = "Pickleball", RetailPrice = 3600000.00m, StockQuantity = 10, ImageUrl = "/images/shoe-yonex-fusionrev-5.png", Description = "Giày đa năng, hỗ trợ di chuyển đa hướng, phù hợp cả cầu lông và pickleball." },
+        new Equipment { EquipmentCategoryId = 4, EquipmentName = "Cầu lông Yonex Aerosensa 50 (ống 12 quả)", Category = "Ball / Birdie", SportType = "Badminton", RetailPrice = 620000.00m, StockQuantity = 10, ImageUrl = "/images/shuttlecock-yonex-aerosensa-50.png", Description = "Cầu lông lông ngỗng cao cấp, độ bay ổn định, dùng trong thi đấu chuyên nghiệp." },
+        new Equipment { EquipmentCategoryId = 4, EquipmentName = "Cầu lông Victor Champion No.3 (ống 12 quả)", Category = "Ball / Birdie", SportType = "Badminton", RetailPrice = 480000.00m, StockQuantity = 10, ImageUrl = "/images/shuttlecock-victor-champion-no3.png", Description = "Cầu lông ngỗng tiêu chuẩn thi đấu, tốc độ trung bình, bền với cú đập mạnh." },
+        new Equipment { EquipmentCategoryId = 4, EquipmentName = "Cầu lông Li-Ning A+60 (ống 12 quả)", Category = "Ball / Birdie", SportType = "Badminton", RetailPrice = 450000.00m, StockQuantity = 10, ImageUrl = "/images/shuttlecock-lining-a60.png", Description = "Cầu lông ngỗng phổ biến trong tập luyện và giải phong trào, độ bay đều." },
+        new Equipment { EquipmentCategoryId = 4, EquipmentName = "Cầu lông RSL Tourney No.1 (ống 12 quả)", Category = "Ball / Birdie", SportType = "Badminton", RetailPrice = 500000.00m, StockQuantity = 10, ImageUrl = "/images/shuttlecock-rsl-tourney-no1.png", Description = "Cầu lông ngỗng chuẩn thi đấu quốc tế, được nhiều giải BWF sử dụng." },
+        new Equipment { EquipmentCategoryId = 4, EquipmentName = "Cầu lông nhựa Yonex Mavis 2000 (ống 6 quả)", Category = "Ball / Birdie", SportType = "Badminton", RetailPrice = 260000.00m, StockQuantity = 10, ImageUrl = "/images/shuttlecock-yonex-mavis-2000.png", Description = "Cầu lông nhựa bền, ít bị ảnh hưởng bởi thời tiết, phù hợp tập luyện hàng ngày." },
+        new Equipment { EquipmentCategoryId = 1, EquipmentName = "Vợt Pickleball Selkirk Vanguard Power Air", Category = "Racket", SportType = "Pickleball", RetailPrice = 4200000.00m, StockQuantity = 10, ImageUrl = "/images/paddle-selkirk-vanguard-power-air.png", Description = "Vợt lõi polymer công nghệ Power Air, lực đánh mạnh, phổ biến với người chơi tấn công." },
+        new Equipment { EquipmentCategoryId = 1, EquipmentName = "Vợt Pickleball Joola Ben Johns Hyperion CFS", Category = "Racket", SportType = "Pickleball", RetailPrice = 4500000.00m, StockQuantity = 10, ImageUrl = "/images/paddle-joola-ben-johns-hyperion-cfs.png", Description = "Vợt mặt carbon fiber, sweet spot lớn, dòng vợt gắn liền tên tuổi Ben Johns." },
+        new Equipment { EquipmentCategoryId = 1, EquipmentName = "Vợt Pickleball Franklin Christian Alshon Pro", Category = "Racket", SportType = "Pickleball", RetailPrice = 3200000.00m, StockQuantity = 10, ImageUrl = "/images/paddle-franklin-christian-alshon-pro.png", Description = "Vợt cân bằng giữa kiểm soát và lực đánh, phù hợp người chơi trung cấp trở lên." },
+        new Equipment { EquipmentCategoryId = 1, EquipmentName = "Vợt Pickleball Paddletek Bantam TS-5", Category = "Racket", SportType = "Pickleball", RetailPrice = 3600000.00m, StockQuantity = 10, ImageUrl = "/images/paddle-paddletek-bantam-ts5.png", Description = "Vợt lõi polypropylene êm tay, kiểm soát bóng tốt ở lưới." },
+        new Equipment { EquipmentCategoryId = 1, EquipmentName = "Vợt Pickleball Gamma Compass", Category = "Racket", SportType = "Pickleball", RetailPrice = 2800000.00m, StockQuantity = 10, ImageUrl = "/images/paddle-gamma-compass.png", Description = "Vợt nhẹ, thao tác nhanh tay, phù hợp người mới chơi pickleball." },
+        new Equipment { EquipmentCategoryId = 4, EquipmentName = "Bóng Pickleball Franklin X-40 Outdoor (hộp 6 quả)", Category = "Ball / Birdie", SportType = "Pickleball", RetailPrice = 280000.00m, StockQuantity = 10, ImageUrl = "/images/ball-franklin-x40-outdoor.png", Description = "Bóng thi đấu ngoài trời tiêu chuẩn USAPA, 40 lỗ, độ nảy ổn định." },
+        new Equipment { EquipmentCategoryId = 4, EquipmentName = "Bóng Pickleball Onix Fuse G2 Outdoor (hộp 6 quả)", Category = "Ball / Birdie", SportType = "Pickleball", RetailPrice = 260000.00m, StockQuantity = 10, ImageUrl = "/images/ball-onix-fuse-g2-outdoor.png", Description = "Bóng ngoài trời được nhiều giải đấu Mỹ sử dụng, độ bền cao." },
+        new Equipment { EquipmentCategoryId = 4, EquipmentName = "Bóng Pickleball Onix Pure 2 Indoor (hộp 6 quả)", Category = "Ball / Birdie", SportType = "Pickleball", RetailPrice = 240000.00m, StockQuantity = 10, ImageUrl = "/images/ball-onix-pure-2-indoor.png", Description = "Bóng trong nhà 26 lỗ, độ nảy đều, phù hợp sân indoor." },
+        new Equipment { EquipmentCategoryId = 4, EquipmentName = "Bóng Pickleball Dura Fast 40 Outdoor (hộp 6 quả)", Category = "Ball / Birdie", SportType = "Pickleball", RetailPrice = 220000.00m, StockQuantity = 10, ImageUrl = "/images/ball-dura-fast-40.png", Description = "Bóng ngoài trời phổ biến tại giải phong trào, giá tốt, độ bền ổn." },
+        new Equipment { EquipmentCategoryId = 4, EquipmentName = "Bóng Pickleball Gamma Photon Outdoor (hộp 6 quả)", Category = "Ball / Birdie", SportType = "Pickleball", RetailPrice = 250000.00m, StockQuantity = 10, ImageUrl = "/images/ball-gamma-photon-outdoor.png", Description = "Bóng ngoài trời thiết kế khí động học, bay ổn định trong gió nhẹ." },
 
-        // ── Footwear ──────────────────────────────────────────────────────
-        new Equipment { EquipmentCategoryId = categoryId,
-            EquipmentName = "Giày Yonex Power Cushion 65Z3",
-            Category = "Footwear",
-            SportType = "Badminton",
-            RetailPrice = 3_200_000m,
-            
-            StockQuantity = 6,
-            ImageUrl = "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&q=80",
-            Description = "Giày cầu lông Power Cushion, đệm gót êm, bám sân tốt khi di chuyển nhanh."
-        },
-        new Equipment { EquipmentCategoryId = categoryId,
-            EquipmentName = "Giày Victor A610 III",
-            Category = "Footwear",
-            SportType = "Badminton",
-            RetailPrice = 2_400_000m,
-            
-            StockQuantity = 8,
-            ImageUrl = "https://images.unsplash.com/photo-1606107557195-0a394bbe4a5d?w=400&q=80",
-            Description = "Giày cầu lông nhẹ, thoáng khí, phù hợp tập luyện và thi đấu phong trào."
-        },
-        new Equipment { EquipmentCategoryId = categoryId,
-            EquipmentName = "Giày Asics Gel-Rocket 11",
-            Category = "Footwear",
-            SportType = "Pickleball",
-            RetailPrice = 2_800_000m,
-            
-            StockQuantity = 5,
-            ImageUrl = "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=400&q=80",
-            Description = "Giày đa năng cho sân trong nhà, đế cao su bám tốt, hỗ trợ cổ chân ổn định."
-        },
-        new Equipment { EquipmentCategoryId = categoryId,
-            EquipmentName = "Giày Mizuno Wave Fang NX",
-            Category = "Footwear",
-            SportType = "Badminton",
-            RetailPrice = 3_500_000m,
-            
-            StockQuantity = 3,
-            ImageUrl = "https://images.unsplash.com/photo-1460353581641-37baddab0fa0?w=400&q=80",
-            Description = "Giày cầu lông cao cấp, công nghệ Wave giảm chấn, phù hợp vận động viên."
-        },
-
-        // ── Apparel ───────────────────────────────────────────────────────
-        new Equipment { EquipmentCategoryId = categoryId,
-            EquipmentName = "Áo thi đấu Yonex Tournament",
-            Category = "Apparel",
-            SportType = "Badminton",
-            RetailPrice = 650_000m,
-            
-            StockQuantity = 15,
-            ImageUrl = "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&q=80",
-            Description = "Áo thun thi đấu thoáng mát, thấm hút mồ hôi, form regular fit."
-        },
-        new Equipment { EquipmentCategoryId = categoryId,
-            EquipmentName = "Quần short thể thao Pro-Sport DryFit",
-            Category = "Apparel",
-            SportType = "Badminton",
-            RetailPrice = 450_000m,
-            
-            StockQuantity = 12,
-            ImageUrl = "https://images.unsplash.com/photo-1591195853828-11db59a44f6b?w=400&q=80",
-            Description = "Quần short co giãn 4 chiều, khô nhanh, phù hợp tập luyện và thi đấu."
-        },
-        new Equipment { EquipmentCategoryId = categoryId,
-            EquipmentName = "Áo khoác gió thể thao Pro-Sport",
-            Category = "Apparel",
-            SportType = "Pickleball",
-            RetailPrice = 890_000m,
-            
-            StockQuantity = 10,
-            ImageUrl = "https://images.unsplash.com/photo-1544966503-7cc5ac882d5f?w=400&q=80",
-            Description = "Áo khoác chống gió nhẹ, có mũ trùm đầu, dễ gấp gọn mang theo."
-        },
-        new Equipment { EquipmentCategoryId = categoryId,
-            EquipmentName = "Váy thi đấu nữ Victor",
-            Category = "Apparel",
-            SportType = "Badminton",
-            RetailPrice = 720_000m,
-            
-            StockQuantity = 6,
-            ImageUrl = "https://images.unsplash.com/photo-1518310383802-640c2b31135a?w=400&q=80",
-            Description = "Váy thi đấu nữ co giãn, thiết kế năng động, thoải mái khi vận động."
-        },
-
-        // ── Ball / Birdie ─────────────────────────────────────────────────
-        new Equipment { EquipmentCategoryId = categoryId,
-            EquipmentName = "Cầu lông nhựa Yonex Mavis 350 (ống 6 quả)",
-            Category = "Ball / Birdie",
-            SportType = "Badminton",
-            RetailPrice = 280_000m,
-            
-            StockQuantity = 25,
-            ImageUrl = "https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=400&q=80",
-            Description = "Cầu nhựa tập luyện bền, quỹ đạo ổn định, phù hợp sân trong nhà."
-        },
-        new Equipment { EquipmentCategoryId = categoryId,
-            EquipmentName = "Cầu lông lông ngỗng Yonex AS-50 (hộp 12 quả)",
-            Category = "Ball / Birdie",
-            SportType = "Badminton",
-            RetailPrice = 1_200_000m,
-            
-            StockQuantity = 10,
-            ImageUrl = "https://images.unsplash.com/photo-1530549387789-4c1017266635?w=400&q=80",
-            Description = "Cầu lông thi đấu cao cấp, lông ngỗng tự nhiên, độ bền và cảm giác đánh tốt."
-        },
-        new Equipment { EquipmentCategoryId = categoryId,
-            EquipmentName = "Bóng Pickleball Franklin X-40 (hộp 6 quả)",
-            Category = "Ball / Birdie",
-            SportType = "Pickleball",
-            RetailPrice = 350_000m,
-            
-            StockQuantity = 20,
-            ImageUrl = "https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?w=400&q=80",
-            Description = "Bóng pickleball trong nhà, lỗ 40, độ nảy đồng đều, chuẩn thi đấu."
-        },
-        new Equipment { EquipmentCategoryId = categoryId,
-            EquipmentName = "Bóng Pickleball Onix Fuse G2 (hộp 6 quả)",
-            Category = "Ball / Birdie",
-            SportType = "Pickleball",
-            RetailPrice = 420_000m,
-            
-            StockQuantity = 15,
-            ImageUrl = "https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=400&q=80",
-            Description = "Bóng pickleball ngoài trời, bền, ít vỡ, phù hợp sân cứng."
-        },
-
-        // ── Accessories ───────────────────────────────────────────────────
-        new Equipment { EquipmentCategoryId = categoryId,
-            EquipmentName = "Quấn cán vợt Yonex Super Grap (3 cuộn)",
-            Category = "Accessories",
-            SportType = "Badminton",
-            RetailPrice = 180_000m,
-            
-            StockQuantity = 30,
-            ImageUrl = "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400&q=80",
-            Description = "Quấn cán thấm mồ hôi, mềm, tăng độ bám khi cầm vợt lâu."
-        },
-        new Equipment { EquipmentCategoryId = categoryId,
-            EquipmentName = "Túi đựng vợt 6 ngăn Yonex Pro",
-            Category = "Accessories",
-            SportType = "Badminton",
-            RetailPrice = 2_100_000m,
-            
-            StockQuantity = 5,
-            ImageUrl = "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400&q=80",
-            Description = "Túi vợt 6 ngăn có ngăn giày riêng, chống nước nhẹ, đeo vai hoặc xách tay."
-        },
-        new Equipment { EquipmentCategoryId = categoryId,
-            EquipmentName = "Băng cổ tay thấm mồ hôi (bộ 2)",
-            Category = "Accessories",
-            SportType = "Badminton",
-            RetailPrice = 120_000m,
-            
-            StockQuantity = 25,
-            ImageUrl = "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400&q=80",
-            Description = "Băng tay co giãn, thấm mồ hôi, giữ khô tay khi thi đấu."
-        },
-        new Equipment { EquipmentCategoryId = categoryId,
-            EquipmentName = "Khăn thể thao microfiber Pro-Sport",
-            Category = "Accessories",
-            SportType = "Pickleball",
-            RetailPrice = 95_000m,
-            
-            StockQuantity = 40,
-            ImageUrl = "https://images.unsplash.com/photo-1584308972272-9e4e7685e80f?w=400&q=80",
-            Description = "Khăn lau mồ hôi siêu thấm, khô nhanh, kích thước 40x80cm."
-        },
-        new Equipment { EquipmentCategoryId = categoryId,
-            EquipmentName = "Hộp cầu lông mini tập luyện",
-            Category = "Accessories",
-            SportType = "Badminton",
-            RetailPrice = 150_000m,
-            
-            StockQuantity = 15,
-            ImageUrl = "https://images.unsplash.com/photo-1517649763962-0c62306601b7?w=400&q=80",
-            Description = "Hộp đựng cầu tiện lợi, có khóa, phù hợp mang theo khi tập."
-        },
-
-        // ── Protection ────────────────────────────────────────────────────
-        new Equipment { EquipmentCategoryId = categoryId,
-            EquipmentName = "Băng gối thể thao neoprene",
-            Category = "Protection",
-            SportType = "Badminton",
-            RetailPrice = 320_000m,
-            
-            StockQuantity = 10,
-            ImageUrl = "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&q=80",
-            Description = "Băng gối hỗ trợ khớp, co giãn, giảm chấn khi di chuyển đột ngột."
-        },
-        new Equipment { EquipmentCategoryId = categoryId,
-            EquipmentName = "Băng cổ chân thể thao",
-            Category = "Protection",
-            SportType = "Badminton",
-            RetailPrice = 250_000m,
-            
-            StockQuantity = 12,
-            ImageUrl = "https://images.unsplash.com/photo-1518310383802-640c2b31135a?w=400&q=80",
-            Description = "Băng cổ chân cố định khớp, phòng tránh trẹo cổ chân khi thi đấu."
-        },
-        new Equipment { EquipmentCategoryId = categoryId,
-            EquipmentName = "Kính bảo hộ Pickleball Pro-Sport",
-            Category = "Protection",
-            SportType = "Pickleball",
-            RetailPrice = 480_000m,
-            
-            StockQuantity = 8,
-            ImageUrl = "https://images.unsplash.com/photo-1574258495973-f010dfbb5371?w=400&q=80",
-            Description = "Kính chống va đập, chống sương mù, bảo vệ mắt khi đánh gần lưới."
-        },
-        new Equipment { EquipmentCategoryId = categoryId,
-            EquipmentName = "Băng khuỷu tay hỗ trợ",
-            Category = "Protection",
-            SportType = "Pickleball",
-            RetailPrice = 210_000m,
-            
-            StockQuantity = 10,
-            ImageUrl = "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400&q=80",
-            Description = "Băng khuỷu tay co giãn, giảm mỏi cơ tay khi đánh liên tục."
-        },
-        
-        // --- NEW ITEMS ---
-        new Equipment { EquipmentCategoryId = categoryId,
-            EquipmentName = "Vợt Yonex Arcsaber 11 Pro", Category = "Racket", SportType = "Badminton", RetailPrice = 5800000m,
-            StockQuantity = 10, ImageUrl = "https://images.unsplash.com/photo-1622279457486-62dcc4a631d6?w=400&q=80", Description = "Vợt công thủ toàn diện, độ chính xác cực cao." },
-        new Equipment { EquipmentCategoryId = categoryId,
-            EquipmentName = "Vợt Lining Aeronaut 9000", Category = "Racket", SportType = "Badminton", RetailPrice = 4500000m,
-            StockQuantity = 5, ImageUrl = "https://images.unsplash.com/photo-1622279457486-62dcc4a631d6?w=400&q=80", Description = "Vợt có rãnh thoát khí, giảm sức cản gió." },
-        new Equipment { EquipmentCategoryId = categoryId,
-            EquipmentName = "Vợt Pickleball Joola Ben Johns Hyperion", Category = "Racket", SportType = "Pickleball", RetailPrice = 6500000m,
-            StockQuantity = 8, ImageUrl = "https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=400&q=80", Description = "Vợt carbon cao cấp được thiết kế bởi tay vợt số 1." },
-        new Equipment { EquipmentCategoryId = categoryId,
-            EquipmentName = "Vợt Tennis Babolat Pure Drive", Category = "Racket", SportType = "Tennis", RetailPrice = 5200000m,
-            StockQuantity = 12, ImageUrl = "https://images.unsplash.com/photo-1622279457486-62dcc4a631d6?w=400&q=80", Description = "Vợt trợ lực tốt, phù hợp đánh bóng xoáy và mạnh." },
-        new Equipment { EquipmentCategoryId = categoryId,
-            EquipmentName = "Vợt Tennis Wilson Pro Staff 97", Category = "Racket", SportType = "Tennis", RetailPrice = 6100000m,
-            StockQuantity = 5, ImageUrl = "https://images.unsplash.com/photo-1622279457486-62dcc4a631d6?w=400&q=80", Description = "Vợt kiểm soát tốt, độ chính xác cao." },
-
-        new Equipment { EquipmentCategoryId = categoryId,
-            EquipmentName = "Giày Cầu Lông Lining AYAT001", Category = "Footwear", SportType = "Badminton", RetailPrice = 2500000m,
-            StockQuantity = 15, ImageUrl = "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&q=80", Description = "Giày siêu nhẹ với công nghệ đệm Cloud." },
-        new Equipment { EquipmentCategoryId = categoryId,
-            EquipmentName = "Giày Kawasaki K093", Category = "Footwear", SportType = "Badminton", RetailPrice = 1200000m,
-            StockQuantity = 20, ImageUrl = "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&q=80", Description = "Giày quốc dân, bền bỉ, bám sân cực tốt." },
-        new Equipment { EquipmentCategoryId = categoryId,
-            EquipmentName = "Giày K-Swiss Express Light", Category = "Footwear", SportType = "Pickleball", RetailPrice = 2900000m,
-            StockQuantity = 10, ImageUrl = "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=400&q=80", Description = "Giày chuyên dụng cho Pickleball." },
-        new Equipment { EquipmentCategoryId = categoryId,
-            EquipmentName = "Giày Tennis Asics Gel-Resolution 8", Category = "Footwear", SportType = "Tennis", RetailPrice = 3400000m,
-            StockQuantity = 12, ImageUrl = "https://images.unsplash.com/photo-1606107557195-0a394bbe4a5d?w=400&q=80", Description = "Giày bảo vệ mắt cá chân tuyệt vời." },
-
-        new Equipment { EquipmentCategoryId = categoryId,
-            EquipmentName = "Áo Polo Thể Thao Nam Pro-Sport", Category = "Apparel", SportType = "Badminton", RetailPrice = 4500000m,
-            StockQuantity = 30, ImageUrl = "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=400&q=80", Description = "Áo polo lịch sự, công nghệ dệt thoát nhiệt nhanh." },
-        new Equipment { EquipmentCategoryId = categoryId,
-            EquipmentName = "Quần Váy Thể Thao Nữ Lining", Category = "Apparel", SportType = "Badminton", RetailPrice = 550000m,
-            StockQuantity = 25, ImageUrl = "https://images.unsplash.com/photo-1518310383802-640c2b31135a?w=400&q=80", Description = "Quần váy 2 lớp, chống lộ, co giãn tốt." },
-        new Equipment { EquipmentCategoryId = categoryId,
-            EquipmentName = "Áo T-Shirt Tập Luyện Yonex", Category = "Apparel", SportType = "Badminton", RetailPrice = 350000m,
-            StockQuantity = 40, ImageUrl = "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&q=80", Description = "Áo thun cơ bản, vải mè mềm mịn." },
-        new Equipment { EquipmentCategoryId = categoryId,
-            EquipmentName = "Bộ Quần Áo Thể Thao Nike Court", Category = "Apparel", SportType = "Tennis", RetailPrice = 1400000m,
-            StockQuantity = 15, ImageUrl = "https://images.unsplash.com/photo-1591195853828-11db59a44f6b?w=400&q=80", Description = "Trang phục chuẩn thi đấu của các tay vợt." },
-
-        new Equipment { EquipmentCategoryId = categoryId,
-            EquipmentName = "Bóng Tennis Dunlop Fort (Hộp 4 quả)", Category = "Ball / Birdie", SportType = "Tennis", RetailPrice = 180000m,
-            StockQuantity = 50, ImageUrl = "https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=400&q=80", Description = "Bóng nỉ chất lượng cao, bền bỉ." },
-        new Equipment { EquipmentCategoryId = categoryId,
-            EquipmentName = "Bóng Tennis Wilson US Open (Hộp 3 quả)", Category = "Ball / Birdie", SportType = "Tennis", RetailPrice = 150000m,
-            StockQuantity = 60, ImageUrl = "https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=400&q=80", Description = "Bóng thi đấu chính thức giải US Open." },
-
-        new Equipment { EquipmentCategoryId = categoryId,
-            EquipmentName = "Balo Yonex Pro Backpack", Category = "Accessories", SportType = "Badminton", RetailPrice = 1800000m,
-            StockQuantity = 10, ImageUrl = "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400&q=80", Description = "Balo chuyên dụng thể thao." },
-        new Equipment { EquipmentCategoryId = categoryId,
-            EquipmentName = "Mũ Thể Thao Pro-Sport", Category = "Accessories", SportType = "Tennis", RetailPrice = 250000m,
-            StockQuantity = 30, ImageUrl = "https://images.unsplash.com/photo-1584308972272-9e4e7685e80f?w=400&q=80", Description = "Mũ lưỡi trai che nắng, thoáng khí." },
-        new Equipment { EquipmentCategoryId = categoryId,
-            EquipmentName = "Băng quấn ngón tay thể thao", Category = "Protection", SportType = "Badminton", RetailPrice = 45000m,
-            StockQuantity = 100, ImageUrl = "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400&q=80", Description = "Băng vải tự dính, chống phồng rộp." }
-    };
+};
 
     public static async Task SeedCourtsAsync(ProSportDbContext context)
     {

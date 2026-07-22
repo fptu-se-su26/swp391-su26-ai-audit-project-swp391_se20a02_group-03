@@ -131,31 +131,31 @@ public static class ModelBuilderSeedExtensions
     {
         modelBuilder.Entity<Equipment>().HasData(
             // ── Racket (cat 1) ──
-            NewEquipment(1, 1, "Vợt Yonex Astrox 88D", "Racket", "Badminton", 6_000_000m, 5, "https://images.unsplash.com/photo-1617083934551-1af7da84de49?w=400&q=80", "Vợt tấn công nặng đầu, cân bằng 4U, phù hợp người chơi trung bình đến nâng cao."),
-            NewEquipment(2, 1, "Vợt Lining Windstorm 72", "Racket", "Badminton", 4_000_000m, 8, "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&q=80", "Vợt siêu nhẹ, tốc độ cao, lý tưởng cho người mới bắt đầu và đánh đôi."),
-            NewEquipment(3, 1, "Vợt Victor Thruster K Falcon", "Racket", "Badminton", 5_500_000m, 4, "https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=400&q=80", "Vợt công thủ toàn diện, độ cứng vừa phải, kiểm soát tốt."),
-            NewEquipment(4, 1, "Vợt Selkirk AMPED Epic", "Racket", "Pickleball", 7_000_000m, 4, "https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=400&q=80", "Vợt polymer core FiberFlex, cân bằng giữa sức mạnh và kiểm soát bóng."),
+            NewEquipment(1, 1, "Vợt Yonex Astrox 88D", "Racket", "Badminton", 6_000_000m, 5, "/images/racket-yonex-astrox-88d.png", "Vợt tấn công nặng đầu, cân bằng 4U, phù hợp người chơi trung bình đến nâng cao."),
+            NewEquipment(2, 1, "Vợt Lining Windstorm 72", "Racket", "Badminton", 4_000_000m, 8, "/images/racket-lining-windstorm-72.png", "Vợt siêu nhẹ, tốc độ cao, lý tưởng cho người mới bắt đầu và đánh đôi."),
+            NewEquipment(3, 1, "Vợt Victor Thruster K Falcon", "Racket", "Badminton", 5_500_000m, 4, "/images/racket-victor-thruster-k-falcon.png", "Vợt công thủ toàn diện, độ cứng vừa phải, kiểm soát tốt."),
+            NewEquipment(4, 1, "Vợt Selkirk AMPED Epic", "Racket", "Pickleball", 7_000_000m, 4, "/images/racket-selkirk-amped-epic.png", "Vợt polymer core FiberFlex, cân bằng giữa sức mạnh và kiểm soát bóng."),
             // ── Footwear (cat 2) ──
-            NewEquipment(5, 2, "Giày Yonex Power Cushion 65Z3", "Footwear", "Badminton", 3_200_000m, 6, "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&q=80", "Giày cầu lông Power Cushion, đệm gót êm, bám sân tốt."),
-            NewEquipment(6, 2, "Giày Victor A610 III", "Footwear", "Badminton", 2_400_000m, 8, "https://images.unsplash.com/photo-1606107557195-0a394bbe4a5d?w=400&q=80", "Giày cầu lông nhẹ, thoáng khí, phù hợp tập luyện và thi đấu phong trào."),
-            NewEquipment(7, 2, "Giày Asics Gel-Rocket 11", "Footwear", "Pickleball", 2_800_000m, 5, "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=400&q=80", "Giày đa năng cho sân trong nhà, đế cao su bám tốt, hỗ trợ cổ chân ổn định."),
+            NewEquipment(5, 2, "Giày Yonex Power Cushion 65Z3", "Footwear", "Badminton", 3_200_000m, 6, "/images/shoe-yonex-65z3.png", "Giày cầu lông Power Cushion, đệm gót êm, bám sân tốt."),
+            NewEquipment(6, 2, "Giày Victor A610 III", "Footwear", "Badminton", 2_400_000m, 8, "/images/product_image_2.jpg", "Giày cầu lông nhẹ, thoáng khí, phù hợp tập luyện và thi đấu phong trào."),
+            NewEquipment(7, 2, "Giày Asics Gel-Rocket 11", "Footwear", "Pickleball", 2_800_000m, 5, "/images/product_image_4.jpg", "Giày đa năng cho sân trong nhà, đế cao su bám tốt, hỗ trợ cổ chân ổn định."),
             // ── Apparel (cat 3) ──
-            NewEquipment(8, 3, "Áo thi đấu Yonex Tournament", "Apparel", "Badminton", 650_000m, 15, "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&q=80", "Áo thun thi đấu thoáng mát, thấm hút mồ hôi, form regular fit."),
-            NewEquipment(9, 3, "Quần short thể thao Pro-Sport DryFit", "Apparel", "Badminton", 450_000m, 12, "https://images.unsplash.com/photo-1591195853828-11db59a44f6b?w=400&q=80", "Quần short co giãn 4 chiều, khô nhanh, phù hợp tập luyện và thi đấu."),
-            NewEquipment(10, 3, "Áo khoác gió thể thao Pro-Sport", "Apparel", "Pickleball", 890_000m, 10, "https://images.unsplash.com/photo-1544966503-7cc5ac882d5f?w=400&q=80", "Áo khoác chống gió nhẹ, có mũ trùm đầu, dễ gấp gọn mang theo."),
+            NewEquipment(8, 3, "Áo thi đấu Yonex Tournament", "Apparel", "Badminton", 650_000m, 15, "/images/apparel-adidas-club-tennis-polo.png", "Áo thun thi đấu thoáng mát, thấm hút mồ hôi, form regular fit."),
+            NewEquipment(9, 3, "Quần short thể thao Pro-Sport DryFit", "Apparel", "Badminton", 450_000m, 12, "/images/apparel-adidas-aeroready-shorts.png", "Quần short co giãn 4 chiều, khô nhanh, phù hợp tập luyện và thi đấu."),
+            NewEquipment(10, 3, "Áo khoác gió thể thao Pro-Sport", "Apparel", "Pickleball", 890_000m, 10, "/images/product_apparel_2.jfif", "Áo khoác chống gió nhẹ, có mũ trùm đầu, dễ gấp gọn mang theo."),
             // ── Ball / Birdie (cat 4) ──
-            NewEquipment(11, 4, "Cầu lông nhựa Yonex Mavis 350 (ống 6 quả)", "Ball / Birdie", "Badminton", 280_000m, 25, "https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=400&q=80", "Cầu nhựa tập luyện bền, quỹ đạo ổn định, phù hợp sân trong nhà."),
-            NewEquipment(12, 4, "Cầu lông lông ngỗng Yonex AS-50 (hộp 12 quả)", "Ball / Birdie", "Badminton", 1_200_000m, 10, "https://images.unsplash.com/photo-1530549387789-4c1017266635?w=400&q=80", "Cầu lông thi đấu cao cấp, lông ngỗng tự nhiên, độ bền và cảm giác đánh tốt."),
-            NewEquipment(13, 4, "Bóng Pickleball Franklin X-40 (hộp 6 quả)", "Ball / Birdie", "Pickleball", 350_000m, 20, "https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?w=400&q=80", "Bóng pickleball trong nhà, lỗ 40, độ nảy đồng đều, chuẩn thi đấu."),
-            NewEquipment(14, 4, "Bóng Pickleball Onix Fuse G2 (hộp 6 quả)", "Ball / Birdie", "Pickleball", 420_000m, 15, "https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=400&q=80", "Bóng pickleball ngoài trời, bền, ít vỡ, phù hợp sân cứng."),
+            NewEquipment(11, 4, "Cầu lông nhựa Yonex Mavis 350 (ống 6 quả)", "Ball / Birdie", "Badminton", 280_000m, 25, "/images/shuttlecock-yonex-mavis-2000.png", "Cầu nhựa tập luyện bền, quỹ đạo ổn định, phù hợp sân trong nhà."),
+            NewEquipment(12, 4, "Cầu lông lông ngỗng Yonex AS-50 (hộp 12 quả)", "Ball / Birdie", "Badminton", 1_200_000m, 10, "/images/shuttlecock-yonex-aerosensa-50.png", "Cầu lông thi đấu cao cấp, lông ngỗng tự nhiên, độ bền và cảm giác đánh tốt."),
+            NewEquipment(13, 4, "Bóng Pickleball Franklin X-40 (hộp 6 quả)", "Ball / Birdie", "Pickleball", 350_000m, 20, "/images/ball-franklin-x40-outdoor.png", "Bóng pickleball trong nhà, lỗ 40, độ nảy đồng đều, chuẩn thi đấu."),
+            NewEquipment(14, 4, "Bóng Pickleball Onix Fuse G2 (hộp 6 quả)", "Ball / Birdie", "Pickleball", 420_000m, 15, "/images/ball-onix-fuse-g2-outdoor.png", "Bóng pickleball ngoài trời, bền, ít vỡ, phù hợp sân cứng."),
             // ── Accessories (cat 5) ──
-            NewEquipment(15, 5, "Quấn cán vợt Yonex Super Grap (3 cuộn)", "Accessories", "Badminton", 180_000m, 30, "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400&q=80", "Quấn cán thấm mồ hôi, mềm, tăng độ bám khi cầm vợt lâu."),
-            NewEquipment(16, 5, "Túi đựng vợt 6 ngăn Yonex Pro", "Accessories", "Badminton", 2_100_000m, 5, "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400&q=80", "Túi vợt 6 ngăn có ngăn giày riêng, chống nước nhẹ."),
-            NewEquipment(17, 5, "Băng cổ tay thấm mồ hôi (bộ 2)", "Accessories", "Badminton", 120_000m, 25, "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400&q=80", "Băng tay co giãn, thấm mồ hôi, giữ khô tay khi thi đấu."),
+            NewEquipment(15, 5, "Quấn cán vợt Yonex Super Grap (3 cuộn)", "Accessories", "Badminton", 180_000m, 30, "/images/product_acc_1.jpg", "Quấn cán thấm mồ hôi, mềm, tăng độ bám khi cầm vợt lâu."),
+            NewEquipment(16, 5, "Túi đựng vợt 6 ngăn Yonex Pro", "Accessories", "Badminton", 2_100_000m, 5, "/images/product_apparel_1.jfif", "Túi vợt 6 ngăn có ngăn giày riêng, chống nước nhẹ."),
+            NewEquipment(17, 5, "Băng cổ tay thấm mồ hôi (bộ 2)", "Accessories", "Badminton", 120_000m, 25, "/images/product_acc_1.jpg", "Băng tay co giãn, thấm mồ hôi, giữ khô tay khi thi đấu."),
             // ── Protection (cat 6) ──
-            NewEquipment(18, 6, "Băng gối thể thao neoprene", "Protection", "Badminton", 320_000m, 10, "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&q=80", "Băng gối hỗ trợ khớp, co giãn, giảm chấn khi di chuyển đột ngột."),
-            NewEquipment(19, 6, "Băng cổ chân thể thao", "Protection", "Badminton", 250_000m, 12, "https://images.unsplash.com/photo-1518310383802-640c2b31135a?w=400&q=80", "Băng cổ chân cố định khớp, phòng tránh trẹo cổ chân khi thi đấu."),
-            NewEquipment(20, 6, "Kính bảo hộ Pickleball Pro-Sport", "Protection", "Pickleball", 480_000m, 8, "https://images.unsplash.com/photo-1574258495973-f010dfbb5371?w=400&q=80", "Kính chống va đập, chống sương mù, bảo vệ mắt khi đánh gần lưới.")
+            NewEquipment(18, 6, "Băng gối thể thao neoprene", "Protection", "Badminton", 320_000m, 10, "/images/product_apparel_2.jfif", "Băng gối hỗ trợ khớp, co giãn, giảm chấn khi di chuyển đột ngột."),
+            NewEquipment(19, 6, "Băng cổ chân thể thao", "Protection", "Badminton", 250_000m, 12, "/images/product_image_2.jpg", "Băng cổ chân cố định khớp, phòng tránh trẹo cổ chân khi thi đấu."),
+            NewEquipment(20, 6, "Kính bảo hộ Pickleball Pro-Sport", "Protection", "Pickleball", 480_000m, 8, "/images/product_image_4.jpg", "Kính chống va đập, chống sương mù, bảo vệ mắt khi đánh gần lưới.")
         );
     }
 
