@@ -627,3 +627,20 @@
 
 ### Hỗ trợ từ AI (AI-assisted)
 - Claude Code (Claude Sonnet 5) triển khai tính năng Thêm/Xóa sản phẩm theo yêu cầu; phát hiện 2 bug dữ liệu (hardcode Category/SportType/StockQuantity, sai thứ tự ưu tiên ảnh) ngay trong quá trình kiểm thử tính năng thay vì qua audit chủ động, và được yêu cầu bổ sung test khóa hành vi trước khi coi bug đã sửa xong. Người thực hiện xác nhận mở rộng phạm vi sang sửa bug thay vì chỉ né tránh ở tầng UI, và cung cấp trực tiếp ảnh sản phẩm thay thế.
+
+
+---
+## [2026-07-22] - Giai đoạn: Đồng bộ Seed Data Thiết bị & Cải tiến UI, Bảo mật
+
+### Thêm mới (Added)
+- **Tối ưu UI (Taste Skill) cho NotificationMenu:** Áp dụng thiết kế bứt phá khỏi khung mặc định (brutalist) của hệ thống thông báo. Thay thế giao diện khô cứng bằng viền mỏng (`border-slate-200/60`), bo góc lớn (`rounded-[16px]`), đổ bóng nổi mượt mà (`shadow-[0_12px_40px_rgba(0,0,0,0.08)]`), kèm theo hiệu ứng highlight trạng thái chưa đọc (nền xanh ngọc nhạt và dấu chấm sáng) mang lại cảm giác cao cấp (Premium).
+
+### Sửa lỗi (Fixed)
+- **Hardcode đường dẫn tĩnh:** Đồng bộ dữ liệu hạt giống (`DatabaseSeeder.cs`) với 47 sản phẩm thực tế từ Database Local. Phát hiện và thay thế toàn bộ prefix `http://localhost:5173` trong URL của ảnh thành đường dẫn tương đối (VD: `/images/product.jpg`), đảm bảo tính di động (portability) khi các thành viên khác clone project hoặc deploy lên Production không bị lỗi không tải được ảnh.
+- **Rò rỉ bảo mật (Security Leak) ở appsettings.json:** Phát hiện và gỡ bỏ hoàn toàn mật khẩu ứng dụng Gmail (`SenderPassword`) và chuỗi mã hoá của VNPay (`HashSecret`) đang bị hardcode trực tiếp trên mã nguồn, ngăn ngừa nguy cơ lộ tài nguyên khi push lên public repository.
+
+### Version Control
+- **Đã commit & push:** Đóng gói toàn bộ các thay đổi vào 1 commit với thông điệp `style: optimize notification menu UI per Taste Skill, sync DatabaseSeeder` và đẩy thẳng lên nhánh làm việc `DE190147/audit-module`.
+
+### Hỗ trợ từ AI (AI-assisted)
+- Antigravity / Claude Code thực hiện đồng bộ DatabaseSeeder theo yêu cầu; trong quá trình đó chủ động cảnh báo và xử lý vấn đề hardcode domain tĩnh của ảnh, rà soát và khắc phục rò rỉ bảo mật ở file cấu hình. Tiếp nhận chỉ đạo áp dụng nguyên tắc "Taste Skill" để tinh chỉnh trực tiếp giao diện (smooth box thông báo), loại bỏ triệt để cảm giác robot (default styling). Toàn bộ quá trình từ lúc phát hiện, sửa lỗi, hoàn thiện giao diện đến quản lý source code (commit & push) đều được thực hiện trơn tru dưới sự giám sát và quyết định của người thực hiện.
