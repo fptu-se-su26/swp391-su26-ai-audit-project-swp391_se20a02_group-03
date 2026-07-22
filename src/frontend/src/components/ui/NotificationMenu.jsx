@@ -39,28 +39,30 @@ export default function NotificationMenu() {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-2 w-80 bg-surface border-2 border-border-strong rounded-[2px] z-50">
-          <div className="px-4 py-3 border-b border-border-default flex items-center justify-between">
-            <h3 className="font-heading text-sm uppercase text-foreground">Thông báo</h3>
+        <div className="absolute right-0 top-full mt-2 w-80 bg-white border border-slate-200/60 rounded-[16px] shadow-[0_12px_40px_rgba(0,0,0,0.08)] z-50 overflow-hidden origin-top-right transition-all">
+          <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-white/50 backdrop-blur-sm">
+            <h3 className="font-heading text-[13px] font-bold uppercase tracking-widest text-slate-800 m-0">Thông báo</h3>
             {unread > 0 && (
-              <span className="label-mono text-accent">{unread} mới</span>
+              <span className="text-[11px] font-bold tracking-widest text-[#14b8a6] uppercase">{unread} mới</span>
             )}
           </div>
-          <div className="max-h-[320px] overflow-y-auto">
+          <div className="max-h-[360px] overflow-y-auto bg-white">
             {notifications.map(n => (
-              <div key={n.id} className={`px-4 py-3 border-b border-border-default last:border-b-0 hover:bg-surface-hover transition-colors duration-150 cursor-pointer ${!n.read ? 'bg-accent/5' : ''}`}>
-                <div className="flex items-start gap-3">
-                  {!n.read && <span className="w-2 h-2 rounded-full bg-accent mt-1.5 shrink-0" />}
-                  <div className={!n.read ? '' : 'ml-5'}>
-                    <p className="text-sm text-foreground">{n.text}</p>
-                    <p className="text-xs text-foreground-subtle mt-0.5">{n.time}</p>
-                  </div>
+              <div key={n.id} className={`px-5 py-3.5 border-b border-slate-50 last:border-b-0 hover:bg-slate-50/80 transition-colors duration-200 cursor-pointer flex items-start gap-3 ${!n.read ? 'bg-teal-50/30' : ''}`}>
+                {!n.read ? (
+                  <span className="w-2 h-2 rounded-full bg-[#14b8a6] mt-1.5 shrink-0 shadow-[0_0_8px_rgba(20,184,166,0.4)]" />
+                ) : (
+                  <span className="w-2 h-2 shrink-0" />
+                )}
+                <div className="flex-1">
+                  <p className={`text-[14px] leading-snug mb-1 ${!n.read ? 'font-bold text-slate-800' : 'font-medium text-slate-600'}`}>{n.text}</p>
+                  <p className="text-[12px] font-medium text-slate-400">{n.time}</p>
                 </div>
               </div>
             ))}
           </div>
-          <div className="px-4 py-2.5 border-t border-border-default">
-            <button className="label-mono text-accent hover:underline w-full text-center">
+          <div className="px-5 py-3.5 border-t border-slate-100 bg-gray-50/50 text-center">
+            <button className="text-[12px] font-bold uppercase tracking-widest text-[#14b8a6] hover:text-[#0f9e8c] transition-colors outline-none cursor-pointer bg-transparent border-none">
               Xem tất cả thông báo
             </button>
           </div>
