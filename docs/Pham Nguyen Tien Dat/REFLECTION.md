@@ -487,45 +487,50 @@ Giai đoạn hai khác biệt hoàn toàn về hình thức yêu cầu: không c
 - Tính năng "host duyệt người xin tham gia kèo" vẫn chưa có bất kỳ trang UI nào (chỉ tồn tại ở tầng API/service) — cần quyết định phạm vi sản phẩm riêng trước khi xây dựng.
 
 ---
-# Reflection - Tuần 10: Gán ảnh hàng loạt cho catalog sản phẩm, tính năng CRUD Admin Inventory và tự phát hiện bug dữ liệu qua kiểm thử tính năng
+# Reflection - Tuần 10: Gán ảnh hàng loạt, tính năng CRUD Admin Inventory, dọn dẹp bảo mật và tối ưu giao diện (Taste Skill)
 
 ## Tổng quan quá trình
-Tuần này gồm hai phần việc nối tiếp nhau trên cùng nhánh làm việc, quy mô nhỏ hơn hẳn tuần 9 (không có tích hợp/hòa giải xung đột đa nguồn), nhưng lại đi sâu vào chất lượng dữ liệu sản phẩm thật của catalog.
+Tuần này gồm nhiều phần việc nối tiếp nhau trên cùng nhánh làm việc, tuy không có tích hợp/hòa giải xung đột đa nguồn nhưng lại đi rất sâu vào chất lượng dữ liệu sản phẩm, trải nghiệm người dùng và tính toàn vẹn của mã nguồn.
 
-Phần đầu là gán ảnh thật cho toàn bộ 46 sản phẩm thiết bị thể thao đang dùng ảnh placeholder/thiếu ảnh trên `/gear/catalog` (Apparel Adidas, vợt Yonex, giày Yonex...). Quy trình lặp lại cho từng lô: nhận ảnh người dùng cung cấp → lưu vào `public/images/` → gọi API `PUT /equipment/{id}` cập nhật `ImageUrl` qua `fetch` chạy trong browser thật (đã đăng nhập) → xác minh lại bằng cách đọc DOM `/gear/catalog` (kiểm tra `naturalWidth`/`naturalHeight`, `complete`) thay vì chỉ tin vào response 200. Trong quá trình này phát sinh một số lỗi kỹ thuật thực tế: token xác thực hết hạn (401), gửi nhầm đường dẫn ảnh tương đối thay vì URL tuyệt đối cho `ImageUrl` (400 validate lỗi), và một lỗi cú pháp `SyntaxError: Identifier already declared` khi tái sử dụng cùng tên biến `const` giữa các lần gọi `javascript_exec` liên tiếp trong cùng một page context.
+Phần đầu là gán ảnh thật cho toàn bộ 46 sản phẩm thiết bị thể thao đang dùng ảnh placeholder/thiếu ảnh trên `/gear/catalog`. Quy trình lặp lại cho từng lô: nhận ảnh người dùng cung cấp → lưu vào `public/images/` → gọi API cập nhật `ImageUrl` qua `fetch` chạy trong browser thật → xác minh lại bằng cách đọc DOM thay vì chỉ tin vào response 200. Trong quá trình này phát sinh lỗi token hết hạn (401), gửi nhầm đường dẫn ảnh tương đối thay vì tuyệt đối cho `ImageUrl` (400), và lỗi tái sử dụng biến `const` trong `javascript_exec`.
 
-Phần sau là một yêu cầu tính năng cụ thể: bổ sung nút Thêm và Xóa sản phẩm ở trang Admin Inventory. Khi hiện thực và tự kiểm thử tính năng bằng cách tạo thử một sản phẩm Pickleball thật, lộ ra bug `EquipmentService.CreateAsync` hardcode `Category = "Racket"`, `SportType = "Badminton"`, `StockQuantity = 0` cho mọi sản phẩm mới bất kể admin chọn gì. Song song đó, khi rà lại ảnh cho nhóm sản phẩm Yonex Astrox, phát hiện `resolveProductImage` kiểm tra bảng match-từ-khóa trước `ImageUrl` admin đã gán, khiến ảnh đúng bị âm thầm ghi đè bởi ảnh của sản phẩm khác trùng từ khóa tên. Cả hai bug được sửa tận gốc kèm test tự động khóa lại hành vi, thay vì chỉ vá tạm ở tầng hiển thị.
+Phần tiếp theo là bổ sung nút Thêm và Xóa sản phẩm ở trang Admin Inventory. Khi thử nghiệm tạo sản phẩm Pickleball thật, lộ ra bug `EquipmentService.CreateAsync` hardcode `Category = "Racket"`, `SportType = "Badminton"`, `StockQuantity = 0` cho mọi sản phẩm mới. Cùng lúc đó, khi rà lại ảnh nhóm Yonex Astrox, phát hiện `resolveProductImage` kiểm tra bảng match-từ-khóa trước `ImageUrl` thật, khiến ảnh đúng bị ghi đè. Cả hai bug được sửa tận gốc kèm test tự động khóa lại hành vi.
+
+Phần cuối của tuần là việc làm sạch dự án và tối ưu giao diện trước khi chốt hạ. Tiến hành trích xuất 47 sản phẩm từ cơ sở dữ liệu local sang `DatabaseSeeder.cs`, đồng thời sửa lỗi URL ảnh hardcode `localhost:5173` thành đường dẫn tương đối để đảm bảo tính di động (portability). Rà soát và gỡ bỏ các rò rỉ bảo mật (Gmail Password, VNPay HashSecret) bị lưu cứng trong `appsettings.json`. Cuối cùng, thực hiện tinh chỉnh giao diện hộp thoại thông báo (NotificationMenu) theo nguyên tắc `Taste Skill`, xóa bỏ thiết kế khô cứng (robot) bằng các nét bo tròn, đổ bóng mềm và hover mượt mà. Toàn bộ thay đổi của tuần sau đó được gộp chung và đẩy thành công lên nhánh `DE190147/audit-module`.
 
 ## Hạn chế của AI và Khó khăn kỹ thuật
-- **Không có khả năng đọc trực tiếp byte ảnh người dùng dán vào hội thoại:** ảnh đính kèm inline chỉ hiển thị được bằng thị giác, không có đường dẫn file trên đĩa để copy. Phải yêu cầu người dùng lưu ảnh vào `Downloads` trước, sau đó dò file mới xuất hiện theo thời gian chỉnh sửa để xác nhận đúng nội dung trước khi copy vào dự án — không thể tự động hóa hoàn toàn bước này.
-- **Screenshot công cụ preview không đáng tin cậy tuyệt đối:** một lần gọi `computer.screenshot` bị timeout do render treo tạm thời; phải chuyển sang xác minh bằng thuộc tính DOM (`naturalWidth`, `naturalHeight`, `complete`) — bằng chứng kỹ thuật vẫn đủ thuyết phục dù không có ảnh chụp trực quan kèm theo.
-- **Phiên xác thực hết hạn giữa chừng batch dài:** khi PUT cập nhật tuần tự nhiều sản phẩm, token hết hạn ở giữa batch gây lỗi 401 — phải phát hiện qua network log, đăng nhập lại, rồi tiếp tục đúng từ sản phẩm bị lỗi thay vì chạy lại toàn bộ batch.
-- **Nhầm lẫn giữa đường dẫn tương đối và tuyệt đối cho field validate bằng `[Url]`:** DTO backend yêu cầu `ImageUrl` là URL hợp lệ, gửi `/images/xxx.png` (đường dẫn tương đối, đúng với cách frontend serve static asset) bị 400 vì không phải URL tuyệt đối — phải phân biệt rõ giữa "đường dẫn frontend dùng để render" và "giá trị hợp lệ theo validation attribute của DTO".
-- **Bug dữ liệu không hiện qua test/lint/build sạch:** cả hai bug hardcode và sai thứ tự ưu tiên ảnh đều không được test cũ nào bắt được — chỉ lộ ra khi thao tác thật với tính năng (tạo sản phẩm Pickleball thật, xem ảnh Astrox thật trên catalog), không phải qua rà soát code tĩnh.
-- **Phạm vi bug dễ bị đánh giá thấp nếu chỉ nhìn từ góc UI:** hardcode `StockQuantity = 0` khiến sản phẩm luôn "hết hàng" ngay khi tạo — nhìn qua tưởng là lỗi hiển thị nhỏ, nhưng thực chất chặn hoàn toàn khả năng bán sản phẩm mới tạo.
+- **Không có khả năng đọc trực tiếp byte ảnh người dùng dán vào hội thoại:** Ảnh đính kèm inline chỉ hiển thị được bằng thị giác, không có đường dẫn file. Phải yêu cầu người dùng lưu ảnh vào máy trước, sau đó dò file mới xuất hiện theo thời gian chỉnh sửa để xác nhận đúng nội dung — không thể tự động hóa hoàn toàn bước này.
+- **Screenshot công cụ preview không đáng tin cậy tuyệt đối:** Gọi `computer.screenshot` có thể bị timeout do render treo; phải chuyển sang xác minh bằng thuộc tính DOM (`naturalWidth`, `naturalHeight`, `complete`).
+- **Phiên xác thực hết hạn giữa chừng batch dài:** Token hết hạn ở giữa quá trình PUT liên tục gây lỗi 401 — phải phát hiện qua network log, đăng nhập lại, rồi tiếp tục đúng từ sản phẩm bị lỗi.
+- **Nhầm lẫn URL tương đối/tuyệt đối với validation `[Url]`:** DTO backend bắt buộc URL tuyệt đối, trong khi frontend dùng đường dẫn tương đối `/images/xxx.png` — phải phân biệt rõ ngữ cảnh.
+- **Bug dữ liệu không lộ diện qua test tĩnh:** Lỗi hardcode và sai thứ tự ưu tiên ảnh chỉ lòi ra khi thao tác thật với tính năng, các test/lint/build trước đó không bắt được.
+- **Nguy cơ rò rỉ bảo mật ẩn trong cấu hình (Config):** Các secret nhạy cảm dễ bị lập trình viên để quên khi code ở local, đòi hỏi AI phải chủ động quét `appsettings.json` thay vì chỉ rà soát code logic thông thường.
+- **Tính di động của dữ liệu (Portability):** Lưu ảnh trong Database kèm theo domain local (`localhost`) sẽ lập tức làm hỏng giao diện (vỡ ảnh) khi project được người khác tải về hoặc chạy trên môi trường khác.
 
 ## Giải pháp và Can thiệp của con người
-- **Mở rộng phạm vi có kiểm soát khi phát hiện bug ngoài brief gốc:** thay vì chỉ giao nút Thêm/Xóa như yêu cầu ban đầu, người dùng đồng ý cho AI sửa luôn 2 bug dữ liệu phát hiện được trong lúc thử nghiệm, với điều kiện bắt buộc có test khóa hành vi đi kèm.
-- **Không chấp nhận "đã sửa" nếu chưa kiểm chứng bằng test tự động:** yêu cầu chạy `dotnet test` cho test mới, `vitest run` cho `productImages.test.js`, và toàn bộ suite frontend (74/74) trước khi coi từng bug đã đóng.
-- **Từ chối để AI tự suy đoán nội dung ảnh:** khi ảnh được dán trực tiếp vào chat mà không có đường dẫn file, AI dừng lại và yêu cầu người dùng lưu file thay vì bịa ra một hành động không khả thi.
-- **Giữ nguyên trạng thái chưa commit:** toàn bộ thay đổi trong tuần (bao gồm cả gán ảnh 46 sản phẩm lẫn tính năng CRUD + 2 bugfix) chưa được commit, chờ người dùng xác nhận phạm vi gộp commit tiếp theo — nhất quán với cách làm việc từng thiết lập ở tuần trước.
+- **Mở rộng phạm vi có kiểm soát:** Khi phát hiện bug ngoài brief gốc, người dùng đồng ý cho AI sửa luôn nhưng đi kèm điều kiện bắt buộc có test khóa hành vi.
+- **Không chấp nhận "đã sửa" nếu chưa kiểm chứng bằng test tự động:** Yêu cầu chạy `dotnet test`, `vitest run` cho toàn bộ suite frontend (74/74) trước khi coi bug đã đóng.
+- **Từ chối để AI tự suy đoán nội dung ảnh:** Buộc AI phải đợi người dùng lưu file rõ ràng thay vì giả định đường dẫn.
+- **Đóng gói vòng đời phát triển an toàn:** Yêu cầu rà soát triệt để cả cấu hình và database trước khi chia sẻ code cho người khác tải về, đảm bảo không rò rỉ secret và không chết link ảnh.
+- **Thúc đẩy thẩm mỹ (Taste Skill):** Không chấp nhận các thiết kế giao diện khô cứng; ép AI áp dụng nghiêm ngặt các quy tắc từ `DESIGN.md` để mang lại trải nghiệm Premium cho box thông báo.
+- **Xác nhận commit & push tập trung:** Giữ nguyên các thay đổi chưa commit trong suốt quá trình, và trực tiếp quyết định thời điểm, nhánh đích (`DE190147/audit-module`) để đóng gói toàn bộ công việc một cách liền mạch.
 
 ## Bài học rút ra
-- **Tính năng UI nhỏ vẫn có thể là lối vào để lộ bug dữ liệu nghiêm trọng hơn:** một yêu cầu tưởng đơn giản ("thêm nút Thêm/Xóa") lại là phép thử thực tế đầu tiên cho một luồng ghi dữ liệu (`CreateAsync`) chưa từng được kiểm thử với dữ liệu thật đa dạng.
-- **Ảnh/asset do người dùng cung cấp cần một quy trình xác minh tường minh, không suy đoán:** lưu file → xác nhận đúng file mới theo thời gian → copy → verify bằng thuộc tính ảnh đã tải, thay vì tin vào tên biến hay giả định vị trí file.
-- **"Response 200/201" không đồng nghĩa "ảnh/danh mục/tồn kho đã đúng":** phải xác minh bằng dữ liệu thực tế hiển thị trên trang (DOM, `naturalWidth/Height`) sau mỗi lần ghi, đặc biệt với các trường dễ bị hardcode âm thầm.
-- **Thứ tự ưu tiên trong logic fallback (ảnh, cấu hình, dữ liệu mặc định) là một loại bug dễ bị bỏ sót:** một bảng match-từ-khóa "tưởng chỉ là fallback phụ" hoàn toàn có thể ghi đè giá trị chính xác đã có, nếu thứ tự kiểm tra sai.
-- **Batch job dài (gán ảnh cho hàng chục sản phẩm) cần khả năng phục hồi giữa chừng:** hết hạn token hay lỗi validate ở một item không nên buộc phải làm lại toàn bộ batch từ đầu.
+- **Tính năng UI nhỏ vẫn có thể là lối vào để lộ bug dữ liệu nghiêm trọng:** Yêu cầu "Thêm/Xóa" đơn giản lại bóc trần luồng ghi dữ liệu (`CreateAsync`) bị lỗi hardcode chặn đường bán hàng.
+- **Ảnh/asset do người dùng cung cấp cần một quy trình xác minh tường minh:** Lưu file → dò thời gian → copy → verify bằng DOM, tuyệt đối không suy đoán.
+- **"Response 200/201" không đồng nghĩa "dữ liệu đã đúng":** Phải xác minh dữ liệu thực tế hiển thị trên trang sau mỗi lần ghi.
+- **Luôn kiểm tra tính di động (Portability) của Seed Data:** Dữ liệu khởi tạo phải hoạt động đúng trên mọi môi trường; cấm kỵ việc hardcode domain local vào trong Database.
+- **Bảo mật cấu hình là ưu tiên hàng đầu trước khi push:** Tạo thói quen rà soát và thanh tẩy `appsettings.json` (hoặc `.env`) trước khi commit code.
+- **Taste Skill tạo nên sự khác biệt:** Việc chú ý đến các chi tiết siêu nhỏ như độ mỏng của viền, độ mềm của bóng đổ, và animation hover là yếu tố then chốt quyết định cảm giác "cao cấp" hay "robot" của hệ thống.
 
 ## Kết quả kiểm chứng
-- Gán ảnh 46/46 sản phẩm: xác minh qua `/gear/catalog`, mỗi ảnh kiểm tra `naturalWidth`/`naturalHeight` > 0 sau khi PUT.
-- `dotnet test --filter FullyQualifiedName~EquipmentServiceTests`: **1/1 pass**.
-- `npx vitest run src/utils/productImages.test.js`: **3/3 pass**.
-- `npx vitest run` (toàn bộ frontend): **74/74 pass**, 18/18 test file, không hồi quy.
-- Ảnh "Yonex Power Cushion Cascade Drive": xác minh tải đúng ảnh mới qua DOM (`w:1010, h:930, complete:true`) trên `/gear/catalog`.
+- Gán ảnh 46/46 sản phẩm: Xác minh qua DOM `/gear/catalog`, mỗi ảnh `naturalWidth`/`naturalHeight` > 0.
+- Sửa lỗi backend/frontend: `dotnet test` (1/1 pass), `vitest run src/utils/productImages.test.js` (3/3 pass), toàn bộ frontend (74/74 pass).
+- Dữ liệu Seed và Bảo mật: Code khôi phục seed data hoạt động tốt, hiển thị đúng ảnh tương đối; Không còn secret bị lộ lọt.
+- Box Thông báo (NotificationMenu) hiển thị mượt mà, bóng đổ tinh tế, hết cảm giác "robot".
+- Đã đẩy mã nguồn an toàn lên nhánh `DE190147/audit-module`.
 
 ## Phần còn tồn đọng
-- Toàn bộ thay đổi tuần này (46 ảnh sản phẩm, tính năng Thêm/Xóa, 2 bugfix) vẫn **chưa commit**, chờ xác nhận phạm vi.
 - Admin Inventory mới có Thêm/Xóa, chưa có tính năng **Sửa** (Edit) sản phẩm đã tồn tại.
 - Chưa audit lại toàn diện 46 sản phẩm vừa gán ảnh để đảm bảo không còn trường hợp trùng từ khóa tên gây sai ảnh tương tự nhóm Astrox.
-- Chưa có cơ chế xử lý lại tự động khi token hết hạn giữa batch cập nhật dài (hiện vẫn phải phát hiện thủ công qua network log).
+- Chưa có cơ chế xử lý tự động khi token hết hạn giữa batch cập nhật dài (hiện vẫn phải xử lý thủ công qua network log).
