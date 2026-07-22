@@ -4,6 +4,7 @@ import { dashboardApi } from '../../api/dashboardApi'
 import { courtApi } from '../../api/courtApi'
 import { ShieldAlert } from 'lucide-react'
 import PageLoader from '../../components/ui/PageLoader'
+import { AdminPageHeader, AdminCard } from '../../components/admin'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts'
 
 // API trả status UPPERCASE (CourtStatuses.ToApiStatus) — thêm alias để không rơi về nhãn/màu raw
@@ -82,16 +83,12 @@ export default function AdminDashboardPage() {
   return (
     <AdminLayout>
       <div className="max-w-[1200px] mx-auto space-y-6 auth-animate-in">
-        <div className="mb-6 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-          <div>
-            <h1 className="font-heading text-2xl md:text-3xl uppercase tracking-tight text-gray-900 m-0 mb-1.5">Tổng quan bảng điều khiển</h1>
-            <p className="text-[13px] text-gray-500 m-0">
-              {stats
-                ? `${stats.totalUsers} người dùng · ${stats.totalCourts} sân đang quản lý`
-                : 'Nhịp đập thời gian thực của hoạt động cơ sở thể thao.'}
-            </p>
-          </div>
-        </div>
+        <AdminPageHeader
+          title="Tổng quan bảng điều khiển"
+          description={stats
+            ? `${stats.totalUsers} người dùng · ${stats.totalCourts} sân đang quản lý`
+            : 'Nhịp đập thời gian thực của hoạt động cơ sở thể thao.'}
+        />
 
         {loading && <PageLoader message="Đang tải số liệu..." />}
         {!loading && error && (
@@ -104,16 +101,16 @@ export default function AdminDashboardPage() {
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
               {cards.map(c => (
-                <div key={c.label} className="p-5 bg-white rounded-[12px] border border-gray-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] flex flex-col justify-between hover:shadow-[0_8px_24px_rgba(0,0,0,0.06)] transition-all">
+                <AdminCard key={c.label} className="flex flex-col justify-between hover:shadow-[0_8px_24px_rgba(0,0,0,0.06)] transition-shadow">
                   <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400 m-0 mb-2">{c.label}</p>
                   <p className="font-heading text-2xl text-gray-900 m-0">{c.value}</p>
-                </div>
+                </AdminCard>
               ))}
             </div>
 
             <div className="grid grid-cols-1 xl:grid-cols-[2fr_1fr] gap-4">
               {/* Revenue Trends */}
-              <div className="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] flex flex-col">
+              <AdminCard className="flex flex-col">
                 <h3 className="font-bold text-[14px] uppercase tracking-wide text-gray-800 m-0 mb-5">Xu hướng doanh thu (7 ngày)</h3>
                 <div className="h-[240px]">
                   <ResponsiveContainer width="100%" height="100%">
@@ -131,10 +128,10 @@ export default function AdminDashboardPage() {
                   </ResponsiveContainer>
                 </div>
                 <p className="text-[12px] font-medium text-gray-400 mt-4 text-center m-0">Doanh thu cao nhất trong kỳ: <span className="text-gray-600">{fmtVnd(maxRevenue)}</span></p>
-              </div>
+              </AdminCard>
 
               {/* Court occupancy pie */}
-              <div className="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] flex flex-col">
+              <AdminCard className="flex flex-col">
                 <h3 className="font-bold text-[14px] uppercase tracking-wide text-gray-800 m-0 mb-5">Hiệu suất khai thác sân</h3>
                 {courtStatusData.length === 0 ? (
                   <p className="text-sm text-gray-400 text-center py-8 flex-1 flex items-center justify-center m-0">Chưa có dữ liệu sân.</p>
@@ -165,11 +162,11 @@ export default function AdminDashboardPage() {
                     </div>
                   </>
                 )}
-              </div>
+              </AdminCard>
             </div>
 
             {/* Recent Activity */}
-            <div className="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] flex flex-col mt-4">
+            <AdminCard className="flex flex-col mt-4">
               <h3 className="font-bold text-[14px] uppercase tracking-wide text-gray-800 m-0 mb-5">Hoạt động gần đây</h3>
               <div className="flex flex-col flex-1">
                 {stats.recentActivity.length === 0 && (
@@ -185,7 +182,7 @@ export default function AdminDashboardPage() {
                   </div>
                 ))}
               </div>
-            </div>
+            </AdminCard>
           </>
         )}
       </div>

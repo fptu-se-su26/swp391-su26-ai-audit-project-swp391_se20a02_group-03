@@ -7,6 +7,8 @@ import { useToast } from '../../components/Toast'
 import { ShoppingCart, RotateCcw, Frown, Swords, Footprints, Shirt, Circle, Briefcase, Shield } from 'lucide-react'
 import PageLoader from '../../components/ui/PageLoader'
 import EmptyState from '../../components/ui/EmptyState'
+import BaseCard from '../../components/ui/BaseCard'
+import BaseButton from '../../components/ui/BaseButton'
 import { resolveProductImage, CATEGORY_FALLBACKS } from '../../utils/productImages'
 
 const itemTypeIcons = {
@@ -122,8 +124,6 @@ export default function GearCatalogPage() {
   if (sort === 'price-desc') filtered = [...filtered].sort((a,b) => b.price - a.price)
   if (sort === 'newest')     filtered = [...filtered].sort((a,b) => b.id - a.id)
 
-  const modernCard = 'bg-white rounded-[12px] shadow-[0_2px_12px_rgba(0,0,0,0.06)] border border-gray-100'
-
   return (
     <GearLayout>
       <div className="font-sans bg-[#F8F9FA] min-h-screen">
@@ -175,7 +175,7 @@ export default function GearCatalogPage() {
           <div className="grid grid-cols-1 lg:grid-cols-[240px_1fr] gap-8 items-start">
 
             {/* ── SIDEBAR FILTERS ── */}
-            <aside className={`${modernCard} p-5 lg:sticky lg:top-20`}>
+            <BaseCard as="aside" density="comfortable" noPad className="p-5 lg:sticky lg:top-20">
               <div className="flex items-center justify-between mb-5">
                 <h3 className="text-[12px] font-bold uppercase tracking-widest text-gray-900 m-0">BỘ LỌC</h3>
                 <button
@@ -222,7 +222,7 @@ export default function GearCatalogPage() {
                   })}
                 </div>
               </div>
-            </aside>
+            </BaseCard>
 
             {/* ── MAIN PRODUCT GRID ── */}
             <div className="flex flex-col gap-6">
@@ -251,16 +251,16 @@ export default function GearCatalogPage() {
               {loading ? (
                 <PageLoader message="Đang tải thiết bị..." />
               ) : loadError ? (
-                <div className={`${modernCard} p-16 text-center`}>
+                <BaseCard density="comfortable" noPad className="p-16 text-center">
                   <p className="text-red-500 font-medium mb-4">{loadError}</p>
-                  <button onClick={fetchProducts} className="bg-[#14b8a6] text-white px-5 py-2 rounded-[8px] text-[13px] font-bold cursor-pointer border-0">Thử lại</button>
-                </div>
+                  <BaseButton onClick={fetchProducts} variant="primary">Thử lại</BaseButton>
+                </BaseCard>
               ) : filtered.length === 0 ? (
                 <EmptyState
                   icon={<Frown className="w-7 h-7" />}
                   title="Không tìm thấy sản phẩm"
                   subtitle="Thử điều chỉnh bộ lọc để xem thêm kết quả."
-                  action={<button onClick={handleReset} className="bg-[#14b8a6] text-white px-5 py-2 rounded-[8px] text-[13px] font-bold cursor-pointer border-0">Xóa bộ lọc</button>}
+                  action={<BaseButton onClick={handleReset} variant="primary">Xóa bộ lọc</BaseButton>}
                 />
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -268,7 +268,7 @@ export default function GearCatalogPage() {
                     <Link
                       to={`/gear/catalog/${p.id}`}
                       key={p.id}
-                      className={`${modernCard} flex flex-col overflow-hidden group transition-all hover:-translate-y-1 hover:shadow-[0_12px_28px_rgba(0,0,0,0.10)] relative no-underline`}
+                      className="bg-white rounded-[12px] shadow-[0_2px_12px_rgba(0,0,0,0.06)] border border-gray-100 flex flex-col overflow-hidden group transition-all hover:-translate-y-1 hover:shadow-[0_12px_28px_rgba(0,0,0,0.10)] relative no-underline"
                     >
                       {/* Badge */}
                       <span className={`absolute top-3 left-3 z-10 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${

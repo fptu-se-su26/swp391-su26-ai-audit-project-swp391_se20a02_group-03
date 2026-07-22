@@ -8,6 +8,8 @@ import { translateItemType, translateSport } from '../../utils/labels'
 import PageLoader from '../../components/ui/PageLoader'
 import EmptyState from '../../components/ui/EmptyState'
 import { Minus, Plus, ArrowLeft, Frown, ShoppingCart, ShieldCheck } from 'lucide-react'
+import BaseCard from '../../components/ui/BaseCard'
+import BaseButton from '../../components/ui/BaseButton'
 import { resolveProductImage, CATEGORY_FALLBACKS } from '../../utils/productImages'
 
 function formatVND(amount) {
@@ -72,16 +74,16 @@ export default function GearDetailPage() {
   if (!gear) return (
     <GearLayout>
       <div className="bg-[#F8F9FA] min-h-screen flex items-center justify-center py-24">
-        <div className="bg-white rounded-[16px] shadow-[0_2px_16px_rgba(0,0,0,0.06)] border border-gray-100 p-10 max-w-md w-full text-center">
+        <BaseCard density="comfortable" className="max-w-md w-full text-center">
             <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6 text-gray-400">
                 <Frown size={32} />
             </div>
             <h2 className="font-heading text-2xl uppercase tracking-tight text-[#0f172a] mb-4">Không tìm thấy thiết bị</h2>
             <p className="text-gray-500 mb-8 text-[14px]">Sản phẩm này có thể đã ngừng kinh doanh hoặc đường dẫn không đúng.</p>
-            <button onClick={() => navigate('/gear/catalog')} className="bg-[#14b8a6] hover:bg-[#0f9e8c] text-white px-8 py-3 rounded-[8px] text-[13px] font-bold uppercase tracking-wide w-full transition-colors border-0 cursor-pointer shadow-[0_4px_14px_rgba(20,184,166,0.3)]">
+            <BaseButton onClick={() => navigate('/gear/catalog')} variant="primary" fullWidth className="shadow-[0_4px_14px_rgba(20,184,166,0.3)]">
                 Về cửa hàng
-            </button>
-        </div>
+            </BaseButton>
+        </BaseCard>
       </div>
     </GearLayout>
   )

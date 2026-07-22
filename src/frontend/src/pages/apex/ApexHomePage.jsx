@@ -8,9 +8,9 @@ import 'dayjs/locale/vi'
 import { Clock, MapPin, ChevronRight, Calendar, UserPlus, PackageSearch } from 'lucide-react'
 
 import PageLoader from '../../components/ui/PageLoader'
+import BaseCard from '../../components/ui/BaseCard'
+import BaseButton from '../../components/ui/BaseButton'
 import { formatTimeUntil, isEventFinished } from '../../utils/date'
-
-const modernCardClass = "bg-white rounded-[12px] shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] border border-gray-100"
 
 export default function ApexHomePage() {
   const [userProfile, setUserProfile] = useState(null)
@@ -121,7 +121,7 @@ export default function ApexHomePage() {
               </h2>
 
               {nextGame ? (
-                <div className={`overflow-hidden ${modernCardClass}`}>
+                <BaseCard density="comfortable" noPad className="overflow-hidden">
                   <div className="relative h-[120px]">
                     <img
                       src={nextGame.imageUrl}
@@ -145,26 +145,22 @@ export default function ApexHomePage() {
                       {dayjs(nextGame.date).locale('vi').format('dddd, DD/MM')} • {nextGame.startTime} – {nextGame.endTime}
                     </p>
                     <div className="flex gap-3 flex-wrap">
-                      <Link to="/apex/booking" className="bg-[#14b8a6] hover:bg-[#15c3b0] text-white px-6 py-2.5 rounded-[8px] text-[13px] font-bold uppercase tracking-wide transition-colors no-underline cursor-pointer">
-                        Xem chi tiết
-                      </Link>
-                      <button className="bg-white text-gray-700 border border-gray-300 hover:border-gray-400 hover:bg-gray-50 px-6 py-2.5 rounded-[8px] text-[13px] font-bold uppercase tracking-wide transition-colors cursor-pointer">
-                        Chỉ đường
-                      </button>
+                      <BaseButton to="/apex/booking" variant="primary">Xem chi tiết</BaseButton>
+                      <BaseButton variant="secondary">Chỉ đường</BaseButton>
                     </div>
                   </div>
-                </div>
+                </BaseCard>
               ) : (
-                <div className={`text-center flex flex-col items-center py-16 px-6 ${modernCardClass}`}>
+                <BaseCard density="comfortable" noPad className="text-center flex flex-col items-center py-16 px-6">
                   <div className="w-16 h-16 rounded-full bg-teal-50 text-[#14b8a6] flex items-center justify-center mb-5">
                     <Calendar size={32} />
                   </div>
                   <h3 className="font-bold text-[18px] text-gray-900 mb-2 m-0">Chưa có lịch đặt sân</h3>
                   <p className="text-gray-500 mb-8 max-w-sm text-[14px] m-0">Đặt sân ngay để duy trì phong độ và theo dõi lịch tập của bạn trên hệ thống.</p>
-                  <Link to="/apex/booking" className="bg-[#14b8a6] hover:bg-[#15c3b0] text-white px-8 py-3 rounded-[8px] text-[14px] font-bold uppercase tracking-wide transition-colors shadow-[0_4px_12px_rgba(20,184,166,0.3)] no-underline">
+                  <BaseButton to="/apex/booking" variant="primary" size="lg" className="shadow-[0_4px_12px_rgba(20,184,166,0.3)]">
                     Đặt sân ngay
-                  </Link>
-                </div>
+                  </BaseButton>
+                </BaseCard>
               )}
             </section>
 
@@ -175,7 +171,7 @@ export default function ApexHomePage() {
                   <span className="w-2 h-6 bg-[#14b8a6] rounded-[4px] block"></span> Lịch trình tiếp theo
                 </h2>
 
-                <div className={`p-6 flex flex-col gap-6 ${modernCardClass}`}>
+                <BaseCard density="comfortable" noPad className="p-6 flex flex-col gap-6">
                   {timelineEvents.map((event, i) => (
                     <div key={i} className={`flex justify-between items-center gap-4 flex-wrap ${i < timelineEvents.length - 1 ? 'pb-6 border-b border-gray-100' : ''}`}>
                       <div>
@@ -189,7 +185,7 @@ export default function ApexHomePage() {
                       )}
                     </div>
                   ))}
-                </div>
+                </BaseCard>
               </section>
             )}
           </div>
@@ -206,13 +202,13 @@ export default function ApexHomePage() {
                 <span className="w-6 h-6 rounded-full bg-gray-200 text-gray-500 text-[11px] font-bold flex items-center justify-center">0</span>
               </div>
 
-              <div className={`p-8 text-center flex flex-col items-center justify-center ${modernCardClass}`}>
+              <BaseCard density="comfortable" noPad className="p-8 text-center flex flex-col items-center justify-center">
                 <div className="w-12 h-12 rounded-full bg-teal-50 text-[#14b8a6] flex items-center justify-center mb-4">
                   <UserPlus size={24} />
                 </div>
                 <p className="mb-2 font-bold text-[14px] text-gray-900 m-0">Chưa có lời mời kèo</p>
                 <p className="text-[13px] text-gray-500 m-0">Bạn hiện không có lời mời tham gia trận đấu nào.</p>
-              </div>
+              </BaseCard>
             </section>
 
 

@@ -4,6 +4,8 @@ import { useCart } from '../../context/CartContext';
 import { Trash2, ShoppingBag, ArrowLeft, Plus, Minus, CreditCard, ShieldCheck, ShoppingCart } from 'lucide-react';
 import GearLayout from '../../layouts/GearLayout';
 import PageLoader from '../../components/ui/PageLoader';
+import BaseCard from '../../components/ui/BaseCard';
+import BaseButton from '../../components/ui/BaseButton';
 import { resolveProductImage, CATEGORY_FALLBACKS } from '../../utils/productImages';
 import { equipmentApi } from '../../api/equipmentApi';
 
@@ -70,12 +72,13 @@ export default function CartPage() {
                         <p className="text-[14px] text-gray-500 mb-8 max-w-sm mx-auto">
                             Bạn chưa thêm thiết bị nào vào giỏ hàng. Hãy khám phá kho đồ thể thao của chúng tôi ngay!
                         </p>
-                        <button
+                        <BaseButton
                             onClick={() => navigate('/gear/catalog')}
-                            className="bg-[#14b8a6] hover:bg-[#0f9e8c] text-white px-8 py-3 rounded-[8px] text-[13px] font-bold uppercase tracking-wide transition-colors cursor-pointer border-0 shadow-[0_4px_14px_rgba(20,184,166,0.3)]"
+                            variant="primary"
+                            className="shadow-[0_4px_14px_rgba(20,184,166,0.3)]"
                         >
                             Khám phá danh mục
-                        </button>
+                        </BaseButton>
                     </div>
                 </div>
             </GearLayout>
@@ -96,7 +99,7 @@ export default function CartPage() {
                     {/* ── HEADER ── */}
                     <div className="mb-8">
                         <div className="flex items-center gap-2 text-[12px] font-bold uppercase tracking-wider text-gray-400 mb-3">
-                            <Link to="/apex/shop" className="hover:text-[#14b8a6] transition-colors no-underline text-gray-400">
+                            <Link to="/gear/catalog" className="hover:text-[#14b8a6] transition-colors no-underline text-gray-400">
                                 Cửa tiệm
                             </Link>
                             <span>/</span>
@@ -111,7 +114,7 @@ export default function CartPage() {
                             </p>
                         </div>
                         <Link
-                            to="/apex/shop"
+                            to="/gear/catalog"
                             className="inline-flex items-center gap-2 text-[13px] font-bold text-gray-500 hover:text-[#14b8a6] transition-colors no-underline w-fit"
                         >
                             <ArrowLeft size={14} />
@@ -123,7 +126,7 @@ export default function CartPage() {
                     <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] xl:grid-cols-[1fr_400px] gap-8 xl:gap-12 items-start">
 
                         {/* LEFT: Cart Items */}
-                        <div className="bg-white rounded-[16px] shadow-[0_2px_16px_rgba(0,0,0,0.06)] border border-gray-100 overflow-hidden">
+                        <BaseCard density="comfortable" noPad className="overflow-hidden">
 
                             {/* Column headers */}
                             <div className="hidden sm:grid grid-cols-[2fr_1fr_1fr_40px] gap-4 px-8 py-5 border-b border-gray-100 bg-gray-50/50">
@@ -194,11 +197,11 @@ export default function CartPage() {
                                     </button>
                                 </div>
                             ))}
-                        </div>
+                        </BaseCard>
 
                         {/* RIGHT: Order Summary */}
                         <div className="sticky top-28">
-                            <div className="bg-white rounded-[16px] shadow-[0_4px_24px_rgba(0,0,0,0.08)] border border-gray-100 p-8">
+                            <BaseCard density="comfortable">
                                 <h3 className="font-heading text-[16px] uppercase tracking-wider text-[#0f172a] m-0 mb-6">
                                     Tóm tắt đơn hàng
                                 </h3>
@@ -221,13 +224,16 @@ export default function CartPage() {
                                     </div>
                                 </div>
 
-                                <button
+                                <BaseButton
                                     onClick={() => navigate('/gear/cart/checkout')}
-                                    className="w-full h-14 py-4 flex items-center justify-center gap-3 bg-[#14b8a6] hover:bg-[#0f9e8c] active:scale-[0.98] text-white rounded-[10px] text-[13px] font-bold uppercase tracking-wide transition-all cursor-pointer border-0 shadow-[0_6px_20px_rgba(20,184,166,0.35)]"
+                                    variant="primary"
+                                    fullWidth
+                                    size="lg"
+                                    className="shadow-[0_6px_20px_rgba(20,184,166,0.35)]"
                                 >
                                     <CreditCard size={18} />
                                     Tiến hành thanh toán
-                                </button>
+                                </BaseButton>
 
                                 <div className="flex items-center justify-center gap-2 mt-5">
                                     <ShieldCheck size={14} className="text-gray-300" />
@@ -235,7 +241,7 @@ export default function CartPage() {
                                         Đảm bảo thiết bị chính hãng 100%
                                     </p>
                                 </div>
-                            </div>
+                            </BaseCard>
                         </div>
                     </div>
 

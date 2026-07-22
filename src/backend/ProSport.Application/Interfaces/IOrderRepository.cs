@@ -1,0 +1,25 @@
+using ProSport.Domain.Entities;
+
+namespace ProSport.Application.Interfaces;
+
+public interface IOrderRepository
+{
+    /// <summary>
+    /// Tạo đơn từ giỏ hàng trong 1 transaction Serializable: kiểm tồn kho, thanh toán ví
+    /// (Phase 1), trừ tồn kho atomic, xóa item khỏi giỏ. Ném InvalidOperationException nếu
+    /// giỏ trống / thiếu hàng / số dư không đủ.
+    /// </summary>
+    Task<Order> CreateFromCartAtomicAsync(Order order);
+
+    Task<List<Order>> GetByUserAsync(int userId);
+    Task<Order?> GetByIdAsync(int orderId);
+
+    /// <summary>Gắn mã vận đơn + trạng thái giao hàng sau khi tạo vận đơn ở hãng ship.</summary>
+    Task SetTrackingAsync(int orderId, string trackingCode, string shippingStatus);
+
+    /// <summary>Lưu mã tham chiếu thanh toán (PayOS paymentLinkId).</summary>
+    Task SetPaymentReferenceAsync(int orderId, string reference);
+
+    /// <summary>Đánh dấu đơn đã thanh toán (idempotent). false nếu đơn không tồn tại.</summary>
+    Task<bool> MarkPaidAsync(int orderId);
+}

@@ -184,3 +184,47 @@
 - Quyết định điều chỉnh (Human Decision): Đồng ý siết ReportService; ghi nhận `EquipmentService.BuyAsync` là dead-code (không có endpoint) nên không sửa.
 - Tập tin áp dụng: src/backend
 - Trạng thái kiểm duyệt: Build Release OK, 113 unit test pass (thêm ReportServiceTests).
+
+##Log##18
+- Ngày thực hiện: 14/07/2026
+- Người thực hiện: VyHVM
+- Công cụ AI hỗ trợ: Claude Code (Claude Opus)
+- Mục tiêu: Bán hàng online — nền tảng đơn hàng shop (Phase 1).
+- Tham chiếu Prompt: PROMPTS.md#prompt-16
+- Đề xuất từ AI: Thêm entity `Order`/`OrderItem` (kèm sẵn field địa chỉ GHN + vận chuyển cho các phase sau); tạo đơn từ giỏ trong transaction Serializable (kiểm tồn kho → trừ ví → trừ kho → xóa item); bắt buộc địa chỉ + SĐT (validate).
+- Quyết định điều chỉnh (Human Decision): PayOS chỉ dùng cho đơn shop (VNPay giữ cho đặt sân/ví); dùng GHN; hỗ trợ Ví/COD/PayOS; build kèm mock vì chưa có credentials.
+- Tập tin áp dụng: src/backend
+- Trạng thái kiểm duyệt: Build Release OK, 118 unit test pass; migration `AddShopOrders`.
+
+##Log##19
+- Ngày thực hiện: 14/07/2026
+- Người thực hiện: VyHVM
+- Công cụ AI hỗ trợ: Claude Code (Claude Opus)
+- Mục tiêu: Tích hợp giao vận Giao Hàng Nhanh (GHN) — Phase 2.
+- Tham chiếu Prompt: PROMPTS.md#prompt-16
+- Đề xuất từ AI: `IShippingService`/`GhnShippingService` gọi API GHN thật (báo giá phí, tạo vận đơn, master-data Tỉnh/Quận/Phường) + fallback mock khi chưa có token; bắt buộc chọn Tỉnh/Quận/Phường; tính phí ship trước thanh toán; tạo vận đơn best-effort.
+- Quyết định điều chỉnh (Human Decision): Chấp nhận chế độ mock để demo trước, cắm token GHN thật sau chỉ qua config.
+- Tập tin áp dụng: src/backend
+- Trạng thái kiểm duyệt: Build Release OK (0 warning), 119 unit test pass.
+
+##Log##20
+- Ngày thực hiện: 14/07/2026
+- Người thực hiện: VyHVM
+- Công cụ AI hỗ trợ: Claude Code (Claude Opus)
+- Mục tiêu: Thanh toán PayOS + COD cho đơn shop — Phase 3.
+- Tham chiếu Prompt: PROMPTS.md#prompt-16
+- Đề xuất từ AI: `PayOsService` tạo payment link (ký HMAC-SHA256 checksumKey) + xác thực webhook; luồng Wallet (trả ngay) / COD (Processing, thu khi giao) / PayOS (Pending → webhook → Paid + tạo vận đơn); mọi phương thức giữ chỗ tồn kho; `ConfirmPayOsPaymentAsync` idempotent + kiểm số tiền.
+- Quyết định điều chỉnh (Human Decision): Đồng ý; thêm endpoint mock-confirm (chỉ chạy mock) để demo hoàn tất đơn PayOS khi chưa có tài khoản thật.
+- Tập tin áp dụng: src/backend
+- Trạng thái kiểm duyệt: Build Release OK (0 warning), 122 unit test pass.
+
+##Log##21
+- Ngày thực hiện: 14/07/2026
+- Người thực hiện: VyHVM
+- Công cụ AI hỗ trợ: Claude Code (Claude Opus)
+- Mục tiêu: Frontend checkout + đơn hàng (Phase 4) và kiểm thử end-to-end trên SQL thật.
+- Tham chiếu Prompt: PROMPTS.md#prompt-16
+- Đề xuất từ AI: Trang checkout (form địa chỉ + dropdown Tỉnh/Quận/Phường liên hoàn GHN + chọn phương thức + tự tính phí ship) và trang Đơn hàng của tôi (trạng thái + mã vận đơn); chạy thử E2E bằng LocalDB.
+- Quyết định điều chỉnh (Human Decision): Yêu cầu AI tự chạy end-to-end kiểm chứng (LocalDB có sẵn trên máy).
+- Tập tin áp dụng: src/frontend
+- Trạng thái kiểm duyệt: Frontend build OK; **chạy thử E2E thành công** — cả 3 phương thức (Ví/COD/PayOS) tạo đơn + vận đơn GHN; trang checkout tự lấy phí ship (20.000₫) và trang đơn hàng render dữ liệu live từ DB.
