@@ -938,3 +938,49 @@
 - `dotnet test --filter FullyQualifiedName~EquipmentServiceTests`: **1/1 pass**.
 - `npx vitest run src/utils/productImages.test.js`: **3/3 pass**.
 - `npx vitest run` (toàn bộ frontend): **74/74 pass**, 18/18 test file, không hồi quy.
+
+
+
+
+---
+## Log #23
+- **Ngày:** 2026-07-22
+- **Người thực hiện:** Phạm Nguyễn Tiến Đạt
+- **Công cụ AI:** Antigravity / Claude Code
+- **Mục đích:** Đồng bộ dữ liệu hạt giống (seed data) thiết bị, dọn dẹp bảo mật cấu hình, tối ưu giao diện theo nguyên tắc Taste Skill và đẩy code lên nhánh làm việc.
+- **Tham chiếu Prompt:** "Yêu cầu đồng bộ dữ liệu sản phẩm từ cơ sở dữ liệu lên mã nguồn (DatabaseSeeder) và thay đổi đường dẫn ảnh tĩnh để đảm bảo tính nhất quán khi triển khai trên các môi trường khác. Chỉ đạo rà soát toàn diện frontend và cấu hình để phát hiện, khắc phục các bất cập hoặc lỗi bảo mật tiềm ẩn. Áp dụng chuẩn Taste Skill để tối ưu hóa giao diện người dùng (customer UI), đặc biệt yêu cầu tinh chỉnh hộp thoại thông báo (Notification Box) để loại bỏ thiết kế khô cứng, mang lại trải nghiệm mượt mà và cao cấp hơn. Cuối cùng, yêu cầu đóng gói toàn bộ thay đổi và đẩy lên nhánh DE190147/audit-module."
+- **Trạng thái:** Hoàn thành, đã commit và push thành công lên nhánh `DE190147/audit-module`.
+
+### Tóm tắt kết quả AI
+
+**A. Đồng bộ DatabaseSeeder & Sửa lỗi đường dẫn ảnh tĩnh**
+- Chuyển đổi 47 sản phẩm thực tế từ cơ sở dữ liệu local sang file `DatabaseSeeder.cs` để đảm bảo những thành viên khác khi tải project về và chạy sẽ có ngay dữ liệu cửa hàng đầy đủ.
+- Gỡ bỏ URL hardcode `http://localhost:5173` trong đường dẫn ảnh, chuyển thành đường dẫn tương đối (VD: `/images/...`) để đảm bảo tính di động (portability) và tránh bug không load được ảnh trên môi trường Production.
+
+**B. Dọn dẹp bảo mật (Security Cleanup) ở appsettings.json**
+- Chủ động rà soát file cấu hình và phát hiện các thông tin nhạy cảm (Gmail App Password và Hash Secret của VNPay) đang bị hardcode trực tiếp trong `appsettings.json`.
+- Tiến hành gỡ bỏ các chuỗi nhạy cảm này ra khỏi source code để ngăn chặn rò rỉ bảo mật khi đẩy code lên Git (đồng thời khuyến cáo người dùng nên thay đổi các secret này).
+
+**C. Tối ưu Giao diện Thông báo (NotificationMenu) theo Taste Skill**
+- Nhận diện giao diện box thông báo hiện tại có thiết kế khá "robot" (viền đen dày `border-2`, góc vuông cứng `rounded-[2px]`).
+- Áp dụng các nguyên tắc từ `DESIGN.md` (Taste Skill): Chuyển sang viền mỏng nhẹ (`border-slate-200/60`), bo góc lớn (`rounded-[16px]`), đổ bóng mềm (`shadow-[0_12px_40px...]`).
+- Tối ưu trạng thái chưa đọc (unread) với nền xanh ngọc nhạt (`bg-teal-50/30`) và chấm tròn phát sáng (`shadow-[0_0_8px...]`), kèm theo hiệu ứng hover đổi màu mượt mà giúp giao diện trông cao cấp (Premium) hơn.
+
+**D. Quản lý Source Code**
+- Tổng hợp toàn bộ thay đổi và commit theo convention (`style: optimize notification menu UI per Taste Skill, sync DatabaseSeeder`).
+- Push thành công toàn bộ code lên nhánh `DE190147/audit-module` trên repository.
+
+### Quyết định & Can thiệp của con người
+- **Đảm bảo tính nhất quán (Portability):** Chỉ đạo AI kiểm tra kỹ các vấn đề tiềm ẩn ở frontend/database để đảm bảo khi người khác kéo source về chạy vẫn ra đúng giao diện và dữ liệu (không bị chết link ảnh).
+- **Trải nghiệm Thẩm mỹ (Taste Skill):** Yêu cầu cụ thể việc cải thiện độ mượt mà ("smooth") của giao diện thông báo thay vì chấp nhận thiết kế khô cứng mặc định, hướng tới trải nghiệm cao cấp cho khách hàng.
+- **Commit và Push:** Trực tiếp chỉ định nhánh đích để tự động hóa việc đưa code lên repository, khép lại quy trình phát triển.
+
+### Áp dụng cho
+- **Backend:** `src/backend/ProSport.Infrastructure/Data/DatabaseSeeder.cs`, `src/backend/ProSport.Infrastructure/Data/ModelBuilderSeedExtensions.cs`, `src/backend/ProSport.API/appsettings.json`.
+- **Frontend:** `src/frontend/src/components/ui/NotificationMenu.jsx`.
+
+### Kiểm chứng
+- Code build và biên dịch thành công.
+- Khôi phục seed data và hiển thị ảnh tương đối hoạt động tốt.
+- Box Thông báo hiển thị mượt mà, bóng đổ tinh tế, hết cảm giác "robot".
+- Đã đẩy code an toàn lên nhánh `DE190147/audit-module`.
